@@ -1,0 +1,7 @@
+Flask==0.11.1
+Flask_JWT=0.3.2
+SQLAlchemy=1.1.5
+passlib=1.7.0
+werkzeug=0.11.11
+gunicore==19.6.0
+
