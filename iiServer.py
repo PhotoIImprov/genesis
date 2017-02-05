@@ -18,6 +18,10 @@ jwt = JWT(app, usermgr.authenticate, usermgr.identity)
 def protected():
     return '%s' % current_identity
 
+@app.route("/")
+def hello():
+    return "ImageImprov Hello World!"
+
 @app.route("/register", methods=['POST'])
 def register():
     # an email address and password has been posted
@@ -58,5 +62,5 @@ if __name__ == '__main__':
         foundUser.ChangePassword('pa55w0rd')
         session.commit()
 
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', port=80)
 
