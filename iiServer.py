@@ -62,5 +62,5 @@ if __name__ == '__main__':
         foundUser.ChangePassword('pa55w0rd')
         session.commit()
 
-    app.run(host='0.0.0.0', port=80)
+    app.run(host='0.0.0.0', port=8080)
 

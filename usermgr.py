@@ -1,19 +1,6 @@
-import uuid
-from flask             import Flask
-from flask_jwt         import JWT, jwt_required, current_identity
-from werkzeug.security import safe_str_cmp
 from passlib.hash      import pbkdf2_sha256
-from sqlalchemy        import create_engine, MetaData
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm    import sessionmaker, query
 from sqlalchemy        import Column, Integer, String, DateTime, text
-import datetime
-
-# connection to MySQL instance on 4KOffice (intranet)
-engine  = create_engine('mysql+pymysql://python:python@192.168.1.149:3306/imageimprov', echo=False)
-Session = sessionmaker(bind=engine)
-Base    = declarative_base()
-metadata = Base.metadata
+from dbsetup           import Session, Base, engine, metadata
 
 class User(Base):
 
