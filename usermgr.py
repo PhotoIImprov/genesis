@@ -1,6 +1,7 @@
 from passlib.hash      import pbkdf2_sha256
 from sqlalchemy        import Column, Integer, String, DateTime, text, ForeignKey
 from dbsetup           import Session, Base, engine, metadata
+import hashlib
 
 class AnonUser(Base):
     __tablename__ = "anonuser"
@@ -8,6 +9,7 @@ class AnonUser(Base):
     guid         = Column(String(32), nullable=False, unique=True)
     create_date  = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
 
+    @classmethod
     def find_anon_user(self, session, m_guid):
         if session is None or m_guid is None:
             return None
@@ -15,8 +17,12 @@ class AnonUser(Base):
         self.guid = m_guid.upper()
         q = session.query(AnonUser).filter(AnonUser.guid == self.guid)
         au = q.all()
+        if not au:
+            return None
+
         return au[0]
 
+    @classmethod
     def create_anon_user(self, session, m_guid):
 
         if session is None or m_guid is None:
@@ -50,9 +56,11 @@ class User(Base):
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 
 
+    @classmethod
     def __str__(self):
         return "User(id='%s')" % self.id
 
+    @classmethod
     def find_user_by_id(self, session, id):
         self.id = id
         q = session.query(User).filter(User.id == self.id)
@@ -63,6 +71,7 @@ class User(Base):
         else:
             return u[0]
 
+    @classmethod
     def find_user_by_email(self, session, emailaddress):
         # Does the user already exist?
         self.emailaddress = emailaddress
@@ -74,9 +83,11 @@ class User(Base):
         else:
             return u[0]
 
+    @classmethod
     def change_password(self, password):
         self.hashedPWD = pbkdf2_sha256.encrypt(password, rounds=1000, salt_size=16)
 
+    @classmethod
     def create_user(self, session, guid, username, password):
         # first need to see if user (emailaddress) already exists
 
@@ -109,16 +120,32 @@ class User(Base):
 
         return self
 
+def is_guid(m_guid, m_hash):
+    # okay we have a suspected guid/hash combination
+    # let's figure out if this is a guid by checking the
+    # hash
+    hashed_guid = hashlib.sha224(m_guid).hexdigest()
+    if (hashed_guid == m_hash):
+        return True
+
+    return False
+
 # This is where all authentication calls come, we need to validate the user
 def authenticate(username, password):
     # use the username (email) to lookup the passowrd and compare
     # after we hash the one we were sent
-    foundUser = User().find_user_by_email(Session(), username)
+    if is_guid(username, password):
+        # this is a guid, see if it's in our database
+        foundAnonUser = AnonUser.find_anon_user(Session(), username)
+        if foundAnonUser is not None:
+            return foundAnonUser
+    else:
+        foundUser = User().find_user_by_email(Session(), username)
 
-    if foundUser is not None:
-        # time to check the password
-        if (pbkdf2_sha256.verify(password, foundUser.hashedPWD)):
-            return foundUser
+        if foundUser is not None:
+            # time to check the password
+            if (pbkdf2_sha256.verify(password, foundUser.hashedPWD)):
+                return foundUser
 
     return None
 
