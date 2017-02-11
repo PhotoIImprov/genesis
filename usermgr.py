@@ -15,12 +15,8 @@ class AnonUser(Base):
             return None
 
         self.guid = m_guid.upper()
-        q = session.query(AnonUser).filter(AnonUser.guid == self.guid)
-        au = q.all()
-        if not au:
-            return None
-
-        return au[0]
+        au = session.query(AnonUser).filter_by(guid = m_guid).first()
+        return au
 
     @classmethod
     def create_anon_user(self, session, m_guid):
@@ -61,31 +57,25 @@ class User(Base):
         return "User(id='%s')" % self.id
 
     @classmethod
-    def find_user_by_id(self, session, id):
+    def find_user_by_id(self, session, m_id):
         self.id = id
-        q = session.query(User).filter(User.id == self.id)
-        u = q.all()
-
-        if not u:
-            return None
-        else:
-            return u[0]
+        u = session.query(User).filter_by(id = m_id).first()
+        return u
 
     @classmethod
-    def find_user_by_email(self, session, emailaddress):
+    def find_user_by_email(self, session, m_emailaddress):
         # Does the user already exist?
-        self.emailaddress = emailaddress
-        q = session.query(User).filter(User.emailaddress == self.emailaddress)
-        u = q.all()
+        u = session.query(User).filter_by(emailaddress = m_emailaddress).first()
 
-        if not u:
+        if u is None:
             return None
         else:
-            return u[0]
+            return u
 
     @classmethod
-    def change_password(self, password):
+    def change_password(self, session, password):
         self.hashedPWD = pbkdf2_sha256.encrypt(password, rounds=1000, salt_size=16)
+        session.commit()
 
     @classmethod
     def create_user(self, session, guid, username, password):
@@ -124,7 +114,7 @@ def is_guid(m_guid, m_hash):
     # okay we have a suspected guid/hash combination
     # let's figure out if this is a guid by checking the
     # hash
-    hashed_guid = hashlib.sha224(m_guid).hexdigest()
+    hashed_guid = hashlib.sha224(m_guid.encode('utf-8')).hexdigest()
     if (hashed_guid == m_hash):
         return True
 
