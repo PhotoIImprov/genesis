@@ -1,12 +1,48 @@
 from passlib.hash      import pbkdf2_sha256
-from sqlalchemy        import Column, Integer, String, DateTime, text
+from sqlalchemy        import Column, Integer, String, DateTime, text, ForeignKey
 from dbsetup           import Session, Base, engine, metadata
+
+class AnonUser(Base):
+    __tablename__ = "anonuser"
+    id           = Column(Integer, primary_key = True, autoincrement=True)
+    guid         = Column(String(32), nullable=False, unique=True)
+    create_date  = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
+
+    def find_anon_user(self, session, m_guid):
+        if session is None or m_guid is None:
+            return None
+
+        self.guid = m_guid.upper()
+        q = session.query(AnonUser).filter(AnonUser.guid == self.guid)
+        au = q.all()
+        return au[0]
+
+    def create_anon_user(self, session, m_guid):
+
+        if session is None or m_guid is None:
+            return False
+
+        m_guid = m_guid.upper()
+
+        # First check if guid exists in the database
+        au = self.find_anon_user(session, m_guid)
+        if au:
+            return False
+
+        # this guid doesn't exist, so create the record
+        session.add(self)
+        session.commit()
+
+        return True
+
+    def get_id(self):
+        return self.id
 
 class User(Base):
 
     __tablename__ = 'userlogin'
 
-    id           = Column(Integer, primary_key = True, autoincrement=True)
+    id           = Column(Integer, ForeignKey("anonuser.id"), primary_key = True)  # ties us back to our anon_user record
     hashedPWD    = Column(String(200), nullable=False)
     emailaddress = Column(String(200), nullable=False, unique=True)
     screenname   = Column(String(100), nullable=True)
@@ -14,16 +50,10 @@ class User(Base):
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 
 
-#    def __init__(self, id, username, password):
-#        self.id           = id
-#        self.screenname   = username
-#        self.hashedPWD    = pbkdf2_sha256.encrypt(password, rounds=1000, salt_size=16)
-#        self.emailaddress = self.screenname + '@hotmail.com'
-
     def __str__(self):
         return "User(id='%s')" % self.id
 
-    def FindUserById(self, session, id):
+    def find_user_by_id(self, session, id):
         self.id = id
         q = session.query(User).filter(User.id == self.id)
         u = q.all()
@@ -33,7 +63,7 @@ class User(Base):
         else:
             return u[0]
 
-    def FindUserByEmail(self, session, emailaddress):
+    def find_user_by_email(self, session, emailaddress):
         # Does the user already exist?
         self.emailaddress = emailaddress
         q = session.query(User).filter(User.emailaddress == self.emailaddress)
@@ -44,10 +74,10 @@ class User(Base):
         else:
             return u[0]
 
-    def ChangePassword(self, password):
+    def change_password(self, password):
         self.hashedPWD = pbkdf2_sha256.encrypt(password, rounds=1000, salt_size=16)
 
-    def CreateUser(self, session, username, password):
+    def create_user(self, session, guid, username, password):
         # first need to see if user (emailaddress) already exists
 
         # quick & dirty validation of the email
@@ -61,13 +91,21 @@ class User(Base):
         self.id           = None
 
         # first lets see if this user already exists
-        u_exists = self.FindUserByEmail(session, self.emailaddress)
-        if (u_exists is None):
-            # Now write the new users to the database
-            session.add(self)
-            session.commit()
-        else:
-            return None #self.__dict__.update(u_exists.__dict__)
+        u_exists = self.find_user_by_email(session, self.emailaddress)
+        if (u_exists is not None):
+            return None
+
+        # Find the anon account associated with this
+        au = AnonUser().find_anon_user(session, guid)
+
+        if au is None:
+            return None
+
+        self.id = au.get_id()
+
+        # Now write the new users to the database
+        session.add(self)
+        session.commit()
 
         return self
 
@@ -75,7 +113,7 @@ class User(Base):
 def authenticate(username, password):
     # use the username (email) to lookup the passowrd and compare
     # after we hash the one we were sent
-    foundUser = User().FindUserByEmail(Session(), username)
+    foundUser = User().find_user_by_email(Session(), username)
 
     if foundUser is not None:
         # time to check the password
@@ -89,9 +127,8 @@ def identity(payload):
     # called with decrypted payload to establish identity
     # based on a user id
     user_id = payload['identity']
-    u = User().FindUserByID(Session(), user_id)
+    u = User().find_user_by_id(Session(), user_id)
 
     # if u doesn't exist, that's really bad, it's a corrupted token or something
     # really strange. We should log this
     return u
-

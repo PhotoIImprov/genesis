@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 from flask_jwt import JWT, jwt_required, current_identity
 from flask     import request, abort
+import os
 
 import usermgr
 
@@ -8,6 +9,8 @@ import usermgr
 app = Flask(__name__)
 app.debug = True
 app.config['SECRET_KEY'] = 'super-secret'
+
+is_gunicorn = False
 
 # specify the JWT package's call backs for authentication of username/password
 # and subsequent identity from the payload in the token
@@ -20,7 +23,10 @@ def protected():
 
 @app.route("/")
 def hello():
-    return "ImageImprov Hello World!"
+    if is_gunicorn == True:
+        return "ImageImprov Hello World from Gunicorn!"
+
+    return "ImageImprov Hello World from Flask!"
 
 @app.route("/register", methods=['POST'])
 def register():
@@ -47,20 +53,25 @@ def register():
     # user was properly created
     return 'account created', 201
 
+#check to see if we are running a server
+is_gunicorn = "gunicorn" in os.environ.get("SERVER_SOFTWARE", "")
+
 if __name__ == '__main__':
     usermgr.metadata.create_all(bind=usermgr.engine, checkfirst=True)
 
-    new_user = usermgr.User()
     session = usermgr.Session()
-    new_user.CreateUser(session, 'hcollins', 'pa55w0rd')
-    session.commit()
+
+    new_anon = usermgr.AnonUser()
+    new_anon.create_anon_user(session, '99275132efe811e6bc6492361f002671')
+
+    new_user = usermgr.User()
+    new_user.create_user(session, new_anon.guid, 'hcollins@gmail.com', 'pa55w0rd')
 
     # see if we can read it back
-    foundUser = usermgr.User().FindUserByEmail(session, 'hcollins@gmail.com')
+    foundUser = usermgr.User().find_user_by_email(session, 'hcollins@gmail.com')
 
     if foundUser != None:
-        foundUser.ChangePassword('pa55w0rd')
-        session.commit()
+        foundUser.change_password('pa55w0rd')
 
-    app.run(host='0.0.0.0', port=8080)
-
+    if is_gunicorn == False:
+        app.run(host='0.0.0.0', port=8080)
