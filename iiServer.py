@@ -30,24 +30,6 @@ def hello():
 
     return "ImageImprov Hello World from Flask!"
 
-@app.route("/register_anon", methods=['POST'])
-def register_anon():
-
-    if not request.json:
-        abort(400, message="insufficient arguments")  # no data passed
-
-    guid = request.json['guid'] #uniquely identifies the user
-    foundAnon = usermgr.AnonUser().find_anon_user(usermgr.Session(), guid)
-    if foundAnon is not None:
-        abort(400, message="user exists!") # user exists!
-
-    # create the anonymous account
-    newAnon = usermgr.AnonUser().create_anon_user(usermgr.Session(), guid)
-    if newAnon is None:
-        abort(500, message="error creating record, sorry")  # server side issue ??
-
-    return "anonymous account created", 201
-
 @app.route("/register", methods=['POST'])
 def register():
     # an email address and password has been posted
@@ -60,15 +42,25 @@ def register():
     if emailaddress is None or password is None:
         abort(400, message="insufficient arguements") # missing important data!
 
-    foundUser = usermgr.User().find_user_by_email(usermgr.Session(), emailaddress)
-    if foundUser is not None:
-        abort(400, message="user exists!")  # user exists!
+    # is the username really a guid?
+    if usermgr.is_guid(emailaddress, password):
+        foundAnonUser = usermgr.AnonUser().find_anon_user(dbsetup.Session(), emailaddress)
+        if foundAnonUser is not None:
+            abort(400, message="exists")
 
-    # okay the request is valid and the user was not found, so we can
-    # create their account
-    newUser = usermgr.User().create_user(usermgr.Session(), emailaddress, password)
-    if newUser is None:
-        abort(500, message="error creating user")
+        newAnonUser = usermgr.AnonUser().create_anon_user(dbsetup.Session(), emailaddress)
+        if newAnonUser is None:
+            abort(500, message="error creating anon user")
+    else:
+        foundUser = usermgr.User().find_user_by_email(dbsetup.Session(), emailaddress)
+        if foundUser is not None:
+            abort(400, message="user exists!")  # user exists!
+
+        # okay the request is valid and the user was not found, so we can
+        # create their account
+        newUser = usermgr.User().create_user(dbsetup.Session(), emailaddress, password)
+        if newUser is None:
+            abort(500, message="error creating user")
 
     # user was properly created
     return 'account created', 201
@@ -77,9 +69,9 @@ def register():
 is_gunicorn = "gunicorn" in os.environ.get("SERVER_SOFTWARE", "")
 
 if __name__ == '__main__':
-    dbsetup.metadata.create_all(bind=usermgr.engine, checkfirst=True)
+    dbsetup.metadata.create_all(bind=dbsetup.engine, checkfirst=True)
 
-    session = usermgr.Session()
+    session = dbsetup.Session()
 
     new_anon = usermgr.AnonUser()
     new_anon.create_anon_user(session, '99275132efe811e6bc6492361f002671')
