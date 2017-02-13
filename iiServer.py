@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from flask_jwt import JWT, jwt_required, current_identity
 from flask     import request, abort
 import dbsetup
-
+import datetime
 import os
 
 import usermgr
@@ -17,6 +17,7 @@ is_gunicorn = False
 # specify the JWT package's call backs for authentication of username/password
 # and subsequent identity from the payload in the token
 jwt = JWT(app, usermgr.authenticate, usermgr.identity)
+JWT_AUTH = { 'JWT_EXPIRATION_DELTA': datetime.timedelta(days=10) } # 10 days before expiry
 
 @app.route("/protected")
 @jwt_required()
@@ -43,22 +44,22 @@ def register():
         abort(400, message="insufficient arguements") # missing important data!
 
     # is the username really a guid?
-    if usermgr.is_guid(emailaddress, password):
-        foundAnonUser = usermgr.AnonUser().find_anon_user(dbsetup.Session(), emailaddress)
+    if usermgr.AnonUser.is_guid(emailaddress, password):
+        foundAnonUser = usermgr.AnonUser.find_anon_user(dbsetup.Session(), emailaddress)
         if foundAnonUser is not None:
             abort(400, message="exists")
 
-        newAnonUser = usermgr.AnonUser().create_anon_user(dbsetup.Session(), emailaddress)
+        newAnonUser = usermgr.AnonUser.create_anon_user(dbsetup.Session(), emailaddress)
         if newAnonUser is None:
             abort(500, message="error creating anon user")
     else:
-        foundUser = usermgr.User().find_user_by_email(dbsetup.Session(), emailaddress)
+        foundUser = usermgr.User.find_user_by_email(dbsetup.Session(), emailaddress)
         if foundUser is not None:
             abort(400, message="user exists!")  # user exists!
 
         # okay the request is valid and the user was not found, so we can
         # create their account
-        newUser = usermgr.User().create_user(dbsetup.Session(), emailaddress, password)
+        newUser = usermgr.User.create_user(dbsetup.Session(), emailaddress, password)
         if newUser is None:
             abort(500, message="error creating user")
 
@@ -74,13 +75,13 @@ if __name__ == '__main__':
     session = dbsetup.Session()
 
     new_anon = usermgr.AnonUser()
-    new_anon.create_anon_user(session, '99275132efe811e6bc6492361f002671')
+    is_created = new_anon.create_anon_user(session, '99275132efe811e6bc6492361f002671')
 
     new_user = usermgr.User()
     new_user.create_user(session, new_anon.guid, 'hcollins@gmail.com', 'pa55w0rd')
 
     # see if we can read it back
-    foundUser = usermgr.User().find_user_by_email(session, 'hcollins@gmail.com')
+    foundUser = usermgr.User.find_user_by_email(session, 'hcollins@gmail.com')
 
     if foundUser != None:
         foundUser.change_password(session, 'pa55w0rd')
