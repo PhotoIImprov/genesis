@@ -18,19 +18,7 @@ class iiFile(Base):
 
 # ======================================================================================================
 
-    def __init__(self, b64image):
-        self.image =base64.decode(b64image)
-        self.create_name()
-        self.create_sub_path()
-
-        # at this point we want to write the file to the folder. The full filename will be:
-        #  self.sub_path + '/' + self.filename + self.extension
-        # we still need to prefix with the mount point and make sure
-        # the folders have been created
-
-        return
-
-    # okay, if the directory hasn't been created this will fail!
+     # okay, if the directory hasn't been created this will fail!
     def write_file(self, path_and_name, fdata):
         if fdata is None or path_and_name is None:
             raise Exception(errno.EINVAL)
@@ -65,10 +53,11 @@ class iiFile(Base):
             # see if this is our "no such dir error
             if err.errno == errno.EEXIST:
                 pass
-            
+
             # we need to try and make this directory
             try:
-                mkdir_p(os.path.dirname(path_and_name))
+                path_only = os.path.dirname(path_and_name)
+                iiFile.mkdir_p(path_only)
             except OSError as err:
                 # this is a problem, not just someone beat us to creating the dir
                 pass
