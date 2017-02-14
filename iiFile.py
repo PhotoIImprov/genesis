@@ -1,6 +1,9 @@
 from sqlalchemy        import Column, Integer, String, DateTime, text
 import uuid
+import base64
 from dbsetup           import Session, Base, engine, metadata
+import os, os.path, errno
+
 
 class iiFile(Base):
 
@@ -13,16 +16,72 @@ class iiFile(Base):
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 
-    _uuid          = None
-    _filename      = None
-    _sub_path      = None
-    _full_path     = None
-    _full_filename = None
+# ======================================================================================================
+
+    def __init__(self, b64image):
+        self.image =base64.decode(b64image)
+        self.create_name()
+        self.create_sub_path()
+
+        # at this point we want to write the file to the folder. The full filename will be:
+        #  self.sub_path + '/' + self.filename + self.extension
+        # we still need to prefix with the mount point and make sure
+        # the folders have been created
+
+        return
+
+    # okay, if the directory hasn't been created this will fail!
+    def write_file(self, path_and_name, fdata):
+        if fdata is None or path_and_name is None:
+            raise Exception(errno.EINVAL)
+
+        # okay we have a path and a filename, so let's try to create it
+        fp = open(path_and_name, "wb")
+        if fp is None:
+            raise Exception(errno.EBADFD)
+
+        fp.write(fdata)
+        fp.close()
+        return
+
+    @staticmethod
+    def mkdir_p(path):
+        try:
+            os.makedirs(path)
+        except OSError as exc:
+            if exc.errno == errno.EEXIST and os.path.isdir(path):
+                pass
+            else: raise
+        return
+
+    def safe_write_file(self, path_and_name, fdata):
+        # the path may not be created, so we try to write the file
+        # catch the exception and try again
+
+        write_status = False
+        try:
+            self.write_file(path_and_name, fdata)
+        except OSError as err:
+            # see if this is our "no such dir error
+            if err.errno == errno.EEXIST:
+                pass
+            
+            # we need to try and make this directory
+            try:
+                mkdir_p(os.path.dirname(path_and_name))
+            except OSError as err:
+                # this is a problem, not just someone beat us to creating the dir
+                pass
+
+            # try writing again
+            self.write_file(path_and_name, fdata)
+
+        return
 
     def create_name(self):
         self._uuid = uuid.uuid1()
-        self._filename = str(self._uuid)
-        return (self._filename)
+        self.filename = str(self._uuid)
+        return (self.filename)
 
 
     def create_sub_path(self):
@@ -46,7 +105,7 @@ class iiFile(Base):
         dir1 = ( (self._uuid.time_low >> 29) & 0x7) + ((self._uuid.time_mid << 3) & 0x3F8)
         dir2 = ( (self._uuid.time_mid >> 3) & 0x3FF)
         dir3 = ( (self._uuid.time_mid >> 13) & 0x3FF)
-        self._sub_path = '{}/{}/{}'.format( dir3, dir2, dir1)
+        self.sub_path = '{}/{}/{}'.format( dir3, dir2, dir1)
 
         # The rest of the path needs to come from our configuration
         # The file name is the input UUID from which we generated the
@@ -54,12 +113,13 @@ class iiFile(Base):
         #
         # <configuration root path>/<generated path>/<uuid>.<filetype>
         #
-    def create_full_path(self, root_path):
+
+    def create_full_path(self, rpath):
         # we should have our sub_path calculated. Now we need to
         # append the root to fully specify where the file shall go
-        self._full_path = root_path + '/' + self._sub_path
-        return self._full_path
+        self.full_path = rpath + '/' + self.sub_path
+        return self.full_path
 
-    def create_full_filename(self, full_path):
-        self._full_filename = (full_path or self.full_path) + self.filename
-        return self._full_filename
+    def create_full_filename(self, fpath):
+        self.full_filename = (fpath or self.full_path) + self.filename
+        return self.full_filename
