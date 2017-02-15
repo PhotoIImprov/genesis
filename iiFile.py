@@ -4,6 +4,8 @@ import base64
 from dbsetup           import Session, Base, engine, metadata
 import os, os.path, errno
 
+import cv2
+import numpy as np
 
 class iiFile(Base):
 
@@ -18,8 +20,28 @@ class iiFile(Base):
 
 # ======================================================================================================
 
-     # okay, if the directory hasn't been created this will fail!
-    def write_file(self, path_and_name, fdata):
+    _uuid          = None
+    _sub_path      = None
+    _full_filename = None
+    _mnt_point     = None   # "root path" to prefix, where folders are to be created
+    _image_type    = None   # e.g. "JPEG", "PNG", "TIFF", etc.
+    _raw_image     = None   # this is our unadulterated image file
+
+# ======================================================================================================
+
+    def set_image(self, image):
+        if image is None:
+            raise Exception(errno.EINVAL)
+
+        self._raw_image = image
+        return
+
+    def get_image(self):
+        return self._raw_image
+
+    # okay, if the directory hasn't been created this will fail!
+    @staticmethod
+    def write_file(path_and_name, fdata):
         if fdata is None or path_and_name is None:
             raise Exception(errno.EINVAL)
 
@@ -42,13 +64,14 @@ class iiFile(Base):
             else: raise
         return
 
-    def safe_write_file(self, path_and_name, fdata):
+    @staticmethod
+    def safe_write_file(path_and_name, fdata):
         # the path may not be created, so we try to write the file
         # catch the exception and try again
 
         write_status = False
         try:
-            self.write_file(path_and_name, fdata)
+            iiFile.write_file(path_and_name, fdata)
         except OSError as err:
             # see if this is our "no such dir error
             if err.errno == errno.EEXIST:
@@ -63,7 +86,7 @@ class iiFile(Base):
                 pass
 
             # try writing again
-            self.write_file(path_and_name, fdata)
+            iiFile.write_file(path_and_name, fdata)
 
         return
 
@@ -94,7 +117,7 @@ class iiFile(Base):
         dir1 = ( (self._uuid.time_low >> 29) & 0x7) + ((self._uuid.time_mid << 3) & 0x3F8)
         dir2 = ( (self._uuid.time_mid >> 3) & 0x3FF)
         dir3 = ( (self._uuid.time_mid >> 13) & 0x3FF)
-        self.sub_path = '{}/{}/{}'.format( dir3, dir2, dir1)
+        self._sub_path = '{:03}/{:03}/{:03}'.format( dir3, dir2, dir1)
 
         # The rest of the path needs to come from our configuration
         # The file name is the input UUID from which we generated the
@@ -106,9 +129,65 @@ class iiFile(Base):
     def create_full_path(self, rpath):
         # we should have our sub_path calculated. Now we need to
         # append the root to fully specify where the file shall go
-        self.full_path = rpath + '/' + self.sub_path
-        return self.full_path
+        if rpath is None:
+            self.filepath = self._sub_path
+        else:
+            self.filepath = rpath + "/" + self._sub_path
 
-    def create_full_filename(self, fpath):
-        self.full_filename = (fpath or self.full_path) + self.filename
-        return self.full_filename
+        return
+
+    def create_full_filename(self):
+        self._full_filename = self.filepath + "/" + self.filename + "." + self._image_type
+        return self._full_filename
+
+    def create_thumb_filename(self):
+        thumb_filename = self.filepath + "/th_" + self.filename + ".png"
+        return thumb_filename
+
+    # SaveUserImage()
+    # ===============
+    # The user has uploaded an image, we need to save it to
+    # the folder structure and save references in the
+    # database
+    def save_user_image(self, image_data, image_type, userlogin_id):
+        if image_data is None or userlogin_id is None:
+            raise errno.EINVAL
+
+        self.set_image(image_data)
+        self._image_type = image_type
+
+        # okay we have aguments, lets create our file name
+        self.create_name()
+        self.create_sub_path()
+        self.create_full_path(self._mnt_point)
+        self.create_full_filename()
+
+        # write to the folder
+        iiFile.safe_write_file(self._full_filename, image_data)
+
+        # okay, now we need to save all this information to the
+        self.user_id  = userlogin_id
+
+        session = Session()
+        session.add(self)
+        session.commit()
+
+    def create_thumb(self):
+        if self._raw_image is None:
+            raise BaseException(errno.EINVAL)
+
+        # from the supplied image, create a thumbnail
+        # the original file has already been saved to the
+        # filesystem, so we are just adding this file
+        thumb_fn = self.create_thumb_filename()
+
+        nparr = np.fromstring(self.get_image(), np.uint8)
+        im = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        thumbnail = cv2.resize(im, (0,0), fx=0.5, fy=0.5)
+        cv2.imwrite(thumb_fn, thumbnail)
+
+
+
+
+
+

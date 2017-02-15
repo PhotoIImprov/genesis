@@ -5,6 +5,7 @@ import dbsetup
 import datetime
 import os
 
+import initschema
 import usermgr
 
 
@@ -44,22 +45,23 @@ def register():
         abort(400, message="insufficient arguements") # missing important data!
 
     # is the username really a guid?
+    session = dbsetup.Session()
     if usermgr.AnonUser.is_guid(emailaddress, password):
-        foundAnonUser = usermgr.AnonUser.find_anon_user(dbsetup.Session(), emailaddress)
+        foundAnonUser = usermgr.AnonUser.find_anon_user(session, emailaddress)
         if foundAnonUser is not None:
             abort(400, message="exists")
 
-        newAnonUser = usermgr.AnonUser.create_anon_user(dbsetup.Session(), emailaddress)
+        newAnonUser = usermgr.AnonUser.create_anon_user(session, emailaddress)
         if newAnonUser is None:
             abort(500, message="error creating anon user")
     else:
-        foundUser = usermgr.User.find_user_by_email(dbsetup.Session(), emailaddress)
+        foundUser = usermgr.User.find_user_by_email(session, emailaddress)
         if foundUser is not None:
             abort(400, message="user exists!")  # user exists!
 
         # okay the request is valid and the user was not found, so we can
         # create their account
-        newUser = usermgr.User.create_user(dbsetup.Session(), emailaddress, password)
+        newUser = usermgr.User.create_user(session, emailaddress, password)
         if newUser is None:
             abort(500, message="error creating user")
 
