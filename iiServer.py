@@ -1,12 +1,11 @@
 from flask import Flask, jsonify
 from flask_jwt import JWT, jwt_required, current_identity
 from flask     import request, abort
+import initschema
 import dbsetup
 import datetime
 import os
-
-import initschema
-import usermgr
+import usermgr #yeah it's in the import stack, but explicit right ?
 
 
 app = Flask(__name__)
@@ -76,17 +75,14 @@ if __name__ == '__main__':
 
     session = dbsetup.Session()
 
-    new_anon = usermgr.AnonUser()
-    is_created = new_anon.create_anon_user(session, '99275132efe811e6bc6492361f002671')
-
-    new_user = usermgr.User()
-    new_user.create_user(session, new_anon.guid, 'hcollins@gmail.com', 'pa55w0rd')
-
-    # see if we can read it back
-    foundUser = usermgr.User.find_user_by_email(session, 'hcollins@gmail.com')
-
-    if foundUser != None:
-        foundUser.change_password(session, 'pa55w0rd')
+    au = usermgr.AnonUser.create_anon_user(session, '99275132efe811e6bc6492361f002671')
+    if au is not None:
+        u = usermgr.User.create_user(session, au.guid, 'hcollins@gmail.com', 'pa55w0rd')
+        if u is not None:
+            # see if we can read it back
+            foundUser = usermgr.User.find_user_by_email(session, 'hcollins@gmail.com')
+            if foundUser != None:
+                foundUser.change_password(session, 'pa55w0rd')
 
     if is_gunicorn == False:
         app.run(host='0.0.0.0', port=8080)

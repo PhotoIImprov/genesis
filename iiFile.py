@@ -1,7 +1,6 @@
-from sqlalchemy        import Column, Integer, String, DateTime, text
+from sqlalchemy        import Column, Integer, String, DateTime, text, ForeignKey
 import uuid
-import base64
-from dbsetup           import Session, Base, engine, metadata
+from dbsetup           import Session, Base
 import os, os.path, errno
 
 import cv2
@@ -12,7 +11,8 @@ class iiFile(Base):
     __tablename__ = 'iifile'
 
     id           = Column(Integer, primary_key = True, autoincrement=True)
-    user_id      = Column(Integer, nullable=False)
+    user_id      = Column(Integer, ForeignKey("userlogin.id"), nullable=False)
+    category_id  = Column(Integer, ForeignKey("category.id"), nullable=False)
     filepath     = Column(String(500), nullable=False)                  # e.g. '/mnt/images/49269d/394f9/d431'
     filename     = Column(String(100), nullable=False, unique=True)     # e.g. '970797dfd9f149269d394f9d43179d64.jpeg'
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)

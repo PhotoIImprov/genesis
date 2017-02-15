@@ -1,6 +1,6 @@
-from sqlalchemy        import create_engine, MetaData
+from sqlalchemy        import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm    import sessionmaker, query
+from sqlalchemy.orm    import sessionmaker
 
 # connection to MySQL instance on 4KOffice (intranet)
 engine   = create_engine('mysql+pymysql://python:python@192.168.1.149:3306/imageimprov', echo=False)

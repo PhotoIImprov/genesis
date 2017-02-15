@@ -1,8 +1,7 @@
 from passlib.hash      import pbkdf2_sha256
 from sqlalchemy        import Column, Integer, String, DateTime, text, ForeignKey
-from dbsetup           import Session, Base, engine, metadata
+from dbsetup           import Session, Base
 import hashlib
-import copy
 
 class AnonUser(Base):
     __tablename__ = "anonuser"
@@ -30,13 +29,16 @@ class AnonUser(Base):
         # First check if guid exists in the database
         au = AnonUser.find_anon_user(session, m_guid)
         if au is not None:
-            return False
+            return au
 
         # this guid doesn't exist, so create the record
+        au = AnonUser()
+        au.guid = m_guid
+
         session.add(au)
         session.commit()
 
-        return True
+        return au
 
     def get_id(self):
         return self.id

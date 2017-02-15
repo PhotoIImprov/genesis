@@ -3,6 +3,7 @@ import uuid
 import iiFile
 import errno
 import os
+import initschema.py
 
 
 class TestIiFile(TestCase):
