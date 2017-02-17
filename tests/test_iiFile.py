@@ -1,12 +1,14 @@
-from unittest import TestCase
+from . import DatabaseTest, setup_module, teardown_module
 import uuid
 import iiFile
-import errno
 import os
-import initschema.py
+import initschema
+import category, resources, datetime, usermgr
 
 
-class TestIiFile(TestCase):
+class TestIiFile(DatabaseTest):
+
+
     def test_mkdir_p(self):
 
         # first make a unique directory
@@ -60,18 +62,42 @@ class TestIiFile(TestCase):
 
 
     def test_save_user_image(self):
+
+        self.setup()
+
         fo = iiFile.iiFile()
         assert (fo is not None)
 
         data = bytes("Now is the time for all good men", encoding='UTF-8')
 
-        fo.save_user_image(data, "JPEG", 1)
+        # first we need a resource
+        r = resources.Resource.create_resource(5555, 'EN', 'Kittens')
+        resources.Resource.write_resource(self.session, r)
+
+        # now create our category
+        s_date = datetime.datetime.now()
+        e_date = s_date + datetime.timedelta(days=1)
+        c = category.Category.create_category(r.resource_id, s_date, e_date)
+        category.Category.write_category(self.session, c)
+
+        # create a user
+        au = usermgr.AnonUser.create_anon_user(self.session, '99275132efe811e6bc6492361f002672')
+        if au is not None:
+            u = usermgr.User.create_user(self.session, au.guid, 'harry.collins@gmail.com', 'pa55w0rd')
+
+        fo.category_id = c.id
+        fo.user_id     = u.id
+        fo.save_user_image(self.session, data, "JPEG", u.id)
 
         # now clean up
         os.remove(fo.filepath + "/" + fo.filename + ".JPEG")
         os.removedirs(fo.filepath)
+        self.teardown()
 
     def test_save_user_image2(self):
+
+        self.setup()
+
         fo = iiFile.iiFile()
         assert (fo is not None)
 
@@ -83,7 +109,22 @@ class TestIiFile(TestCase):
         photo = ft.read()
         assert (photo is not None)
 
-        fo.save_user_image(photo, "JPEG", 1)
+        # first we need a resource
+        r = resources.Resource.create_resource(5555, 'EN', 'Kittens')
+        resources.Resource.write_resource(self.session, r)
+
+        # now create our category
+        s_date = datetime.datetime.now()
+        e_date =  s_date + datetime.timedelta(days=1)
+        c = category.Category.create_category(r.resource_id, s_date, e_date)
+        category.Category.write_category(self.session, c)
+        # create a user
+        au = usermgr.AnonUser.create_anon_user(self.session, '99275132efe811e6bc6492361f002673')
+        if au is not None:
+            u = usermgr.User.create_user(self.session, au.guid, 'harry.collins@gmail.com', 'pa55w0rd')
+
+        fo.category_id = c.id
+        fo.save_user_image(self.session, photo, "JPEG", u.id)
         fn = fo.filename
 
         fo.create_thumb()
@@ -92,3 +133,5 @@ class TestIiFile(TestCase):
         os.remove(fo.filepath + "/" + fn + ".JPEG")           # our main image
         os.remove(fo.create_thumb_filename())  # our thumbnail
         os.removedirs(fo.filepath)
+
+        self.teardown()

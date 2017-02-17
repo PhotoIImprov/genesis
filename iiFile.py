@@ -149,7 +149,7 @@ class iiFile(Base):
     # The user has uploaded an image, we need to save it to
     # the folder structure and save references in the
     # database
-    def save_user_image(self, image_data, image_type, userlogin_id):
+    def save_user_image(self, session, image_data, image_type, userlogin_id):
         if image_data is None or userlogin_id is None:
             raise errno.EINVAL
 
@@ -168,7 +168,6 @@ class iiFile(Base):
         # okay, now we need to save all this information to the
         self.user_id  = userlogin_id
 
-        session = Session()
         session.add(self)
         session.commit()
 
