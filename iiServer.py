@@ -67,9 +67,6 @@ def register():
     # user was properly created
     return 'account created', 201
 
-#check to see if we are running a server
-is_gunicorn = "gunicorn" in os.environ.get("SERVER_SOFTWARE", "")
-
 if __name__ == '__main__':
     dbsetup.metadata.create_all(bind=dbsetup.engine, checkfirst=True)
 
@@ -84,5 +81,5 @@ if __name__ == '__main__':
             if foundUser != None:
                 foundUser.change_password(session, 'pa55w0rd')
 
-    if is_gunicorn == False:
+    if dbsetup._is_gunicorn == False:
         app.run(host='0.0.0.0', port=8080)
