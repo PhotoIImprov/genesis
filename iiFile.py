@@ -13,6 +13,7 @@ class iiFile(Base):
     id           = Column(Integer, primary_key = True, autoincrement=True)
     user_id      = Column(Integer, ForeignKey("userlogin.id"), nullable=False)
     category_id  = Column(Integer, ForeignKey("category.id"), nullable=False)
+    category_idx = Column(Integer, nullable=False)
     filepath     = Column(String(500), nullable=False)                  # e.g. '/mnt/images/49269d/394f9/d431'
     filename     = Column(String(100), nullable=False, unique=True)     # e.g. '970797dfd9f149269d394f9d43179d64.jpeg'
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)

@@ -1,5 +1,7 @@
+import sqlalchemy
 from sqlalchemy        import create_engine
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.schema import DDL
 from sqlalchemy.orm    import sessionmaker
 from enum import Enum
 import os
@@ -48,6 +50,15 @@ engine   = create_engine(_connection_string, echo=False)
 Session  = sessionmaker(bind=engine)
 Base     = declarative_base()
 metadata = Base.metadata
+
+sqlalchemy.event.listen(metadata, 'before_create',
+                        DDL('DROP FUNCTION IF EXISTS increment_photo_index;\n'
+                            'CREATE FUNCTION increment_photo_index(cid int) RETURNS int\n'
+                            'BEGIN\n'
+                            'DECLARE x int;\n'
+                            'update photoindex set idx = (@x:=idx)+1 where category_id = cid;\n'
+                            'return @x;\n'
+                            'END;'))
 
 metadata.create_all(bind=engine, checkfirst=True)
 

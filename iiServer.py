@@ -40,6 +40,8 @@ def register():
 
     emailaddress = request.json['username']
     password     = request.json['password']
+    guid         = request.json['guid']
+
     if emailaddress is None or password is None:
         abort(400, message="insufficient arguements") # missing important data!
 
@@ -60,7 +62,7 @@ def register():
 
         # okay the request is valid and the user was not found, so we can
         # create their account
-        newUser = usermgr.User.create_user(session, emailaddress, password)
+        newUser = usermgr.User.create_user(session, guid, emailaddress, password)
         if newUser is None:
             abort(500, message="error creating user")
 

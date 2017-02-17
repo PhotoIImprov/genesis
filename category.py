@@ -29,3 +29,24 @@ class Category(Base):
         c.end_date = ed
         return c
 
+class PhotoIndex(Base):
+    __tablename__ = 'photoindex'
+    category_id  = Column(Integer, ForeignKey("category.id"), primary_key=True, nullable=False)
+    idx          = Column(Integer, nullable=False, default=0)
+
+    created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
+    last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+
+    # ======================================================================================================
+
+    def __init__(self, cid, ix):
+        self.category_id = cid
+        self.idx = ix
+        return
+
+    @staticmethod
+    def create_index(session, cid):
+        pi = PhotoIndex(cid, 0)
+        session.add(pi)
+        session.commit()
+        return

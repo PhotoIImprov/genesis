@@ -58,6 +58,9 @@ class Ballot(Base):
         session.add(b)
         session.commit()
 
+    @staticmethod
+    def create_ballot(session, uid, cid):
+        return None
 
 class BallotEntry(Base):
     __tablename__ = 'ballotentry'

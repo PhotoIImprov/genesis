@@ -7,7 +7,7 @@ class AnonUser(Base):
     __tablename__ = "anonuser"
     id           = Column(Integer, primary_key = True, autoincrement=True)
     guid         = Column(String(32), nullable=False, unique=True)
-    create_date  = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
+    created_date  = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
 
     @staticmethod
     def find_anon_user(session, m_guid):

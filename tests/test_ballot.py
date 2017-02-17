@@ -1,4 +1,4 @@
-from . import DatabaseTest, setup_module, teardown_module
+from . import DatabaseTest
 import voting
 import resources
 import category
@@ -14,11 +14,12 @@ class TestBallot(DatabaseTest):
         r = resources.Resource.create_resource(5555, 'EN', 'Kittens')
         resources.Resource.write_resource(self.session, r)
 
-        # now create our category
+        # now create our category & the image indexer
         s_date = datetime.datetime.now()
         e_date =  s_date + datetime.timedelta(days=1)
         c = category.Category.create_category(r.resource_id, s_date, e_date)
         category.Category.write_category(self.session, c)
+        category.PhotoIndex.create_index(self.session, c.id)
 
         # create a user
         au = usermgr.AnonUser.create_anon_user(self.session, '99275132efe811e6bc6492361f002672')
