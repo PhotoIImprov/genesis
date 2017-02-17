@@ -19,6 +19,8 @@ class Category(Base):
     def write_category(session, c):
         session.add(c)
         session.commit()
+
+        PhotoIndex.create_index(session, c.id)
         return
 
     @staticmethod
@@ -27,6 +29,7 @@ class Category(Base):
         c.resource_id = rid
         c.start_date = sd
         c.end_date = ed
+
         return c
 
 class PhotoIndex(Base):
@@ -46,7 +49,14 @@ class PhotoIndex(Base):
 
     @staticmethod
     def create_index(session, cid):
-        pi = PhotoIndex(cid, 0)
+        pi = PhotoIndex(cid, 1)
         session.add(pi)
         session.commit()
         return
+
+    @staticmethod
+    def read_index(session, cid):
+        q = session.query(PhotoIndex).filter_by(category_id = cid)
+        pi = q.first()
+        return pi
+    

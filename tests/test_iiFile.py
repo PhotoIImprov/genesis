@@ -118,6 +118,7 @@ class TestIiFile(DatabaseTest):
         e_date =  s_date + datetime.timedelta(days=1)
         c = category.Category.create_category(r.resource_id, s_date, e_date)
         category.Category.write_category(self.session, c)
+
         # create a user
         au = usermgr.AnonUser.create_anon_user(self.session, '99275132efe811e6bc6492361f002673')
         if au is not None:
@@ -128,6 +129,12 @@ class TestIiFile(DatabaseTest):
         fn = fo.filename
 
         fo.create_thumb()
+
+        flist = iiFile.iiFile.read_photo(self.session, u.id, c.id)
+
+        assert(flist is not None)
+        assert(len(flist) == 1)
+        assert(flist[0].category_idx == 1)
 
         # now clean up
         os.remove(fo.filepath + "/" + fn + ".JPEG")           # our main image

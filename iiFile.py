@@ -1,6 +1,6 @@
 from sqlalchemy        import Column, Integer, String, DateTime, text, ForeignKey
 import uuid
-from dbsetup           import Session, Base
+from dbsetup           import Base
 import os, os.path, errno
 
 import cv2
@@ -13,7 +13,7 @@ class iiFile(Base):
     id           = Column(Integer, primary_key = True, autoincrement=True)
     user_id      = Column(Integer, ForeignKey("userlogin.id"), nullable=False)
     category_id  = Column(Integer, ForeignKey("category.id"), nullable=False)
-    category_idx = Column(Integer, nullable=False)
+    category_idx = Column(Integer, nullable=True)
     filepath     = Column(String(500), nullable=False)                  # e.g. '/mnt/images/49269d/394f9/d431'
     filename     = Column(String(100), nullable=False, unique=True)     # e.g. '970797dfd9f149269d394f9d43179d64.jpeg'
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
@@ -172,6 +172,7 @@ class iiFile(Base):
         session.add(self)
         session.commit()
 
+
     def create_thumb(self):
         if self._raw_image is None:
             raise BaseException(errno.EINVAL)
@@ -186,6 +187,12 @@ class iiFile(Base):
         thumbnail = cv2.resize(im, (0,0), fx=0.5, fy=0.5)
         cv2.imwrite(thumb_fn, thumbnail)
 
+    @staticmethod
+    def read_photo(session, uid, cid):
+        q = session.query(iiFile).filter_by(user_id = uid, category_id = cid)
+        p = q.all()
+
+        return p
 
 
 

@@ -51,14 +51,15 @@ Session  = sessionmaker(bind=engine)
 Base     = declarative_base()
 metadata = Base.metadata
 
-sqlalchemy.event.listen(metadata, 'before_create',
+metadata.create_all(bind=engine, checkfirst=True)
+
+sqlalchemy.event.listen(metadata, 'after_create',
                         DDL('DROP FUNCTION IF EXISTS increment_photo_index;\n'
                             'CREATE FUNCTION increment_photo_index(cid int) RETURNS int\n'
                             'BEGIN\n'
                             'DECLARE x int;\n'
                             'update photoindex set idx = (@x:=idx)+1 where category_id = cid;\n'
                             'return @x;\n'
-                            'END;'))
-
-metadata.create_all(bind=engine, checkfirst=True)
-
+                            'END;\n'
+                            'DROP TRIGGER IF EXISTS pindexer;\n'
+                            'CREATE TRIGGER pindexer BEFORE INSERT ON iifile FOR EACH ROW SET new.category_idx = increment_photo_index(NEW.category_id);'))

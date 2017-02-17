@@ -19,7 +19,6 @@ class TestBallot(DatabaseTest):
         e_date =  s_date + datetime.timedelta(days=1)
         c = category.Category.create_category(r.resource_id, s_date, e_date)
         category.Category.write_category(self.session, c)
-        category.PhotoIndex.create_index(self.session, c.id)
 
         # create a user
         au = usermgr.AnonUser.create_anon_user(self.session, '99275132efe811e6bc6492361f002672')
