@@ -1,12 +1,14 @@
-from . import DatabaseTest, setup_module, teardown_module
-import uuid
-import iiFile
+import datetime
 import os
-import initschema
-import category, resources, datetime, usermgr
+import uuid
+
+from models import resources
+
+from models import category, photo, usermgr
+from . import DatabaseTest
 
 
-class TestIiFile(DatabaseTest):
+class TestPhoto(DatabaseTest):
 
 
     def test_mkdir_p(self):
@@ -15,13 +17,13 @@ class TestIiFile(DatabaseTest):
         guid = "UT_" + str(uuid.uuid1())
 
         try:
-            iiFile.iiFile.mkdir_p(guid)
+            photo.Photo.mkdir_p(guid)
         except:
             self.fail()
 
         # we created the dir, now try to create it again
         try:
-            iiFile.iiFile.mkdir_p(guid)
+            photo.Photo.mkdir_p(guid)
         except Exception:
             self.assertRaises(Exception)
 
@@ -35,14 +37,14 @@ class TestIiFile(DatabaseTest):
         guid = "UT_" + str(uuid.uuid1()) + "/testdata.bin"
         data = bytes("Now is the time for all good men", encoding='UTF-8')
 
-        iiFile.iiFile.safe_write_file(guid, data)
+        photo.Photo.safe_write_file(guid, data)
 
         # now cleanup!
         os.remove(guid)
         os.removedirs(os.path.dirname(guid))
 
     def test_create_sub_path(self):
-        fo = iiFile.iiFile()
+        fo = photo.Photo()
         assert (fo is not None)
 
         fo._uuid = uuid.uuid1()
@@ -52,7 +54,7 @@ class TestIiFile(DatabaseTest):
         assert (fo._sub_path is not None)
 
     def test_create_name(self):
-        fo = iiFile.iiFile()
+        fo = photo.Photo()
         assert (fo is not None)
 
         fo.create_name()
@@ -65,7 +67,7 @@ class TestIiFile(DatabaseTest):
 
         self.setup()
 
-        fo = iiFile.iiFile()
+        fo = photo.Photo()
         assert (fo is not None)
 
         data = bytes("Now is the time for all good men", encoding='UTF-8')
@@ -98,7 +100,7 @@ class TestIiFile(DatabaseTest):
 
         self.setup()
 
-        fo = iiFile.iiFile()
+        fo = photo.Photo()
         assert (fo is not None)
 
 
@@ -130,7 +132,7 @@ class TestIiFile(DatabaseTest):
 
         fo.create_thumb()
 
-        flist = iiFile.iiFile.read_photo(self.session, u.id, c.id)
+        flist = photo.Photo.read_photo(self.session, u.id, c.id)
 
         assert(flist is not None)
         assert(len(flist) == 1)

@@ -1,12 +1,12 @@
-from flask import Flask, jsonify
-from flask_jwt import JWT, jwt_required, current_identity
+import datetime
+
+from flask import Flask
 from flask     import request, abort
+from flask_jwt import JWT, jwt_required, current_identity
+
 import initschema
 import dbsetup
-import datetime
-import os
-import usermgr #yeah it's in the import stack, but explicit right ?
-
+from models import usermgr
 
 app = Flask(__name__)
 app.debug = True

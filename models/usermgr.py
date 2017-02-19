@@ -5,8 +5,8 @@ import hashlib
 
 class AnonUser(Base):
     __tablename__ = "anonuser"
-    id           = Column(Integer, primary_key = True, autoincrement=True)
-    guid         = Column(String(32), nullable=False, unique=True)
+    id            = Column(Integer, primary_key = True, autoincrement=True)
+    guid          = Column(String(32), nullable=False, unique=True)
     created_date  = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
 
     @staticmethod

@@ -1,9 +1,12 @@
-from . import DatabaseTest
-import voting
-import resources
-import category
+import initschema
 import datetime
-import usermgr
+
+from models import resources
+from models import usermgr
+
+from models import category, voting
+from . import DatabaseTest
+
 
 class TestBallot(DatabaseTest):
 

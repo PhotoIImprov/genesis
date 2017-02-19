@@ -1,6 +1,5 @@
-import usermgr  # UserLogin, AnonUser
-import category # category
-import iiFile   # iiFile
-import voting   # Ballot, Voting
-import resources # strings
-
+from models import voting
+from models import photo
+from models import usermgr
+from models import category
+from models import resources

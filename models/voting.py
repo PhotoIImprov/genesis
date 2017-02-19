@@ -1,8 +1,8 @@
-from sqlalchemy        import Column, Integer, String, DateTime, text, ForeignKey
+from sqlalchemy        import Column, Integer, DateTime, text, ForeignKey
 from sqlalchemy.orm import relationship
-from dbsetup           import Session, Base, engine, metadata
-import iiFile
-import category
+
+from dbsetup           import Base
+
 
 class Ballot(Base):
     __tablename__ = 'ballot'
@@ -68,7 +68,7 @@ class BallotEntry(Base):
     ballot_id    = Column(Integer, ForeignKey('ballot.id'), nullable=False)
     category_id  = Column(Integer, ForeignKey("category.id"), nullable=False)
     user_id      = Column(Integer, ForeignKey("userlogin.id"),  nullable=False)
-    file_id      = Column(Integer, ForeignKey("iifile.id"), nullable=False)
+    photo_id     = Column(Integer, ForeignKey("photo.id"), nullable=False)
     vote         = Column(Integer, nullable=True) # ranking in the ballot
 
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)

@@ -59,4 +59,3 @@ class PhotoIndex(Base):
         q = session.query(PhotoIndex).filter_by(category_id = cid)
         pi = q.first()
         return pi
-    

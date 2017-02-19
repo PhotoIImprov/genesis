@@ -1,3 +1,5 @@
+import sqlalchemy
+from sqlalchemy.schema import DDL
 from sqlalchemy        import Column, Integer, String, DateTime, text, ForeignKey
 import uuid
 from dbsetup           import Base
@@ -6,9 +8,9 @@ import os, os.path, errno
 import cv2
 import numpy as np
 
-class iiFile(Base):
+class Photo(Base):
 
-    __tablename__ = 'iifile'
+    __tablename__ = 'photo'
 
     id           = Column(Integer, primary_key = True, autoincrement=True)
     user_id      = Column(Integer, ForeignKey("userlogin.id"), nullable=False)
@@ -72,7 +74,7 @@ class iiFile(Base):
 
         write_status = False
         try:
-            iiFile.write_file(path_and_name, fdata)
+            Photo.write_file(path_and_name, fdata)
         except OSError as err:
             # see if this is our "no such dir error
             if err.errno == errno.EEXIST:
@@ -81,13 +83,13 @@ class iiFile(Base):
             # we need to try and make this directory
             try:
                 path_only = os.path.dirname(path_and_name)
-                iiFile.mkdir_p(path_only)
+                Photo.mkdir_p(path_only)
             except OSError as err:
                 # this is a problem, not just someone beat us to creating the dir
                 pass
 
             # try writing again
-            iiFile.write_file(path_and_name, fdata)
+            Photo.write_file(path_and_name, fdata)
 
         return
 
@@ -164,7 +166,7 @@ class iiFile(Base):
         self.create_full_filename()
 
         # write to the folder
-        iiFile.safe_write_file(self._full_filename, image_data)
+        Photo.safe_write_file(self._full_filename, image_data)
 
         # okay, now we need to save all this information to the
         self.user_id  = userlogin_id
@@ -189,11 +191,25 @@ class iiFile(Base):
 
     @staticmethod
     def read_photo(session, uid, cid):
-        q = session.query(iiFile).filter_by(user_id = uid, category_id = cid)
+        q = session.query(Photo).filter_by(user_id = uid, category_id = cid)
         p = q.all()
 
         return p
 
+
+# ====================================================================================================================
+
+# register some DDL that we want attached to this model
+sqlalchemy.event.listen(Photo.__table__, 'after_create',
+             DDL('DROP FUNCTION IF EXISTS increment_photo_index;\n'
+             'CREATE FUNCTION increment_photo_index(cid int) RETURNS int\n'
+             'BEGIN\n'
+             'DECLARE x int;\n'
+             'update photoindex set idx = (@x:=idx)+1 where category_id = cid;\n'
+             'return @x;\n'
+             'END;\n'
+             'DROP TRIGGER IF EXISTS pindexer;\n'
+             'CREATE TRIGGER pindexer BEFORE INSERT ON photo FOR EACH ROW SET new.category_idx = increment_photo_index(NEW.category_id);'))
 
 
 
