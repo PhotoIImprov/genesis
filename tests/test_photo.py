@@ -1,3 +1,4 @@
+import initschema
 import datetime
 import os
 import uuid
@@ -108,8 +109,8 @@ class TestPhoto(DatabaseTest):
         ft = open('photos/Cute_Puppy.jpg', 'rb')
         assert (ft is not None)
 
-        photo = ft.read()
-        assert (photo is not None)
+        ph = ft.read()
+        assert (ph is not None)
 
         # first we need a resource
         r = resources.Resource.create_resource(5555, 'EN', 'Kittens')
@@ -127,7 +128,7 @@ class TestPhoto(DatabaseTest):
             u = usermgr.User.create_user(self.session, au.guid, 'harry.collins@gmail.com', 'pa55w0rd')
 
         fo.category_id = c.id
-        fo.save_user_image(self.session, photo, "JPEG", u.id)
+        fo.save_user_image(self.session, ph, "JPEG", u.id)
         fn = fo.filename
 
         fo.create_thumb()
