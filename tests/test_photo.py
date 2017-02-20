@@ -9,9 +9,35 @@ from models import resources
 
 from models import category, photo, usermgr
 from . import DatabaseTest
-
+from random import randint
 
 class TestPhoto(DatabaseTest):
+
+    def create_test_photos(self, cid):
+        # create a bunch of test photos for the specified category
+
+        # read our test file
+        ft = open('photos/Cute_Puppy.jpg', 'rb')
+        assert (ft is not None)
+        ph = ft.read()
+        assert (ph is not None)
+
+        for i in range(1, 50):
+            email = 'bp100a_' + str(i) + '@gmail.com'
+            auuid = str(uuid.uuid1()).replace('-','')
+            au = usermgr.AnonUser.create_anon_user(self.session, auuid)
+            if au is not None:
+                u = usermgr.User.create_user(self.session, au.guid, email, 'pa55w0rd')
+                fo = photo.Photo()
+                assert (fo is not None)
+                fo.category_id = cid
+                fo.save_user_image(self.session, ph, "JPEG", au.id)
+                fn = fo.filename
+                fo.create_thumb()
+
+        return  # just created a slew of photos for this category and new users
+
+# ----------------------------------- T E S T S ---------------------------------------
     def test_mkdir_p(self):
 
         # first make a unique directory
@@ -164,7 +190,30 @@ class TestPhoto(DatabaseTest):
         if au is not None:
             u = usermgr.User.create_user(self.session, au.guid, 'harry.collins@gmail.com', 'pa55w0rd')
 
-        indices = [1,2,3]
+        self.create_test_photos(c.id)
+
+        indices = []
+        pi = category.PhotoIndex.read_index(self.session, c.id)
+        for i in range (0,9):
+            rn = randint(0, pi.idx)
+            if rn not in indices:
+                indices.append(rn)
+
         p = photo.Photo.read_photos_by_index(self.session, u.id, c.id, indices)
+        assert(p is not None)
+
+        # now we need to clean up the files
+        for i in range (0, pi.idx):
+            indices = []
+            indices.append(i)
+            p = photo.Photo.read_photos_by_index(self.session, u.id, c.id, indices)
+            if p is not None:
+                try:
+                    os.remove(p[0].filepath + '/' + p[0].filename + '.JPEG')
+                    os.remove(p[0].create_thumb_filename())
+                    os.removedirs(p[0].filepath)
+                except:
+                    pass
 
         self.teardown()
+
