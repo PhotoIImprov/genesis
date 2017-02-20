@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, text
 from dbsetup import Base
-from pymysql import OperationalError
+from pymysql import OperationalError, IntegrityError
+import sys
 
 resource_map = None
 
@@ -33,8 +34,13 @@ class Resource(Base):
 
     @staticmethod
     def write_resource(session, r):
-        session.add(r)
-        session.commit()
+        try:
+            session.add(r)
+            session.commit()
+        except:
+            str = sys.exc_info()[0]
+            raise
+
         return
 
     @staticmethod

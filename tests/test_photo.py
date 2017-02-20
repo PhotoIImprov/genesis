@@ -1,3 +1,5 @@
+from unittest import TestCase
+
 import initschema
 import datetime
 import os
@@ -10,8 +12,6 @@ from . import DatabaseTest
 
 
 class TestPhoto(DatabaseTest):
-
-
     def test_mkdir_p(self):
 
         # first make a unique directory
@@ -63,7 +63,6 @@ class TestPhoto(DatabaseTest):
         assert (fo._uuid is not None)
         assert (fo.filename is not None)
 
-
     def test_save_user_image(self):
 
         self.setup()
@@ -89,7 +88,7 @@ class TestPhoto(DatabaseTest):
             u = usermgr.User.create_user(self.session, au.guid, 'harry.collins@gmail.com', 'pa55w0rd')
 
         fo.category_id = c.id
-        fo.user_id     = u.id
+        fo.user_id = u.id
         fo.save_user_image(self.session, data, "JPEG", u.id)
 
         # now clean up
@@ -104,7 +103,6 @@ class TestPhoto(DatabaseTest):
         fo = photo.Photo()
         assert (fo is not None)
 
-
         # read our test file
         ft = open('photos/Cute_Puppy.jpg', 'rb')
         assert (ft is not None)
@@ -118,7 +116,7 @@ class TestPhoto(DatabaseTest):
 
         # now create our category
         s_date = datetime.datetime.now()
-        e_date =  s_date + datetime.timedelta(days=1)
+        e_date = s_date + datetime.timedelta(days=1)
         c = category.Category.create_category(r.resource_id, s_date, e_date)
         category.Category.write_category(self.session, c)
 
@@ -135,13 +133,38 @@ class TestPhoto(DatabaseTest):
 
         flist = photo.Photo.read_photo(self.session, u.id, c.id)
 
-        assert(flist is not None)
-        assert(len(flist) == 1)
-        assert(flist[0].category_idx == 1)
+        assert (flist is not None)
+        assert (len(flist) == 1)
+        assert (flist[0].category_idx == 1)
 
         # now clean up
-        os.remove(fo.filepath + "/" + fn + ".JPEG")           # our main image
+        os.remove(fo.filepath + "/" + fn + ".JPEG")  # our main image
         os.remove(fo.create_thumb_filename())  # our thumbnail
         os.removedirs(fo.filepath)
+
+        self.teardown()
+
+
+    def test_read_photos_by_index(self):
+
+        self.setup()
+
+        # first we need a resource
+        r = resources.Resource.create_resource(5555, 'EN', 'Kittens')
+        resources.Resource.write_resource(self.session, r)
+
+        # now create our category
+        s_date = datetime.datetime.now()
+        e_date = s_date + datetime.timedelta(days=1)
+        c = category.Category.create_category(r.resource_id, s_date, e_date)
+        category.Category.write_category(self.session, c)
+
+        # create a user
+        au = usermgr.AnonUser.create_anon_user(self.session, '99275132efe811e6bc6492361f002673')
+        if au is not None:
+            u = usermgr.User.create_user(self.session, au.guid, 'harry.collins@gmail.com', 'pa55w0rd')
+
+        indices = [1,2,3]
+        p = photo.Photo.read_photos_by_index(self.session, u.id, c.id, indices)
 
         self.teardown()

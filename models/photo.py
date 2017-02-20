@@ -196,6 +196,22 @@ class Photo(Base):
 
         return p
 
+    # read_photos_by_index()
+    # ======================
+    # given a list of indices, will return a list of photos
+    # that match for the sepcified category
+
+    @staticmethod
+    def read_photos_by_index(session, uid, cid, indices):
+        if uid is None or cid is None or indices is None:
+            raise BaseException(errno.EINVAL)
+
+        q = session.query(Photo).filter(Photo.category_idx.in_(indices), Photo.category_id == cid )
+
+        p = q.all()
+        return p
+
+
 
 # ====================================================================================================================
 

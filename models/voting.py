@@ -62,6 +62,8 @@ class Ballot(Base):
     def create_ballot(session, uid, cid):
         return None
 
+
+
 class BallotEntry(Base):
     __tablename__ = 'ballotentry'
     id           = Column(Integer, primary_key=True, autoincrement=True)
