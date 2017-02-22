@@ -61,7 +61,7 @@ class User(Base):
     id           = Column(Integer, ForeignKey("anonuser.id"), primary_key = True)  # ties us back to our anon_user record
     hashedPWD    = Column(String(200), nullable=False)
     emailaddress = Column(String(200), nullable=False, unique=True)
-    screenname   = Column(String(100), nullable=True)
+    screenname   = Column(String(100), nullable=True, unique=True)
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 

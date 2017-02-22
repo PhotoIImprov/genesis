@@ -13,8 +13,8 @@ class Photo(Base):
     __tablename__ = 'photo'
 
     id           = Column(Integer, primary_key = True, autoincrement=True)
-    user_id      = Column(Integer, ForeignKey("userlogin.id"), nullable=False)
-    category_id  = Column(Integer, ForeignKey("category.id"), nullable=False)
+    user_id      = Column(Integer, ForeignKey("userlogin.id"), nullable=False, index=True)
+    category_id  = Column(Integer, ForeignKey("category.id"), nullable=False, index=True)
     category_idx = Column(Integer, nullable=True)
     filepath     = Column(String(500), nullable=False)                  # e.g. '/mnt/images/49269d/394f9/d431'
     filename     = Column(String(100), nullable=False, unique=True)     # e.g. '970797dfd9f149269d394f9d43179d64.jpeg'

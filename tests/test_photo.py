@@ -1,13 +1,10 @@
 from unittest import TestCase
-
 import initschema
 import datetime
-import os
+import os, errno
 import uuid
-
 from models import resources
-
-from models import category, photo, usermgr
+from models import category, photo, usermgr, voting
 from . import DatabaseTest
 from random import randint
 
@@ -170,6 +167,21 @@ class TestPhoto(DatabaseTest):
 
         self.teardown()
 
+    # read_photos_not_balloted()
+    # ==========================
+    # Retrieve a list of photos that are not on
+    # any ballots
+    @staticmethod
+    def read_photos_not_balloted(session, uid, cid, count):
+        if uid is None or cid is None or count is None:
+            raise BaseException(errno.EINVAL)
+
+        q = session.query(photo.Photo)\
+        .outerjoin(voting.BallotEntry)\
+        .filter(voting.BallotEntry.ballot_id == None).limit(count)
+
+        p = q.all()
+        return p
 
     def test_read_photos_by_index(self):
 
@@ -199,7 +211,10 @@ class TestPhoto(DatabaseTest):
             if rn not in indices:
                 indices.append(rn)
 
-        p = photo.Photo.read_photos_by_index(self.session, u.id, c.id, indices)
+#        p = photo.Photo.read_photos_by_index(self.session, u.id, c.id, indices)
+#        assert(p is not None)
+
+        p = self.read_photos_not_balloted(self.session, u.id, c.id, 9)
         assert(p is not None)
 
         # now we need to clean up the files
