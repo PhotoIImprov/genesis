@@ -34,17 +34,19 @@ def hello():
     return "ImageImprov Hello World from Flask!"
 
 @app.route("/photo", methods=['POST'])
-@jwt_required()
+#@jwt_required()
 def photo_upload():
     if not request.json:
         abort(400, message="no arguments")
 
     image_data_b64 = request.json['image']
     image_type     = request.json['extension']
+    cid    = request.json['category_id']
+    uid = request.json['user_id']
     image_data = base64.b64decode(image_data_b64)
-    uid = current_identity
+#    uid = current_identity
     session = dbsetup.Session()
-    photo.Photo().save_user_image(session, image_data, image_type, uid)
+    photo.Photo().save_user_image(session, image_data, image_type, uid, cid)
 
     return 'photo uploaded', 201
 

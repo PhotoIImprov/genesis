@@ -78,8 +78,8 @@ class Ballot(Base):
 
         p = q.all()
         return p
-    @staticmethod
-    def number_ballotentries(pid):
+#    @staticmethod
+#    def number_ballotentries(pid):
 
 
 class BallotEntry(Base):

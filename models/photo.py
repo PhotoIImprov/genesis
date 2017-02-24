@@ -153,8 +153,8 @@ class Photo(Base):
     # The user has uploaded an image, we need to save it to
     # the folder structure and save references in the
     # database
-    def save_user_image(self, session, image_data, image_type, userlogin_id):
-        if image_data is None or userlogin_id is None:
+    def save_user_image(self, session, image_data, image_type, uid, cid):
+        if image_data is None or uid is None or cid is None:
             raise errno.EINVAL
 
         self.set_image(image_data)
@@ -170,7 +170,8 @@ class Photo(Base):
         Photo.safe_write_file(self._full_filename, image_data)
 
         # okay, now we need to save all this information to the
-        self.user_id  = userlogin_id
+        self.user_id  = uid
+        self.category_id = cid
 
         session.add(self)
         session.commit()
