@@ -1,4 +1,5 @@
 import datetime
+import base64
 
 from flask import Flask
 from flask     import request, abort
@@ -7,6 +8,7 @@ from flask_jwt import JWT, jwt_required, current_identity
 import initschema
 import dbsetup
 from models import usermgr
+from models import photo
 
 app = Flask(__name__)
 app.debug = True
@@ -30,6 +32,21 @@ def hello():
         return "ImageImprov Hello World from Gunicorn!"
 
     return "ImageImprov Hello World from Flask!"
+
+@app.route("/photo", methods=['POST'])
+@jwt_required()
+def photo_upload():
+    if not request.json:
+        abort(400, message="no arguments")
+
+    image_data_b64 = request.json['image']
+    image_type     = request.json['extension']
+    image_data = base64.b64decode(image_data_b64)
+    uid = current_identity
+    session = dbsetup.Session()
+    photo.Photo().save_user_image(session, image_data, image_type, uid)
+
+    return 'photo uploaded', 201
 
 @app.route("/register", methods=['POST'])
 def register():
@@ -68,6 +85,7 @@ def register():
 
     # user was properly created
     return 'account created', 201
+
 
 if __name__ == '__main__':
     dbsetup.metadata.create_all(bind=dbsetup.engine, checkfirst=True)

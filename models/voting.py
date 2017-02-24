@@ -1,7 +1,8 @@
 from sqlalchemy        import Column, Integer, DateTime, text, ForeignKey
 from sqlalchemy.orm import relationship
-
+import errno
 from dbsetup           import Base
+from models import photo
 
 
 class Ballot(Base):
@@ -62,6 +63,23 @@ class Ballot(Base):
     def create_ballot(session, uid, cid):
         return None
 
+    # read_photos_not_balloted()
+    # ==========================
+    # Retrieve a list of photos that are not on
+    # any ballots
+    @staticmethod
+    def read_photos_not_balloted(session, uid, cid, count):
+        if uid is None or cid is None or count is None:
+            raise BaseException(errno.EINVAL)
+
+        q = session.query(photo.Photo)\
+        .outerjoin(BallotEntry)\
+        .filter(BallotEntry.ballot_id == None).limit(count)
+
+        p = q.all()
+        return p
+    @staticmethod
+    def number_ballotentries(pid):
 
 
 class BallotEntry(Base):

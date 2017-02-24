@@ -6,6 +6,13 @@ from sqlalchemy.orm    import sessionmaker
 from enum import Enum
 import os
 
+class ImageType(Enum):
+    UNKNOWN = 0
+    JPEG    = 1
+    PNG     = 2
+    BITMAP  = 3
+    TIFF    = 4
+
 class EnvironmentType(Enum):
     UNKNOWN = 0
     DEV     = 1
