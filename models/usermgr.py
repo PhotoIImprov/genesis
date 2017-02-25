@@ -58,7 +58,7 @@ class User(Base):
 
     __tablename__ = 'userlogin'
 
-    id           = Column(Integer, ForeignKey("anonuser.id"), primary_key = True)  # ties us back to our anon_user record
+    id           = Column(Integer, ForeignKey("anonuser.id", name="fk_userlogin_id"), primary_key = True)  # ties us back to our anon_user record
     hashedPWD    = Column(String(200), nullable=False)
     emailaddress = Column(String(200), nullable=False, unique=True)
     screenname   = Column(String(100), nullable=True, unique=True)

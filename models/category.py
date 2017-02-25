@@ -5,7 +5,7 @@ class Category(Base):
     __tablename__ = 'category'
 
     id           = Column(Integer, primary_key=True, autoincrement=True)
-    resource_id  = Column(Integer, ForeignKey("resource.resource_id"), nullable=False)
+    resource_id  = Column(Integer, ForeignKey("resource.resource_id", name="fk_category_resource_id"), nullable=False)
     start_date   = Column(DateTime, nullable=False)
     end_date     = Column(DateTime, nullable=False)
 
@@ -34,7 +34,7 @@ class Category(Base):
 
 class PhotoIndex(Base):
     __tablename__ = 'photoindex'
-    category_id  = Column(Integer, ForeignKey("category.id"), primary_key=True, nullable=False)
+    category_id  = Column(Integer, ForeignKey("category.id", name="fk_photoindex_category_id"), primary_key=True, nullable=False)
     idx          = Column(Integer, nullable=False, default=0)
 
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
