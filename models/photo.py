@@ -20,7 +20,9 @@ class Photo(Base):
     category_idx = Column(Integer, nullable=True)
     filepath     = Column(String(500), nullable=False)                  # e.g. '/mnt/images/49269d/394f9/d431'
     filename     = Column(String(100), nullable=False, unique=True)     # e.g. '970797dfd9f149269d394f9d43179d64.jpeg'
-    votes        = Column(Integer, nullable=False, default=0)           # number of votes on this photo
+    times_voted  = Column(Integer, nullable=False, default=0)           # number of votes on this photo
+    score        = Column(Integer, nullable=False, default=0)           # calculated score based on ballot returns
+    likes        = Column(Integer, nullable=False, default=0)           # number of "likes" given this photo
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 
@@ -34,6 +36,9 @@ class Photo(Base):
     _raw_image     = None   # this is our unadulterated image file
 
 # ======================================================================================================
+    def increment_vote_count(self):
+        times_voted = times_voted + 1
+        return
 
     def set_image(self, image):
         if image is None:

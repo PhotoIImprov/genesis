@@ -9,6 +9,7 @@ import initschema
 import dbsetup
 from models import usermgr
 from models import photo
+from models import voting
 
 app = Flask(__name__)
 app.debug = True
@@ -32,6 +33,36 @@ def hello():
         return "ImageImprov Hello World from Gunicorn!"
 
     return "ImageImprov Hello World from Flask!"
+
+@app.route("/leaderboard", methods=['GET'])
+def get_leaderboard():
+    if not request.json:
+        abort(400, message="no arguments")
+
+    cid = request.json['category_id']
+    return 'here is the leader board', 200
+
+@app.route("/ballot", methods=['GET'])
+def get_ballot():
+    if not request.json:
+        abort(400, message="no arguments")
+
+    uid = request.json['user_id']
+    cid = request.json['category_id']
+
+    return 'here is your ballot', 200
+
+@app.route("/vote", methods=['POST'])
+def cast_vote():
+    if not request.json:
+        abort(400, message="no arguments")
+
+    uid = request.json['user_id']
+    ballots=request.json['ballots']
+    session = dbsetup.Session()
+
+    voting.Ballot.tabulate_votes(session, uid, ballots)
+    return 'thank you for voting', 200
 
 @app.route("/photo", methods=['POST'])
 #@jwt_required()

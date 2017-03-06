@@ -30,6 +30,8 @@ def determine_environment():
         return EnvironmentType.DEV
     if "PROD" in hostname:
         return EnvironmentType.PROD
+    if "INSTANCE" in hostname:
+        return EnvironmentType.PROD
     if "STAGE" in hostname:
         return EnvironmentType.STAGE
     if "QA" in hostname:
@@ -44,6 +46,15 @@ def connection_string(environment):
 
     if environment == EnvironmentType.PROD:
         return 'mysql+pymysql://python:python@104.154.227.232:3306/imageimprov'
+
+    return None
+
+def image_store(environment):
+    if environment == EnvironmentType.DEV:
+        return '/mnt/image_files'
+
+    if environment == EnvironmentType.PROD:
+        return '/mnt/image_files'
 
     return None
 

@@ -5,6 +5,8 @@ from dbsetup           import Base
 from models import photo
 
 
+_NUM_BALLOT_ENTRIES = 4
+
 class Ballot(Base):
     __tablename__ = 'ballot'
 
@@ -78,9 +80,21 @@ class Ballot(Base):
 
         p = q.all()
         return p
-#    @staticmethod
-#    def number_ballotentries(pid):
 
+    @staticmethod
+    def tabulate_votes(session, uid, ballots):
+        if uid is None or ballots is None:
+            raise BaseException(errno.EINVAL)
+        if len(ballots) < _NUM_BALLOT_ENTRIES:
+            raise BaseException(errno.EINVAL)
+
+        # okay we have everything we need, the category_id can be determined from the
+        # ballot entry
+        for ballotentry in ballots:
+            BallotEntry.tabulate_vote(session,  ballotentry.bid, ballotentry.vote, ballotentry.like)
+
+        session.commit()
+        return
 
 class BallotEntry(Base):
     __tablename__ = 'ballotentry'
@@ -90,6 +104,7 @@ class BallotEntry(Base):
     user_id      = Column(Integer, ForeignKey("userlogin.id", name="fk_ballotentry_user_id"),  nullable=False, index=True)
     photo_id     = Column(Integer, ForeignKey("photo.id", name="fk_ballotentry_photo_id"), nullable=False, index=True)
     vote         = Column(Integer, nullable=True) # ranking in the ballot
+    like         = Column(Integer, nullable=False, default=0) # if this photo was "liked"
 
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
@@ -101,3 +116,59 @@ class BallotEntry(Base):
         q = session.query(BallotEntry).filter_by(user_id = uid, category_id = cid, ballot_id = bid)
         be = q.all()
         return be
+
+    def add_vote(self, vote):
+        self.vote = self.vote + vote
+        return
+    def increment_like(self, l):
+        if l == 1:
+            self.like = self.like + 1
+        return
+
+    @staticmethod
+    def tabulate_vote(session, bid, vote, like):
+        if bid is None:
+            raise BaseException(errno.EINVAL)
+
+        # okay, write this vote out to the ballot entry
+
+        q = session.query(BallotEntry).filterby(ballot_id = bid)
+        be = q.one()
+        if be is None:
+            raise BaseException(errno.EADDRNOTAVAIL)
+
+        be.add_vote(vote)
+        be.increment_like(like)
+
+        q = session.query(photo.Photo).filterby(be.photo_id)
+        p = q.one()
+        if p is None:
+            raise BaseException(errno.EADDRNOTAVAIL)
+
+        p.increment_vote_count()
+
+        session.update(be)
+        session.update(p)
+        return
+
+class LeaderBoard(Base):
+    __tablename__ = 'leaderboard'
+    id           = Column(Integer, primary_key=True, autoincrement=True)
+    category_id  = Column(Integer, ForeignKey("category.id", name="fk_leaderboard_category_id"), nullable=False, index=True, primary_key=True)
+    user_id      = Column(Integer, ForeignKey("userlogin.id", name="fk_leaderboard_user_id"),  nullable=False, index=True)
+    score        = Column(Integer, nullable=True) # current score
+    votes        = Column(Integer, nullable=True) # ranking in the ballot
+    likes        = Column(Integer, nullable=False, default=0) # how many times their photo has been liked
+
+    created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
+    last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+
+    @staticmethod
+    def update_leaderboard(session, uid, cid, vote, likes, score):
+        # okay need to check if leaderboard needs an update
+        if uid is None or cid is None:
+            raise BaseException(errno.EINVAL)
+
+        results = session.execute('sp_updateleaderboard ?,?,?,?,?', [uid, cid, likes, vote, score])
+
+        return
