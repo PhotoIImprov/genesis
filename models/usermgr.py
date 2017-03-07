@@ -2,6 +2,7 @@ from passlib.hash      import pbkdf2_sha256
 from sqlalchemy        import Column, Integer, String, DateTime, text, ForeignKey
 from dbsetup           import Session, Base
 import hashlib
+import pymysql
 
 class AnonUser(Base):
     __tablename__ = "anonuser"
@@ -15,7 +16,12 @@ class AnonUser(Base):
             return None
 
         m_guid = m_guid.upper()
-        au = session.query(AnonUser).filter_by(guid = m_guid).first()
+
+        try:
+            au = session.query(AnonUser).filter_by(guid = m_guid).first()
+        except pymysql.err.IntegrityError as e:
+            raise
+
         return au
 
     @staticmethod
