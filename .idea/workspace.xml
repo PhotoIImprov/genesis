@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/photo.py" afterPath="$PROJECT_DIR$/models/photo.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/voting.py" afterPath="$PROJECT_DIR$/models/voting.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/test_leaderBoard.py" afterPath="$PROJECT_DIR$/tests/test_leaderBoard.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -20,7 +18,7 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_ballot.coverage" NAME="Unittests in test_ballot Coverage Results" MODIFIED="1487601179917" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/genesis$Unittest_TestIiFile_test_mkdir_p.coverage" NAME="Unittest TestIiFile.test_mkdir_p Coverage Results" MODIFIED="1487086092956" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/genesis$iiServer.coverage" NAME="iiServer Coverage Results" MODIFIED="1487988377474" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_leaderBoard.coverage" NAME="Unittests in test_leaderBoard Coverage Results" MODIFIED="1488918084361" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_leaderBoard.coverage" NAME="Unittests in test_leaderBoard Coverage Results" MODIFIED="1488921015295" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
@@ -43,8 +41,8 @@
       <file leaf-file-name="photo.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/models/photo.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="146">
-              <caret line="108" column="52" lean-forward="true" selection-start-line="108" selection-start-column="52" selection-end-line="108" selection-end-column="52" />
+            <state relative-caret-position="105">
+              <caret line="258" column="24" lean-forward="false" selection-start-line="258" selection-start-column="24" selection-end-line="258" selection-end-column="24" />
               <folding>
                 <element signature="e#0#17#0" expanded="true" />
               </folding>
@@ -58,18 +56,6 @@
             <state relative-caret-position="363">
               <caret line="43" column="42" lean-forward="true" selection-start-line="43" selection-start-column="42" selection-end-line="43" selection-end-column="42" />
               <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="test_photo.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_photo.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="315">
-              <caret line="27" column="34" lean-forward="false" selection-start-line="15" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
-              <folding>
-                <element signature="e#0#29#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -128,16 +114,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/__init__.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-26">
-              <caret line="13" column="0" lean-forward="false" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
     </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
@@ -150,7 +126,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Session()</find>
       <find>create_all</find>
       <find>sub_path</find>
       <find>filename</find>
@@ -180,6 +155,7 @@
       <find>_mnt_point</find>
       <find>dbsetup</find>
       <find>errno</find>
+      <find>'DROP PROCEDURE IF EXISTS sp_updateleaderboard;\n' 'DELIMITER //'n' 'CREATE PROCEDURE sp_updateleaderboard (IN in_uid int, IN in_cid int, IN in_likes int, IN in_vote int, IN in_score int)'n' 'this_proc: BEGIN\n' '  declare leaderboard_size int;\n' '  declare num_leaders int;\n' '  declare uid int;\n' '  declare min_score int;\n' '\n'  '  set leaderboard_size = 5; -- we should get this from somewhere global...\n' '\n' '  -- The userboard isn't full, add the user (need to ensure we don't add more than 'num_leaders' due to race condition)\n' '  select count(*) into num_leaders from leaderboard where category_id = in_cid;\n' '\n' '  -- Case #1: User is already on the leaderboard, update their record!\n' '  -- User already on leaderboard, update and leave\n' '  IF EXISTS(select * from leaderboard where user_id = in_uid AND category_id = in_cid) THEN\n' '      UPDATE leaderboard set score = in_score, likes = in_likes, votes = in_vote\n' '      where user_id = in_uid AND category_id = in_cid;\n' '\n' '      IF (ROW_COUNT() = 1) THEN -- race condition test\n' '        LEAVE this_proc;\n' '      END IF;\n' '  END IF;\n' '\n' '\n' '  -- Case #2: The leaderboard is full and we have a score that belongs on it (user is NOT on leaderboard due to Case #1)\n' '  IF (num_leaders &gt;= leaderboard_size) AND EXISTS(select * from leaderboard where score &lt; in_score and category_id = in_cid) THEN\n' '    -- identify the row we''re going to swap with\n' '    SELECT MIN(score) into min_score FROM leaderboard where category_id = in_cid;\n' '    SELECT user_id into uid FROM leaderboard where category_id = in_cid AND score = min_score LIMIT 1;\n' '    IF (ROW_COUNT() = 0) THEN -- race condition, score changed before we could get user_id\n' '      LEAVE this_proc;\n' '    END IF;\n' '\n' '    -- uid/min_score is the current record with the lowest score, overwrite!\n' '    IF (in_score &gt; min_score) THEN\n' '      UPDATE leaderboard set user_id = in_uid, score = in_score, votes = in_vote, likes = in_likes\n' '      WHERE category_id = in_cid AND user_id = uid AND min_score = score;\n' '\n' '      -- If no rows affected, then race condition, regardless we are done here\n' '      LEAVE this_proc;\n' '    END IF;\n' '  END IF;\n' '\n' '  -- Case #3: Leader board is not full (user is NOT on leaderboard due to Case #1)\n' '  IF (num_leaders &lt; leaderboard_size) THEN\n' '    -- okay we don''t have a full leaderboard\n' '    INSERT INTO leaderboard (score, likes, votes, user_id, category_id) VALUES(in_score, in_likes, in_vote, in_uid, in_cid);\n' '    IF (ROW_COUNT() = 1) THEN -- race condition test\n' '    LEAVE this_proc;\n' '    END IF;\n' '  END IF;\n' '\n' 'END //\n' 'DELIMITER ;\n'</find>
     </findStrings>
     <replaceStrings>
       <replace>Photo</replace>
@@ -230,7 +206,9 @@
         <option value="$PROJECT_DIR$/tests/__init__.py" />
         <option value="$PROJECT_DIR$/models/voting.py" />
         <option value="$PROJECT_DIR$/tests/test_leaderBoard.py" />
+        <option value="$USER_HOME$/Downloads/sp_UpdateLeaderBoard.sql" />
         <option value="$PROJECT_DIR$/models/photo.py" />
+        <option value="$USER_HOME$/Downloads/trigger_highscore.sql" />
       </list>
     </option>
   </component>
@@ -337,7 +315,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$USER_HOME$/vm.yaml" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Downloads/trigger_highscore.sql" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
     <property name="js.eslint.eslintPackage" value="" />
   </component>
@@ -800,15 +778,6 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Unittests_in_test_leaderBoard - 2017.03.07 at 15h 01m 59s.xml">
-      <configuration name="Unittests in test_leaderBoard" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_in_test_leaderBoard - 2017.03.07 at 15h 03m 32s.xml">
-      <configuration name="Unittests in test_leaderBoard" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_in_test_leaderBoard - 2017.03.07 at 15h 10m 02s.xml">
-      <configuration name="Unittests in test_leaderBoard" configurationId="tests" />
-    </history-entry>
     <history-entry file="Unittests_in_test_leaderBoard - 2017.03.07 at 15h 12m 26s.xml">
       <configuration name="Unittests in test_leaderBoard" configurationId="tests" />
     </history-entry>
@@ -830,18 +799,27 @@
     <history-entry file="Unittests_in_test_leaderBoard - 2017.03.07 at 15h 21m 27s.xml">
       <configuration name="Unittests in test_leaderBoard" configurationId="tests" />
     </history-entry>
+    <history-entry file="Unittests_in_test_leaderBoard - 2017.03.07 at 16h 08m 54s.xml">
+      <configuration name="Unittests in test_leaderBoard" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_test_leaderBoard - 2017.03.07 at 16h 10m 09s.xml">
+      <configuration name="Unittests in test_leaderBoard" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_test_leaderBoard - 2017.03.07 at 16h 10m 19s.xml">
+      <configuration name="Unittests in test_leaderBoard" configurationId="tests" />
+    </history-entry>
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="27" width="1920" height="1053" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18229167" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18229167" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3284091" sideWeight="0.50250536" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3090909" sideWeight="0.49749464" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3090909" sideWeight="0.49749464" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -956,8 +934,6 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/.PyCharm2016.3/system/remote_sources/-789823566/1405239563/werkzeug/serving.py" />
-    <entry file="file://$USER_HOME$/.PyCharm2016.3/system/remote_sources/-789823566/1405239563/sqlalchemy/sql/schema.py" />
     <entry file="file://$USER_HOME$/my_app/filenaming.py" />
     <entry file="file://$USER_HOME$/.local/lib/python3.5/site-packages/werkzeug/serving.py" />
     <entry file="file:///usr/local/lib/python3.5/dist-packages/sqlalchemy/orm/instrumentation.py">
@@ -1292,10 +1268,26 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/Downloads/trigger_highscore.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Downloads/sp_UpdateLeaderBoard.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="524">
+          <caret line="57" column="0" lean-forward="false" selection-start-line="57" selection-start-column="0" selection-end-line="57" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/models/photo.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="146">
-          <caret line="108" column="52" lean-forward="true" selection-start-line="108" selection-start-column="52" selection-end-line="108" selection-end-column="52" />
+        <state relative-caret-position="105">
+          <caret line="258" column="24" lean-forward="false" selection-start-line="258" selection-start-column="24" selection-end-line="258" selection-end-column="24" />
           <folding>
             <element signature="e#0#17#0" expanded="true" />
           </folding>
