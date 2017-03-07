@@ -4,6 +4,7 @@ from sqlalchemy        import Column, Integer, String, DateTime, text, ForeignKe
 import uuid
 from dbsetup           import Base
 import os, os.path, errno
+import dbsetup
 
 import cv2
 import numpy as np
@@ -37,7 +38,24 @@ class Photo(Base):
 
 # ======================================================================================================
     def increment_vote_count(self):
-        times_voted = times_voted + 1
+        if self.times_voted is None:
+            self.times_voted = 0
+
+        self.times_voted = self.times_voted + 1
+        return
+
+    def increment_likes(self):
+        if self.likes is None:
+            self.likes = 0
+
+        self.likes = self.likes + 1
+        return
+
+    def update_score(self, points):
+        if self.score is None:
+            self.score = 0
+
+        self.score = self.score + points
         return
 
     def set_image(self, image):
@@ -93,8 +111,10 @@ class Photo(Base):
                 path_only = os.path.dirname(path_and_name)
                 Photo.mkdir_p(path_only)
             except OSError as err:
-                # this is a problem, not just someone beat us to creating the dir
-                pass
+                if err.errno == errno.EACCES:
+                    # we don't have permissions to this folder! log it and fail
+                    raise
+                raise
 
             # try writing again
             Photo.write_file(path_and_name, fdata)
@@ -170,6 +190,7 @@ class Photo(Base):
         # okay we have aguments, lets create our file name
         self.create_name()
         self.create_sub_path()
+        self._mnt_point = dbsetup.image_store(dbsetup._environment)
         self.create_full_path(self._mnt_point)
         self.create_full_filename()
 

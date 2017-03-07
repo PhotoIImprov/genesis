@@ -148,8 +148,7 @@ class BallotEntry(Base):
 
         p.increment_vote_count()
 
-        session.update(be)
-        session.update(p)
+        session.commit()
         return
 
 class LeaderBoard(Base):
@@ -180,7 +179,7 @@ class LeaderBoard(Base):
             results = session.execute('CALL sp_updateleaderboard(:uid,:cid,:in_likes,:in_vote,:in_score);', {"uid": uid, "cid": cid, "in_likes":likes, "in_vote":vote, "in_score":score})
             session.commit()
         except:
-            e = sys.exec_info()[0]
+            e = sys.exc_info()[0]
             # what happened here?
             raise
 
