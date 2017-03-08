@@ -158,3 +158,44 @@ def identity(payload):
     # if u doesn't exist, that's really bad, it's a corrupted token or something
     # really strange. We should log this
     return u
+
+#================================= F R I E N D - L I S T ========================================
+class Friend(Base):
+
+    __tablename__ = 'friend'
+
+    user_id      = Column(Integer, ForeignKey("userlogin.id", name="fk_friend_user_id"),     primary_key = True)  # ties us back to our user record
+    myfriend_id  = Column(Integer, ForeignKey("userlogin.id", name="fk_friend_myfriend_id"), primary_key = True)  # ties us back to our user record
+    active       = Column(Integer, nullable=False, default=1)
+
+    created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
+    last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
+
+    @classmethod
+    def get_id(self):
+        return self.id
+
+class FriendRequest(Base):
+
+    __tablename__ = 'friendrequest'
+
+    id                  = Column(Integer, primary_key = True, autoincrement=True)
+    askingfriend_id     = Column(Integer, ForeignKey("userlogin.id", name="fk_askingfriend_id"))  # ties us back to our user record
+    notifyingfriend_id  = Column(Integer, ForeignKey("userlogin.id", name="fk_notifyingfriend_id"))  # ties us back to our user record
+
+    # declined  accepted
+    # NULL      NULL        waiting for response
+    #   1        x          friendship not accepted
+    # NULL/0     1          friendship accepted
+    #   x        0          friendship not accepted
+
+    declined             = Column(Integer, nullable=True)
+    accepted             = Column(Integer, nullable=True)
+
+    created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
+    last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
+
+    @classmethod
+    def get_id(self):
+        return self.id
+

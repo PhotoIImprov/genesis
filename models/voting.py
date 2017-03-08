@@ -18,7 +18,7 @@ class Ballot(Base):
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
-    _ballotentries = relationship("BallotEntry", back_populates="ballot")
+    _ballotentries = relationship("BallotEntry")
     # ======================================================================================================
 
     def __init__(self, cid, uid):
@@ -64,7 +64,21 @@ class Ballot(Base):
 
     @staticmethod
     def create_ballot(session, uid, cid):
-        return None
+        count = 4 # number of photos in a ballot
+        plist = Ballot.create_ballot_list(session, uid, cid, count)
+        if plist is None:
+            return None
+
+        b = Ballot(cid, uid)
+        # now create the ballot entries and attach to the ballot
+        for p in plist:
+            be = BallotEntry(p.user_id, p.category_id, p.id)
+            b.add_ballotentry(be)
+
+        # okay we have created ballot entries for our select photos
+        # time to write it all out
+        Ballot.write_ballot(session,b)
+        return b
 
     # read_photos_not_balloted()
     # ==========================
@@ -77,10 +91,42 @@ class Ballot(Base):
 
         q = session.query(photo.Photo)\
         .outerjoin(BallotEntry)\
-        .filter(BallotEntry.ballot_id == None).limit(count)
+        .filter(BallotEntry.ballot_id == None, photo.Photo.user_id != uid).limit(count)
 
         p = q.all()
         return p
+
+    # create_ballot_list()
+    # ======================
+    # we will read 'count' photos from the database
+    # that don't belong to this user. We loop through
+    # times voted on for our first 3 passes
+    #
+    # if we can't get 'count' photos, then we are done
+    # Round #1...
+    @staticmethod
+    def create_ballot_list(session, uid, cid, count):
+        if uid is None or cid is None or count is None:
+            raise BaseException(errno.EINVAL)
+
+        # we need "count"
+        photos_for_ballot = []
+        photos_for_ballot = Ballot.read_photos_not_balloted(session, uid, cid, count)
+
+        for idx in range(1,3):
+            if len(photos_for_ballot) >= count:
+                return photos_for_ballot
+
+            remaining_photos_needed = count - len(photos_for_ballot)
+            # need more photos to construct the ballot
+            q = session.query(photo.Photo)\
+            .outerjoin(BallotEntry)\
+            .filter(BallotEntry.ballot_id == idx, BallotEntry.user_id != uid).limit(remaining_photos_needed)
+            p = q.all()
+            if p is not None:
+                photos_for_ballot.extend(p)
+
+        return photos_for_ballot
 
     @staticmethod
     def tabulate_votes(session, uid, ballots):
@@ -110,7 +156,15 @@ class BallotEntry(Base):
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
-    ballot = relationship("Ballot", back_populates="_ballotentries")
+#    ballot = relationship("Ballot", back_populates="_ballotentries")
+
+    def __init__(self, uid, cid, pid):
+        self.category_id = cid
+        self.user_id = uid
+        self.photo_id = pid
+        self.vote = 0
+        self.like = 0
+        return
 
     @staticmethod
     def find_ballotentries(session, bid, cid, uid):

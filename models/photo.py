@@ -180,6 +180,8 @@ class Photo(Base):
     # The user has uploaded an image, we need to save it to
     # the folder structure and save references in the
     # database
+    #
+    # Note: We also create the thumbnail file as well
     def save_user_image(self, session, image_data, image_type, uid, cid):
         if image_data is None or uid is None or cid is None:
             raise errno.EINVAL
@@ -187,15 +189,16 @@ class Photo(Base):
         self.set_image(image_data)
         self._image_type = image_type
 
-        # okay we have aguments, lets create our file name
-        self.create_name()
-        self.create_sub_path()
-        self._mnt_point = dbsetup.image_store(dbsetup._environment)
-        self.create_full_path(self._mnt_point)
+        # okay we have arguments, lets create our file name
+        self.create_name()      # our globally unique filename
+        self.create_sub_path()  # a path to distribute the load
+        self._mnt_point = dbsetup.image_store(dbsetup._environment) # get the mount point
+        self.create_full_path(self._mnt_point) # put it all together
         self.create_full_filename()
 
         # write to the folder
         Photo.safe_write_file(self._full_filename, image_data)
+        self.create_thumb()
 
         # okay, now we need to save all this information to the
         self.user_id  = uid

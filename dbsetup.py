@@ -54,7 +54,7 @@ def image_store(environment):
         return '/mnt/image_files'
 
     if environment == EnvironmentType.PROD:
-        return '/mnt/image_files'
+        return '/mnt/gcs-photos'
 
     return None
 
