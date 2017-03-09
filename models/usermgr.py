@@ -107,12 +107,12 @@ class User(Base):
         # Find the anon account associated with this
         au = AnonUser.find_anon_user(session, guid)
         if au is None:
-            return None # this shouldn't happen
+            au = AnonUser.create_anon_user(session, guid)
 
         # first lets see if this user already exists
         u_exists = User.find_user_by_email(session, username)
         if (u_exists is not None):
-            return u_exists # this shouldn't happen!
+            return u_exists # this shouldn't happen! (probably should delete anon user if we just created one - transaction!)
 
         # okay, we can create a new UserLogin entry
         new_user = User()

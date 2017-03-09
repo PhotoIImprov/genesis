@@ -109,15 +109,15 @@ def register():
     if usermgr.AnonUser.is_guid(emailaddress, password):
         foundAnonUser = usermgr.AnonUser.find_anon_user(session, emailaddress)
         if foundAnonUser is not None:
-            abort(400, message="exists")
+            return make_response(jsonify({'error': "user already exists!"}),400)
 
         newAnonUser = usermgr.AnonUser.create_anon_user(session, emailaddress)
         if newAnonUser is None:
-            abort(500, message="error creating anon user")
+            return make_response(jsonify({'error': "error creating anon user"}),500)
     else:
         foundUser = usermgr.User.find_user_by_email(session, emailaddress)
         if foundUser is not None:
-            abort(400, message="user exists!")  # user exists!
+            return make_response(jsonify({'error': "user already exists!"}),400)
 
         # okay the request is valid and the user was not found, so we can
         # create their account
