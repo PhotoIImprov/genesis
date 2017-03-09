@@ -7,6 +7,7 @@ from models import usermgr
 from models import category, voting, photo
 from . import DatabaseTest
 import os
+import json
 
 class TestBallot(DatabaseTest):
 
@@ -70,6 +71,7 @@ class TestBallot(DatabaseTest):
 
         # Now let's created a ballot
         b = voting.Ballot.create_ballot(self.session, u.id, c.id)
-
+        json_string = b.to_json()
+        json_size = len(json_string)
         self.teardown()
         return

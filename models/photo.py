@@ -9,6 +9,7 @@ import dbsetup
 import cv2
 import numpy as np
 import pymysql
+import base64
 
 
 class Photo(Base):
@@ -175,6 +176,22 @@ class Photo(Base):
         thumb_filename = self.filepath + "/th_" + self.filename + ".png"
         return thumb_filename
 
+    # read_thumbnail_image()
+    # ======================
+    # returns the binary value of the thumbnail
+    # associated with the photo record
+    #
+    def read_thumbnail_image(self):
+        t_fn = self.create_thumb_filename()
+        ft = open(t_fn, 'rb')
+        if ft is None:
+            return None
+        thumb = ft.read()
+        if thumb is None:
+            return None
+
+        return thumb
+
     # SaveUserImage()
     # ===============
     # The user has uploaded an image, we need to save it to
@@ -237,6 +254,21 @@ class Photo(Base):
 
         return p
 
+    @staticmethod
+    def read_ballot_photos(session, b):
+        if session is None or b is None:
+            raise BaseException(errno.EINVAL)
+
+        idx_list = []
+        for be in b._ballotentries:
+            idx_list.append(be.photo_id)
+
+        p_list = Photo.read_photos_by_index(session, b.user_id, b.category_id, idx_list)
+        # we have the list of photo records, now use this to fetch the
+        # thumbnail images
+
+        return
+
     # read_photos_by_index()
     # ======================
     # given a list of indices, will return a list of photos
@@ -252,6 +284,14 @@ class Photo(Base):
         p = q.all()
         return p
 
+    @staticmethod
+    def read_photo_by_index(session, p_idx):
+        if session is None or p_idx is None:
+            raise BaseException(errno.EINVAL)
+
+        q = session.query(Photo).filter(Photo.id == p_idx)
+        p = q.one()
+        return p
 
 
 # ====================================================================================================================

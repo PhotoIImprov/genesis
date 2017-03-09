@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dbsetup.py" afterPath="$PROJECT_DIR$/dbsetup.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/iiServer.py" afterPath="$PROJECT_DIR$/iiServer.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/photo.py" afterPath="$PROJECT_DIR$/models/photo.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/usermgr.py" afterPath="$PROJECT_DIR$/models/usermgr.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/voting.py" afterPath="$PROJECT_DIR$/models/voting.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/test_ballot.py" afterPath="$PROJECT_DIR$/tests/test_ballot.py" />
     </list>
@@ -19,7 +18,7 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_iiFile.coverage" NAME="Unittests in test_iiFile Coverage Results" MODIFIED="1487375764722" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_photo.coverage" NAME="Unittests in test_photo Coverage Results" MODIFIED="1487943118656" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/iiServer$iiServer.coverage" NAME="iiServer Coverage Results" MODIFIED="1486600933995" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_ballot.coverage" NAME="Unittests in test_ballot Coverage Results" MODIFIED="1488984956112" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_ballot.coverage" NAME="Unittests in test_ballot Coverage Results" MODIFIED="1489077059868" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/genesis$Unittest_TestIiFile_test_mkdir_p.coverage" NAME="Unittest TestIiFile.test_mkdir_p Coverage Results" MODIFIED="1487086092956" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/genesis$iiServer.coverage" NAME="iiServer Coverage Results" MODIFIED="1487988377474" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_leaderBoard.coverage" NAME="Unittests in test_leaderBoard Coverage Results" MODIFIED="1488921015295" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -30,26 +29,54 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="test_leaderBoard.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_leaderBoard.py">
+      <file leaf-file-name="test_ballot.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/test_ballot.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="299">
-              <caret line="43" column="17" lean-forward="false" selection-start-line="11" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
+            <state relative-caret-position="454">
+              <caret line="77" column="0" lean-forward="true" selection-start-line="77" selection-start-column="0" selection-end-line="77" selection-end-column="0" />
               <folding>
-                <element signature="e#0#29#0" expanded="true" />
+                <element signature="e#0#17#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="test_ballot.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/tests/test_ballot.py">
+      <file leaf-file-name="pydevd.py" pinned="false" current-in-tab="false">
+        <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="134">
-              <caret line="47" column="69" lean-forward="true" selection-start-line="47" selection-start-column="69" selection-end-line="47" selection-end-column="69" />
-              <folding>
-                <element signature="e#0#17#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="364">
+              <caret line="1596" column="0" lean-forward="true" selection-start-line="1596" selection-start-column="0" selection-end-line="1596" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="query.py" pinned="false" current-in-tab="false">
+        <entry file="file:///usr/local/lib/python3.5/dist-packages/sqlalchemy/orm/query.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="176">
+              <caret line="2754" column="0" lean-forward="false" selection-start-line="2754" selection-start-column="0" selection-end-line="2754" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="case.py" pinned="false" current-in-tab="false">
+        <entry file="file:///usr/lib/python3.5/unittest/case.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="154">
+              <caret line="599" column="0" lean-forward="false" selection-start-line="599" selection-start-column="0" selection-end-line="599" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="contextlib.py" pinned="false" current-in-tab="false">
+        <entry file="file:///usr/lib/python3.5/contextlib.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="176">
+              <caret line="63" column="0" lean-forward="false" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -57,22 +84,10 @@
       <file leaf-file-name="photo.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models/photo.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2985">
-              <caret line="199" column="0" lean-forward="false" selection-start-line="199" selection-start-column="0" selection-end-line="199" selection-end-column="0" />
+            <state relative-caret-position="161">
+              <caret line="192" column="0" lean-forward="false" selection-start-line="192" selection-start-column="0" selection-end-line="192" selection-end-column="0" />
               <folding>
                 <element signature="e#0#17#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="test_photo.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_photo.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="390">
-              <caret line="32" column="32" lean-forward="true" selection-start-line="32" selection-start-column="32" selection-end-line="32" selection-end-column="32" />
-              <folding>
-                <element signature="e#0#29#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -81,21 +96,9 @@
       <file leaf-file-name="dbsetup.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dbsetup.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-16">
+            <state relative-caret-position="-106">
               <caret line="31" column="35" lean-forward="true" selection-start-line="31" selection-start-column="35" selection-end-line="31" selection-end-column="35" />
               <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="usermgr.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/usermgr.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="584">
-              <caret line="201" column="0" lean-forward="false" selection-start-line="201" selection-start-column="0" selection-end-line="201" selection-end-column="0" />
-              <folding>
-                <element signature="e#0#43#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -103,8 +106,8 @@
       <file leaf-file-name="voting.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models/voting.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="435">
-              <caret line="80" column="0" lean-forward="false" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
+            <state relative-caret-position="251">
+              <caret line="223" column="0" lean-forward="false" selection-start-line="223" selection-start-column="0" selection-end-line="223" selection-end-column="0" />
               <folding>
                 <element signature="e#0#73#0" expanded="true" />
               </folding>
@@ -112,11 +115,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="session.py" pinned="false" current-in-tab="false">
+        <entry file="file:///usr/local/lib/python3.5/dist-packages/sqlalchemy/orm/session.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="266">
+              <caret line="464" column="0" lean-forward="false" selection-start-line="464" selection-start-column="0" selection-end-line="464" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/iiServer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="284">
-              <caret line="47" column="42" lean-forward="true" selection-start-line="47" selection-start-column="42" selection-end-line="47" selection-end-column="42" />
+            <state relative-caret-position="-630">
+              <caret line="3" column="32" lean-forward="false" selection-start-line="3" selection-start-column="32" selection-end-line="3" selection-end-column="32" />
               <folding />
             </state>
           </provider>
@@ -134,12 +147,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>create_all</find>
-      <find>sub_path</find>
-      <find>filename</find>
-      <find>session</find>
-      <find>create_thumb</find>
-      <find>_image_data</find>
       <find>create_user</find>
       <find>conn</find>
       <find>_envionr</find>
@@ -164,6 +171,12 @@
       <find>dbsetup</find>
       <find>errno</find>
       <find>'DROP PROCEDURE IF EXISTS sp_updateleaderboard;\n' 'DELIMITER //'n' 'CREATE PROCEDURE sp_updateleaderboard (IN in_uid int, IN in_cid int, IN in_likes int, IN in_vote int, IN in_score int)'n' 'this_proc: BEGIN\n' '  declare leaderboard_size int;\n' '  declare num_leaders int;\n' '  declare uid int;\n' '  declare min_score int;\n' '\n'  '  set leaderboard_size = 5; -- we should get this from somewhere global...\n' '\n' '  -- The userboard isn't full, add the user (need to ensure we don't add more than 'num_leaders' due to race condition)\n' '  select count(*) into num_leaders from leaderboard where category_id = in_cid;\n' '\n' '  -- Case #1: User is already on the leaderboard, update their record!\n' '  -- User already on leaderboard, update and leave\n' '  IF EXISTS(select * from leaderboard where user_id = in_uid AND category_id = in_cid) THEN\n' '      UPDATE leaderboard set score = in_score, likes = in_likes, votes = in_vote\n' '      where user_id = in_uid AND category_id = in_cid;\n' '\n' '      IF (ROW_COUNT() = 1) THEN -- race condition test\n' '        LEAVE this_proc;\n' '      END IF;\n' '  END IF;\n' '\n' '\n' '  -- Case #2: The leaderboard is full and we have a score that belongs on it (user is NOT on leaderboard due to Case #1)\n' '  IF (num_leaders &gt;= leaderboard_size) AND EXISTS(select * from leaderboard where score &lt; in_score and category_id = in_cid) THEN\n' '    -- identify the row we''re going to swap with\n' '    SELECT MIN(score) into min_score FROM leaderboard where category_id = in_cid;\n' '    SELECT user_id into uid FROM leaderboard where category_id = in_cid AND score = min_score LIMIT 1;\n' '    IF (ROW_COUNT() = 0) THEN -- race condition, score changed before we could get user_id\n' '      LEAVE this_proc;\n' '    END IF;\n' '\n' '    -- uid/min_score is the current record with the lowest score, overwrite!\n' '    IF (in_score &gt; min_score) THEN\n' '      UPDATE leaderboard set user_id = in_uid, score = in_score, votes = in_vote, likes = in_likes\n' '      WHERE category_id = in_cid AND user_id = uid AND min_score = score;\n' '\n' '      -- If no rows affected, then race condition, regardless we are done here\n' '      LEAVE this_proc;\n' '    END IF;\n' '  END IF;\n' '\n' '  -- Case #3: Leader board is not full (user is NOT on leaderboard due to Case #1)\n' '  IF (num_leaders &lt; leaderboard_size) THEN\n' '    -- okay we don''t have a full leaderboard\n' '    INSERT INTO leaderboard (score, likes, votes, user_id, category_id) VALUES(in_score, in_likes, in_vote, in_uid, in_cid);\n' '    IF (ROW_COUNT() = 1) THEN -- race condition test\n' '    LEAVE this_proc;\n' '    END IF;\n' '  END IF;\n' '\n' 'END //\n' 'DELIMITER ;\n'</find>
+      <find>base64</find>
+      <find>read_thum</find>
+      <find>extend(</find>
+      <find>session</find>
+      <find>dbsetup.s</find>
+      <find>Session(</find>
     </findStrings>
     <replaceStrings>
       <replace>Photo</replace>
@@ -206,18 +219,18 @@
         <option value="$PROJECT_DIR$/models/category.py" />
         <option value="$PROJECT_DIR$/requirements.txt" />
         <option value="$USER_HOME$/vm.yaml" />
-        <option value="$PROJECT_DIR$/iiServer.py" />
         <option value="$PROJECT_DIR$/models/test_leaderBoard.py" />
         <option value="$PROJECT_DIR$/tests/__init__.py" />
         <option value="$PROJECT_DIR$/tests/test_leaderBoard.py" />
         <option value="$USER_HOME$/Downloads/sp_UpdateLeaderBoard.sql" />
         <option value="$USER_HOME$/Downloads/trigger_highscore.sql" />
-        <option value="$PROJECT_DIR$/models/photo.py" />
         <option value="$PROJECT_DIR$/models/usermgr.py" />
         <option value="$PROJECT_DIR$/dbsetup.py" />
         <option value="$PROJECT_DIR$/models/test_ballot.py" />
-        <option value="$PROJECT_DIR$/models/voting.py" />
+        <option value="$PROJECT_DIR$/models/photo.py" />
         <option value="$PROJECT_DIR$/tests/test_ballot.py" />
+        <option value="$PROJECT_DIR$/models/voting.py" />
+        <option value="$PROJECT_DIR$/iiServer.py" />
       </list>
     </option>
   </component>
@@ -801,34 +814,34 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Unittests_in_test_ballot - 2017.03.08 at 09h 30m 07s.xml">
+    <history-entry file="Unittests_in_test_ballot - 2017.03.09 at 11h 03m 00s.xml">
       <configuration name="Unittests in test_ballot" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_ballot - 2017.03.08 at 09h 32m 26s.xml">
+    <history-entry file="Unittests_in_test_ballot - 2017.03.09 at 11h 07m 37s.xml">
       <configuration name="Unittests in test_ballot" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_ballot - 2017.03.08 at 09h 34m 10s.xml">
+    <history-entry file="Unittests_in_test_ballot - 2017.03.09 at 11h 10m 27s.xml">
       <configuration name="Unittests in test_ballot" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_ballot - 2017.03.08 at 09h 35m 27s.xml">
+    <history-entry file="Unittests_in_test_ballot - 2017.03.09 at 11h 11m 06s.xml">
       <configuration name="Unittests in test_ballot" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_ballot - 2017.03.08 at 09h 37m 52s.xml">
+    <history-entry file="Unittests_in_test_ballot - 2017.03.09 at 11h 12m 43s.xml">
       <configuration name="Unittests in test_ballot" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_ballot - 2017.03.08 at 09h 39m 23s.xml">
+    <history-entry file="Unittests_in_test_ballot - 2017.03.09 at 11h 14m 38s.xml">
       <configuration name="Unittests in test_ballot" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_ballot - 2017.03.08 at 09h 53m 36s.xml">
+    <history-entry file="Unittests_in_test_ballot - 2017.03.09 at 11h 15m 12s.xml">
       <configuration name="Unittests in test_ballot" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_ballot - 2017.03.08 at 09h 54m 44s.xml">
+    <history-entry file="Unittests_in_test_ballot - 2017.03.09 at 11h 19m 53s.xml">
       <configuration name="Unittests in test_ballot" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_ballot - 2017.03.08 at 09h 55m 27s.xml">
+    <history-entry file="Unittests_in_test_ballot - 2017.03.09 at 11h 21m 54s.xml">
       <configuration name="Unittests in test_ballot" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_ballot - 2017.03.08 at 09h 56m 00s.xml">
+    <history-entry file="Unittests_in_test_ballot - 2017.03.09 at 11h 30m 34s.xml">
       <configuration name="Unittests in test_ballot" configurationId="tests" />
     </history-entry>
   </component>
@@ -842,11 +855,11 @@
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3090909" sideWeight="0.49749464" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3090909" sideWeight="0.49749464" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -932,28 +945,28 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/voting.py</url>
-          <line>235</line>
+          <line>292</line>
           <option name="timeStamp" value="128" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/photo.py</url>
-          <line>113</line>
+          <line>114</line>
           <option name="timeStamp" value="139" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tests/test_ballot.py</url>
-          <line>74</line>
-          <option name="timeStamp" value="140" />
+          <url>file://$PROJECT_DIR$/models/photo.py</url>
+          <line>292</line>
+          <option name="timeStamp" value="152" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_ballot.py</url>
-          <line>71</line>
-          <option name="timeStamp" value="141" />
+          <line>75</line>
+          <option name="timeStamp" value="162" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tests/test_ballot.py</url>
-          <line>41</line>
-          <option name="timeStamp" value="144" />
+          <url>file://$PROJECT_DIR$/models/voting.py</url>
+          <line>223</line>
+          <option name="timeStamp" value="163" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -963,11 +976,11 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="146" />
+      <option name="time" value="164" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="tests">
-        <watch expression="b " />
+        <watch expression="json_string" />
       </configuration>
       <configuration name="PythonConfigurationType">
         <watch expression="session.query(User).filter_by(id = m_id).first()" language="Python" />
@@ -975,7 +988,6 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/.local/lib/python3.5/site-packages/werkzeug/serving.py" />
     <entry file="file:///usr/local/lib/python3.5/dist-packages/sqlalchemy/orm/instrumentation.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="375">
@@ -1112,13 +1124,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/local/lib/python3.5/dist-packages/sqlalchemy/orm/query.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="206">
-          <caret line="110" column="0" lean-forward="false" selection-start-line="110" selection-start-column="0" selection-end-line="110" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/initschema.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="15">
@@ -1130,13 +1135,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/local/lib/python3.5/dist-packages/sqlalchemy/orm/session.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="1106" column="0" lean-forward="false" selection-start-line="1106" selection-start-column="0" selection-end-line="1106" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -1246,14 +1244,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/iiServer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="284">
-          <caret line="47" column="42" lean-forward="true" selection-start-line="47" selection-start-column="42" selection-end-line="47" selection-end-column="42" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tests/test_photo.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="390">
@@ -1271,14 +1261,6 @@
           <folding>
             <element signature="e#0#43#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dbsetup.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-16">
-          <caret line="31" column="35" lean-forward="true" selection-start-line="31" selection-start-column="35" selection-end-line="31" selection-end-column="35" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1300,38 +1282,68 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/lib/python3.5/contextlib.py">
+    <entry file="file://$PROJECT_DIR$/dbsetup.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="5" column="0" lean-forward="true" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
-          <folding>
-            <element signature="e#60#70#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="-106">
+          <caret line="31" column="35" lean-forward="true" selection-start-line="31" selection-start-column="35" selection-end-line="31" selection-end-column="35" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/lib/python3.5/unittest/case.py">
+    <entry file="file:///usr/local/lib/python3.5/dist-packages/sqlalchemy/orm/query.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6551">
-          <caret line="601" column="17" lean-forward="true" selection-start-line="601" selection-start-column="17" selection-end-line="601" selection-end-column="17" />
+        <state relative-caret-position="176">
+          <caret line="2754" column="0" lean-forward="false" selection-start-line="2754" selection-start-column="0" selection-end-line="2754" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/lib/python3.5/dist-packages/sqlalchemy/orm/session.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="266">
+          <caret line="464" column="0" lean-forward="false" selection-start-line="464" selection-start-column="0" selection-end-line="464" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/models/photo.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2985">
-          <caret line="199" column="0" lean-forward="false" selection-start-line="199" selection-start-column="0" selection-end-line="199" selection-end-column="0" />
+        <state relative-caret-position="161">
+          <caret line="192" column="0" lean-forward="false" selection-start-line="192" selection-start-column="0" selection-end-line="192" selection-end-column="0" />
           <folding>
             <element signature="e#0#17#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file:///usr/lib/python3.5/contextlib.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="63" column="0" lean-forward="false" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="364">
+          <caret line="1596" column="0" lean-forward="true" selection-start-line="1596" selection-start-column="0" selection-end-line="1596" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/lib/python3.5/unittest/case.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="154">
+          <caret line="599" column="0" lean-forward="false" selection-start-line="599" selection-start-column="0" selection-end-line="599" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/models/voting.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="435">
-          <caret line="80" column="0" lean-forward="false" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
+        <state relative-caret-position="251">
+          <caret line="223" column="0" lean-forward="false" selection-start-line="223" selection-start-column="0" selection-end-line="223" selection-end-column="0" />
           <folding>
             <element signature="e#0#73#0" expanded="true" />
           </folding>
@@ -1340,11 +1352,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/tests/test_ballot.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="134">
-          <caret line="47" column="69" lean-forward="true" selection-start-line="47" selection-start-column="69" selection-end-line="47" selection-end-column="69" />
+        <state relative-caret-position="454">
+          <caret line="77" column="0" lean-forward="true" selection-start-line="77" selection-start-column="0" selection-end-line="77" selection-end-column="0" />
           <folding>
             <element signature="e#0#17#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/iiServer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-630">
+          <caret line="3" column="32" lean-forward="false" selection-start-line="3" selection-start-column="32" selection-end-line="3" selection-end-column="32" />
+          <folding />
         </state>
       </provider>
     </entry>

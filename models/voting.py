@@ -1,10 +1,11 @@
 from sqlalchemy        import Column, Integer, DateTime, text, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, exc
 import errno
-from dbsetup           import Base
+from dbsetup           import Base, Session
 from models import photo
 import sys
-
+import json
+import base64
 
 _NUM_BALLOT_ENTRIES = 4
 
@@ -18,7 +19,7 @@ class Ballot(Base):
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
-    _ballotentries = relationship("BallotEntry")
+    _ballotentries = relationship("BallotEntry", backref="ballot")
     # ======================================================================================================
 
     def __init__(self, cid, uid):
@@ -73,12 +74,33 @@ class Ballot(Base):
         # now create the ballot entries and attach to the ballot
         for p in plist:
             be = BallotEntry(p.user_id, p.category_id, p.id)
+            be.set_photo(p)            # **** THIS IS GETTING OVERWRITTEN BY THE COMMIT???****
             b.add_ballotentry(be)
 
         # okay we have created ballot entries for our select photos
         # time to write it all out
         Ballot.write_ballot(session,b)
+
+        # =========================================================
+        # ==== we need to "reset" the photo information to the ====
+        # ==== to the ballotentry, it's getting "lost" during  ====
+        # ==== commit ???                                      ====
+        # =========================================================
+        for p in plist:
+            for be in b._ballotentries:
+                if be.photo_id == p.id:
+                    be.set_photo(p)
+                    break
+
         return b
+
+    def to_json(self):
+        str_json = "{\n\"ballots\":\n    [\n"
+        for be in self._ballotentries:
+            str_json = str_json + '    ' + be.to_json()
+        str_json = str_json + "    ]\n}"
+
+        return str_json
 
     # read_photos_not_balloted()
     # ==========================
@@ -156,15 +178,50 @@ class BallotEntry(Base):
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
-#    ballot = relationship("Ballot", back_populates="_ballotentries")
-
+    photo = None
+    _b64image = None
+    _binary_image = None
     def __init__(self, uid, cid, pid):
         self.category_id = cid
         self.user_id = uid
         self.photo_id = pid
         self.vote = 0
         self.like = 0
+        self.photo = None
+        self._b64image = None
+        self._binary_image = None
         return
+
+    def set_photo(self, p):
+        self.photo = p
+        return
+
+    def get_photo(self):
+        if self.photo is None:
+            try:
+                self.photo = photo.Photo.read_photo_by_index(Session(), self.photo_id)
+            except exc.NoResultFound:   # shouldn't happen except in testing with nested sessions
+                return None
+
+        return self.photo
+
+    def to_json(self):
+
+        if self.photo is None:
+            return None
+
+        self._binary_image = self.photo.read_thumbnail_image()
+        if self._binary_image is None:
+            return None
+
+        self._b64image = base64.standard_b64encode(self._binary_image)
+        if self._b64image is None:
+            return None
+
+        # now JSONify {"bid": "xxxx", "image":"yyyy"}
+        #json_str = '{\"bid\": \"{}\", \"image\":\"{}\"\n'.format(self.id, self._b64image)
+        json_str = '{{\"bid\":{}, \"image\":{}\"}}\n'.format(self.id, self._b64image.decode("utf-8"))
+        return json_str
 
     @staticmethod
     def find_ballotentries(session, bid, cid, uid):
@@ -238,3 +295,41 @@ class LeaderBoard(Base):
             raise
 
         return
+
+#============================================= J S O N  D T O =============================================
+class jBallot(json.JSONEncoder):
+    jBallotEntries = []
+
+    def __init__(self, b):
+        # we have a ballot, distill it's essence
+        be_list = []
+        be_list = b.get_ballotentries()
+        for be in be_list:
+            jb = jBallotEntries(be)
+            self.jBallotEntries.append(jb)
+        return
+
+    def default(self, o):
+        json_str = "put json here"
+        return json_str
+
+class jBallotEntries(json.JSONEncoder):
+    bid = 0
+    image = None
+    _binary_image = None
+
+    def __init__(self,be):
+        self.bid = be.id
+        p = be.get_photo()
+        if p is not None:
+            self._binary_image = p.read_thumbnail_image()
+
+        return
+
+    def default(self, o):
+        if self.image is None:
+            self.image = base64.b64encode(self._binary_image)
+
+        # now JSONify {"bid": "xxxx", "image":"yyyy"}
+        json_str = '{\"bid\": \"{}\", \"image\":\"{}\"'.format(self.bid, self.image)
+        return json_str

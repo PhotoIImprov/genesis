@@ -1,8 +1,8 @@
 import datetime
 import base64
 
-from flask import Flask
-from flask     import request, abort
+from flask import Flask, jsonify
+from flask     import request, abort, make_response
 from flask_jwt import JWT, jwt_required, current_identity
 
 import initschema
@@ -49,8 +49,17 @@ def get_ballot():
 
     uid = request.json['user_id']
     cid = request.json['category_id']
+    session = dbsetup.Session()
+    if uid is None or cid is None or session is None:
+        abort(500, message='invalid arguments')
 
-    return 'here is your ballot', 200
+    b = voting.Ballot.create_ballot(session, uid, cid)
+    if b is None:
+        abort(500, message='no ballot created!')
+
+    # we have a ballot, turn it into JSON
+    json_str = b.to_json()
+    return make_response(jsonify(json_str), 200)
 
 @app.route("/vote", methods=['POST'])
 def cast_vote():
