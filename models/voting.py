@@ -220,7 +220,7 @@ class BallotEntry(Base):
 
         # now JSONify {"bid": "xxxx", "image":"yyyy"}
         #json_str = '{\"bid\": \"{}\", \"image\":\"{}\"\n'.format(self.id, self._b64image)
-        json_str = '{{\"bid\":{}, \"image\":{}\"}}\n'.format(self.id, self._b64image.decode("utf-8"))
+        json_str = '{{\"bid\":{}, \"image\":\"{}\"}}\n'.format(self.id, self._b64image.decode("utf-8"))
         return json_str
 
     @staticmethod
