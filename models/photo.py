@@ -173,7 +173,7 @@ class Photo(Base):
         return self._full_filename
 
     def create_thumb_filename(self):
-        thumb_filename = self.filepath + "/th_" + self.filename + ".png"
+        thumb_filename = self.filepath + "/th_" + self.filename + ".jpg"
         return thumb_filename
 
     # read_thumbnail_image()
@@ -244,7 +244,22 @@ class Photo(Base):
 
         nparr = np.fromstring(self.get_image(), np.uint8)
         im = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        thumbnail = cv2.resize(im, (0,0), fx=0.5, fy=0.5)
+
+        # Our resizing factor is based on the following:
+        # max screen geometry is Samsung 7 = 2560 x 1440
+        # we want to deliver 2 x 2 thumbnails, so 1/4 of
+        # 2560x1440 -> 640x360
+        #
+        # Our input images vary from iPhone (3264x2448) to
+        # Samsung (4032x3024), so scaling is 640/4032 -> ~16%
+        # But we have to make sure we don't scale the iPhone
+        # images too much.
+        #
+        # iPhone 7: 1340x750 -> 335x187
+        # So we need to scale from the smallest input (iPhone)
+        # to the largest output (Samsung)
+        # 3264x2448 -> 640x360, which is about 20%
+        thumbnail = cv2.resize(im, (0,0), fx=0.2, fy=0.2)
         cv2.imwrite(thumb_fn, thumbnail)
 
     @staticmethod

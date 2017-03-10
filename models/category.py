@@ -1,5 +1,7 @@
 from sqlalchemy        import Column, Integer, String, DateTime, text, ForeignKey
 from dbsetup           import Session, Base, engine, metadata
+import errno
+import datetime
 
 class Category(Base):
     __tablename__ = 'category'
@@ -14,6 +16,9 @@ class Category(Base):
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
     # ======================================================================================================
+
+    def get_id(self):
+        return self.id
 
     @staticmethod
     def write_category(session, c):
@@ -31,6 +36,20 @@ class Category(Base):
         c.end_date = ed
 
         return c
+
+    @staticmethod
+    def current_category(session, uid):
+        if session is None or uid is None:
+            raise BaseException(errno.EINVAL)
+
+        current_datetime = datetime.datetime.utcnow()
+        q = session.query(Category).filter(Category.start_date < current_datetime). \
+                                    filter(Category.end_date > current_datetime)
+        c = q.all()
+        if c is None or len(c) == 0:
+            return None
+
+        return c[0]
 
 class PhotoIndex(Base):
     __tablename__ = 'photoindex'

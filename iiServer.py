@@ -10,6 +10,8 @@ import dbsetup
 from models import usermgr
 from models import photo
 from models import voting
+from models import category
+import json
 
 app = Flask(__name__)
 app.debug = True
@@ -89,6 +91,32 @@ def photo_upload():
     photo.Photo().save_user_image(session, image_data, image_type, uid, cid)
 
     return 'photo uploaded', 201
+
+
+@app.route("/login", methods=['POST'])
+def login():
+    if not request.json:
+        abort(400, message="no arguments")  # no data passed!
+
+    emailaddress = request.json['username']
+    password     = request.json['password']
+
+    if emailaddress is None or password is None:
+        abort(400, message="insufficient arguements") # missing important data!
+
+    foundUser = usermgr.authenticate(emailaddress, password)
+    if foundUser is None:
+        return make_response(jsonify({'error': "no such user!"}), 403)
+
+    uid = foundUser.get_id()
+    c = category.Category.current_category(dbsetup.Session(), uid)
+    if c is None:
+        cid = 0
+    else:
+        cid = c.get_id()
+
+    return make_response(jsonify({'user_id':uid, 'category_id':cid}), 200)
+
 
 @app.route("/register", methods=['POST'])
 def register():

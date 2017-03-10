@@ -25,6 +25,15 @@ class AnonUser(Base):
         return au
 
     @staticmethod
+    def get_anon_user_by_id(session, anon_id):
+        if session is None or anon_id is None:
+            return None
+
+        # okay, use the supplied id to lookup the Anon User record
+        au = session.query(AnonUser).filter_by(id = anon_id).first()
+        return au
+
+    @staticmethod
     def create_anon_user(session, m_guid):
 
         if session is None or m_guid is None:
@@ -144,7 +153,8 @@ def authenticate(username, password):
         if foundUser is not None:
             # time to check the password
             if (pbkdf2_sha256.verify(password, foundUser.hashedPWD)):
-                return foundUser
+                au = AnonUser.get_anon_user_by_id(Session(), foundUser.get_id())
+                return au
 
     return None
 
