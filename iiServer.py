@@ -61,8 +61,8 @@ def get_ballot():
         return make_response(jsonify({'error': "no ballot created!"}),status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # we have a ballot, turn it into JSON
-    json_str = b.to_json()
-    return make_response(jsonify(json_str), status.HTTP_200_OK)
+    ballots = b.to_json()
+    return make_response(jsonify({'ballots': ballots}), status.HTTP_200_OK)
 
 @app.route("/vote", methods=['POST'])
 def cast_vote():

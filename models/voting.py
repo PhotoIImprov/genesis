@@ -6,6 +6,7 @@ from models import photo
 import sys
 import json
 import base64
+from flask import jsonify
 
 _NUM_BALLOT_ENTRIES = 4
 
@@ -95,12 +96,12 @@ class Ballot(Base):
         return b
 
     def to_json(self):
-        str_json = "{\n\"ballots\":\n    [\n"
-        for be in self._ballotentries:
-            str_json = str_json + '    ' + be.to_json()
-        str_json = str_json + "    ]\n}"
 
-        return str_json
+        ballots = []
+        for be in self._ballotentries:
+            ballots.append(be.to_json())
+
+        return ballots
 
     # read_photos_not_balloted()
     # ==========================
@@ -218,10 +219,8 @@ class BallotEntry(Base):
         if self._b64image is None:
             return None
 
-        # now JSONify {"bid": "xxxx", "image":"yyyy"}
-        #json_str = '{\"bid\": \"{}\", \"image\":\"{}\"\n'.format(self.id, self._b64image)
-        json_str = '{{\"bid\":{}, \"image\":\"{}\"}}\n'.format(self.id, self._b64image.decode("utf-8"))
-        return json_str
+        d = dict({'bid':self.id, 'image':self._b64image.decode('utf-8')})
+        return d
 
     @staticmethod
     def find_ballotentries(session, bid, cid, uid):
@@ -325,11 +324,3 @@ class jBallotEntries(json.JSONEncoder):
             self._binary_image = p.read_thumbnail_image()
 
         return
-
-    def default(self, o):
-        if self.image is None:
-            self.image = base64.b64encode(self._binary_image)
-
-        # now JSONify {"bid": "xxxx", "image":"yyyy"}
-        json_str = '{\"bid\": \"{}\", \"image\":\"{}\"'.format(self.bid, self.image)
-        return json_str

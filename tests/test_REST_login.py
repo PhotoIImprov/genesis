@@ -7,6 +7,7 @@ import json
 import base64
 import datetime
 from models import category, resources
+from collections import namedtuple
 
 
 class TestUser():
@@ -232,5 +233,19 @@ class TesttVoting(unittest.TestCase):
         rsp = self.app.get(path='/ballot', data=json.dumps(dict(user_id=uid, category_id=cid)),
                             headers={'content-type': 'application/json'})
 
+        data = json.loads(rsp.data.decode("utf-8"))
+
+        Ballot = namedtuple('ballot', 'bid, image')
+
+        ballots = [Ballot(**k) for k in data["ballots"]]
+
+        for be_dict in ballots:
+            bid = be_dict.bid
+            image = be_dict.image
+            path = "/mnt/image_files/thumb{}.jpeg".format(bid)
+            thumbnail = base64.b64decode(image)
+            fp = open(path, "wb")
+            fp.write(thumbnail)
+            fp.close()
 
         return
