@@ -54,14 +54,17 @@ def get_ballot():
     cid = request.json['category_id']
     session = dbsetup.Session()
     if uid is None or cid is None or session is None:
+        session.close()
         return make_response(jsonify({'error': "invalid arguments"}),status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     b = voting.Ballot.create_ballot(session, uid, cid)
     if b is None:
+        session.close()
         return make_response(jsonify({'error': "no ballot created!"}),status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # we have a ballot, turn it into JSON
     ballots = b.to_json()
+    session.close()
     return make_response(jsonify({'ballots': ballots}), status.HTTP_200_OK)
 
 @app.route("/vote", methods=['POST'])
@@ -74,6 +77,7 @@ def cast_vote():
     session = dbsetup.Session()
 
     voting.Ballot.tabulate_votes(session, uid, ballots)
+    session.close()
     return make_response(jsonify({'message': "thank you for voting"}), status.HTTP_200_OK)
 
 @app.route("/photo", methods=['POST'])
@@ -90,7 +94,7 @@ def photo_upload():
 #    uid = current_identity
     session = dbsetup.Session()
     photo.Photo().save_user_image(session, image_data, image_type, uid, cid)
-
+    session.close()
     return make_response(jsonify({'message': "photo uploaded"}), status.HTTP_201_CREATED)
 
 @app.route("/login", methods=['POST'])
@@ -109,7 +113,9 @@ def login():
         return make_response(jsonify({'error': "no such user!"}), status.HTTP_403_FORBIDDEN)
 
     uid = foundUser.get_id()
-    c = category.Category.current_category(dbsetup.Session(), uid)
+    session = dbsetup.Session()
+    c = category.Category.current_category(session, uid)
+    session.close()
     if c is None:
         cid = 0
     else:
@@ -137,23 +143,28 @@ def register():
     if usermgr.AnonUser.is_guid(emailaddress, password):
         foundAnonUser = usermgr.AnonUser.find_anon_user(session, emailaddress)
         if foundAnonUser is not None:
+            session.close()
             return make_response(jsonify({'error': "user already exists"}), status.HTTP_400_BAD_REQUEST)
 
         newAnonUser = usermgr.AnonUser.create_anon_user(session, emailaddress)
         if newAnonUser is None:
+            session.close()
             return make_response(jsonify({'error': "error creating anon user"}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
         foundUser = usermgr.User.find_user_by_email(session, emailaddress)
         if foundUser is not None:
+            session.close()
             return make_response(jsonify({'error': "user already exists!"}), status.HTTP_400_BAD_REQUEST)
 
         # okay the request is valid and the user was not found, so we can
         # create their account
         newUser = usermgr.User.create_user(session, guid, emailaddress, password)
         if newUser is None:
+            session.close()
             return make_response(jsonify({'error': "error creating user"}),status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # user was properly created
+    session.close()
     return make_response(jsonify({'message': "account created"}), 201)
 
 
