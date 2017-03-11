@@ -13,6 +13,8 @@ from models import photo
 from models import voting
 from models import category
 import json
+from collections import namedtuple
+
 
 app = Flask(__name__)
 app.debug = True
@@ -73,10 +75,10 @@ def cast_vote():
         return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
 
     uid = request.json['user_id']
-    ballots=request.json['ballots']
+    votes = request.json['votes']   # list of dict() with the actual votes
     session = dbsetup.Session()
 
-    voting.Ballot.tabulate_votes(session, uid, ballots)
+    voting.Ballot.tabulate_votes(session, uid, votes)
     session.close()
     return make_response(jsonify({'message': "thank you for voting"}), status.HTTP_200_OK)
 

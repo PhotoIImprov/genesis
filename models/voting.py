@@ -161,7 +161,10 @@ class Ballot(Base):
         # okay we have everything we need, the category_id can be determined from the
         # ballot entry
         for ballotentry in ballots:
-            BallotEntry.tabulate_vote(session,  ballotentry.bid, ballotentry.vote, ballotentry.like)
+            likes = False
+            if 'like' in ballotentry.keys():
+                likes = True
+            BallotEntry.tabulate_vote(session,  ballotentry['bid'], ballotentry['vote'], likes)
 
         session.commit()
         return
@@ -232,7 +235,7 @@ class BallotEntry(Base):
         self.vote = self.vote + vote
         return
     def increment_like(self, l):
-        if l == 1:
+        if l == True:
             self.like = self.like + 1
         return
 
@@ -243,7 +246,7 @@ class BallotEntry(Base):
 
         # okay, write this vote out to the ballot entry
 
-        q = session.query(BallotEntry).filterby(ballot_id = bid)
+        q = session.query(BallotEntry).filter_by(id = bid)
         be = q.one()
         if be is None:
             raise BaseException(errno.EADDRNOTAVAIL)
@@ -251,7 +254,7 @@ class BallotEntry(Base):
         be.add_vote(vote)
         be.increment_like(like)
 
-        q = session.query(photo.Photo).filterby(be.photo_id)
+        q = session.query(photo.Photo).filter_by(id = be.photo_id)
         p = q.one()
         if p is None:
             raise BaseException(errno.EADDRNOTAVAIL)
