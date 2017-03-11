@@ -2,8 +2,9 @@ import datetime
 import base64
 
 from flask import Flask, jsonify
-from flask     import request, abort, make_response
+from flask     import request, make_response
 from flask_jwt import JWT, jwt_required, current_identity
+from flask_api import status
 
 import initschema
 import dbsetup
@@ -39,47 +40,47 @@ def hello():
 @app.route("/leaderboard", methods=['GET'])
 def get_leaderboard():
     if not request.json:
-        abort(400, message="no arguments")
+        return make_response(jsonify({'error': "insufficient arguments"}),status.HTTP_400_BAD_REQUEST)
 
     cid = request.json['category_id']
-    return 'here is the leader board', 200
+    return make_response(jsonify({'message': "TBD - leader board not implemented"}), 200)
 
 @app.route("/ballot", methods=['GET'])
 def get_ballot():
     if not request.json:
-        abort(400, message="no arguments")
+        return make_response(jsonify({'error': "insufficient arguments"}),status.HTTP_400_BAD_REQUEST)
 
     uid = request.json['user_id']
     cid = request.json['category_id']
     session = dbsetup.Session()
     if uid is None or cid is None or session is None:
-        abort(500, message='invalid arguments')
+        return make_response(jsonify({'error': "invalid arguments"}),status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     b = voting.Ballot.create_ballot(session, uid, cid)
     if b is None:
-        abort(500, message='no ballot created!')
+        return make_response(jsonify({'error': "no ballot created!"}),status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # we have a ballot, turn it into JSON
     json_str = b.to_json()
-    return make_response(jsonify(json_str), 200)
+    return make_response(jsonify(json_str), status.HTTP_200_OK)
 
 @app.route("/vote", methods=['POST'])
 def cast_vote():
     if not request.json:
-        abort(400, message="no arguments")
+        return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
 
     uid = request.json['user_id']
     ballots=request.json['ballots']
     session = dbsetup.Session()
 
     voting.Ballot.tabulate_votes(session, uid, ballots)
-    return 'thank you for voting', 200
+    return make_response(jsonify({'message': "thank you for voting"}), status.HTTP_200_OK)
 
 @app.route("/photo", methods=['POST'])
 #@jwt_required()
 def photo_upload():
     if not request.json:
-        abort(400, message="no arguments")
+        return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
 
     image_data_b64 = request.json['image']
     image_type     = request.json['extension']
@@ -90,23 +91,22 @@ def photo_upload():
     session = dbsetup.Session()
     photo.Photo().save_user_image(session, image_data, image_type, uid, cid)
 
-    return 'photo uploaded', 201
-
+    return make_response(jsonify({'message': "photo uploaded"}), status.HTTP_201_CREATED)
 
 @app.route("/login", methods=['POST'])
 def login():
     if not request.json:
-        abort(400, message="no arguments")  # no data passed!
+        return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
 
     emailaddress = request.json['username']
     password     = request.json['password']
 
     if emailaddress is None or password is None:
-        abort(400, message="insufficient arguements") # missing important data!
+        return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
 
     foundUser = usermgr.authenticate(emailaddress, password)
     if foundUser is None:
-        return make_response(jsonify({'error': "no such user!"}), 403)
+        return make_response(jsonify({'error': "no such user!"}), status.HTTP_403_FORBIDDEN)
 
     uid = foundUser.get_id()
     c = category.Category.current_category(dbsetup.Session(), uid)
@@ -115,7 +115,7 @@ def login():
     else:
         cid = c.get_id()
 
-    return make_response(jsonify({'user_id':uid, 'category_id':cid}), 200)
+    return make_response(jsonify({'user_id':uid, 'category_id':cid}), status.HTTP_200_OK)
 
 
 @app.route("/register", methods=['POST'])
@@ -123,38 +123,38 @@ def register():
     # an email address and password has been posted
     # let's create a user for this
     if not request.json:
-        abort(400, message="no arguments")  # no data passed!
+        return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
 
     emailaddress = request.json['username']
     password     = request.json['password']
     guid         = request.json['guid']
 
     if emailaddress is None or password is None:
-        abort(400, message="insufficient arguements") # missing important data!
+        return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
 
     # is the username really a guid?
     session = dbsetup.Session()
     if usermgr.AnonUser.is_guid(emailaddress, password):
         foundAnonUser = usermgr.AnonUser.find_anon_user(session, emailaddress)
         if foundAnonUser is not None:
-            return make_response(jsonify({'error': "user already exists!"}),400)
+            return make_response(jsonify({'error': "user already exists"}), status.HTTP_400_BAD_REQUEST)
 
         newAnonUser = usermgr.AnonUser.create_anon_user(session, emailaddress)
         if newAnonUser is None:
-            return make_response(jsonify({'error': "error creating anon user"}),500)
+            return make_response(jsonify({'error': "error creating anon user"}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
         foundUser = usermgr.User.find_user_by_email(session, emailaddress)
         if foundUser is not None:
-            return make_response(jsonify({'error': "user already exists!"}),400)
+            return make_response(jsonify({'error': "user already exists!"}), status.HTTP_400_BAD_REQUEST)
 
         # okay the request is valid and the user was not found, so we can
         # create their account
         newUser = usermgr.User.create_user(session, guid, emailaddress, password)
         if newUser is None:
-            abort(500, message="error creating user")
+            return make_response(jsonify({'error': "error creating user"}),status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # user was properly created
-    return 'account created', 201
+    return make_response(jsonify({'message': "account created"}), 201)
 
 
 if __name__ == '__main__':

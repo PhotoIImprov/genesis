@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 import pymysql
 import base64
+import sys
 
 
 class Photo(Base):
@@ -244,6 +245,8 @@ class Photo(Base):
 
         nparr = np.fromstring(self.get_image(), np.uint8)
         im = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        if im is None:
+            raise Exception(errno.EFAULT)
 
         # Our resizing factor is based on the following:
         # max screen geometry is Samsung 7 = 2560 x 1440
@@ -259,8 +262,12 @@ class Photo(Base):
         # So we need to scale from the smallest input (iPhone)
         # to the largest output (Samsung)
         # 3264x2448 -> 640x360, which is about 20%
-        thumbnail = cv2.resize(im, (0,0), fx=0.2, fy=0.2)
-        cv2.imwrite(thumb_fn, thumbnail)
+        try:
+            thumbnail = cv2.resize(im, (0,0), fx=0.2, fy=0.2)
+            cv2.imwrite(thumb_fn, thumbnail)
+        except:
+            e = sys.exc_info()[0]
+            raise
 
     @staticmethod
     def read_photo(session, uid, cid):

@@ -84,10 +84,6 @@ class User(Base):
     def get_id(self):
         return self.id
 
-    @classmethod
-    def __str__(self):
-        return "User(id='%s')" % self.id
-
     @staticmethod
     def find_user_by_id(session, m_id):
         q = session.query(User).filter_by(id = m_id)
@@ -97,7 +93,8 @@ class User(Base):
     @staticmethod
     def find_user_by_email(session, m_emailaddress):
         # Does the user already exist?
-        u = session.query(User).filter_by(emailaddress = m_emailaddress).first()
+        q = session.query(User).filter_by(emailaddress = m_emailaddress)
+        u = q.first()
         return u
 
     @classmethod
@@ -153,7 +150,8 @@ def authenticate(username, password):
         if foundUser is not None:
             # time to check the password
             if (pbkdf2_sha256.verify(password, foundUser.hashedPWD)):
-                au = AnonUser.get_anon_user_by_id(Session(), foundUser.get_id())
+                uid = foundUser.id #foundUser.get_id()
+                au = AnonUser.get_anon_user_by_id(Session(), uid)
                 return au
 
     return None

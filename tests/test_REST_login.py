@@ -75,20 +75,20 @@ class TestLogin(unittest.TestCase):
         u = tu.get_username()
         p = tu.get_password()
         g = tu.get_guid()
-        rsp = self.app.post('/register', data=json.dumps(dict(username=u, password=p, guid=g)), headers={'content-type':'application/json'})
+        rsp = self.app.post(path='/register', data=json.dumps(dict(username=u, password=p, guid=g)), headers={'content-type':'application/json'})
         return rsp
 
     def post_auth(self, tu):
         u = tu.get_username()
         p = tu.get_password()
-        rsp = self.app.post('/auth', data=json.dumps(dict(username=u, password=p)),
+        rsp = self.app.post(path='/auth', data=json.dumps(dict(username=u, password=p)),
                             headers={'content-type': 'application/json'})
         return rsp
 
     def post_login(self, tu):
         u = tu.get_username()
         p = tu.get_password()
-        rsp = self.app.post('/login', data=json.dumps(dict(username=u, password=p)),
+        rsp = self.app.post(path='/login', data=json.dumps(dict(username=u, password=p)),
                             headers={'content-type': 'application/json'})
         return rsp
 
@@ -198,8 +198,39 @@ class TestPhotoUpload(unittest.TestCase):
         ext = 'JPEG'
         img = base64.standard_b64encode(ph)
         b64img = img.decode("utf-8")
-        rsp = self.app.post('/photo', data=json.dumps(dict(user_id=uid, category_id=cid, extension=ext, image=b64img)),
+        rsp = self.app.post(path='/photo', data=json.dumps(dict(user_id=uid, category_id=cid, extension=ext, image=b64img)),
                             headers={'content-type': 'application/json'})
 
         assert(rsp.status_code == 201)
+        return
+
+class TesttVoting(unittest.TestCase):
+
+    def setUp(self):
+        self.app = iiServer.app.test_client()
+
+    def test_get_ballot(self):
+        # let's retrieve a ballot we can vote on
+        # we'll need to create some users, and then
+        # upload some images
+
+        return
+
+    def test_ballot(self):
+        # we need to post a set of ballots with votes
+        tp = TestPhotoUpload()
+        tp.setUp()
+        for idx in range(10):
+            tp.test_photo_upload() # create a user & upload a photo
+
+        # let's create a user
+        tl = TestLogin()
+        tl.setUp()
+        tu = tl.test_login() # this will register (create) and login an user, returning the UID
+        uid = tu.get_uid()
+        cid = tu.get_cid()
+        rsp = self.app.get(path='/ballot', data=json.dumps(dict(user_id=uid, category_id=cid)),
+                            headers={'content-type': 'application/json'})
+
+
         return
