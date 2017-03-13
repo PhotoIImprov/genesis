@@ -13,8 +13,6 @@ from models import photo
 from models import voting
 from models import category
 import json
-from collections import namedtuple
-
 
 app = Flask(__name__)
 app.debug = True
@@ -34,7 +32,7 @@ def protected():
 
 @app.route("/")
 def hello():
-    if is_gunicorn == True:
+    if dbsetup.is_gunicorn():
         return "ImageImprov Hello World from Gunicorn!"
 
     return "ImageImprov Hello World from Flask!"
@@ -181,8 +179,8 @@ if __name__ == '__main__':
         if u is not None:
             # see if we can read it back
             foundUser = usermgr.User.find_user_by_email(session, 'hcollins@gmail.com')
-            if foundUser != None:
+            if foundUser is not None:
                 foundUser.change_password(session, 'pa55w0rd')
 
-    if dbsetup._is_gunicorn == False:
+    if not dbsetup.is_gunicorn():
         app.run(host='0.0.0.0', port=8080)

@@ -43,21 +43,21 @@ class Photo(Base):
         if self.times_voted is None:
             self.times_voted = 0
 
-        self.times_voted = self.times_voted + 1
+        self.times_voted += 1
         return
 
     def increment_likes(self):
         if self.likes is None:
             self.likes = 0
 
-        self.likes = self.likes + 1
+        self.likes += 1
         return
 
     def update_score(self, points):
         if self.score is None:
             self.score = 0
 
-        self.score = self.score + points
+        self.score += points
         return
 
     def set_image(self, image):
@@ -126,7 +126,7 @@ class Photo(Base):
     def create_name(self):
         self._uuid = uuid.uuid1()
         self.filename = str(self._uuid)
-        return (self.filename)
+        return self.filename
 
 
     def create_sub_path(self):
@@ -210,7 +210,7 @@ class Photo(Base):
         # okay we have arguments, lets create our file name
         self.create_name()      # our globally unique filename
         self.create_sub_path()  # a path to distribute the load
-        self._mnt_point = dbsetup.image_store(dbsetup._environment) # get the mount point
+        self._mnt_point = dbsetup.image_store(dbsetup.determine_environment()) # get the mount point
         self.create_full_path(self._mnt_point) # put it all together
         self.create_full_filename()
 
@@ -282,7 +282,7 @@ class Photo(Base):
             raise BaseException(errno.EINVAL)
 
         idx_list = []
-        for be in b._ballotentries:
+        for be in b.get_ballotentries():
             idx_list.append(be.photo_id)
 
         p_list = Photo.read_photos_by_index(session, b.user_id, b.category_id, idx_list)

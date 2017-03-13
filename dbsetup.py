@@ -1,7 +1,5 @@
-import sqlalchemy
 from sqlalchemy        import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.schema import DDL
 from sqlalchemy.orm    import sessionmaker
 from enum import Enum
 import os
@@ -14,15 +12,12 @@ class ImageType(Enum):
     TIFF    = 4
 
 class EnvironmentType(Enum):
+    NOTSET  = -1
     UNKNOWN = 0
     DEV     = 1
     QA      = 2
     STAGE   = 3
     PROD    = 4
-
-# initialize some configuration information
-_environment       = EnvironmentType.UNKNOWN
-_connection_string = None
 
 def determine_environment():
     hostname = str.upper(os.uname()[1])
@@ -39,15 +34,16 @@ def determine_environment():
 
     return EnvironmentType.UNKNOWN
 
-def connection_string(environment):
+def connection_string():
 
+    environment = determine_environment()
     if environment == EnvironmentType.DEV:
         return 'mysql+pymysql://python:python@192.168.1.149:3306/imageimprov'
 
     if environment == EnvironmentType.PROD:
         return 'mysql+pymysql://python:python@104.196.212.140:3306/imageimprov'
 
-    return None
+    raise
 
 def image_store(environment):
     if environment == EnvironmentType.DEV:
@@ -58,13 +54,15 @@ def image_store(environment):
 
     return None
 
+def is_gunicorn():
+    _is_gunicorn = "gunicorn" in os.environ.get("SERVER_SOFTWARE", "")
+    return _is_gunicorn
+
 # see what environment we are running on
-_environment = determine_environment()
-_connection_string = connection_string(_environment)
-_is_gunicorn = "gunicorn" in os.environ.get("SERVER_SOFTWARE", "")
+
 
 # connection to MySQL instance on 4KOffice (intranet)
-engine   = create_engine(_connection_string, echo=False)
+engine   = create_engine(connection_string(), echo=False)
 Session  = sessionmaker(bind=engine)
 Base     = declarative_base()
 metadata = Base.metadata

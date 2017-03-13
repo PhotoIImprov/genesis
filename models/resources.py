@@ -38,7 +38,7 @@ class Resource(Base):
             session.add(r)
             session.commit()
         except:
-            str = sys.exc_info()[0]
+            my_str = sys.exc_info()[0]
             raise
 
         return

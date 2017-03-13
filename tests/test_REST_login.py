@@ -10,7 +10,7 @@ from models import category, resources
 from collections import namedtuple
 import requests
 
-class TestUser():
+class TestUser:
     _u = None   # username
     _p = None   # password
     _g = None   # guid
@@ -75,7 +75,7 @@ class TestLogin(unittest.TestCase):
         # let's figure out if this is a guid by checking the
         # hash
         hashed_username= hashlib.sha224(username.encode('utf-8')).hexdigest()
-        if (hashed_username == password):
+        if hashed_username == password:
             return True
 
         return False
@@ -196,7 +196,7 @@ class TestPhotoUpload(unittest.TestCase):
         tu = tl.test_login() # this will register (create) and login an user, returning the UID
 
         # we have our user, now we need a photo to upload
-        ft = open('../photos/Suki.JPG', 'rb')
+        ft = open('photos/Suki.JPG', 'rb')
         assert (ft is not None)
         ph = ft.read()
         assert (ph is not None)
@@ -266,7 +266,7 @@ class TesttVoting(unittest.TestCase):
                 votes.append(dict({'bid':bid, 'vote':idx, 'like':"true"}))
             else:
                 votes.append(dict({'bid': bid, 'vote': idx}))
-            idx = idx + 1
+        idx += 1
 
         jvotes = json.dumps(dict({'user_id': self._uid, 'votes':votes}))
         rsp = self.app.post(path='/vote', data=jvotes, headers={'content-type': 'application/json'})

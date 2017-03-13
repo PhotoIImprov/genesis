@@ -114,7 +114,7 @@ class Ballot(Base):
 
         q = session.query(photo.Photo)\
         .outerjoin(BallotEntry)\
-        .filter(BallotEntry.ballot_id == None, photo.Photo.user_id != uid).limit(count)
+        .filter(BallotEntry.ballot_id is None, photo.Photo.user_id != uid).limit(count)
 
         p = q.all()
         return p
@@ -232,11 +232,11 @@ class BallotEntry(Base):
         return be
 
     def add_vote(self, vote):
-        self.vote = self.vote + vote
+        self.vote += vote
         return
     def increment_like(self, l):
-        if l == True:
-            self.like = self.like + 1
+        if l:
+            self.like += 1
         return
 
     @staticmethod

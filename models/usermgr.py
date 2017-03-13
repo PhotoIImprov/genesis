@@ -64,7 +64,7 @@ class AnonUser(Base):
         # let's figure out if this is a guid by checking the
         # hash
         hashed_guid = hashlib.sha224(m_guid.encode('utf-8')).hexdigest()
-        if (hashed_guid == m_hash):
+        if hashed_guid == m_hash:
             return True
 
         return False
@@ -80,7 +80,6 @@ class User(Base):
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 
-    @classmethod
     def get_id(self):
         return self.id
 
@@ -97,7 +96,6 @@ class User(Base):
         u = q.first()
         return u
 
-    @classmethod
     def change_password(self, session, password):
         self.hashedPWD = pbkdf2_sha256.encrypt(password, rounds=1000, salt_size=16)
         session.commit()
@@ -117,7 +115,7 @@ class User(Base):
 
         # first lets see if this user already exists
         u_exists = User.find_user_by_email(session, username)
-        if (u_exists is not None):
+        if u_exists is not None:
             return u_exists # this shouldn't happen! (probably should delete anon user if we just created one - transaction!)
 
         # okay, we can create a new UserLogin entry
@@ -149,7 +147,7 @@ def authenticate(username, password):
 
         if foundUser is not None:
             # time to check the password
-            if (pbkdf2_sha256.verify(password, foundUser.hashedPWD)):
+            if pbkdf2_sha256.verify(password, foundUser.hashedPWD):
                 uid = foundUser.id #foundUser.get_id()
                 au = AnonUser.get_anon_user_by_id(Session(), uid)
                 return au
@@ -179,7 +177,6 @@ class Friend(Base):
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 
-    @classmethod
     def get_id(self):
         return self.id
 
@@ -203,7 +200,6 @@ class FriendRequest(Base):
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 
-    @classmethod
     def get_id(self):
         return self.id
 

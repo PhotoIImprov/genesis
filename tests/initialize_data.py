@@ -1,20 +1,19 @@
 import os
 import unittest
-import uuid
-import hashlib
-import iiServer
 import json
 import base64
-import datetime
-from models import category, resources
-from collections import namedtuple
 import requests
+from . test_REST_login import TestUser
 
 
 # ************************************************************************
 # ************************************************************************
 # **                                                                    **
 # ** INITIALIZE ENVIRONMENT                                             **
+# ** When invoked this procedure will create accounts for the email     **
+# ** addresses in the _users[] list and then upload all the photos in   **
+# ** _photos[] list. If users have already been registered, it knows    **
+# ** not to fail and just log them in.                                  **
 # **                                                                    **
 # ************************************************************************
 # ************************************************************************

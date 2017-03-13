@@ -12,7 +12,7 @@ class TestLeaderBoard(DatabaseTest):
     def test_new_leader(self):
         self.setup()
 
-        ft = open('../photos/Cute_Puppy.jpg', 'rb')
+        ft = open('photos/Cute_Puppy.jpg', 'rb')
         assert (ft is not None)
         ph = ft.read()
         assert (ph is not None)

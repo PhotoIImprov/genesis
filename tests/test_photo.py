@@ -173,7 +173,7 @@ class TestPhoto(DatabaseTest):
         # now clean up
         os.remove(fo.filepath + "/" + fn + ".JPEG")  # our main image
         os.remove(fo.create_thumb_filename())  # our thumbnail
-        os.removedirs(fo.filepath)
+       # os.removedirs(fo.filepath)
 
         self.teardown()
 
@@ -188,7 +188,7 @@ class TestPhoto(DatabaseTest):
 
         q = session.query(photo.Photo)\
         .outerjoin(voting.BallotEntry)\
-        .filter(voting.BallotEntry.ballot_id == None).limit(count)
+        .filter(voting.BallotEntry.ballot_id is None).limit(count)
 
         p = q.all()
         return p
@@ -228,8 +228,8 @@ class TestPhoto(DatabaseTest):
         assert(p is not None)
 
         # now we need to clean up the files
+        indices = []
         for i in range (0, pi.idx):
-            indices = []
             indices.append(i)
             p = photo.Photo.read_photos_by_index(self.session, u.id, c.id, indices)
             if p is not None:
