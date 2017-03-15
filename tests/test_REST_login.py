@@ -196,7 +196,7 @@ class TestPhotoUpload(unittest.TestCase):
         tu = tl.test_login() # this will register (create) and login an user, returning the UID
 
         # we have our user, now we need a photo to upload
-        ft = open('photos/Suki.JPG', 'rb')
+        ft = open('../photos/Suki.JPG', 'rb')
         assert (ft is not None)
         ph = ft.read()
         assert (ph is not None)
@@ -272,3 +272,45 @@ class TesttVoting(unittest.TestCase):
         rsp = self.app.post(path='/vote', data=jvotes, headers={'content-type': 'application/json'})
         assert(rsp.status_code == 200)
         return rsp
+
+    def test_voting_too_many(self):
+
+        ballots = self.test_ballot() # read a ballot
+        assert(ballots is not None)
+        assert(self._uid is not None)
+
+        votes = []
+        idx = 1
+        for be_dict in ballots:
+            bid = be_dict.bid
+            if (idx % 2) == 0:
+                votes.append(dict({'bid':bid, 'vote':idx, 'like':"true"}))
+            else:
+                votes.append(dict({'bid': bid, 'vote': idx}))
+        idx += 1
+
+        votes.append(dict({'bid':0, 'vote':1, 'like':"true"})) # add extra so we fail!
+
+        jvotes = json.dumps(dict({'user_id': self._uid, 'votes':votes}))
+        rsp = self.app.post(path='/vote', data=jvotes, headers={'content-type': 'application/json'})
+        assert(rsp.status_code == 413)
+        return rsp
+
+class TestCategory(unittest.TestCase):
+
+    _uid = None
+    def setUp(self):
+        self.app = iiServer.app.test_client()
+
+
+    def test_category(self):
+        # let's create a user
+        tl = TestLogin()
+        tl.setUp()
+        tu = tl.test_login()  # this will register (create) and login an user, returning the UID
+        self._uid = tu.get_uid()
+
+        rsp = self.app.get(path='/category', data=json.dumps(dict(user_id=self._uid)),
+                            headers={'content-type': 'application/json'})
+
+        assert(rsp.status_code == 200)

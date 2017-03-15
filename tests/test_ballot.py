@@ -8,6 +8,7 @@ from models import category, voting, photo
 from . import DatabaseTest
 import os
 import json
+from leaderboard.leaderboard import Leaderboard
 
 class TestBallot(DatabaseTest):
 
@@ -75,3 +76,21 @@ class TestBallot(DatabaseTest):
         json_size = len(json_string)
         self.teardown()
         return
+
+    def test_leaderboard(self):
+
+        # create new leaderboard
+        test_lb = Leaderboard('test_leaderboard')
+        return
+
+        test_lb.rank_member('TEST1', 1)
+        test_lb.rank_member('TEST2', 2)
+        test_lb.rank_member('TEST3', 3)
+        test_lb.rank_member('TEST4', 4)
+        test_lb.rank_member('TEST5', 5)
+        test_lb.rank_member('TEST6', 6)
+
+        # get leaderboard
+
+        leaders = test_lb.leaders(1)
+

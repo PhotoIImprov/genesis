@@ -10,5 +10,7 @@ OpenCV==3.2.0
 Numpy=1.11.0
 requests=2.9.1
 cv2=3.2.0
+redis=2.10.5
+leaderboard=3.7.0
 
 

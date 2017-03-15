@@ -37,6 +37,26 @@ def hello():
 
     return "ImageImprov Hello World from Flask!"
 
+@app.route("/category", methods=['GET'])
+def get_category():
+    if not request.json:
+        return make_response(jsonify({'error': "insufficient arguments"}),status.HTTP_400_BAD_REQUEST)
+
+    uid = request.json['user_id']
+    if uid is None:
+        return make_response(jsonify({'error': "missing user id"}),status.HTTP_400_BAD_REQUEST)
+
+    session = dbsetup.Session()
+
+    c = category.Category.current_category(session, uid)
+    if c is None:
+        return make_response(jsonify({'error': "error fetching category"}),status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    session.close()
+
+    d = c.to_json()
+    return make_response(jsonify(d), 200)
+
 @app.route("/leaderboard", methods=['GET'])
 def get_leaderboard():
     if not request.json:
@@ -74,6 +94,15 @@ def cast_vote():
 
     uid = request.json['user_id']
     votes = request.json['votes']   # list of dict() with the actual votes
+    if uid is None or votes is None:
+        return make_response(jsonify({'error': "insufficient JSON arguments"}), status.HTTP_400_BAD_REQUEST)
+
+#    assert(len(votes) == 4)
+
+    if len(votes) > 4:
+        return make_response(jsonify({'error': "too many ballots"}), status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
+
+
     session = dbsetup.Session()
 
     voting.Ballot.tabulate_votes(session, uid, votes)

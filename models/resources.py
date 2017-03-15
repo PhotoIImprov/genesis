@@ -23,6 +23,12 @@ class Resource(Base):
         return
 
     @staticmethod
+    def load_resource_by_id(session, rid, lang):
+        q = session.query(Resource).filter_by(resource_id = rid, iso639_1 = lang)
+        r = q.one()
+        return r
+
+    @staticmethod
     def load_resources(session):
         # let's read the entire table in
         resource_map = session.query(Resource).all()
