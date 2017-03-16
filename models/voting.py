@@ -1,5 +1,5 @@
-from sqlalchemy        import Column, Integer, DateTime, text, ForeignKey
-from sqlalchemy.orm import relationship, exc
+from sqlalchemy        import Column, Integer, DateTime, text, ForeignKey, exc
+from sqlalchemy.orm import relationship
 import errno
 from dbsetup           import Base, Session
 from models import photo
@@ -80,7 +80,12 @@ class Ballot(Base):
 
         # okay we have created ballot entries for our select photos
         # time to write it all out
-        Ballot.write_ballot(session,b)
+        try:
+            Ballot.write_ballot(session,b)
+        except exc.IntegrityError as e:
+            if 'fk_ballot_user_id' in e.args[0] or 'fk_ballot_category_id' in e.args[0]:
+                return None # someone passed us an improper user_id
+            raise # tell someone up what teh problem is...
 
         # =========================================================
         # ==== we need to "reset" the photo information to the ====
@@ -225,11 +230,11 @@ class BallotEntry(Base):
         d = dict({'bid':self.id, 'image':self._b64image.decode('utf-8')})
         return d
 
-    @staticmethod
-    def find_ballotentries(session, bid, cid, uid):
-        q = session.query(BallotEntry).filter_by(user_id = uid, category_id = cid, ballot_id = bid)
-        be = q.all()
-        return be
+#    @staticmethod
+#    def find_ballotentries(session, bid, cid, uid):
+#        q = session.query(BallotEntry).filter_by(user_id = uid, category_id = cid, ballot_id = bid)
+#        be = q.all()
+#        return be
 
     def add_vote(self, vote):
         self.vote += vote

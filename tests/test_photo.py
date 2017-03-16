@@ -310,3 +310,12 @@ class TestPhoto(DatabaseTest):
                 self.fail()
 
         return
+
+    def test_generate_thumb_fail(self):
+        fo = photo.Photo()
+        assert (fo is not None)
+
+        try:
+            fo.create_thumb()
+        except BaseException as e:
+            assert(e.args[0] == errno.EINVAL)

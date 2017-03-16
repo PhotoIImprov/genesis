@@ -189,6 +189,143 @@ class TestLogin(unittest.TestCase):
         tu.set_cid(cid)
         return tu
 
+    def test_leaderboard_not_json(self):
+        rsp = self.app.get(path='/leaderboard', headers={'content-type': 'text/html'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+
+        return rsp
+
+    def test_ballot_not_json(self):
+        rsp = self.app.get(path='/ballot', headers={'content-type': 'text/html'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+
+        return rsp
+
+    def test_vote_not_json(self):
+        rsp = self.app.post(path='/vote', headers={'content-type': 'text/html'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+
+        return rsp
+
+    def test_photo_not_json(self):
+        rsp = self.app.post(path='/photo', headers={'content-type': 'text/html'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+
+        return rsp
+
+    def test_login_not_json(self):
+        rsp = self.app.post(path='/login', headers={'content-type': 'text/html'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+
+        return rsp
+
+    def test_register_not_json(self):
+        rsp = self.app.post(path='/register', headers={'content-type': 'text/html'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+
+        return rsp
+
+    def test_category_not_json(self):
+        rsp = self.app.get(path='/category', headers={'content-type': 'text/html'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+
+        return rsp
+
+    def test_category_no_userid(self):
+        rsp = self.app.get(path='/category', data=json.dumps(dict(user_id=None, password='pa55w0rd') ), headers={'content-type': 'application/json'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(error == 'missing user id' and rsp.status_code == 400)
+
+        rsp = self.app.get(path='/category', data=json.dumps(dict(password='pa55w0rd') ), headers={'content-type': 'application/json'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(error == 'missing user id' and rsp.status_code == 400)
+
+        return rsp
+
+    def test_login_missing_args(self):
+        rsp = self.app.post(path='/login', data=json.dumps(dict(username=None, password='pa55w0rd') ), headers={'content-type': 'application/json'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+
+        rsp = self.app.post(path='/login', data=json.dumps(dict(username='bp100a') ), headers={'content-type': 'application/json'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+
+        return rsp
+
+    def test_photo_missing_args(self):
+        rsp = self.app.post(path='/photo', data=json.dumps(dict(image=None, extension=None, category_id=None, user_id=None) ), headers={'content-type': 'application/json'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(error == 'missing arguments' and rsp.status_code == 400)
+
+        rsp = self.app.post(path='/photo', data=json.dumps(dict(username='bp100a') ), headers={'content-type': 'application/json'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(error == 'missing arguments' and rsp.status_code == 400)
+
+        return rsp
+
+    def test_register_missing_args(self):
+        rsp = self.app.post(path='/register', data=json.dumps(dict(username=None, password='pa55w0rd') ), headers={'content-type': 'application/json'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+
+        rsp = self.app.post(path='/register', data=json.dumps(dict(username='bp100a') ), headers={'content-type': 'application/json'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+
+        return rsp
+
+    def test_ballot_missing_args(self):
+        rsp = self.app.get(path='/ballot', data=json.dumps(dict(user_id=None, category_id=1) ), headers={'content-type': 'application/json'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(error == 'invalid arguments' and rsp.status_code == 400)
+
+        rsp = self.app.get(path='/ballot', data=json.dumps(dict(username='bp100a') ), headers={'content-type': 'application/json'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(error == 'invalid arguments' and rsp.status_code == 400)
+
+        return rsp
+
+    def test_vote_missing_args(self):
+        rsp = self.app.post(path='/vote', data=json.dumps(dict(user_id=None, votes=None) ), headers={'content-type': 'application/json'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(error == 'insufficient JSON arguments' and rsp.status_code == 400)
+
+        rsp = self.app.post(path='/vote', data=json.dumps(dict(username='bp100a') ), headers={'content-type': 'application/json'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(error == 'insufficient JSON arguments' and rsp.status_code == 400)
+
+        return rsp
+
+
+
+
 
 class TestPhotoUpload(unittest.TestCase):
 
@@ -261,6 +398,30 @@ class TesttVoting(unittest.TestCase):
 
         return ballots
 
+    def test_ballot_invalid_user_id(self):
+        rsp = self.app.get(path='/ballot', data=json.dumps(dict(user_id=0, category_id=0)),
+                           headers={'content-type': 'application/json'})
+
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(rsp.status_code == 500 and error == "no ballot created!")
+        return
+
+    def test_ballot_invalid_category_id(self):
+        # let's create a user
+        tl = TestLogin()
+        tl.setUp()
+        tu = tl.test_login() # this will register (create) and login an user, returning the UID
+        self._uid = tu.get_uid()
+
+        rsp = self.app.get(path='/ballot', data=json.dumps(dict(user_id=self._uid, category_id=0)),
+                           headers={'content-type': 'application/json'})
+
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert(rsp.status_code == 500 and error == "no ballot created!")
+        return
+
     def test_voting(self):
 
         ballots = self.test_ballot() # read a ballot
@@ -275,7 +436,7 @@ class TesttVoting(unittest.TestCase):
                 votes.append(dict({'bid':bid, 'vote':idx, 'like':"true"}))
             else:
                 votes.append(dict({'bid': bid, 'vote': idx}))
-        idx += 1
+            idx += 1
 
         jvotes = json.dumps(dict({'user_id': self._uid, 'votes':votes}))
         rsp = self.app.post(path='/vote', data=jvotes, headers={'content-type': 'application/json'})

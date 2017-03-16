@@ -42,7 +42,11 @@ def get_category():
     if not request.json:
         return make_response(jsonify({'error': "insufficient arguments"}),status.HTTP_400_BAD_REQUEST)
 
-    uid = request.json['user_id']
+    try:
+        uid = request.json['user_id']
+    except KeyError as e:
+        uid = None
+
     if uid is None:
         return make_response(jsonify({'error': "missing user id"}),status.HTTP_400_BAD_REQUEST)
 
@@ -62,7 +66,11 @@ def get_leaderboard():
     if not request.json:
         return make_response(jsonify({'error': "insufficient arguments"}),status.HTTP_400_BAD_REQUEST)
 
-    cid = request.json['category_id']
+    try:
+        cid = request.json['category_id']
+    except KeyError:
+        return make_response(jsonify({'error': "no category specified"}),status.HTTP_400_BAD_REQUEST)
+
     return make_response(jsonify({'message': "TBD - leader board not implemented"}), 200)
 
 @app.route("/ballot", methods=['GET'])
@@ -70,12 +78,17 @@ def get_ballot():
     if not request.json:
         return make_response(jsonify({'error': "insufficient arguments"}),status.HTTP_400_BAD_REQUEST)
 
-    uid = request.json['user_id']
-    cid = request.json['category_id']
+    try:
+        uid = request.json['user_id']
+        cid = request.json['category_id']
+    except KeyError:
+        uid = None
+        cid = None
+
     session = dbsetup.Session()
     if uid is None or cid is None or session is None:
         session.close()
-        return make_response(jsonify({'error': "invalid arguments"}),status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return make_response(jsonify({'error': "invalid arguments"}),status.HTTP_400_BAD_REQUEST)
 
     b = voting.Ballot.create_ballot(session, uid, cid)
     if b is None:
@@ -92,8 +105,13 @@ def cast_vote():
     if not request.json:
         return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
 
-    uid = request.json['user_id']
-    votes = request.json['votes']   # list of dict() with the actual votes
+    try:
+        uid = request.json['user_id']
+        votes = request.json['votes']  # list of dict() with the actual votes
+    except KeyError:
+        uid = None
+        votes = None
+
     if uid is None or votes is None:
         return make_response(jsonify({'error': "insufficient JSON arguments"}), status.HTTP_400_BAD_REQUEST)
 
@@ -115,10 +133,18 @@ def photo_upload():
     if not request.json:
         return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
 
-    image_data_b64 = request.json['image']
-    image_type     = request.json['extension']
-    cid    = request.json['category_id']
-    uid = request.json['user_id']
+    try:
+        image_data_b64 = request.json['image']
+        image_type     = request.json['extension']
+        cid    = request.json['category_id']
+        uid = request.json['user_id']
+    except KeyError:
+        cid = None
+        uid = None
+
+    if cid is None or uid is None:
+        return make_response(jsonify({'error': "missing arguments"}), status.HTTP_400_BAD_REQUEST)
+
     image_data = base64.b64decode(image_data_b64)
 #    uid = current_identity
     session = dbsetup.Session()
@@ -131,8 +157,12 @@ def login():
     if not request.json:
         return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
 
-    emailaddress = request.json['username']
-    password     = request.json['password']
+    try:
+        emailaddress = request.json['username']
+        password     = request.json['password']
+    except KeyError:
+        emailaddress = None
+        password = None
 
     if emailaddress is None or password is None:
         return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
@@ -160,9 +190,13 @@ def register():
     if not request.json:
         return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
 
-    emailaddress = request.json['username']
-    password     = request.json['password']
-    guid         = request.json['guid']
+    try:
+        emailaddress = request.json['username']
+        password     = request.json['password']
+        guid         = request.json['guid']
+    except KeyError:
+        emailaddress = None
+        password = None
 
     if emailaddress is None or password is None:
         return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)

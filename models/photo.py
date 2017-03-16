@@ -276,20 +276,20 @@ class Photo(Base):
 
         return p
 
-    @staticmethod
-    def read_ballot_photos(session, b):
-        if session is None or b is None:
-            raise BaseException(errno.EINVAL)
-
-        idx_list = []
-        for be in b.get_ballotentries():
-            idx_list.append(be.photo_id)
-
-        p_list = Photo.read_photos_by_index(session, b.user_id, b.category_id, idx_list)
-        # we have the list of photo records, now use this to fetch the
-        # thumbnail images
-
-        return
+#    @staticmethod
+#    def read_ballot_photos(session, b):
+#        if session is None or b is None:
+#            raise BaseException(errno.EINVAL)
+#
+#        idx_list = []
+#        for be in b.get_ballotentries():
+#            idx_list.append(be.photo_id)
+#
+#        p_list = Photo.read_photos_by_index(session, b.user_id, b.category_id, idx_list)
+#        # we have the list of photo records, now use this to fetch the
+#        # thumbnail images
+#
+#        return
 
     # read_photos_by_index()
     # ======================
