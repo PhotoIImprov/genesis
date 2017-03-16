@@ -9,7 +9,7 @@ def setup_module():
     global transaction, connection, engine
 
     # Connect to the database and create the schema within a transaction
-    engine = create_engine(connection_string())
+    engine = create_engine(connection_string(None))
     connection = engine.connect()
     transaction = connection.begin()
     Base.metadata.create_all(connection)

@@ -41,7 +41,7 @@ class TestBallot(DatabaseTest):
 
         dir_path = os.path.dirname(os.path.realpath(__file__))
         cwd = os.getcwd()
-        ft = open('photos/Cute_Puppy.jpg', 'rb')
+        ft = open('../photos/Cute_Puppy.jpg', 'rb')
         assert (ft is not None)
         ph = ft.read()
         assert (ph is not None)

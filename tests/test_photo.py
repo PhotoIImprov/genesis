@@ -14,7 +14,7 @@ class TestPhoto(DatabaseTest):
         # create a bunch of test photos for the specified category
 
         # read our test file
-        ft = open('photos/Cute_Puppy.jpg', 'rb')
+        ft = open('../photos/Cute_Puppy.jpg', 'rb')
         assert (ft is not None)
         ph = ft.read()
         assert (ph is not None)
@@ -137,7 +137,7 @@ class TestPhoto(DatabaseTest):
         assert (fo is not None)
 
         # read our test file
-        ft = open('photos/Cute_Puppy.jpg', 'rb')
+        ft = open('../photos/Cute_Puppy.jpg', 'rb')
         assert (ft is not None)
 
         ph = ft.read()
@@ -174,6 +174,66 @@ class TestPhoto(DatabaseTest):
         os.remove(fo.filepath + "/" + fn + ".JPEG")  # our main image
         os.remove(fo.create_thumb_filename())  # our thumbnail
        # os.removedirs(fo.filepath)
+
+        self.teardown()
+
+    def test_save_fake_user_image(self):
+
+        self.setup()
+
+        fo = photo.Photo()
+        assert (fo is not None)
+
+        # read our test file
+        ft = open('../photos/Cute_Puppy.jpg', 'rb')
+        assert (ft is not None)
+
+        ph = ft.read()
+        assert (ph is not None)
+
+        # first we need a resource
+        r = resources.Resource.create_resource(5555, 'EN', 'Kittens')
+        resources.Resource.write_resource(self.session, r)
+
+        # now create our category
+        s_date = datetime.datetime.now()
+        e_date = s_date + datetime.timedelta(days=1)
+        c = category.Category.create_category(r.resource_id, s_date, e_date)
+        category.Category.write_category(self.session, c)
+
+        fo.category_id = c.id
+        try:
+            fo.save_user_image(self.session, ph, "JPEG", 0, c.id)
+        except BaseException as e:
+            assert(e.args[0] == errno.EINVAL)
+            assert(e.args[1] == "invalid user")
+
+        self.teardown()
+
+    def test_save_fake_category_image(self):
+
+        self.setup()
+
+        fo = photo.Photo()
+        assert (fo is not None)
+
+        # read our test file
+        ft = open('../photos/Cute_Puppy.jpg', 'rb')
+        assert (ft is not None)
+
+        ph = ft.read()
+        assert (ph is not None)
+
+        # create a user
+        au = usermgr.AnonUser.create_anon_user(self.session, '99275132efe811e6bc6492361f002673')
+        if au is not None:
+            u = usermgr.User.create_user(self.session, au.guid, 'harry.collins@gmail.com', 'pa55w0rd')
+
+        try:
+            fo.save_user_image(self.session, ph, "JPEG", u.id, 0)
+        except BaseException as e:
+            assert (e.args[0] == errno.EINVAL)
+            assert (e.args[1] == "invalid category")
 
         self.teardown()
 
@@ -242,3 +302,11 @@ class TestPhoto(DatabaseTest):
 
         self.teardown()
 
+    def test_write_file_fail(self):
+        try:
+            photo.Photo.write_file(None, None)
+        except Exception as e:
+            if e.args[0] != errno.EINVAL:
+                self.fail()
+
+        return

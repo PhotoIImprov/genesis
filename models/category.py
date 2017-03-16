@@ -4,6 +4,7 @@ import errno
 import datetime
 import dbsetup
 from models import resources
+from models import usermgr
 
 class Category(Base):
     __tablename__ = 'category'
@@ -65,6 +66,10 @@ class Category(Base):
     def current_category(session, uid):
         if session is None or uid is None:
             raise BaseException(errno.EINVAL)
+
+        au = usermgr.AnonUser.get_anon_user_by_id(session, uid)
+        if au is None:
+            return None
 
         current_datetime = datetime.datetime.utcnow()
         q = session.query(Category).filter(Category.start_date < current_datetime). \

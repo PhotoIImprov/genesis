@@ -200,14 +200,14 @@ class BallotEntry(Base):
         self.photo = p
         return
 
-    def get_photo(self):
-        if self.photo is None:
-            try:
-                self.photo = photo.Photo.read_photo_by_index(Session(), self.photo_id)
-            except exc.NoResultFound:   # shouldn't happen except in testing with nested sessions
-                return None
-
-        return self.photo
+#    def get_photo(self):
+#        if self.photo is None:
+#            try:
+#                self.photo = photo.Photo.read_photo_by_index(Session(), self.photo_id)
+#            except exc.NoResultFound:   # shouldn't happen except in testing with nested sessions
+#                return None
+#
+#        return self.photo
 
     def to_json(self):
 
@@ -295,35 +295,5 @@ class LeaderBoard(Base):
             e = sys.exc_info()[0]
             # what happened here?
             raise
-
-        return
-
-#============================================= J S O N  D T O =============================================
-class jBallot(json.JSONEncoder):
-    jBallotEntries = []
-
-    def __init__(self, b):
-        # we have a ballot, distill it's essence
-        be_list = []
-        be_list = b.get_ballotentries()
-        for be in be_list:
-            jb = jBallotEntries(be)
-            self.jBallotEntries.append(jb)
-        return
-
-    def default(self, o):
-        json_str = "put json here"
-        return json_str
-
-class jBallotEntries(json.JSONEncoder):
-    bid = 0
-    image = None
-    _binary_image = None
-
-    def __init__(self,be):
-        self.bid = be.id
-        p = be.get_photo()
-        if p is not None:
-            self._binary_image = p.read_thumbnail_image()
 
         return

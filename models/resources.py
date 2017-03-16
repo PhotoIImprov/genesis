@@ -49,21 +49,21 @@ class Resource(Base):
 
         return
 
-    @staticmethod
-    def executeScriptsFromFile(session, filename):
-        fd = open(filename, 'r')
-        sqlFile = fd.read()
-        fd.close()
-
-        sqlCommands = sqlFile.split(';')
-        c = session.connection()
-        log = None
-        for command in sqlCommands:
-            try:
-                c.execute(command)
-            except OperationalError as msg:
-                log = log + "Command skipped: " + msg
-
-        return
+#    @staticmethod
+#    def executeScriptsFromFile(session, filename):
+#        fd = open(filename, 'r')
+#        sqlFile = fd.read()
+#        fd.close()
+#
+#        sqlCommands = sqlFile.split(';')
+#        c = session.connection()
+#        log = None
+#        for command in sqlCommands:
+#            try:
+#                c.execute(command)
+#            except OperationalError as msg:
+#                log = log + "Command skipped: " + msg
+#
+#        return
 
 

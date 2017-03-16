@@ -1,6 +1,6 @@
 import sqlalchemy
 from sqlalchemy.schema import DDL
-from sqlalchemy        import Column, Integer, String, DateTime, text, ForeignKey
+from sqlalchemy        import Column, Integer, String, DateTime, text, ForeignKey, exc
 import uuid
 from dbsetup           import Base
 import os, os.path, errno
@@ -210,7 +210,7 @@ class Photo(Base):
         # okay we have arguments, lets create our file name
         self.create_name()      # our globally unique filename
         self.create_sub_path()  # a path to distribute the load
-        self._mnt_point = dbsetup.image_store(dbsetup.determine_environment()) # get the mount point
+        self._mnt_point = dbsetup.image_store(dbsetup.determine_environment(None)) # get the mount point
         self.create_full_path(self._mnt_point) # put it all together
         self.create_full_filename()
 
@@ -225,10 +225,10 @@ class Photo(Base):
         try:
             session.add(self)
             session.commit()
-        except pymysql.err.IntegrityError as e:
-            if "fk_photo_user_id" in e.errval:
+        except exc.IntegrityError as e:
+            if "fk_photo_user_id" in e.args[0]:
                 raise BaseException(errno.EINVAL, "invalid user")
-            if "fk_photo_category_id" in e.errval:
+            if "fk_photo_category_id" in e.args[0]:
                 raise BaseException(errno.EINVAL, "invalid category")
             raise
 

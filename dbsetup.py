@@ -19,8 +19,9 @@ class EnvironmentType(Enum):
     STAGE   = 3
     PROD    = 4
 
-def determine_environment():
-    hostname = str.upper(os.uname()[1])
+def determine_environment(hostname):
+    if hostname is None:
+        hostname = str.upper(os.uname()[1])
     if "DEV" in hostname:
         return EnvironmentType.DEV
     if "PROD" in hostname:
@@ -34,9 +35,10 @@ def determine_environment():
 
     return EnvironmentType.UNKNOWN
 
-def connection_string():
+def connection_string(environment):
 
-    environment = determine_environment()
+    if environment is None:
+        environment = determine_environment(None)
     if environment == EnvironmentType.DEV:
         return 'mysql+pymysql://python:python@192.168.1.149:3306/imageimprov'
 
@@ -62,7 +64,7 @@ def is_gunicorn():
 
 
 # connection to MySQL instance on 4KOffice (intranet)
-engine   = create_engine(connection_string(), echo=False)
+engine   = create_engine(connection_string(None), echo=False)
 Session  = sessionmaker(bind=engine)
 Base     = declarative_base()
 metadata = Base.metadata

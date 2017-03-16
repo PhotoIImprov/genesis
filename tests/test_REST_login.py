@@ -149,6 +149,15 @@ class TestLogin(unittest.TestCase):
         assert(rsp.status_code == 200)
         return
 
+    def test_anon_authentication(self):
+        tu = TestUser()
+        tu.create_anon_user()
+        rsp = self.post_registration(tu)
+        assert(rsp.status_code == 201)
+        rsp = self.post_auth(tu)
+        assert(rsp.status_code == 200)
+        return
+
     def test_bad_password_auth(self):
         # first register a user
         tu = TestUser()
@@ -314,3 +323,10 @@ class TestCategory(unittest.TestCase):
                             headers={'content-type': 'application/json'})
 
         assert(rsp.status_code == 200)
+
+    def test_category_bogus_uid(self):
+       # 0 is not a valid user id, so this should fail
+        rsp = self.app.get(path='/category', data=json.dumps(dict(user_id=0)),
+                            headers={'content-type': 'application/json'})
+
+        assert(rsp.status_code == 500)
