@@ -100,6 +100,47 @@ def get_ballot():
     session.close()
     return make_response(jsonify({'ballots': ballots}), status.HTTP_200_OK)
 
+@app.route("/acceptfriendrequest", methods=['POST'])
+def accept_friendship():
+    if not request.json:
+        return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
+
+    try:
+        fid = request.json['request_id'] # id of the friendship request
+        accept = request.json['accepted'] # = True, then friendship accepted
+    except KeyError:
+        fid = None
+        accept = None
+
+    if fid is None or accept is None:
+        return make_response(jsonify({'error': "insufficient JSON arguments"}), status.HTTP_400_BAD_REQUEST)
+
+    return make_response(jsonify({'message': "working on it"}), status.HTTP_200_OK)
+
+@app.route("/friendrequest", methods=['POST'])
+def tell_a_friend():
+    if not request.json:
+        return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
+
+    try:
+        uid = request.json['user_id']  # user that's notifying a friend
+        friend = request.json['friend']  # email address of friend to notify
+    except KeyError:
+        uid = None
+        friend = None
+
+    if uid is None or friend is None:
+        return make_response(jsonify({'error': "insufficient JSON arguments"}), status.HTTP_400_BAD_REQUEST)
+
+    session = dbsetup.Session()
+    request_created = usermgr.FriendRequest.write_request(session, uid, friend)
+    session.close()
+
+    if request_created:
+        return make_response(jsonify({'message': "thank you, we will notify your friend"}), status.HTTP_200_OK)
+
+    return make_response(jsonify({'error': "there was a problem creating the friend request"}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 @app.route("/vote", methods=['POST'])
 def cast_vote():
     if not request.json:

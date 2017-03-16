@@ -185,8 +185,9 @@ class FriendRequest(Base):
     __tablename__ = 'friendrequest'
 
     id                  = Column(Integer, primary_key = True, autoincrement=True)
-    askingfriend_id     = Column(Integer, ForeignKey("userlogin.id", name="fk_askingfriend_id"))  # ties us back to our user record
-    notifyingfriend_id  = Column(Integer, ForeignKey("userlogin.id", name="fk_notifyingfriend_id"))  # ties us back to our user record
+    asking_friend_id    = Column(Integer, ForeignKey("userlogin.id", name="fk_askingfriend_id"), nullable=False)  # ties us back to our user record
+    notifying_friend_id = Column(Integer, ForeignKey("userlogin.id", name="fk_notifyingfriend_id"), nullable=True)  # ties us back to our user record (if exists)
+    friend_email        = Column(String(200), nullable=False)
 
     # declined  accepted
     # NULL      NULL        waiting for response
@@ -203,3 +204,59 @@ class FriendRequest(Base):
     def get_id(self):
         return self.id
 
+    @staticmethod
+    def update_friendship(session, fid, accept):
+        if fid is None or session is None:
+            return
+
+        # okay, get the friendship record..
+        q = session.query(FriendRequest).filter_by(id = fid)
+        fr = q.first()
+        if fr is None:
+            return
+
+        if accept:
+            fr.accepted = true
+            fr.declined = false
+        else:
+            fr.declined = true
+            fr.accepted = false
+
+        # let's create a record in the Friend table!
+        new_friend = Friend()
+        new_friend.user_id = fr.asking_friend_id
+        new_friend.myfriend_id = fr.notifying_friend_id
+        new_friend.active = 1
+
+        session.add(new_friend)
+        session.commit()
+        return
+
+    @staticmethod
+    def write_request(session, asking_friend_id, friend_email):
+        if asking_friend_id is None or friend_email is None:
+            return False
+
+        # okay we have a user_id for a person that wants us to ask their
+        # friend to join ImageImprov.
+        #
+        # if the friend is already in the system, we can include their
+        # user id.
+        #
+        # Note: an anonymous user can invite friends, but friends that
+        #       join cannot be anonymous as we need their email address
+        #       to tie them to the site
+
+        fr = FriendRequest()
+        fr.asking_friend_id = asking_friend_id
+        fr.friend_email = friend_email
+
+        # see if the email of the friend is in our system
+        fu = User.find_user_by_email(session, friend_email)
+        if fu is not None:
+            fr.notifying_friend_id = fu.id
+
+        session.add(fr)
+        session.commit()
+
+        return True

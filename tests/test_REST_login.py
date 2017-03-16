@@ -457,7 +457,7 @@ class TesttVoting(unittest.TestCase):
                 votes.append(dict({'bid':bid, 'vote':idx, 'like':"true"}))
             else:
                 votes.append(dict({'bid': bid, 'vote': idx}))
-        idx += 1
+            idx += 1
 
         votes.append(dict({'bid':0, 'vote':1, 'like':"true"})) # add extra so we fail!
 
@@ -465,6 +465,60 @@ class TesttVoting(unittest.TestCase):
         rsp = self.app.post(path='/vote', data=jvotes, headers={'content-type': 'application/json'})
         assert(rsp.status_code == 413)
         return rsp
+
+    def test_friend_invalid_user_id(self):
+
+        # missing friend
+        rsp = self.app.post(path='/friendrequest', data=json.dumps(dict(user_id=0)),
+                           headers={'content-type': 'application/json'})
+
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert (rsp.status_code == 400 and error == "insufficient JSON arguments")
+
+        # missing user_id
+        rsp = self.app.post(path='/friendrequest', data=json.dumps(dict(friend="bp100a@hotmail.com")),
+                           headers={'content-type': 'application/json'})
+
+        data = json.loads(rsp.data.decode("utf-8"))
+        error = data['error']
+        assert (rsp.status_code == 400 and error == "insufficient JSON arguments")
+        return
+
+    def test_friend_request(self):
+        # let's create a user
+        tl = TestLogin()
+        tl.setUp()
+        tu = tl.test_login() # this will register (create) and login an user, returning the UID
+        self._uid = tu.get_uid()
+
+        rsp = self.app.post(path='/friendrequest', data=json.dumps(dict(user_id=self._uid, friend="bp100a@hotmail.com")),
+                           headers={'content-type': 'application/json'})
+
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(rsp.status_code == 200 and data['message'] == "thank you, we will notify your friend")
+        return
+
+    def test_friend_request_current_user(self):
+        # let's create a user
+        tl = TestLogin()
+        tl.setUp()
+        tu = tl.test_login()  # this will register (create) and login an user, returning the UID
+        self._uid = tu.get_uid()
+
+        f = TestLogin()
+        f.setUp()
+        fu = f.test_login()  # this will register (create) and login an user, returning the UID
+
+        # okay we created 2 users, one is asking the other to be a friend and the 2nd is in the system
+        rsp = self.app.post(path='/friendrequest',
+                            data=json.dumps(dict(user_id=self._uid, friend=fu.get_username())),
+                            headers={'content-type': 'application/json'})
+
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert (rsp.status_code == 200 and data['message'] == "thank you, we will notify your friend")
+        return
+
 
 class TestCategory(unittest.TestCase):
 
