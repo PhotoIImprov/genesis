@@ -2,7 +2,7 @@ from sqlalchemy        import Column, Integer, DateTime, text, ForeignKey, exc
 from sqlalchemy.orm import relationship
 import errno
 from dbsetup           import Base, Session
-from models import photo
+from models import photo, category
 import sys
 import json
 import base64
@@ -119,7 +119,7 @@ class Ballot(Base):
 
         q = session.query(photo.Photo)\
         .outerjoin(BallotEntry)\
-        .filter(BallotEntry.ballot_id is None, photo.Photo.user_id != uid).limit(count)
+        .filter(BallotEntry.ballot_id == None).filter(photo.Photo.user_id != uid).filter(photo.Photo.category_id == cid).limit(count)
 
         p = q.all()
         return p
@@ -136,6 +136,14 @@ class Ballot(Base):
     def create_ballot_list(session, uid, cid, count):
         if uid is None or cid is None or count is None:
             raise BaseException(errno.EINVAL)
+
+        # is this category open for voting?
+        c = category.Category.read_category_by_id(session, cid)
+        if c is None:
+            return None
+
+        if c.state != category.CategoryState.VOTING.value:
+            return None
 
         # we need "count"
         photos_for_ballot = []
@@ -255,6 +263,10 @@ class BallotEntry(Base):
         be = q.one()
         if be is None:
             raise BaseException(errno.EADDRNOTAVAIL)
+
+        # check the category, is voting still happening?
+        if not category.Category.is_voting((session, be.category_id)):
+            raise BaseException(errno.EINVAL)
 
         be.add_vote(vote)
         be.increment_like(like)

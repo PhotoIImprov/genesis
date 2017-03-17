@@ -37,6 +37,34 @@ def hello():
 
     return "ImageImprov Hello World from Flask!"
 
+@app.route("/setcategorystate", methods=['POST'])
+def set_category_state():
+    if not request.json:
+        return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
+
+    try:
+        cid = request.json['category_id']
+        cstate = request.json['state']
+    except KeyError as e:
+        cid = None
+        cstate = None
+
+    if cid is None:
+        return make_response(jsonify({'error': "missing category id"}), status.HTTP_400_BAD_REQUEST)
+
+    session = dbsetup.Session()
+
+    c = category.Category.read_category_by_id(session, cid)
+    if c is not None:
+        c.state = cstate
+        session.commit()
+        session.close()
+        return make_response(jsonify({'message': "category state changed"}),status.HTTP_200_OK)
+
+    session.close()
+    return make_response(jsonify({'error': "error fetching category"}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @app.route("/category", methods=['GET'])
 def get_category():
     if not request.json:
@@ -52,14 +80,13 @@ def get_category():
 
     session = dbsetup.Session()
 
-    c = category.Category.current_category(session, uid)
-    if c is None:
-        return make_response(jsonify({'error': "error fetching category"}),status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+    cl = category.Category.active_categories(session, uid)
     session.close()
+    if cl is None:
+        return make_response(jsonify({'error': "error fetching category"}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    d = c.to_json()
-    return make_response(jsonify(d), 200)
+    categories = category.Category.list_to_json(cl)
+    return make_response(jsonify({'categories': categories}), status.HTTP_200_OK)
 
 @app.route("/leaderboard", methods=['GET'])
 def get_leaderboard():
@@ -106,16 +133,21 @@ def accept_friendship():
         return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
 
     try:
+        uid = request.json['user_id']
         fid = request.json['request_id'] # id of the friendship request
-        accept = request.json['accepted'] # = True, then friendship accepted
+        accepted = request.json['accepted'] == "true" # = True, then friendship accepted
     except KeyError:
         fid = None
-        accept = None
+        accepted = None
 
-    if fid is None or accept is None:
+    if fid is None or accepted is None:
         return make_response(jsonify({'error': "insufficient JSON arguments"}), status.HTTP_400_BAD_REQUEST)
 
-    return make_response(jsonify({'message': "working on it"}), status.HTTP_200_OK)
+    session = dbsetup.Session()
+    usermgr.FriendRequest.update_friendship(session, uid, fid, accepted)
+    session.close()
+
+    return make_response(jsonify({'message': "friendship updated"}), status.HTTP_201_CREATED)
 
 @app.route("/friendrequest", methods=['POST'])
 def tell_a_friend():
@@ -133,11 +165,11 @@ def tell_a_friend():
         return make_response(jsonify({'error': "insufficient JSON arguments"}), status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
-    request_created = usermgr.FriendRequest.write_request(session, uid, friend)
+    request_id = usermgr.FriendRequest.write_request(session, uid, friend)
     session.close()
 
-    if request_created:
-        return make_response(jsonify({'message': "thank you, we will notify your friend"}), status.HTTP_200_OK)
+    if request_id != 0:
+        return make_response(jsonify({'message': "thank you, we will notify your friend", 'request_id':request_id}), status.HTTP_201_CREATED)
 
     return make_response(jsonify({'error': "there was a problem creating the friend request"}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -214,7 +246,7 @@ def login():
 
     uid = foundUser.get_id()
     session = dbsetup.Session()
-    c = category.Category.current_category(session, uid)
+    c = category.Category.current_category(session, uid, category.CategoryState.UPLOAD)
     session.close()
     if c is None:
         cid = 0

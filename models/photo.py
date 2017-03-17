@@ -5,7 +5,7 @@ import uuid
 from dbsetup           import Base
 import os, os.path, errno
 import dbsetup
-
+from models import category
 import cv2
 import numpy as np
 import pymysql
@@ -20,7 +20,6 @@ class Photo(Base):
     id           = Column(Integer, primary_key = True, autoincrement=True)
     user_id      = Column(Integer, ForeignKey("userlogin.id", name="fk_photo_user_id"), nullable=False, index=True)
     category_id  = Column(Integer, ForeignKey("category.id",  name="fk_photo_category_id"), nullable=False, index=True)
-    category_idx = Column(Integer, nullable=True)
     filepath     = Column(String(500), nullable=False)                  # e.g. '/mnt/images/49269d/394f9/d431'
     filename     = Column(String(100), nullable=False, unique=True)     # e.g. '970797dfd9f149269d394f9d43179d64.jpeg'
     times_voted  = Column(Integer, nullable=False, default=0)           # number of votes on this photo
@@ -204,6 +203,9 @@ class Photo(Base):
         if image_data is None or uid is None or cid is None:
             raise errno.EINVAL
 
+        if not category.Category.is_upload(session, cid):
+            return errno.EINVAL
+
         self.set_image(image_data)
         self._image_type = image_type
 
@@ -291,46 +293,12 @@ class Photo(Base):
 #
 #        return
 
-    # read_photos_by_index()
-    # ======================
-    # given a list of indices, will return a list of photos
-    # that match for the sepcified category
-
-    @staticmethod
-    def read_photos_by_index(session, uid, cid, indices):
-        if uid is None or cid is None or indices is None:
-            raise BaseException(errno.EINVAL)
-
-        q = session.query(Photo).filter(Photo.category_idx.in_(indices), Photo.category_id == cid )
-
-        p = q.all()
-        return p
-
-    @staticmethod
-    def read_photo_by_index(session, p_idx):
-        if session is None or p_idx is None:
-            raise BaseException(errno.EINVAL)
-
-        q = session.query(Photo).filter(Photo.id == p_idx)
-        p = q.one()
-        return p
-
 
 # ====================================================================================================================
 
 # register some DDL that we want attached to this model
 sqlalchemy.event.listen(Photo.__table__, 'after_create',
-             DDL('DROP FUNCTION IF EXISTS increment_photo_index;\n'
-             'CREATE FUNCTION increment_photo_index(cid int) RETURNS int\n'
-             'BEGIN\n'
-             'DECLARE x int;\n'
-             'update photoindex set idx = (@x:=idx)+1 where category_id = cid;\n'
-             'return @x;\n'
-             'END;\n'
-             'DROP TRIGGER IF EXISTS pindexer;\n'
-             'CREATE TRIGGER pindexer BEFORE INSERT ON photo FOR EACH ROW SET new.category_idx = increment_photo_index(NEW.category_id);'
-
-            'DROP PROCEDURE IF EXISTS sp_updateleaderboard;\n'
+             DDL('DROP PROCEDURE IF EXISTS sp_updateleaderboard;\n'
             'CREATE PROCEDURE sp_updateleaderboard (IN in_uid int, IN in_cid int, IN in_likes int, IN in_vote int, IN in_score int)\n'
             'this_proc: BEGIN\n'
             '  declare leaderboard_size int;\n'

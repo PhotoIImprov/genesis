@@ -205,8 +205,8 @@ class FriendRequest(Base):
         return self.id
 
     @staticmethod
-    def update_friendship(session, fid, accept):
-        if fid is None or session is None:
+    def update_friendship(session, uid, fid, accept):
+        if fid is None or session is None or uid is None:
             return
 
         # okay, get the friendship record..
@@ -215,17 +215,20 @@ class FriendRequest(Base):
         if fr is None:
             return
 
+        if fr.notifying_friend_id is not None and fr.notifying_friend_id != uid:
+            return # something wrong!!
+
         if accept:
-            fr.accepted = true
-            fr.declined = false
+            fr.accepted = True
+            fr.declined = False
         else:
-            fr.declined = true
-            fr.accepted = false
+            fr.declined = True
+            fr.accepted = False
 
         # let's create a record in the Friend table!
         new_friend = Friend()
         new_friend.user_id = fr.asking_friend_id
-        new_friend.myfriend_id = fr.notifying_friend_id
+        new_friend.myfriend_id = uid
         new_friend.active = 1
 
         session.add(new_friend)
@@ -235,7 +238,7 @@ class FriendRequest(Base):
     @staticmethod
     def write_request(session, asking_friend_id, friend_email):
         if asking_friend_id is None or friend_email is None:
-            return False
+            return 0
 
         # okay we have a user_id for a person that wants us to ask their
         # friend to join ImageImprov.
@@ -259,4 +262,4 @@ class FriendRequest(Base):
         session.add(fr)
         session.commit()
 
-        return True
+        return fr.id

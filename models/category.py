@@ -5,11 +5,35 @@ import datetime
 import dbsetup
 from models import resources
 from models import usermgr
+from enum import Enum
+
+
+class CategoryState(Enum):
+    UNKNOWN  = 0        # initial state
+    UPLOAD   = 1        # category available for uploading photos, active
+    VOTING   = 2        # category no longer accepting uploads, now we're voting on it, active
+    COUNTING = 3        # category is no longer accepting votes, time to tabulate the votes
+    CLOSED   = 4        # category is complete, votes have been tabulated
+
+    @staticmethod
+    def to_str(state):
+        if state == CategoryState.UNKNOWN.value:
+            return "UNKNOWN"
+        if state == CategoryState.UPLOAD.value:
+            return "UPLOAD"
+        if state == CategoryState.VOTING.value:
+            return "VOTING"
+        if state == CategoryState.COUNTING.value:
+            return "COUNTING"
+        if state == CategoryState.CLOSED.value:
+            return "CLOSED"
+        return "INVALID"
 
 class Category(Base):
     __tablename__ = 'category'
 
     id           = Column(Integer, primary_key=True, autoincrement=True)
+    state        = Column(Integer, nullable=False, default=CategoryState.UNKNOWN)
     resource_id  = Column(Integer, ForeignKey("resource.resource_id", name="fk_category_resource_id"), nullable=False)
     start_date   = Column(DateTime, nullable=False)
     end_date     = Column(DateTime, nullable=False)
@@ -34,76 +58,103 @@ class Category(Base):
 
         return self._category_description
 
+    def set_state(self, new_state):
+        self.state = new_state.value
 
     def to_json(self):
         category_description = self.get_description()
         json_start_date = "{}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}Z".format(self.start_date.year, self.start_date.month, self.start_date.day, self.start_date.hour, self.start_date.minute, self.start_date.second)
         json_end_date   = "{}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}Z".format(self.end_date.year, self.end_date.month, self.end_date.day, self.end_date.hour, self.end_date.minute, self.end_date.second)
-        d = dict({'category_id':self.id, 'category description':category_description, 'start':json_start_date, 'end':json_end_date})
+        json_state = CategoryState.to_str(self.state)
+
+        d = dict({'id':self.id, 'description':category_description, 'start':json_start_date, 'end':json_end_date, 'state':json_state})
         return d
 
     def get_id(self):
         return self.id
 
     @staticmethod
+    def list_to_json(cl):
+        if cl is None or len(cl) == 0:
+            return None
+
+        categories = []
+        for c in cl:
+            categories.append(c.to_json())
+
+        return categories
+
+    @staticmethod
+    def active_categories(session, uid):
+        if session is None or uid is None:
+            return None
+
+        # see if the user id exists
+        au = usermgr.AnonUser.get_anon_user_by_id(session,uid)
+        if au is None:
+            return None
+
+        q = session.query(Category).filter(Category.state.in_([CategoryState.UPLOAD.value, CategoryState.VOTING.value]))
+        c = q.all()
+        return c
+
+    @staticmethod
     def write_category(session, c):
         session.add(c)
         session.commit()
-
-        PhotoIndex.create_index(session, c.id)
         return
 
     @staticmethod
-    def create_category(rid, sd, ed):
+    def create_category(rid, sd, ed, st):
         c = Category()
         c.resource_id = rid
         c.start_date = sd
         c.end_date = ed
+        c.state = st.value
 
         return c
 
     @staticmethod
-    def current_category(session, uid):
+    def read_category_by_id(session, cid):
+        if session is None or cid is None:
+            raise BaseException(errno.EINVAL)
+
+        q = session.query(Category).filter_by(id = cid)
+        c = q.one_or_none()
+        return c
+
+    @staticmethod
+    def is_upload(session, cid):
+        c = Category.read_category_by_id(session, cid)
+        if c is None:
+            return False
+        return c.state == CategoryState.UPLOAD.value
+
+    @staticmethod
+    def is_voting(session, cid):
+        c = Category.read_category_by_id(session, cid)
+        if c is None:
+            return False
+        return c.state == CategoryState.VOTING.value
+
+    @staticmethod
+    def current_category(session, uid, state):
         if session is None or uid is None:
             raise BaseException(errno.EINVAL)
+
+        if state != CategoryState.VOTING and state != CategoryState.UPLOAD:
+            raise BaseException(errno.ERANGE)
 
         au = usermgr.AnonUser.get_anon_user_by_id(session, uid)
         if au is None:
             return None
 
         current_datetime = datetime.datetime.utcnow()
-        q = session.query(Category).filter(Category.start_date < current_datetime). \
-                                    filter(Category.end_date > current_datetime)
+        q = session.query(Category).filter(Category.start_date < current_datetime) \
+                                   .filter(Category.end_date > current_datetime) \
+                                   .filter(Category.state == state.value)
         c = q.all()
         if c is None or len(c) == 0:
             return None
 
         return c[0]
-
-class PhotoIndex(Base):
-    __tablename__ = 'photoindex'
-    category_id  = Column(Integer, ForeignKey("category.id", name="fk_photoindex_category_id"), primary_key=True, nullable=False)
-    idx          = Column(Integer, nullable=False, default=0)
-
-    created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
-    last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
-
-    # ======================================================================================================
-
-    def __init__(self, cid, ix):
-        self.category_id = cid
-        self.idx = ix
-        return
-
-    @staticmethod
-    def create_index(session, cid):
-        pi = PhotoIndex(cid, 1)
-        session.add(pi)
-        session.commit()
-        return
-
-    @staticmethod
-    def read_index(session, cid):
-        q = session.query(PhotoIndex).filter_by(category_id = cid)
-        pi = q.first()
-        return pi

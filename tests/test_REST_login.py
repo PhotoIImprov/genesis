@@ -366,26 +366,43 @@ class TesttVoting(unittest.TestCase):
         self.app = iiServer.app.test_client()
 
     def test_ballot(self):
+        # let's create a user
+        tl = TestLogin()
+        tl.setUp()
+        tu = tl.test_login()  # this will register (create) and login an user, returning the UID
+        self._uid = tu.get_uid()
+        cid = tu.get_cid()
+
+        # set category to voting
+        rsp = self.app.get(path='/setcategorystate', data=json.dumps(dict(category_id=cid, state=category.CategoryState.UPLOAD.value)),
+                            headers={'content-type': 'application/json'})
+
+        assert(rsp.status_code == 200)
+
         # we need to post a set of ballots with votes
         tp = TestPhotoUpload()
         tp.setUp()
         for idx in range(10):
             tp.test_photo_upload() # create a user & upload a photo
 
-        # let's create a user
-        tl = TestLogin()
-        tl.setUp()
-        tu = tl.test_login() # this will register (create) and login an user, returning the UID
-        self._uid = tu.get_uid()
-        cid = tu.get_cid()
+        # set category to voting
+        rsp = self.app.get(path='/setcategorystate', data=json.dumps(dict(category_id=cid, state=category.CategoryState.VOTING.value)),
+                            headers={'content-type': 'application/json'})
+
+        assert(rsp.status_code == 200)
+
         rsp = self.app.get(path='/ballot', data=json.dumps(dict(user_id=self._uid, category_id=cid)),
                             headers={'content-type': 'application/json'})
 
         data = json.loads(rsp.data.decode("utf-8"))
 
+        assert(rsp.status_code == 200)
+
         Ballot = namedtuple('ballot', 'bid, image')
 
         ballots = [Ballot(**k) for k in data["ballots"]]
+
+        assert(len(ballots) == 4)
 
         for be_dict in ballots:
             bid = be_dict.bid
@@ -496,8 +513,9 @@ class TesttVoting(unittest.TestCase):
                            headers={'content-type': 'application/json'})
 
         data = json.loads(rsp.data.decode("utf-8"))
-        assert(rsp.status_code == 200 and data['message'] == "thank you, we will notify your friend")
-        return
+        rid = data['request_id']
+        assert(rsp.status_code == 201 and data['message'] == "thank you, we will notify your friend" and rid != 0)
+        return rid
 
     def test_friend_request_current_user(self):
         # let's create a user
@@ -516,16 +534,62 @@ class TesttVoting(unittest.TestCase):
                             headers={'content-type': 'application/json'})
 
         data = json.loads(rsp.data.decode("utf-8"))
-        assert (rsp.status_code == 200 and data['message'] == "thank you, we will notify your friend")
-        return
+        rid = data['request_id']
+        assert (rsp.status_code == 201 and data['message'] == "thank you, we will notify your friend" and rid != 0)
+        return dict(request_id=rid, user_id=fu.get_uid())
 
+
+    def test_friend_request_accepted(self):
+
+        d = self.test_friend_request_current_user()    # create a request
+        uid = d['user_id']
+        rid = d['request_id']
+
+        # we need to create a friend request
+        # okay we created 2 users, one is asking the other to be a friend and the 2nd is in the system
+        rsp = self.app.post(path='/acceptfriendrequest',
+                            data=json.dumps(dict(user_id=uid, request_id=rid, accepted="true")),
+                            headers={'content-type': 'application/json'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(rsp.status_code == 201)
 
 class TestCategory(unittest.TestCase):
 
     _uid = None
+    _cl = None
+
     def setUp(self):
         self.app = iiServer.app.test_client()
 
+
+    def test_category_state(self):
+        # let's create a user
+        tl = TestLogin()
+        tl.setUp()
+        tu = tl.test_login()  # this will register (create) and login an user, returning the UID
+        self._uid = tu.get_uid()
+
+        cid = 1
+        cstate = category.CategoryState.UPLOAD.value
+        rsp = self.app.post(path='/setcategorystate', data=json.dumps(dict(category_id=cid, state=cstate)),
+                            headers={'content-type': 'application/json'})
+
+        assert(rsp.status_code == 200)
+
+    def read_category(self):
+        # let's create a user
+        tl = TestLogin()
+        tl.setUp()
+        tu = tl.test_login()  # this will register (create) and login an user, returning the UID
+        self._uid = tu.get_uid()
+
+        rsp = self.app.get(path='/category', data=json.dumps(dict(user_id=self._uid)),
+                            headers={'content-type': 'application/json'})
+
+        assert(rsp.status_code == 200)
+
+        data = json.loads(rsp.data.decode("utf-8"))
+        self._cl = data['categories']
 
     def test_category(self):
         # let's create a user
@@ -538,6 +602,11 @@ class TestCategory(unittest.TestCase):
                             headers={'content-type': 'application/json'})
 
         assert(rsp.status_code == 200)
+
+        data = json.loads(rsp.data.decode("utf-8"))
+        cl = data['categories']
+
+        return
 
     def test_category_bogus_uid(self):
        # 0 is not a valid user id, so this should fail

@@ -21,10 +21,11 @@ class TestLeaderBoard(DatabaseTest):
         r = resources.Resource.create_resource(5555, 'EN', 'Kittens')
         resources.Resource.write_resource(self.session, r)
 
-        # now create our category & the image indexer
+        # now create our category
         s_date = datetime.datetime.now()
         e_date =  s_date + datetime.timedelta(days=1)
         c = category.Category.create_category(r.resource_id, s_date, e_date)
+        c.set_state(category.CategoryState.UPLOAD) # potentially very bad
         category.Category.write_category(self.session, c)
 
         # create a user

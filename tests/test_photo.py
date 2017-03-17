@@ -150,7 +150,7 @@ class TestPhoto(DatabaseTest):
         # now create our category
         s_date = datetime.datetime.now()
         e_date = s_date + datetime.timedelta(days=1)
-        c = category.Category.create_category(r.resource_id, s_date, e_date)
+        c = category.Category.create_category(r.resource_id, s_date, e_date, category.CategoryState.UPLOAD)
         category.Category.write_category(self.session, c)
 
         # create a user
@@ -252,55 +252,6 @@ class TestPhoto(DatabaseTest):
 
         p = q.all()
         return p
-
-    def test_read_photos_by_index(self):
-
-        self.setup()
-
-        # first we need a resource
-        r = resources.Resource.create_resource(5555, 'EN', 'Kittens')
-        resources.Resource.write_resource(self.session, r)
-
-        # now create our category
-        s_date = datetime.datetime.now()
-        e_date = s_date + datetime.timedelta(days=1)
-        c = category.Category.create_category(r.resource_id, s_date, e_date)
-        category.Category.write_category(self.session, c)
-
-        # create a user
-        au = usermgr.AnonUser.create_anon_user(self.session, '99275132efe811e6bc6492361f002673')
-        if au is not None:
-            u = usermgr.User.create_user(self.session, au.guid, 'harry.collins@gmail.com', 'pa55w0rd')
-
-        self.create_test_photos(c.id)
-
-        indices = []
-        pi = category.PhotoIndex.read_index(self.session, c.id)
-        for i in range (0,9):
-            rn = randint(0, pi.idx)
-            if rn not in indices:
-                indices.append(rn)
-
-#        p = photo.Photo.read_photos_by_index(self.session, u.id, c.id, indices)
-#        assert(p is not None)
-
-        p = self.read_photos_not_balloted(self.session, u.id, c.id, 9)
-        assert(p is not None)
-
-        # now we need to clean up the files
-        indices = []
-        for i in range (0, pi.idx):
-            indices.append(i)
-            p = photo.Photo.read_photos_by_index(self.session, u.id, c.id, indices)
-            if p is not None:
-                try:
-                    os.remove(p[0].filepath + '/' + p[0].filename + '.JPEG')
-                    os.remove(p[0].create_thumb_filename())
-                    os.removedirs(p[0].filepath)
-                except:
-                    pass
-
-        self.teardown()
 
     def test_write_file_fail(self):
         try:
