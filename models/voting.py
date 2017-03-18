@@ -138,7 +138,8 @@ class Ballot(Base):
             raise BaseException(errno.EINVAL)
 
         # is this category open for voting?
-        c = category.Category.read_category_by_id(session, cid)
+        d = category.Category.read_category_by_id(session, cid)
+        c = d['arg']
         if c is None:
             return None
 
@@ -265,7 +266,7 @@ class BallotEntry(Base):
             raise BaseException(errno.EADDRNOTAVAIL)
 
         # check the category, is voting still happening?
-        if not category.Category.is_voting((session, be.category_id)):
+        if not category.Category.is_voting(session, be.category_id):
             raise BaseException(errno.EINVAL)
 
         be.add_vote(vote)

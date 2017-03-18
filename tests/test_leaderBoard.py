@@ -24,7 +24,7 @@ class TestLeaderBoard(DatabaseTest):
         # now create our category
         s_date = datetime.datetime.now()
         e_date =  s_date + datetime.timedelta(days=1)
-        c = category.Category.create_category(r.resource_id, s_date, e_date)
+        c = category.Category.create_category(r.resource_id, s_date, e_date, category.CategoryState.UPLOAD)
         c.set_state(category.CategoryState.UPLOAD) # potentially very bad
         category.Category.write_category(self.session, c)
 

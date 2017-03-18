@@ -12,6 +12,7 @@ from models import usermgr
 from models import photo
 from models import voting
 from models import category
+from models import error
 import json
 
 app = Flask(__name__)
@@ -54,7 +55,13 @@ def set_category_state():
 
     session = dbsetup.Session()
 
-    c = category.Category.read_category_by_id(session, cid)
+    d = category.Category.read_category_by_id(session, cid)
+
+    if d['error'] is not None:
+        session.close()
+        return make_response(jsonify({'error': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
+
+    c = d['arg']
     if c is not None:
         c.state = cstate
         session.commit()

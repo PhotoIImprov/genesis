@@ -28,7 +28,7 @@ class TestCategory(DatabaseTest):
         self.setup()
 
         # see if we have a category already in the DB
-        c = category.Category.current_category(self.session, 1) # for now uid is dummy & not used
+        c = category.Category.current_category(self.session, 1, category.CategoryState.UPLOAD) # for now uid is dummy & not used
         if c is None:
             # if no category in the DB, create one and read it back
             cid = self.create_category()

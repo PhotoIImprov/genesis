@@ -168,7 +168,6 @@ class TestPhoto(DatabaseTest):
 
         assert (flist is not None)
         assert (len(flist) == 1)
-        assert (flist[0].category_idx == 1)
 
         # now clean up
         os.remove(fo.filepath + "/" + fn + ".JPEG")  # our main image
@@ -198,7 +197,7 @@ class TestPhoto(DatabaseTest):
         # now create our category
         s_date = datetime.datetime.now()
         e_date = s_date + datetime.timedelta(days=1)
-        c = category.Category.create_category(r.resource_id, s_date, e_date)
+        c = category.Category.create_category(r.resource_id, s_date, e_date, category.CategoryState.UPLOAD)
         category.Category.write_category(self.session, c)
 
         fo.category_id = c.id

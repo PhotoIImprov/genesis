@@ -6,6 +6,7 @@ import dbsetup
 from models import resources
 from models import usermgr
 from enum import Enum
+from models import error
 
 
 class CategoryState(Enum):
@@ -121,18 +122,25 @@ class Category(Base):
 
         q = session.query(Category).filter_by(id = cid)
         c = q.one_or_none()
-        return c
+        err = None
+        if c is None:
+            err = error.iiServerErrors.INVALID_CATEGORY
+
+        d = {'error': err, 'arg':c}
+        return d
 
     @staticmethod
     def is_upload(session, cid):
-        c = Category.read_category_by_id(session, cid)
+        d = Category.read_category_by_id(session, cid)
+        c = d['arg']
         if c is None:
             return False
         return c.state == CategoryState.UPLOAD.value
 
     @staticmethod
     def is_voting(session, cid):
-        c = Category.read_category_by_id(session, cid)
+        d = Category.read_category_by_id(session, cid)
+        c = d['arg']
         if c is None:
             return False
         return c.state == CategoryState.VOTING.value

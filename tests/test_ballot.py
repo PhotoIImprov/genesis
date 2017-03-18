@@ -53,7 +53,7 @@ class TestBallot(DatabaseTest):
         # now create our category & the image indexer
         s_date = datetime.datetime.now()
         e_date = s_date + datetime.timedelta(days=1)
-        c = category.Category.create_category(r.resource_id, s_date, e_date)
+        c = category.Category.create_category(r.resource_id, s_date, e_date, category.CategoryState.UPLOAD)
         category.Category.write_category(self.session, c)
 
         # create a user
@@ -72,6 +72,7 @@ class TestBallot(DatabaseTest):
 
         # Now let's created a ballot
         b = voting.Ballot.create_ballot(self.session, u.id, c.id)
+        assert(b is not None)
         json_string = b.to_json()
         json_size = len(json_string)
         self.teardown()

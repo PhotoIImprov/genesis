@@ -365,18 +365,23 @@ class TesttVoting(unittest.TestCase):
     def setUp(self):
         self.app = iiServer.app.test_client()
 
-    def test_ballot(self):
+    def test_ballot_success(self):
+        self.get_ballot()
+        return
+
+    def get_ballot(self):
         # let's create a user
         tl = TestLogin()
         tl.setUp()
         tu = tl.test_login()  # this will register (create) and login an user, returning the UID
         self._uid = tu.get_uid()
-        cid = tu.get_cid()
+
+        # ensure we have a category set to uploading
+        cid = TestCategory.get_category_by_state(category.CategoryState.UPLOAD)
 
         # set category to voting
-        rsp = self.app.get(path='/setcategorystate', data=json.dumps(dict(category_id=cid, state=category.CategoryState.UPLOAD.value)),
+        rsp = self.app.post(path='/setcategorystate', data=json.dumps(dict(category_id=cid, state=category.CategoryState.UPLOAD.value)),
                             headers={'content-type': 'application/json'})
-
         assert(rsp.status_code == 200)
 
         # we need to post a set of ballots with votes
@@ -386,7 +391,7 @@ class TesttVoting(unittest.TestCase):
             tp.test_photo_upload() # create a user & upload a photo
 
         # set category to voting
-        rsp = self.app.get(path='/setcategorystate', data=json.dumps(dict(category_id=cid, state=category.CategoryState.VOTING.value)),
+        rsp = self.app.post(path='/setcategorystate', data=json.dumps(dict(category_id=cid, state=category.CategoryState.VOTING.value)),
                             headers={'content-type': 'application/json'})
 
         assert(rsp.status_code == 200)
@@ -441,7 +446,10 @@ class TesttVoting(unittest.TestCase):
 
     def test_voting(self):
 
-        ballots = self.test_ballot() # read a ballot
+        # first make sure we have an uploadable category
+        cid = TestCategory.get_category_by_state(category.CategoryState.UPLOAD)
+
+        ballots = self.get_ballot() # read a ballot
         assert(ballots is not None)
         assert(self._uid is not None)
 
@@ -456,13 +464,17 @@ class TesttVoting(unittest.TestCase):
             idx += 1
 
         jvotes = json.dumps(dict({'user_id': self._uid, 'votes':votes}))
+
+        # now switch our category over to voting
+        TestCategory.set_category_state(cid, category.CategoryState.VOTING)
+
         rsp = self.app.post(path='/vote', data=jvotes, headers={'content-type': 'application/json'})
         assert(rsp.status_code == 200)
         return rsp
 
     def test_voting_too_many(self):
 
-        ballots = self.test_ballot() # read a ballot
+        ballots = self.get_ballot() # read a ballot
         assert(ballots is not None)
         assert(self._uid is not None)
 
@@ -576,20 +588,50 @@ class TestCategory(unittest.TestCase):
 
         assert(rsp.status_code == 200)
 
-    def read_category(self):
+    @staticmethod
+    def set_category_state(cid, target_state):
+
+        rsp = iiServer.app.test_client().post(path='/setcategorystate', data=json.dumps(dict(category_id=cid, state=target_state.value)),
+                            headers={'content-type': 'application/json'})
+
+        assert(rsp.status_code == 200)
+
+    @staticmethod
+    def read_category():
         # let's create a user
         tl = TestLogin()
         tl.setUp()
         tu = tl.test_login()  # this will register (create) and login an user, returning the UID
-        self._uid = tu.get_uid()
+        uid = tu.get_uid()
 
-        rsp = self.app.get(path='/category', data=json.dumps(dict(user_id=self._uid)),
+        rsp =  iiServer.app.test_client().get(path='/category', data=json.dumps(dict(user_id=uid)),
                             headers={'content-type': 'application/json'})
 
         assert(rsp.status_code == 200)
 
         data = json.loads(rsp.data.decode("utf-8"))
-        self._cl = data['categories']
+        return data['categories']
+
+    @staticmethod
+    def get_category_by_state(target_state):
+
+        cl = TestCategory.read_category()
+        assert(cl is not None)
+
+        for c in cl:
+            state = c['state']
+            cid = c['id']
+            desc = c['description']
+            if state == target_state.value:
+                return cid
+
+        # we didn't find an upload category, set the first one to upload
+        c = cl[0]
+        cid = c['id']
+        rsp = iiServer.app.test_client().post(path='/setcategorystate', data=json.dumps(dict(category_id=cid, state=target_state.value)),
+                            headers={'content-type': 'application/json'})
+        assert(rsp.status_code == 200)
+        return cid
 
     def test_category(self):
         # let's create a user
