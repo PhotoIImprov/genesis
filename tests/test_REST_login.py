@@ -9,6 +9,7 @@ import datetime
 from models import category, resources
 from collections import namedtuple
 import requests
+from models import error
 
 class TestUser:
     _u = None   # username
@@ -192,134 +193,134 @@ class TestLogin(unittest.TestCase):
     def test_leaderboard_not_json(self):
         rsp = self.app.get(path='/leaderboard', headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+        emsg = data['error']
+        assert(emsg == error.error_string('NO_JSON') and rsp.status_code == 400)
 
         return rsp
 
     def test_ballot_not_json(self):
         rsp = self.app.get(path='/ballot', headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+        emsg = data['error']
+        assert(emsg == error.error_string('NO_JSON') and rsp.status_code == 400)
 
         return rsp
 
     def test_vote_not_json(self):
         rsp = self.app.post(path='/vote', headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+        emsg = data['error']
+        assert(emsg == error.error_string('NO_JSON') and rsp.status_code == 400)
 
         return rsp
 
     def test_photo_not_json(self):
         rsp = self.app.post(path='/photo', headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+        emsg = data['error']
+        assert(emsg == error.error_string('NO_JSON') and rsp.status_code == 400)
 
         return rsp
 
     def test_login_not_json(self):
         rsp = self.app.post(path='/login', headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+        errormsg = data['error']
+        assert(errormsg == error.error_string('NO_JSON') and rsp.status_code == 400)
 
         return rsp
 
     def test_register_not_json(self):
         rsp = self.app.post(path='/register', headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+        errormsg = data['error']
+        assert(errormsg == error.error_string('NO_JSON') and rsp.status_code == 400)
 
         return rsp
 
     def test_category_not_json(self):
         rsp = self.app.get(path='/category', headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+        emsg = data['error']
+        assert(emsg == error.d_ERROR_STRINGS['NO_JSON'] and rsp.status_code == 400)
 
         return rsp
 
     def test_category_no_userid(self):
         rsp = self.app.get(path='/category', data=json.dumps(dict(user_id=None, password='pa55w0rd') ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(error == 'missing user id' and rsp.status_code == 400)
+        emsg = data['error']
+        assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         rsp = self.app.get(path='/category', data=json.dumps(dict(password='pa55w0rd') ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(error == 'missing user id' and rsp.status_code == 400)
+        emsg = data['error']
+        assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         return rsp
 
     def test_login_missing_args(self):
         rsp = self.app.post(path='/login', data=json.dumps(dict(username=None, password='pa55w0rd') ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+        emsg = data['error']
+        assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         rsp = self.app.post(path='/login', data=json.dumps(dict(username='bp100a') ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+        emsg = data['error']
+        assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         return rsp
 
     def test_photo_missing_args(self):
         rsp = self.app.post(path='/photo', data=json.dumps(dict(image=None, extension=None, category_id=None, user_id=None) ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(error == 'missing arguments' and rsp.status_code == 400)
+        emsg = data['error']
+        assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         rsp = self.app.post(path='/photo', data=json.dumps(dict(username='bp100a') ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(error == 'missing arguments' and rsp.status_code == 400)
+        emsg = data['error']
+        assert(emsg == error.error_string('MISSING_ARGS')and rsp.status_code == 400)
 
         return rsp
 
     def test_register_missing_args(self):
         rsp = self.app.post(path='/register', data=json.dumps(dict(username=None, password='pa55w0rd') ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+        emsg = data['error']
+        assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         rsp = self.app.post(path='/register', data=json.dumps(dict(username='bp100a') ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(error == 'insufficient arguments' and rsp.status_code == 400)
+        emsg = data['error']
+        assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         return rsp
 
     def test_ballot_missing_args(self):
         rsp = self.app.get(path='/ballot', data=json.dumps(dict(user_id=None, category_id=1) ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(error == 'invalid arguments' and rsp.status_code == 400)
+        emsg = data['error']
+        assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         rsp = self.app.get(path='/ballot', data=json.dumps(dict(username='bp100a') ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(error == 'invalid arguments' and rsp.status_code == 400)
+        emsg = data['error']
+        assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         return rsp
 
     def test_vote_missing_args(self):
         rsp = self.app.post(path='/vote', data=json.dumps(dict(user_id=None, votes=None) ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(error == 'insufficient JSON arguments' and rsp.status_code == 400)
+        emsg = data['error']
+        assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         rsp = self.app.post(path='/vote', data=json.dumps(dict(username='bp100a') ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(error == 'insufficient JSON arguments' and rsp.status_code == 400)
+        emsg = data['error']
+        assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         return rsp
 
@@ -425,8 +426,8 @@ class TesttVoting(unittest.TestCase):
                            headers={'content-type': 'application/json'})
 
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(rsp.status_code == 500 and error == "no ballot created!")
+        emsg = data['error']
+        assert(rsp.status_code == 500 and emsg == error.error_string('NO_BALLOT') )
         return
 
     def test_ballot_invalid_category_id(self):
@@ -440,8 +441,8 @@ class TesttVoting(unittest.TestCase):
                            headers={'content-type': 'application/json'})
 
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert(rsp.status_code == 500 and error == "no ballot created!")
+        emsg = data['error']
+        assert(rsp.status_code == 500 and emsg == error.error_string('NO_BALLOT') )
         return
 
     def test_voting(self):
@@ -502,16 +503,16 @@ class TesttVoting(unittest.TestCase):
                            headers={'content-type': 'application/json'})
 
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert (rsp.status_code == 400 and error == "insufficient JSON arguments")
+        emsg = data['error']
+        assert (rsp.status_code == 400 and emsg == error.error_string('MISSING_ARGS'))
 
         # missing user_id
         rsp = self.app.post(path='/friendrequest', data=json.dumps(dict(friend="bp100a@hotmail.com")),
                            headers={'content-type': 'application/json'})
 
         data = json.loads(rsp.data.decode("utf-8"))
-        error = data['error']
-        assert (rsp.status_code == 400 and error == "insufficient JSON arguments")
+        emsg = data['error']
+        assert (rsp.status_code == 400 and emsg == error.error_string('MISSING_ARGS'))
         return
 
     def test_friend_request(self):
@@ -528,6 +529,15 @@ class TesttVoting(unittest.TestCase):
         rid = data['request_id']
         assert(rsp.status_code == 201 and data['message'] == "thank you, we will notify your friend" and rid != 0)
         return rid
+
+    def test_friend_request_no_json(self):
+        # let's create a user
+        rsp = self.app.post(path='/friendrequest', data="no json - no json",
+                           headers={'content-type': 'text/html'})
+
+        assert(rsp.status_code == 400)
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(data['error'] == error.d_ERROR_STRINGS['NO_JSON'])
 
     def test_friend_request_current_user(self):
         # let's create a user
@@ -564,6 +574,34 @@ class TesttVoting(unittest.TestCase):
                             headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
         assert(rsp.status_code == 201)
+        assert(data['message'] == "friendship updated")
+
+    def test_friend_request_accepted_no_json(self):
+
+        rsp = self.app.post(path='/acceptfriendrequest',
+                            data="no json -- no json",
+                            headers={'content-type': 'text/html'})
+
+        assert(rsp.status_code == 400)
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(data['error'] == error.d_ERROR_STRINGS['NO_JSON'])
+
+    def test_friend_request_accepted_missing_arg(self):
+
+        d = self.test_friend_request_current_user()    # create a request
+        uid = d['user_id']
+        rid = d['request_id']
+
+        # we need to create a friend request
+        # okay we created 2 users, one is asking the other to be a friend and the 2nd is in the system
+        rsp = self.app.post(path='/acceptfriendrequest',
+                            data=json.dumps(dict(user_id=0, accepted="true")),
+                            headers={'content-type': 'application/json'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(rsp.status_code == 400)
+        assert(data['error'] == error.d_ERROR_STRINGS['MISSING_ARGS'])
+
+
 
 class TestCategory(unittest.TestCase):
 
@@ -573,6 +611,33 @@ class TestCategory(unittest.TestCase):
     def setUp(self):
         self.app = iiServer.app.test_client()
 
+
+    def test_category_state_no_json(self):
+        # let's create a user
+        rsp = self.app.post(path='/setcategorystate', data='not json - not json',
+                            headers={'content-type': 'text/html'})
+
+        assert(rsp.status_code == 400)
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(data['error'] == error.d_ERROR_STRINGS['NO_JSON'])
+
+    def test_category_state_no_cid(self):
+        cstate = category.CategoryState.UPLOAD.value
+        rsp = self.app.post(path='/setcategorystate', data=json.dumps(dict(state=cstate)),
+                            headers={'content-type': 'application/json'})
+
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(data['error'] == error.d_ERROR_STRINGS['MISSING_ARGS'])
+        assert (rsp.status_code == 400)
+
+    def test_category_state_bad_cid(self):
+        cstate = category.CategoryState.UPLOAD.value
+        rsp = self.app.post(path='/setcategorystate', data=json.dumps(dict(category_id=0, state=cstate)),
+                            headers={'content-type': 'application/json'})
+
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(data['error'] == 'invalid category')
+        assert (rsp.status_code == 400)
 
     def test_category_state(self):
         # let's create a user
@@ -587,6 +652,8 @@ class TestCategory(unittest.TestCase):
                             headers={'content-type': 'application/json'})
 
         assert(rsp.status_code == 200)
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(data['message'] == 'category state changed')
 
     @staticmethod
     def set_category_state(cid, target_state):

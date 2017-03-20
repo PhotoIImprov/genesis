@@ -2,7 +2,6 @@ from enum import Enum
 from flask_api import status
 import errno
 
-
 class ErrorTypes(Enum):
     CATEGORY_ERROR = 0x80000000
     USER_ERROR     = 0x81000000
@@ -37,3 +36,24 @@ class iiServerErrors(Enum):
             return status.HTTP_400_BAD_REQUEST
 
         return status.HTTP_500_INTERNAL_SERVER_ERROR
+
+d_ERROR_STRINGS = {'NO_JSON': "missing JSON data",
+                   'MISSING_ARGS' : "missing one or more required arguments",
+                   'FRIENDSHIP_UPDATED': "friendship updated",
+                   'NO_USER': "missing user id",
+                   'PHOTO_UPLOADED': "photo uploaded",
+                   'NO_SUCH_USER': "no such user",
+                   'TOO_MANY_BALLOTS': "too many ballots (4 or less please)",
+                   'NO_BALLOT': "no ballot created",
+                   'MISSING_CATEGORY': "missing category id",
+                   'CATEGORY_ERROR': "error fetching category",
+
+                   # this is if we don't map to anything
+                   'UNKNOWN_ERROR': "unknown error ??"}
+
+def error_string(key):
+    value = d_ERROR_STRINGS[key]
+    if value is None:
+        value = d_ERROR_STRINGS['UNKNOWN_ERROR']
+
+    return str(value)

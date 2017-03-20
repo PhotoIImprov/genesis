@@ -41,7 +41,7 @@ def hello():
 @app.route("/setcategorystate", methods=['POST'])
 def set_category_state():
     if not request.json:
-        return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
     try:
         cid = request.json['category_id']
@@ -51,7 +51,7 @@ def set_category_state():
         cstate = None
 
     if cid is None:
-        return make_response(jsonify({'error': "missing category id"}), status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
 
@@ -69,13 +69,13 @@ def set_category_state():
         return make_response(jsonify({'message': "category state changed"}),status.HTTP_200_OK)
 
     session.close()
-    return make_response(jsonify({'error': "error fetching category"}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return make_response(jsonify({'error': error.error_string('CATEGORY_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @app.route("/category", methods=['GET'])
 def get_category():
     if not request.json:
-        return make_response(jsonify({'error': "insufficient arguments"}),status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('NO_JSON')}),status.HTTP_400_BAD_REQUEST)
 
     try:
         uid = request.json['user_id']
@@ -83,7 +83,7 @@ def get_category():
         uid = None
 
     if uid is None:
-        return make_response(jsonify({'error': "missing user id"}),status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
 
@@ -98,7 +98,7 @@ def get_category():
 @app.route("/leaderboard", methods=['GET'])
 def get_leaderboard():
     if not request.json:
-        return make_response(jsonify({'error': "insufficient arguments"}),status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('NO_JSON')}),status.HTTP_400_BAD_REQUEST)
 
     try:
         cid = request.json['category_id']
@@ -110,7 +110,7 @@ def get_leaderboard():
 @app.route("/ballot", methods=['GET'])
 def get_ballot():
     if not request.json:
-        return make_response(jsonify({'error': "insufficient arguments"}),status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('NO_JSON')}),status.HTTP_400_BAD_REQUEST)
 
     try:
         uid = request.json['user_id']
@@ -122,12 +122,12 @@ def get_ballot():
     session = dbsetup.Session()
     if uid is None or cid is None or session is None:
         session.close()
-        return make_response(jsonify({'error': "invalid arguments"}),status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
     b = voting.Ballot.create_ballot(session, uid, cid)
     if b is None:
         session.close()
-        return make_response(jsonify({'error': "no ballot created!"}),status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return make_response(jsonify({'error': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # we have a ballot, turn it into JSON
     ballots = b.to_json()
@@ -137,7 +137,7 @@ def get_ballot():
 @app.route("/acceptfriendrequest", methods=['POST'])
 def accept_friendship():
     if not request.json:
-        return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
     try:
         uid = request.json['user_id']
@@ -148,18 +148,18 @@ def accept_friendship():
         accepted = None
 
     if fid is None or accepted is None:
-        return make_response(jsonify({'error': "insufficient JSON arguments"}), status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
     usermgr.FriendRequest.update_friendship(session, uid, fid, accepted)
     session.close()
 
-    return make_response(jsonify({'message': "friendship updated"}), status.HTTP_201_CREATED)
+    return make_response(jsonify({'message': error.error_string('FRIENDSHIP_UPDATED')}), status.HTTP_201_CREATED)
 
 @app.route("/friendrequest", methods=['POST'])
 def tell_a_friend():
     if not request.json:
-        return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
     try:
         uid = request.json['user_id']  # user that's notifying a friend
@@ -169,7 +169,7 @@ def tell_a_friend():
         friend = None
 
     if uid is None or friend is None:
-        return make_response(jsonify({'error': "insufficient JSON arguments"}), status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
     request_id = usermgr.FriendRequest.write_request(session, uid, friend)
@@ -183,7 +183,7 @@ def tell_a_friend():
 @app.route("/vote", methods=['POST'])
 def cast_vote():
     if not request.json:
-        return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
     try:
         uid = request.json['user_id']
@@ -193,12 +193,12 @@ def cast_vote():
         votes = None
 
     if uid is None or votes is None:
-        return make_response(jsonify({'error': "insufficient JSON arguments"}), status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
 #    assert(len(votes) == 4)
 
     if len(votes) > 4:
-        return make_response(jsonify({'error': "too many ballots"}), status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
+        return make_response(jsonify({'error': error.error_string('TOO_MANY_BALLOTS')}), status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
 
 
     session = dbsetup.Session()
@@ -211,7 +211,7 @@ def cast_vote():
 #@jwt_required()
 def photo_upload():
     if not request.json:
-        return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
     try:
         image_data_b64 = request.json['image']
@@ -223,7 +223,7 @@ def photo_upload():
         uid = None
 
     if cid is None or uid is None:
-        return make_response(jsonify({'error': "missing arguments"}), status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     image_data = base64.b64decode(image_data_b64)
 #    uid = current_identity
@@ -235,7 +235,7 @@ def photo_upload():
 @app.route("/login", methods=['POST'])
 def login():
     if not request.json:
-        return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
     try:
         emailaddress = request.json['username']
@@ -245,7 +245,7 @@ def login():
         password = None
 
     if emailaddress is None or password is None:
-        return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     foundUser = usermgr.authenticate(emailaddress, password)
     if foundUser is None:
@@ -268,7 +268,7 @@ def register():
     # an email address and password has been posted
     # let's create a user for this
     if not request.json:
-        return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
     try:
         emailaddress = request.json['username']
@@ -279,7 +279,7 @@ def register():
         password = None
 
     if emailaddress is None or password is None:
-        return make_response(jsonify({'error': "insufficient arguments"}), status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     # is the username really a guid?
     session = dbsetup.Session()

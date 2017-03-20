@@ -46,11 +46,11 @@ class Ballot(Base):
     # return all ballots for this user for the current category
     # and all ballot entries for each ballot
     #
-    @staticmethod
-    def find_ballot(session, uid, cid):
-        q = session.query(Ballot).filter_by(user_id = uid, category_id = cid)
-        b = q.one()
-        return b
+#    @staticmethod
+#    def find_ballot(session, uid, cid):
+#        q = session.query(Ballot).filter_by(user_id = uid, category_id = cid)
+#        b = q.one()
+#        return b
 
     def get_ballotentries(self):
         return self._ballotentries
