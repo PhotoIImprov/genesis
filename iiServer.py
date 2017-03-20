@@ -33,10 +33,16 @@ def protected():
 
 @app.route("/")
 def hello():
+    htmlbody = "<html>\n"
     if dbsetup.is_gunicorn():
-        return "ImageImprov Hello World from Gunicorn!"
+        htmlbody += "<h1>ImageImprov Hello World from Gunicorn!</h1><br>"
+    else:
+        htmlbody += "<h1>ImageImprov Hello World from Flask!</h1><br>"
 
-    return "ImageImprov Hello World from Flask!"
+    img_folder = dbsetup.image_store(dbsetup.determine_environment(None))
+    htmlbody += "\n<br>image folder =" + img_folder + "<br>"
+
+    return htmlbody
 
 @app.route("/setcategorystate", methods=['POST'])
 def set_category_state():
