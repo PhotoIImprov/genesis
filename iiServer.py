@@ -66,7 +66,7 @@ def set_category_state():
         c.state = cstate
         session.commit()
         session.close()
-        return make_response(jsonify({'message': "category state changed"}),status.HTTP_200_OK)
+        return make_response(jsonify({'message': error.error_string('CATEGORY_STATE')}),status.HTTP_200_OK)
 
     session.close()
     return make_response(jsonify({'error': error.error_string('CATEGORY_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -90,7 +90,7 @@ def get_category():
     cl = category.Category.active_categories(session, uid)
     session.close()
     if cl is None:
-        return make_response(jsonify({'error': "error fetching category"}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return make_response(jsonify({'error': error.error_string('CATEGORY_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     categories = category.Category.list_to_json(cl)
     return make_response(jsonify({'categories': categories}), status.HTTP_200_OK)
@@ -103,7 +103,7 @@ def get_leaderboard():
     try:
         cid = request.json['category_id']
     except KeyError:
-        return make_response(jsonify({'error': "no category specified"}),status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'error': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
     return make_response(jsonify({'message': "TBD - leader board not implemented"}), 200)
 
@@ -176,9 +176,9 @@ def tell_a_friend():
     session.close()
 
     if request_id != 0:
-        return make_response(jsonify({'message': "thank you, we will notify your friend", 'request_id':request_id}), status.HTTP_201_CREATED)
+        return make_response(jsonify({'message': error.error_string('WILL_NOTIFY_FRIEND'), 'request_id':request_id}), status.HTTP_201_CREATED)
 
-    return make_response(jsonify({'error': "there was a problem creating the friend request"}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return make_response(jsonify({'error': error.error_string('FRIEND_REQ_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @app.route("/vote", methods=['POST'])
 def cast_vote():
@@ -205,7 +205,7 @@ def cast_vote():
 
     voting.Ballot.tabulate_votes(session, uid, votes)
     session.close()
-    return make_response(jsonify({'message': "thank you for voting"}), status.HTTP_200_OK)
+    return make_response(jsonify({'message': error.error_string('THANK_YOU_VOTING')}), status.HTTP_200_OK)
 
 @app.route("/photo", methods=['POST'])
 #@jwt_required()
@@ -230,7 +230,7 @@ def photo_upload():
     session = dbsetup.Session()
     photo.Photo().save_user_image(session, image_data, image_type, uid, cid)
     session.close()
-    return make_response(jsonify({'message': "photo uploaded"}), status.HTTP_201_CREATED)
+    return make_response(jsonify({'message': error.error_string('PHOTO_UPLOADED')}), status.HTTP_201_CREATED)
 
 @app.route("/login", methods=['POST'])
 def login():
@@ -249,7 +249,7 @@ def login():
 
     foundUser = usermgr.authenticate(emailaddress, password)
     if foundUser is None:
-        return make_response(jsonify({'error': "no such user!"}), status.HTTP_403_FORBIDDEN)
+        return make_response(jsonify({'error': error.error_string('NO_SUCH_USER')}), status.HTTP_403_FORBIDDEN)
 
     uid = foundUser.get_id()
     session = dbsetup.Session()
@@ -287,28 +287,28 @@ def register():
         foundAnonUser = usermgr.AnonUser.find_anon_user(session, emailaddress)
         if foundAnonUser is not None:
             session.close()
-            return make_response(jsonify({'error': "user already exists"}), status.HTTP_400_BAD_REQUEST)
+            return make_response(jsonify({'error': error.error_string('ANON_ALREADY_EXISTS')}), status.HTTP_400_BAD_REQUEST)
 
         newAnonUser = usermgr.AnonUser.create_anon_user(session, emailaddress)
         if newAnonUser is None:
             session.close()
-            return make_response(jsonify({'error': "error creating anon user"}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return make_response(jsonify({'error': error.error_string('ANON_USER_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
         foundUser = usermgr.User.find_user_by_email(session, emailaddress)
         if foundUser is not None:
             session.close()
-            return make_response(jsonify({'error': "user already exists!"}), status.HTTP_400_BAD_REQUEST)
+            return make_response(jsonify({'error':error.error_string('USER_ALREADY_EXISTS')}), status.HTTP_400_BAD_REQUEST)
 
         # okay the request is valid and the user was not found, so we can
         # create their account
         newUser = usermgr.User.create_user(session, guid, emailaddress, password)
         if newUser is None:
             session.close()
-            return make_response(jsonify({'error': "error creating user"}),status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return make_response(jsonify({'error': error.error_string('USER_CREATE_ERROR')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # user was properly created
     session.close()
-    return make_response(jsonify({'message': "account created"}), 201)
+    return make_response(jsonify({'message': error.error_string('ACCOUNT_CREATED')}), 201)
 
 
 if __name__ == '__main__':

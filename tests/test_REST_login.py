@@ -527,7 +527,7 @@ class TesttVoting(unittest.TestCase):
 
         data = json.loads(rsp.data.decode("utf-8"))
         rid = data['request_id']
-        assert(rsp.status_code == 201 and data['message'] == "thank you, we will notify your friend" and rid != 0)
+        assert(rsp.status_code == 201 and data['message'] == error.error_string('WILL_NOTIFY_FRIEND') and rid != 0)
         return rid
 
     def test_friend_request_no_json(self):
@@ -557,7 +557,7 @@ class TesttVoting(unittest.TestCase):
 
         data = json.loads(rsp.data.decode("utf-8"))
         rid = data['request_id']
-        assert (rsp.status_code == 201 and data['message'] == "thank you, we will notify your friend" and rid != 0)
+        assert (rsp.status_code == 201 and data['message'] == error.error_string('WILL_NOTIFY_FRIEND') and rid != 0)
         return dict(request_id=rid, user_id=fu.get_uid())
 
 
@@ -653,7 +653,7 @@ class TestCategory(unittest.TestCase):
 
         assert(rsp.status_code == 200)
         data = json.loads(rsp.data.decode("utf-8"))
-        assert(data['message'] == 'category state changed')
+        assert(data['message'] == error.error_string('CATEGORY_STATE') )
 
     @staticmethod
     def set_category_state(cid, target_state):

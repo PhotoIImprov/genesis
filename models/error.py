@@ -47,6 +47,15 @@ d_ERROR_STRINGS = {'NO_JSON': "missing JSON data",
                    'NO_BALLOT': "no ballot created",
                    'MISSING_CATEGORY': "missing category id",
                    'CATEGORY_ERROR': "error fetching category",
+                   'FRIEND_REQ_ERROR': "problem creating the friend request",
+                   'ANON_USER_ERROR': "error creating anonymous user",
+                   'USER_ALREADY_EXISTS': "user already exists!",
+                   'ANON_ALREADY_EXISTS': "anonymous user already exists",
+                   'USER_CREATE_ERROR': "error creating user",
+                   'ACCOUNT_CREATED': "account created",
+                   'THANK_YOU_VOTING': "thank you for voting",
+                   'WILL_NOTIFY_FRIEND': "thank you, will notify your friend",
+                   'CATEGORY_STATE': "category state updated",
 
                    # this is if we don't map to anything
                    'UNKNOWN_ERROR': "unknown error ??"}
