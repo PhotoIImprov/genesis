@@ -234,8 +234,11 @@ def photo_upload():
     image_data = base64.b64decode(image_data_b64)
 #    uid = current_identity
     session = dbsetup.Session()
-    photo.Photo().save_user_image(session, image_data, image_type, uid, cid)
+    d = photo.Photo().save_user_image(session, image_data, image_type, uid, cid)
     session.close()
+    if d['error'] is not None:
+        return make_response(jsonify({'error': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
+
     return make_response(jsonify({'message': error.error_string('PHOTO_UPLOADED')}), status.HTTP_201_CREATED)
 
 @app.route("/login", methods=['POST'])

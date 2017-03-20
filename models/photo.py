@@ -11,7 +11,7 @@ import numpy as np
 import pymysql
 import base64
 import sys
-
+from models import error
 
 class Photo(Base):
 
@@ -200,11 +200,12 @@ class Photo(Base):
     #
     # Note: We also create the thumbnail file as well
     def save_user_image(self, session, image_data, image_type, uid, cid):
+        err = None
         if image_data is None or uid is None or cid is None:
-            raise errno.EINVAL
+            return {'error': error.iiServerErrors.INVALID_ARGS, 'arg': None}
 
         if not category.Category.is_upload(session, cid):
-            return errno.EINVAL
+            return {'error': error.iiServerErrors.INVALID_ARGS, 'arg': None}
 
         self.set_image(image_data)
         self._image_type = image_type
@@ -234,7 +235,7 @@ class Photo(Base):
                 raise BaseException(errno.EINVAL, "invalid category")
             raise
 
-        return
+        return {'error': None, 'arg': None}
 
     def create_thumb(self):
         if self._raw_image is None:

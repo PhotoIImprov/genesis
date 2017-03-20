@@ -7,6 +7,7 @@ class ErrorTypes(Enum):
     USER_ERROR     = 0x81000000
     FRIEND_ERROR   = 0x82000000
     GENERAL_ERROR  = 0x83000000
+    PHOTO_ERROR    = 0x84000000
 
 class iiServerErrors(Enum):
 
@@ -16,6 +17,7 @@ class iiServerErrors(Enum):
     INVALID_USER        = ErrorTypes.USER_ERROR.value     + errno.EINVAL
     INVALID_FRIEND      = ErrorTypes.FRIEND_ERROR.value   + errno.EINVAL
     INVALID_ARGS        = ErrorTypes.GENERAL_ERROR.value  + errno.EINVAL
+    NOTUPLOAD_CATEGORY  = ErrorTypes.PHOTO_ERROR.value    + errno.EINVAL
 
     @staticmethod
     def error_message(error_code):
@@ -25,6 +27,8 @@ class iiServerErrors(Enum):
             return "invalid user"
         if error_code == iiServerErrors.INVALID_FRIEND:
             return "invalid friend"
+        if error_code == iiServerErrors.NOTUPLOAD_CATEGORY:
+            return "category specified is not accepting uploads"
 
         return "unknown error"
 
