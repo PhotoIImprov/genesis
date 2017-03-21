@@ -55,6 +55,8 @@ def hello():
             htmlbody += "\n<br>state = <b>{}</b>".format(category.CategoryState.to_str(c.state))
             htmlbody += "\n<br>start date={}".format(c.start_date)
             htmlbody += "\n<br>end date={}".format(c.end_date)
+            num_photos = photo.Photo.count_by_category(session, c.get_id())
+            htmlbody += "\n<br><u>number photos uploaded = <b>{}</b></u>".format(num_photos)
             htmlbody += "\n<br><br>"
         htmlbody += "\n</blockquote>"
 

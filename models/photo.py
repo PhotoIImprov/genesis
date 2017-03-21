@@ -38,6 +38,13 @@ class Photo(Base):
     _raw_image     = None   # this is our unadulterated image file
 
 # ======================================================================================================
+
+    @staticmethod
+    def count_by_category(session, cid):
+        # let's count how many photos are uploaded for this category
+        c = session.query(Photo).filter_by(category_id = cid).count()
+        return c
+
     def increment_vote_count(self):
         if self.times_voted is None:
             self.times_voted = 0
