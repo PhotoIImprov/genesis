@@ -40,7 +40,23 @@ def hello():
         htmlbody += "<h1>ImageImprov Hello World from Flask!</h1><br>"
 
     img_folder = dbsetup.image_store(dbsetup.determine_environment(None))
-    htmlbody += "\n<br>image folder =" + img_folder + "<br>"
+    htmlbody += "\n<br><b>image folder</b> =\"" + img_folder + "\"<br>"
+
+    session = dbsetup.Session()
+    cl = category.Category.active_categories(session, 1)
+    if cl is None:
+        htmlbody += "\n<br>No category information retrieved (ERROR)<br>"
+    else:
+        htmlbody += "\n<br><h3>Categories:</h3>"
+        htmlbody += "\n<blockquote>"
+        for c in cl:
+            htmlbody += "\n<br>category_id = {}".format(c.get_id())
+            htmlbody += "\n<br>description = \"{}\"".format(c.get_description())
+            htmlbody += "\n<br>state = <b>{}</b>".format(category.CategoryState.to_str(c.state))
+            htmlbody += "\n<br>start date={}".format(c.start_date)
+            htmlbody += "\n<br>end date={}".format(c.end_date)
+            htmlbody += "\n<br><br>"
+        htmlbody += "\n</blockquote>"
 
     return htmlbody
 
@@ -83,10 +99,7 @@ def get_category():
     if not request.args:
         return make_response(jsonify({'error': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
-    try:
-        uid = request.args.get('user_id')
-    except KeyError as e:
-        uid = None
+    uid = request.args.get('user_id')
 
     if uid is None or uid == 'None':
         return make_response(jsonify({'error': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
@@ -106,10 +119,7 @@ def get_leaderboard():
     if not request.args:
         return make_response(jsonify({'error': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
-    try:
-        cid = request.args.get('category_id')
-    except KeyError:
-        cid = None
+    cid = request.args.get('category_id')
 
     if cid is None or cid == 'None':
         return make_response(jsonify({'error': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
@@ -121,12 +131,8 @@ def get_ballot():
     if not request.args:
         return make_response(jsonify({'error': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
-    try:
-        uid = request.args.get('user_id')
-        cid = request.args.get('category_id')
-    except KeyError:
-        uid = None
-        cid = None
+    uid = request.args.get('user_id')
+    cid = request.args.get('category_id')
 
     if uid is None or cid is None or uid == 'None' or cid == 'None':
         return make_response(jsonify({'error': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
