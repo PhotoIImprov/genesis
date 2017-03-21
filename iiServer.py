@@ -114,7 +114,7 @@ def get_category():
         return make_response(jsonify({'error': error.error_string('CATEGORY_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     categories = category.Category.list_to_json(cl)
-    return make_response(jsonify({'categories': categories}), status.HTTP_200_OK)
+    return make_response(jsonify(categories), status.HTTP_200_OK)
 
 @app.route("/leaderboard", methods=['GET'])
 def get_leaderboard():

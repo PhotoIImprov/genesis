@@ -201,6 +201,14 @@ class TestLogin(unittest.TestCase):
 
         return rsp
 
+    def test_leaderboard_missing_args(self):
+        rsp = self.app.get(path='/leaderboard', query_string=urlencode({'user_id':None}), headers={'content-type': 'text/html'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        emsg = data['error']
+        assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
+
+        return rsp
+
     def test_ballot_no_args(self):
         rsp = self.app.get(path='/ballot', headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
@@ -293,18 +301,20 @@ class TestLogin(unittest.TestCase):
 
         return rsp
 
-    def test_ballot_missing_args(self):
+    def test_root_page(self):
+        rsp = self.app.get(path='/', headers={'content-type': 'text/html'})
+
+    def test_ballot_empty_args(self):
         rsp = self.app.get(path='/ballot', query_string=urlencode({'user_id':None, 'category_id':1}), headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
         emsg = data['error']
         assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
+    def test_ballot_missing_args(self):
         rsp = self.app.get(path='/ballot', query_string=urlencode({'username':'bp100a'}), headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
         emsg = data['error']
         assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
-
-        return rsp
 
     def test_vote_missing_args(self):
         rsp = self.app.post(path='/vote', data=json.dumps(dict(user_id=None, votes=None) ), headers={'content-type': 'application/json'})
@@ -672,7 +682,7 @@ class TestCategory(unittest.TestCase):
         assert(rsp.status_code == 200)
 
         data = json.loads(rsp.data.decode("utf-8"))
-        return data['categories']
+        return data
 
     @staticmethod
     def get_category_by_state(target_state):
@@ -708,7 +718,7 @@ class TestCategory(unittest.TestCase):
         assert(rsp.status_code == 200)
 
         data = json.loads(rsp.data.decode("utf-8"))
-        cl = data['categories']
+        cl = data
 
         return
 
