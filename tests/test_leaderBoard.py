@@ -48,12 +48,4 @@ class TestLeaderBoard(DatabaseTest):
                 fo.update_score(idx+1)
                 self.session.commit() # this should fire the trigger
 
-            # now add each user to the leader board
-#            voting.LeaderBoard.update_leaderboard(self.session, u.id, c.id, 1, 2, idx)
-
-
-        leaders = voting.LeaderBoard.leaderboard_list(self.session, c.id)
-        assert(leaders is not None)
-        assert(len(leaders) > 0)
-
         return

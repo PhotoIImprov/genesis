@@ -281,37 +281,3 @@ class BallotEntry(Base):
 
         session.commit()
         return
-
-class LeaderBoard(Base):
-    __tablename__ = 'leaderboard'
-    id           = Column(Integer, primary_key=True, autoincrement=True)
-    category_id  = Column(Integer, ForeignKey("category.id", name="fk_leaderboard_category_id"), nullable=False, index=True, primary_key=True)
-    user_id      = Column(Integer, ForeignKey("userlogin.id", name="fk_leaderboard_user_id"),  nullable=False, index=True)
-    score        = Column(Integer, nullable=True) # current score
-    votes        = Column(Integer, nullable=True) # ranking in the ballot
-    likes        = Column(Integer, nullable=False, default=0) # how many times their photo has been liked
-
-    created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
-    last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
-
-    @staticmethod
-    def leaderboard_list(session, cid):
-        q = session.query(LeaderBoard).filter_by(category_id = cid)
-        leaders = q.all()
-        return leaders
-
-    @staticmethod
-    def update_leaderboard(session, uid, cid, vote, likes, score):
-        # okay need to check if leaderboard needs an update
-        if uid is None or cid is None:
-            raise BaseException(errno.EINVAL)
-
-        try:
-            results = session.execute('CALL sp_updateleaderboard(:uid,:cid,:in_likes,:in_vote,:in_score);', {"uid": uid, "cid": cid, "in_likes":likes, "in_vote":vote, "in_score":score})
-            session.commit()
-        except:
-            e = sys.exc_info()[0]
-            # what happened here?
-            raise
-
-        return

@@ -86,7 +86,7 @@ class TestBallot(DatabaseTest):
 
         # create new leaderboard
         test_lb = Leaderboard('test_leaderboard')
-        return
+#        return
 
         test_lb.rank_member('TEST1', 1)
         test_lb.rank_member('TEST2', 2)
@@ -98,4 +98,7 @@ class TestBallot(DatabaseTest):
         # get leaderboard
 
         leaders = test_lb.leaders(1)
-
+        total_members = test_lb.total_members()
+        total_pages = test_lb.total_pages()
+        score_1 = test_lb.rank_for('TEST1')
+        score_2 = test_lb.rank_for('TEST2')

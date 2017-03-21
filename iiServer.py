@@ -80,15 +80,15 @@ def set_category_state():
 
 @app.route("/category", methods=['GET'])
 def get_category():
-    if not request.json:
-        return make_response(jsonify({'error': error.error_string('NO_JSON')}),status.HTTP_400_BAD_REQUEST)
+    if not request.args:
+        return make_response(jsonify({'error': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
     try:
-        uid = request.json['user_id']
+        uid = request.args.get('user_id')
     except KeyError as e:
         uid = None
 
-    if uid is None:
+    if uid is None or uid == 'None':
         return make_response(jsonify({'error': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
@@ -103,33 +103,35 @@ def get_category():
 
 @app.route("/leaderboard", methods=['GET'])
 def get_leaderboard():
-    if not request.json:
-        return make_response(jsonify({'error': error.error_string('NO_JSON')}),status.HTTP_400_BAD_REQUEST)
+    if not request.args:
+        return make_response(jsonify({'error': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
     try:
-        cid = request.json['category_id']
+        cid = request.args.get('category_id')
     except KeyError:
+        cid = None
+
+    if cid is None or cid == 'None':
         return make_response(jsonify({'error': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
     return make_response(jsonify({'message': "TBD - leader board not implemented"}), 200)
 
 @app.route("/ballot", methods=['GET'])
 def get_ballot():
-    if not request.json:
-        return make_response(jsonify({'error': error.error_string('NO_JSON')}),status.HTTP_400_BAD_REQUEST)
+    if not request.args:
+        return make_response(jsonify({'error': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
     try:
-        uid = request.json['user_id']
-        cid = request.json['category_id']
+        uid = request.args.get('user_id')
+        cid = request.args.get('category_id')
     except KeyError:
         uid = None
         cid = None
 
-    session = dbsetup.Session()
-    if uid is None or cid is None or session is None:
-        session.close()
+    if uid is None or cid is None or uid == 'None' or cid == 'None':
         return make_response(jsonify({'error': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
+    session = dbsetup.Session()
     b = voting.Ballot.create_ballot(session, uid, cid)
     if b is None:
         session.close()
@@ -239,7 +241,7 @@ def photo_upload():
     if d['error'] is not None:
         return make_response(jsonify({'error': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
 
-    return make_response(jsonify({'message': error.error_string('PHOTO_UPLOADED')}), status.HTTP_201_CREATED)
+    return make_response(jsonify({'message': error.error_string('PHOTO_UPLOADED'), 'filename': d['arg']}), status.HTTP_201_CREATED)
 
 @app.route("/login", methods=['POST'])
 def login():

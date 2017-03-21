@@ -235,7 +235,7 @@ class Photo(Base):
                 raise BaseException(errno.EINVAL, "invalid category")
             raise
 
-        return {'error': None, 'arg': None}
+        return {'error': None, 'arg': self.filename}
 
     def create_thumb(self):
         if self._raw_image is None:

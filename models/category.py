@@ -7,6 +7,7 @@ from models import resources
 from models import usermgr
 from enum import Enum
 from models import error
+from leaderboard.leaderboard import Leaderboard # how we track high scores
 
 
 class CategoryState(Enum):
@@ -60,6 +61,13 @@ class Category(Base):
         return self._category_description
 
     def set_state(self, new_state):
+        if self.state == CategoryState.UPLOAD and new_state == CategoryState.VOTING:
+            # we're moving from uploading to voting, so there's some housekeeping to do
+
+            # create leaderboard
+            lb_name = "highscores category {}".format(self.id)
+            lb = LeaderBoard(lb_name)
+
         self.state = new_state.value
 
     def to_json(self):

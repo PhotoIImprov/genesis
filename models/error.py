@@ -42,6 +42,7 @@ class iiServerErrors(Enum):
         return status.HTTP_500_INTERNAL_SERVER_ERROR
 
 d_ERROR_STRINGS = {'NO_JSON': "missing JSON data",
+                   'NO_ARGS': "missing querystring arguments",
                    'MISSING_ARGS' : "missing one or more required arguments",
                    'FRIENDSHIP_UPDATED': "friendship updated",
                    'NO_USER': "missing user id",

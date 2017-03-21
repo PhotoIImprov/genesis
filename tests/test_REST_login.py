@@ -10,6 +10,9 @@ from models import category, resources
 from collections import namedtuple
 import requests
 from models import error
+from urllib.parse import urlencode
+
+
 
 class TestUser:
     _u = None   # username
@@ -190,19 +193,19 @@ class TestLogin(unittest.TestCase):
         tu.set_cid(cid)
         return tu
 
-    def test_leaderboard_not_json(self):
+    def test_leaderboard_no_args(self):
         rsp = self.app.get(path='/leaderboard', headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
         emsg = data['error']
-        assert(emsg == error.error_string('NO_JSON') and rsp.status_code == 400)
+        assert(emsg == error.error_string('NO_ARGS') and rsp.status_code == 400)
 
         return rsp
 
-    def test_ballot_not_json(self):
+    def test_ballot_no_args(self):
         rsp = self.app.get(path='/ballot', headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
         emsg = data['error']
-        assert(emsg == error.error_string('NO_JSON') and rsp.status_code == 400)
+        assert(emsg == error.error_string('NO_ARGS') and rsp.status_code == 400)
 
         return rsp
 
@@ -238,21 +241,13 @@ class TestLogin(unittest.TestCase):
 
         return rsp
 
-    def test_category_not_json(self):
-        rsp = self.app.get(path='/category', headers={'content-type': 'text/html'})
-        data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
-        assert(emsg == error.d_ERROR_STRINGS['NO_JSON'] and rsp.status_code == 400)
-
-        return rsp
-
     def test_category_no_userid(self):
-        rsp = self.app.get(path='/category', data=json.dumps(dict(user_id=None, password='pa55w0rd') ), headers={'content-type': 'application/json'})
+        rsp = self.app.get(path='/category', query_string=urlencode({'user_id':None, 'password':'pa55w0rd'}), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
         emsg = data['error']
         assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
-        rsp = self.app.get(path='/category', data=json.dumps(dict(password='pa55w0rd') ), headers={'content-type': 'application/json'})
+        rsp = self.app.get(path='/category', query_string=urlencode({'password':'pa55w0rd'}), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
         emsg = data['error']
         assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
@@ -299,12 +294,12 @@ class TestLogin(unittest.TestCase):
         return rsp
 
     def test_ballot_missing_args(self):
-        rsp = self.app.get(path='/ballot', data=json.dumps(dict(user_id=None, category_id=1) ), headers={'content-type': 'application/json'})
+        rsp = self.app.get(path='/ballot', query_string=urlencode({'user_id':None, 'category_id':1}), headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
         emsg = data['error']
         assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
-        rsp = self.app.get(path='/ballot', data=json.dumps(dict(username='bp100a') ), headers={'content-type': 'application/json'})
+        rsp = self.app.get(path='/ballot', query_string=urlencode({'username':'bp100a'}), headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
         emsg = data['error']
         assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
@@ -397,8 +392,8 @@ class TesttVoting(unittest.TestCase):
 
         assert(rsp.status_code == 200)
 
-        rsp = self.app.get(path='/ballot', data=json.dumps(dict(user_id=self._uid, category_id=cid)),
-                            headers={'content-type': 'application/json'})
+        rsp = self.app.get(path='/ballot', query_string=urlencode({'user_id':self._uid, 'category_id':cid}),
+                            headers={'content-type': 'text/html'})
 
         data = json.loads(rsp.data.decode("utf-8"))
 
@@ -422,8 +417,8 @@ class TesttVoting(unittest.TestCase):
         return ballots
 
     def test_ballot_invalid_user_id(self):
-        rsp = self.app.get(path='/ballot', data=json.dumps(dict(user_id=0, category_id=0)),
-                           headers={'content-type': 'application/json'})
+        rsp = self.app.get(path='/ballot', query_string=urlencode({'user_id':0, 'category_id':0}),
+                           headers={'content-type': 'text/html'})
 
         data = json.loads(rsp.data.decode("utf-8"))
         emsg = data['error']
@@ -437,8 +432,8 @@ class TesttVoting(unittest.TestCase):
         tu = tl.test_login() # this will register (create) and login an user, returning the UID
         self._uid = tu.get_uid()
 
-        rsp = self.app.get(path='/ballot', data=json.dumps(dict(user_id=self._uid, category_id=0)),
-                           headers={'content-type': 'application/json'})
+        rsp = self.app.get(path='/ballot', query_string=urlencode({'user_id':self._uid, 'category_id':0}),
+                           headers={'content-type': 'text/html'})
 
         data = json.loads(rsp.data.decode("utf-8"))
         emsg = data['error']
@@ -671,7 +666,7 @@ class TestCategory(unittest.TestCase):
         tu = tl.test_login()  # this will register (create) and login an user, returning the UID
         uid = tu.get_uid()
 
-        rsp =  iiServer.app.test_client().get(path='/category', data=json.dumps(dict(user_id=uid)),
+        rsp =  iiServer.app.test_client().get(path='/category',query_string=urlencode({'user_id':uid}),
                             headers={'content-type': 'application/json'})
 
         assert(rsp.status_code == 200)
@@ -707,8 +702,8 @@ class TestCategory(unittest.TestCase):
         tu = tl.test_login()  # this will register (create) and login an user, returning the UID
         self._uid = tu.get_uid()
 
-        rsp = self.app.get(path='/category', data=json.dumps(dict(user_id=self._uid)),
-                            headers={'content-type': 'application/json'})
+        rsp = self.app.get(path='/category', query_string=urlencode({'user_id':self._uid}, doseq=True),
+                            headers={'content-type': 'text/html'})
 
         assert(rsp.status_code == 200)
 
@@ -719,7 +714,7 @@ class TestCategory(unittest.TestCase):
 
     def test_category_bogus_uid(self):
        # 0 is not a valid user id, so this should fail
-        rsp = self.app.get(path='/category', data=json.dumps(dict(user_id=0)),
-                            headers={'content-type': 'application/json'})
+        rsp = self.app.get(path='/category', query_string=urlencode({'user_id':0}),
+                            headers={'content-type': 'text/html'})
 
         assert(rsp.status_code == 500)
