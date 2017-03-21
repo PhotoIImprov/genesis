@@ -140,6 +140,11 @@ def get_ballot():
         return make_response(jsonify({'error': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
+    # REALLY DON'T NEED THIS IF JWT token has identity!
+    au = usermgr.AnonUser.get_anon_user_by_id(session, uid)
+    if au is None:
+        return make_response(jsonify({'error': error.error_string('NO_SUCH_USER')}),status.HTTP_400_BAD_REQUEST)
+
     b = voting.Ballot.create_ballot(session, uid, cid)
     if b is None:
         session.close()
@@ -148,7 +153,7 @@ def get_ballot():
     # we have a ballot, turn it into JSON
     ballots = b.to_json()
     session.close()
-    return make_response(jsonify({'ballots': ballots}), status.HTTP_200_OK)
+    return make_response(jsonify(ballots), status.HTTP_200_OK)
 
 @app.route("/acceptfriendrequest", methods=['POST'])
 def accept_friendship():

@@ -409,15 +409,13 @@ class TesttVoting(unittest.TestCase):
 
         assert(rsp.status_code == 200)
 
-        Ballot = namedtuple('ballot', 'bid, image')
-
-        ballots = [Ballot(**k) for k in data["ballots"]]
+        ballots = data
 
         assert(len(ballots) == 4)
 
         for be_dict in ballots:
-            bid = be_dict.bid
-            image = be_dict.image
+            bid = be_dict['bid']
+            image = be_dict['image']
             path = "/mnt/image_files/thumb{}.jpeg".format(bid)
             thumbnail = base64.b64decode(image)
             fp = open(path, "wb")
@@ -432,7 +430,7 @@ class TesttVoting(unittest.TestCase):
 
         data = json.loads(rsp.data.decode("utf-8"))
         emsg = data['error']
-        assert(rsp.status_code == 500 and emsg == error.error_string('NO_BALLOT') )
+        assert(rsp.status_code == 400 and emsg == error.error_string('NO_SUCH_USER') )
         return
 
     def test_ballot_invalid_category_id(self):
@@ -462,7 +460,7 @@ class TesttVoting(unittest.TestCase):
         votes = []
         idx = 1
         for be_dict in ballots:
-            bid = be_dict.bid
+            bid = be_dict['bid']
             if (idx % 2) == 0:
                 votes.append(dict({'bid':bid, 'vote':idx, 'like':"true"}))
             else:
@@ -487,7 +485,7 @@ class TesttVoting(unittest.TestCase):
         votes = []
         idx = 1
         for be_dict in ballots:
-            bid = be_dict.bid
+            bid = be_dict['bid']
             if (idx % 2) == 0:
                 votes.append(dict({'bid':bid, 'vote':idx, 'like':"true"}))
             else:
@@ -717,9 +715,8 @@ class TestCategory(unittest.TestCase):
 
         assert(rsp.status_code == 200)
 
-        data = json.loads(rsp.data.decode("utf-8"))
-        cl = data
-
+        cl = json.loads(rsp.data.decode("utf-8"))
+        assert(len(cl) != 0)
         return
 
     def test_category_bogus_uid(self):
