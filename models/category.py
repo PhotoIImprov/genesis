@@ -137,8 +137,13 @@ class Category(Base):
         d = {'error': err, 'arg':c}
         return d
 
+    def is_upload(self):
+        return self.state == CategoryState.UPLOAD.value
+    def is_voting(self):
+        return self.state == CategoryState.VOTING.value
+
     @staticmethod
-    def is_upload(session, cid):
+    def is_upload_by_id(session, cid):
         d = Category.read_category_by_id(session, cid)
         c = d['arg']
         if c is None:
@@ -146,7 +151,7 @@ class Category(Base):
         return c.state == CategoryState.UPLOAD.value
 
     @staticmethod
-    def is_voting(session, cid):
+    def is_voting_by_id(session, cid):
         d = Category.read_category_by_id(session, cid)
         c = d['arg']
         if c is None:

@@ -375,6 +375,26 @@ class TesttVoting(unittest.TestCase):
         self.get_ballot()
         return
 
+    def ballot_response(self, rsp):
+        data = json.loads(rsp.data.decode("utf-8"))
+
+        assert(rsp.status_code == 200)
+
+        ballots = data
+
+        assert(len(ballots) == 4)
+
+        for be_dict in ballots:
+            bid = be_dict['bid']
+            image = be_dict['image']
+            path = "/mnt/image_files/thumb{}.jpeg".format(bid)
+            thumbnail = base64.b64decode(image)
+            fp = open(path, "wb")
+            fp.write(thumbnail)
+            fp.close()
+
+        return ballots
+
     def get_ballot(self):
         # let's create a user
         tl = TestLogin()
@@ -405,24 +425,7 @@ class TesttVoting(unittest.TestCase):
         rsp = self.app.get(path='/ballot', query_string=urlencode({'user_id':self._uid, 'category_id':cid}),
                             headers={'content-type': 'text/html'})
 
-        data = json.loads(rsp.data.decode("utf-8"))
-
-        assert(rsp.status_code == 200)
-
-        ballots = data
-
-        assert(len(ballots) == 4)
-
-        for be_dict in ballots:
-            bid = be_dict['bid']
-            image = be_dict['image']
-            path = "/mnt/image_files/thumb{}.jpeg".format(bid)
-            thumbnail = base64.b64decode(image)
-            fp = open(path, "wb")
-            fp.write(thumbnail)
-            fp.close()
-
-        return ballots
+        return self.ballot_response(rsp)
 
     def test_ballot_invalid_user_id(self):
         rsp = self.app.get(path='/ballot', query_string=urlencode({'user_id':0, 'category_id':0}),
@@ -474,7 +477,7 @@ class TesttVoting(unittest.TestCase):
 
         rsp = self.app.post(path='/vote', data=jvotes, headers={'content-type': 'application/json'})
         assert(rsp.status_code == 200)
-        return rsp
+        return self.ballot_response(rsp)
 
     def test_voting_too_many(self):
 

@@ -145,15 +145,7 @@ def get_ballot():
     if au is None:
         return make_response(jsonify({'error': error.error_string('NO_SUCH_USER')}),status.HTTP_400_BAD_REQUEST)
 
-    b = voting.Ballot.create_ballot(session, uid, cid)
-    if b is None:
-        session.close()
-        return make_response(jsonify({'error': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    # we have a ballot, turn it into JSON
-    ballots = b.to_json()
-    session.close()
-    return make_response(jsonify(ballots), status.HTTP_200_OK)
+    return return_ballot(session, uid, cid)
 
 @app.route("/acceptfriendrequest", methods=['POST'])
 def accept_friendship():
@@ -224,9 +216,20 @@ def cast_vote():
 
     session = dbsetup.Session()
 
-    voting.Ballot.tabulate_votes(session, uid, votes)
+    cid = voting.Ballot.tabulate_votes(session, uid, votes)
+    return return_ballot(session, uid, cid)
+
+def return_ballot(session, uid, cid):
+    d = voting.Ballot.create_ballot(session, uid, cid)
+    b = d['arg']
+    if b is None:
+        session.close()
+        return make_response(jsonify({'error': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    # we have a ballot, turn it into JSON
+    ballots = b.to_json()
     session.close()
-    return make_response(jsonify({'message': error.error_string('THANK_YOU_VOTING')}), status.HTTP_200_OK)
+    return make_response(jsonify(ballots), status.HTTP_200_OK)
 
 @app.route("/photo", methods=['POST'])
 #@jwt_required()

@@ -7,6 +7,7 @@ import sys
 import json
 import base64
 from flask import jsonify
+from leaderboard.leaderboard import Leaderboard
 
 _NUM_BALLOT_ENTRIES = 4
 
@@ -67,9 +68,10 @@ class Ballot(Base):
     @staticmethod
     def create_ballot(session, uid, cid):
         count = 4 # number of photos in a ballot
-        plist = Ballot.create_ballot_list(session, uid, cid, count)
+        d = Ballot.create_ballot_list(session, uid, cid, count)
+        plist = d['arg']
         if plist is None:
-            return None
+            return d
 
         b = Ballot(cid, uid)
         # now create the ballot entries and attach to the ballot
@@ -84,7 +86,7 @@ class Ballot(Base):
             Ballot.write_ballot(session,b)
         except exc.IntegrityError as e:
             if 'fk_ballot_user_id' in e.args[0] or 'fk_ballot_category_id' in e.args[0]:
-                return None # someone passed us an improper user_id
+                return {'error':error.iiServerErrors.INVALID_USER, 'arg':None} # someone passed us an improper user_id
             raise # tell someone up what teh problem is...
 
         # =========================================================
@@ -98,7 +100,7 @@ class Ballot(Base):
                     be.set_photo(p)
                     break
 
-        return b
+        return {'error':None, 'arg':b}
 
     def to_json(self):
 
@@ -141,10 +143,10 @@ class Ballot(Base):
         d = category.Category.read_category_by_id(session, cid)
         c = d['arg']
         if c is None:
-            return None
+            return d
 
         if c.state != category.CategoryState.VOTING.value:
-            return None
+            return {'error': error.iiServerErrors.NOTUPLOAD_CATEGORY, 'arg': None}
 
         # we need "count"
         photos_for_ballot = []
@@ -152,7 +154,7 @@ class Ballot(Base):
 
         for idx in range(1,3):
             if len(photos_for_ballot) >= count:
-                return photos_for_ballot
+                return {'error': None, 'arg':photos_for_ballot}
 
             remaining_photos_needed = count - len(photos_for_ballot)
             # need more photos to construct the ballot
@@ -163,25 +165,26 @@ class Ballot(Base):
             if p is not None:
                 photos_for_ballot.extend(p)
 
-        return photos_for_ballot
+
+        return {'error': None, 'arg':photos_for_ballot}
 
     @staticmethod
     def tabulate_votes(session, uid, ballots):
         if uid is None or ballots is None:
             raise BaseException(errno.EINVAL)
-        if len(ballots) < _NUM_BALLOT_ENTRIES:
-            raise BaseException(errno.EINVAL)
 
+        cid = None
         # okay we have everything we need, the category_id can be determined from the
         # ballot entry
         for ballotentry in ballots:
             likes = False
             if 'like' in ballotentry.keys():
                 likes = True
-            BallotEntry.tabulate_vote(session,  ballotentry['bid'], ballotentry['vote'], likes)
+            be = BallotEntry.tabulate_vote(session,  ballotentry['bid'], ballotentry['vote'], likes)
+            cid = be.category_id
 
         session.commit()
-        return
+        return cid
 
 class BallotEntry(Base):
     __tablename__ = 'ballotentry'
@@ -266,7 +269,7 @@ class BallotEntry(Base):
             raise BaseException(errno.EADDRNOTAVAIL)
 
         # check the category, is voting still happening?
-        if not category.Category.is_voting(session, be.category_id):
+        if not category.Category.is_voting_by_id(session, be.category_id):
             raise BaseException(errno.EINVAL)
 
         be.add_vote(vote)
@@ -280,4 +283,38 @@ class BallotEntry(Base):
         p.increment_vote_count()
 
         session.commit()
-        return
+        return be
+
+# this is the class that will orchestrate our voting. So it's job is to:
+#
+#  - transition categories to appropriate states
+#  - set up leaderboard table for round #1
+#  - create queues for round #2
+#  - close voting and summarize votes
+#  - any other ancillary needs of voting
+#
+class TallyMan():
+
+    # switch our category over to Voting and perform any housekeeping that is required
+    def setup_voting(self, session, cid):
+        # read the category
+        c = Category.read_category_by_id(session, cid)
+        if c.is_voting():
+            return      # possible race condition, not necessarily an error
+
+        if not c.is_upload():
+            return # this is an error!
+
+        c.state = CategoryState.VOTING
+
+        # before we switch on voting, create the leaderboard
+        lb_name = "round_1_category{}".format(c.get_id())
+        lb = LeaderBoard(lb_name)
+        if lb is None:
+            return None
+
+        # now that we have a leaderboard, we can update the category state!
+        session.commit()
+
+
+

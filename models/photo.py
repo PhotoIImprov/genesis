@@ -211,7 +211,7 @@ class Photo(Base):
         if image_data is None or uid is None or cid is None:
             return {'error': error.iiServerErrors.INVALID_ARGS, 'arg': None}
 
-        if not category.Category.is_upload(session, cid):
+        if not category.Category.is_upload_by_id(session, cid):
             return {'error': error.iiServerErrors.INVALID_ARGS, 'arg': None}
 
         self.set_image(image_data)

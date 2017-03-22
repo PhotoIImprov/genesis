@@ -75,7 +75,8 @@ class TestBallot(DatabaseTest):
         self.session.commit()
 
         # Now let's created a ballot
-        b = voting.Ballot.create_ballot(self.session, u.id, c.id)
+        d = voting.Ballot.create_ballot(self.session, u.id, c.id)
+        b = d['arg']
         assert(b is not None)
         json_string = b.to_json()
         json_size = len(json_string)
