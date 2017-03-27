@@ -330,6 +330,9 @@ class TestLogin(unittest.TestCase):
 
 class TestPhotoUpload(unittest.TestCase):
 
+    _uid = None
+    _cid = None
+
     def setUp(self):
         self.app = iiServer.app.test_client()
 
@@ -338,6 +341,7 @@ class TestPhotoUpload(unittest.TestCase):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         cwd = os.getcwd()
 
+        self.setUp()
         tl = TestLogin()
         tl.setUp()
         tu = tl.test_login() # this will register (create) and login an user, returning the UID
@@ -373,6 +377,9 @@ class TestPhotoUpload(unittest.TestCase):
         data = json.loads(rsp.data.decode("utf-8"))
         b64_photo = data['image']
         assert(len(b64_photo) == len(b64img))
+
+        self._uid = uid
+        self._cid = cid
         return
 
 class TesttVoting(unittest.TestCase):
@@ -929,4 +936,36 @@ class TestLastSubmission(unittest.TestCase):
 
         rsp = self.app.get(path='/lastsubmission',  query_string=urlencode({'user_id':None}), headers={'content-type': 'text/html'})
         assert(json.loads(rsp.data.decode("utf-8"))['msg'] == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
+
+    def test_last_submission_no_submissions(self):
+        self.setUp()
+
+        uid = 1
+        rsp = self.app.get(path='/lastsubmission',  query_string=urlencode({'user_id':uid}), headers={'content-type': 'text/html'})
+
+        data = json.loads(rsp.data.decode("utf-8"))
+
+        assert (json.loads(rsp.data.decode("utf-8"))['msg'] == error.error_string('NO_SUBMISSION') and rsp.status_code == 200)
+
+    def test_last_submission(self):
+        self.setUp()
+
+        tp = TestPhotoUpload()
+
+        tp.test_photo_upload()  # creates user, uploads a photo and downloads it again
+        uid = tp._uid
+        assert(uid is not None)
+
+        rsp = self.app.get(path='/lastsubmission',  query_string=urlencode({'user_id':uid}), headers={'content-type': 'text/html'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        try:
+            last_image = data['image']
+            category = data['category']
+        except KeyError:
+            self.Fail()
+
+        assert (rsp.status_code == 200)
+
+
+
 

@@ -1,0 +1,10 @@
+[2017-03-27 16:32:19 -0400] [13671] [INFO] Starting gunicorn 19.6.0
+[2017-03-27 16:32:19 -0400] [13671] [INFO] Listening at: http://0.0.0.0:8000 (13671)
+[2017-03-27 16:32:19 -0400] [13671] [INFO] Using worker: sync
+[2017-03-27 16:32:19 -0400] [13674] [INFO] Booting worker with pid: 13674
+[2017-03-27 16:33:07 -0400] [13671] [CRITICAL] WORKER TIMEOUT (pid:13674)
+[2017-03-27 16:33:07 -0400] [13674] [INFO] Worker exiting (pid: 13674)
+[2017-03-27 16:32:56 -0400] [13696] [INFO] Booting worker with pid: 13696
+[2017-03-27 16:33:17 -0400] [13671] [INFO] Handling signal: int
+[2017-03-27 16:33:17 -0400] [13696] [INFO] Worker exiting (pid: 13696)
+[2017-03-27 16:33:17 -0400] [13671] [INFO] Shutting down: Master

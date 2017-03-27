@@ -36,11 +36,11 @@ def hello():
     htmlbody = "<html>\n<body>\n"
     if dbsetup.is_gunicorn():
         htmlbody += "<h1>ImageImprov Hello World from Gunicorn!</h1><br>"
-        htmlbody += "<img src=\"/static/gunicorn_banner.jpg\" width=\"50%\" height=\"50%\"/>"
+        htmlbody += "<img src=\"/static/gunicorn_banner.jpg\"/>"
     else:
         htmlbody += "<h1>ImageImprov Hello World from Flask!</h1><br>"
 
-    htmlbody += "<img src=\"/static/python_flask_mysql_banner.jpg\" width=\"50%\" height=\"50%\"/>\n"
+    htmlbody += "<img src=\"/static/python_flask_mysql_banner.jpg\"/>\n"
 
     img_folder = dbsetup.image_store(dbsetup.determine_environment(None))
     htmlbody += "\n<br><b>image folder</b> =\"" + img_folder + "\""
@@ -275,13 +275,14 @@ def last_submission():
     session = dbsetup.Session()
     d = photo.Photo.last_submitted_photo(session, uid)
     session.close()
-    if d['args'] is None:
-        return make_response(jsonify({'msg': error.error_string('NO_SUBMISSION')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    if d['arg'] is None:
+        return make_response(jsonify({'msg': error.error_string('NO_SUBMISSION')}), status.HTTP_200_OK)
 
-    c = d['category']
-    i = d['image']
+    darg = d['arg']
+    c = darg['category']
+    i = darg['image']
 
-    return make_response(jsonify({'image':i, 'category':c.to_json()}), status.HTTP_200_OK)
+    return make_response(jsonify({'image':i.decode("utf-8"), 'category':c.to_json()}), status.HTTP_200_OK)
 
 @app.route("/photo", methods=['POST'])
 #@jwt_required()
