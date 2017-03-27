@@ -8,6 +8,7 @@ class ErrorTypes(Enum):
     FRIEND_ERROR   = 0x82000000
     GENERAL_ERROR  = 0x83000000
     PHOTO_ERROR    = 0x84000000
+    CATEGORY_SUCCESS = 0x4000000
 
 class iiServerErrors(Enum):
 
@@ -18,6 +19,9 @@ class iiServerErrors(Enum):
     INVALID_FRIEND      = ErrorTypes.FRIEND_ERROR.value   + errno.EINVAL
     INVALID_ARGS        = ErrorTypes.GENERAL_ERROR.value  + errno.EINVAL
     NOTUPLOAD_CATEGORY  = ErrorTypes.PHOTO_ERROR.value    + errno.EINVAL
+    NOTVOTING_CATEGORY  = ErrorTypes.CATEGORY_ERROR.value + errno.ECANCELED
+    NO_STATE_CHANGE     = ErrorTypes.CATEGORY_SUCCESS.value
+
 
     @staticmethod
     def error_message(error_code):
@@ -29,6 +33,10 @@ class iiServerErrors(Enum):
             return "invalid friend"
         if error_code == iiServerErrors.NOTUPLOAD_CATEGORY:
             return "category specified is not accepting uploads"
+        if error_code == iiServerErrors.NO_STATE_CHANGE:
+            return "category is already in proposed state"
+        if error_code == iiServerErrors.NOTVOTING_CATEGORY:
+            return "category is not accepting votes"
 
         return "unknown error"
 
@@ -38,6 +46,8 @@ class iiServerErrors(Enum):
         err = error_code.value & 0xFFFF
         if err == errno.EINVAL:
             return status.HTTP_400_BAD_REQUEST
+        if error_code == iiServerErrors.NO_STATE_CHANGE:
+            return status.HTTP_200_OK
 
         return status.HTTP_500_INTERNAL_SERVER_ERROR
 
@@ -61,6 +71,9 @@ d_ERROR_STRINGS = {'NO_JSON': "missing JSON data",
                    'THANK_YOU_VOTING': "thank you for voting",
                    'WILL_NOTIFY_FRIEND': "thank you, will notify your friend",
                    'CATEGORY_STATE': "category state updated",
+                   'NO_LEADERBOARD': "failed to get leaderboard",
+                   'NO_PHOTO': "no photo read",
+                   'NO_SUBMISSION': "no submission read",
 
                    # this is if we don't map to anything
                    'UNKNOWN_ERROR': "unknown error ??"}

@@ -180,6 +180,13 @@ class Friend(Base):
     def get_id(self):
         return self.id
 
+    @staticmethod
+    def is_friend(session, uid, maybe_friend_uid):
+        # lookup and see if this person is a friend!
+        q = session.query(Friend).filter(Friend.user_id == uid).filter(Friend.myfriend_id == maybe_friend_uid).filter(Friend.active == 1)
+        f = q.one_or_none()
+        return f is not None
+
 class FriendRequest(Base):
 
     __tablename__ = 'friendrequest'

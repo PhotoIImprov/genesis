@@ -2,12 +2,14 @@ from sqlalchemy        import Column, Integer, DateTime, text, ForeignKey, exc
 from sqlalchemy.orm import relationship
 import errno
 from dbsetup           import Base, Session
-from models import photo, category
+from models import photo, category, usermgr
 import sys
 import json
 import base64
 from flask import jsonify
 from leaderboard.leaderboard import Leaderboard
+from models import error
+
 
 _NUM_BALLOT_ENTRIES = 4
 
@@ -146,7 +148,7 @@ class Ballot(Base):
             return d
 
         if c.state != category.CategoryState.VOTING.value:
-            return {'error': error.iiServerErrors.NOTUPLOAD_CATEGORY, 'arg': None}
+            return {'error': error.iiServerErrors.NOTVOTING_CATEGORY, 'arg': None}
 
         # we need "count"
         photos_for_ballot = []
@@ -248,13 +250,11 @@ class BallotEntry(Base):
 #        be = q.all()
 #        return be
 
-    def add_vote(self, vote):
-        self.vote += vote
-        return
-    def increment_like(self, l):
-        if l:
-            self.like += 1
-        return
+    def set_vote(self, vote):
+        self.vote = vote
+
+    def set_like(self, l):
+        self.like = l
 
     @staticmethod
     def tabulate_vote(session, bid, vote, like):
@@ -272,17 +272,13 @@ class BallotEntry(Base):
         if not category.Category.is_voting_by_id(session, be.category_id):
             raise BaseException(errno.EINVAL)
 
-        be.add_vote(vote)
-        be.increment_like(like)
+        be.set_vote(vote)
+        be.set_like(like)
 
-        q = session.query(photo.Photo).filter_by(id = be.photo_id)
-        p = q.one()
-        if p is None:
-            raise BaseException(errno.EADDRNOTAVAIL)
+        tm = TallyMan()
+        tm.tabulate_vote(session, be.user_id, be.category_id, be.photo_id, vote)
 
-        p.increment_vote_count()
-
-        session.commit()
+        session.commit() # make sure ballotentry is written out
         return be
 
 # this is the class that will orchestrate our voting. So it's job is to:
@@ -296,25 +292,122 @@ class BallotEntry(Base):
 class TallyMan():
 
     # switch our category over to Voting and perform any housekeeping that is required
-    def setup_voting(self, session, cid):
-        # read the category
-        c = Category.read_category_by_id(session, cid)
-        if c.is_voting():
-            return      # possible race condition, not necessarily an error
+    def setup_voting(self, c):
 
-        if not c.is_upload():
-            return # this is an error!
-
-        c.state = CategoryState.VOTING
+        if c is None or not c.is_voting():
+            return None # this is an error!
 
         # before we switch on voting, create the leaderboard
-        lb_name = "round_1_category{}".format(c.get_id())
-        lb = LeaderBoard(lb_name)
+        lb_name = self.leaderboard_name(c.get_id())
+        lb = Leaderboard(lb_name)
         if lb is None:
             return None
 
-        # now that we have a leaderboard, we can update the category state!
+        # start with a clean leaderboard
+        lb.delete_leaderboard()
+
+    def change_category_state(self, session, cid, new_state):
+
+        d = category.Category.read_category_by_id(session, cid)
+
+        if d['error'] is not None:
+            session.close()
+            return d
+
+        # we have a legit category, see if the state needs to change
+        c = d['arg']
+        if c.state == new_state:
+            return {'error':error.iiServerErrors.NO_STATE_CHANGE, 'arg':None}
+
+        c.state = new_state
         session.commit()
 
+        if new_state == category.CategoryState.VOTING.value:
+            self.setup_voting(c)
 
+        return {'error': None, 'arg': c}
 
+    def leaderboard_name(self, cid):
+        return "round_1_category{}".format(cid)
+
+    def calculate_score(self, vote):
+        # vote is  ranking: 1st or 2nd
+        if vote == 1:
+            return 7
+        if vote == 2:
+            return 3
+        return 0
+
+    def tabulate_vote(self, session, uid, cid, pid, vote):
+
+        vote_score = self.calculate_score(vote)
+        if vote_score == 0:
+            return
+
+        # okay the photo's score is going to change
+        q = session.query(photo.Photo).filter_by(id = pid)
+        p = q.one()
+        if p is None:
+            raise BaseException(errno.EADDRNOTAVAIL)
+
+        p.increment_vote_count()
+        score = p.update_score(vote_score)
+        session.commit()
+
+        # we have a User/Photo/Vote
+        lb = self.get_leaderboard_by_category_id(cid)
+        if lb is not None:
+            lb.rank_member(uid, score, p.id)
+        return
+
+    def get_leaderboard_by_category_id(self, cid):
+        return Leaderboard(self.leaderboard_name(cid))
+
+    def create_displayname(self, session, uid):
+        u = usermgr.User.find_user_by_id(session, uid)
+        if u is None:
+            return "anonymous{}".format(uid)
+
+        if u.screenname is not None:
+            return u.screenname
+
+        # if forced to use the email, don't return the domain
+        ep = u.emailaddress.split('@')
+        return ep[0]
+
+    def create_leaderboard(self, session, uid, cid):
+        if cid is None:
+            return None
+
+        # okay lets get the leader board!
+        lb = self.get_leaderboard_by_category_id(cid)
+        if lb is None:
+            return None
+
+        my_rank = lb.rank_for(uid)
+
+        dl = lb.leaders(1, page_size=10, with_member_data=True)   # 1st page is top 25
+        lb_list = []
+        in_list = False
+        for d in dl:
+            lb_uid = int(str(d['member'], 'utf-8'))
+            lb_pid = int(str(d['member_data'], 'utf-8'))
+            lb_score = d['score']
+            lb_rank = d['rank']
+            lb_name = self.create_displayname(session, lb_uid)
+
+            if lb_uid == uid:
+                in_list = True
+                lb_list.append({'name': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'you':True})
+            else:
+                if usermgr.Friend.is_friend(session, uid, lb_uid):
+                    lb_list.append({'name': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'isfriend':True})
+                else:
+                    lb_list.append({'name': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid})
+
+        # see if we need to include ourselves in the list
+        if my_rank is not None and not in_list:
+            my_score = lb.rank_for(uid)
+            lb_list.append({'name': self.create_displayname(session, uid), 'score':my_score,'rank':my_rank, 'you':True})
+
+        return lb_list

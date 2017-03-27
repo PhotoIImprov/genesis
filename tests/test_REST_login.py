@@ -20,6 +20,8 @@ class TestUser:
     _g = None   # guid
     _uid = None  # user_id
     _cid = None #category id
+    _token = None # JWT token
+    _ia = None # issued at
 
     def create_anon_user(self):
         self._u = str(uuid.uuid1())
@@ -150,7 +152,11 @@ class TestLogin(unittest.TestCase):
 
         # now login and get a token
         rsp = self.post_auth(tu)
-        assert(rsp.status_code == 200)
+        data = json.loads(rsp.data.decode("utf-8"))
+        token = data['access_token']
+        assert(rsp.status_code == 200 and token is not None)
+        tu._token = token
+        tu._ia = datetime.datetime.now()
         return
 
     def test_anon_authentication(self):
@@ -159,7 +165,9 @@ class TestLogin(unittest.TestCase):
         rsp = self.post_registration(tu)
         assert(rsp.status_code == 201)
         rsp = self.post_auth(tu)
-        assert(rsp.status_code == 200)
+        data = json.loads(rsp.data.decode("utf-8"))
+        token = data['access_token']
+        assert(rsp.status_code == 200 and token is not None)
         return
 
     def test_bad_password_auth(self):
@@ -172,7 +180,10 @@ class TestLogin(unittest.TestCase):
         # now login and get a token
         tu.set_password('dummy password')
         rsp = self.post_auth(tu)
-        assert (rsp.status_code == 401)
+        data = json.loads(rsp.data.decode("utf-8"))
+        desc = data['description']
+        err = data['error']
+        assert (rsp.status_code == 401 and desc == "Invalid credentials" and err == "Bad Request")
         return
 
     def test_login(self):
@@ -193,26 +204,10 @@ class TestLogin(unittest.TestCase):
         tu.set_cid(cid)
         return tu
 
-    def test_leaderboard_no_args(self):
-        rsp = self.app.get(path='/leaderboard', headers={'content-type': 'text/html'})
-        data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
-        assert(emsg == error.error_string('NO_ARGS') and rsp.status_code == 400)
-
-        return rsp
-
-    def test_leaderboard_missing_args(self):
-        rsp = self.app.get(path='/leaderboard', query_string=urlencode({'user_id':None}), headers={'content-type': 'text/html'})
-        data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
-        assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
-
-        return rsp
-
     def test_ballot_no_args(self):
         rsp = self.app.get(path='/ballot', headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
+        emsg = data['msg']
         assert(emsg == error.error_string('NO_ARGS') and rsp.status_code == 400)
 
         return rsp
@@ -220,7 +215,7 @@ class TestLogin(unittest.TestCase):
     def test_vote_not_json(self):
         rsp = self.app.post(path='/vote', headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
+        emsg = data['msg']
         assert(emsg == error.error_string('NO_JSON') and rsp.status_code == 400)
 
         return rsp
@@ -228,7 +223,7 @@ class TestLogin(unittest.TestCase):
     def test_photo_not_json(self):
         rsp = self.app.post(path='/photo', headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
+        emsg = data['msg']
         assert(emsg == error.error_string('NO_JSON') and rsp.status_code == 400)
 
         return rsp
@@ -236,7 +231,7 @@ class TestLogin(unittest.TestCase):
     def test_login_not_json(self):
         rsp = self.app.post(path='/login', headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
-        errormsg = data['error']
+        errormsg = data['msg']
         assert(errormsg == error.error_string('NO_JSON') and rsp.status_code == 400)
 
         return rsp
@@ -244,7 +239,7 @@ class TestLogin(unittest.TestCase):
     def test_register_not_json(self):
         rsp = self.app.post(path='/register', headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
-        errormsg = data['error']
+        errormsg = data['msg']
         assert(errormsg == error.error_string('NO_JSON') and rsp.status_code == 400)
 
         return rsp
@@ -252,12 +247,12 @@ class TestLogin(unittest.TestCase):
     def test_category_no_userid(self):
         rsp = self.app.get(path='/category', query_string=urlencode({'user_id':None, 'password':'pa55w0rd'}), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
+        emsg = data['msg']
         assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         rsp = self.app.get(path='/category', query_string=urlencode({'password':'pa55w0rd'}), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
+        emsg = data['msg']
         assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         return rsp
@@ -265,12 +260,12 @@ class TestLogin(unittest.TestCase):
     def test_login_missing_args(self):
         rsp = self.app.post(path='/login', data=json.dumps(dict(username=None, password='pa55w0rd') ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
+        emsg = data['msg']
         assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         rsp = self.app.post(path='/login', data=json.dumps(dict(username='bp100a') ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
+        emsg = data['msg']
         assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         return rsp
@@ -278,12 +273,12 @@ class TestLogin(unittest.TestCase):
     def test_photo_missing_args(self):
         rsp = self.app.post(path='/photo', data=json.dumps(dict(image=None, extension=None, category_id=None, user_id=None) ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
+        emsg = data['msg']
         assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         rsp = self.app.post(path='/photo', data=json.dumps(dict(username='bp100a') ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
+        emsg = data['msg']
         assert(emsg == error.error_string('MISSING_ARGS')and rsp.status_code == 400)
 
         return rsp
@@ -291,12 +286,12 @@ class TestLogin(unittest.TestCase):
     def test_register_missing_args(self):
         rsp = self.app.post(path='/register', data=json.dumps(dict(username=None, password='pa55w0rd') ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
+        emsg = data['msg']
         assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         rsp = self.app.post(path='/register', data=json.dumps(dict(username='bp100a') ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
+        emsg = data['msg']
         assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         return rsp
@@ -307,24 +302,24 @@ class TestLogin(unittest.TestCase):
     def test_ballot_empty_args(self):
         rsp = self.app.get(path='/ballot', query_string=urlencode({'user_id':None, 'category_id':1}), headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
+        emsg = data['msg']
         assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
     def test_ballot_missing_args(self):
         rsp = self.app.get(path='/ballot', query_string=urlencode({'username':'bp100a'}), headers={'content-type': 'text/html'})
         data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
+        emsg = data['msg']
         assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
     def test_vote_missing_args(self):
         rsp = self.app.post(path='/vote', data=json.dumps(dict(user_id=None, votes=None) ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
+        emsg = data['msg']
         assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         rsp = self.app.post(path='/vote', data=json.dumps(dict(username='bp100a') ), headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
+        emsg = data['msg']
         assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         return rsp
@@ -356,6 +351,9 @@ class TestPhotoUpload(unittest.TestCase):
         # okay, we need to post this
         uid = tu.get_uid()
         cid = tu.get_cid()
+        if cid is None or cid == 0:
+            cid = TestCategory.get_category_by_state(category.CategoryState.UPLOAD)
+
         ext = 'JPEG'
         img = base64.standard_b64encode(ph)
         b64img = img.decode("utf-8")
@@ -363,6 +361,18 @@ class TestPhotoUpload(unittest.TestCase):
                             headers={'content-type': 'application/json'})
 
         assert(rsp.status_code == 201)
+        data = json.loads(rsp.data.decode("utf-8"))
+        filename = data['filename']
+        assert(filename is not None)
+
+        # let's read back the filename while we are here
+        rsp = self.app.get(path='/image', query_string=urlencode({'filename':filename, 'user_id':uid}),
+                           headers={'content-type': 'text/html'})
+
+        assert(rsp.status_code == 200)
+        data = json.loads(rsp.data.decode("utf-8"))
+        b64_photo = data['image']
+        assert(len(b64_photo) == len(b64img))
         return
 
 class TesttVoting(unittest.TestCase):
@@ -432,7 +442,7 @@ class TesttVoting(unittest.TestCase):
                            headers={'content-type': 'text/html'})
 
         data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
+        emsg = data['msg']
         assert(rsp.status_code == 400 and emsg == error.error_string('NO_SUCH_USER') )
         return
 
@@ -447,7 +457,7 @@ class TesttVoting(unittest.TestCase):
                            headers={'content-type': 'text/html'})
 
         data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
+        emsg = data['msg']
         assert(rsp.status_code == 500 and emsg == error.error_string('NO_BALLOT') )
         return
 
@@ -509,7 +519,7 @@ class TesttVoting(unittest.TestCase):
                            headers={'content-type': 'application/json'})
 
         data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
+        emsg = data['msg']
         assert (rsp.status_code == 400 and emsg == error.error_string('MISSING_ARGS'))
 
         # missing user_id
@@ -517,7 +527,7 @@ class TesttVoting(unittest.TestCase):
                            headers={'content-type': 'application/json'})
 
         data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['error']
+        emsg = data['msg']
         assert (rsp.status_code == 400 and emsg == error.error_string('MISSING_ARGS'))
         return
 
@@ -543,7 +553,7 @@ class TesttVoting(unittest.TestCase):
 
         assert(rsp.status_code == 400)
         data = json.loads(rsp.data.decode("utf-8"))
-        assert(data['error'] == error.d_ERROR_STRINGS['NO_JSON'])
+        assert(data['msg'] == error.d_ERROR_STRINGS['NO_JSON'])
 
     def test_friend_request_current_user(self):
         # let's create a user
@@ -590,7 +600,7 @@ class TesttVoting(unittest.TestCase):
 
         assert(rsp.status_code == 400)
         data = json.loads(rsp.data.decode("utf-8"))
-        assert(data['error'] == error.d_ERROR_STRINGS['NO_JSON'])
+        assert(data['msg'] == error.d_ERROR_STRINGS['NO_JSON'])
 
     def test_friend_request_accepted_missing_arg(self):
 
@@ -605,7 +615,7 @@ class TesttVoting(unittest.TestCase):
                             headers={'content-type': 'application/json'})
         data = json.loads(rsp.data.decode("utf-8"))
         assert(rsp.status_code == 400)
-        assert(data['error'] == error.d_ERROR_STRINGS['MISSING_ARGS'])
+        assert(data['msg'] == error.d_ERROR_STRINGS['MISSING_ARGS'])
 
 
 
@@ -625,7 +635,7 @@ class TestCategory(unittest.TestCase):
 
         assert(rsp.status_code == 400)
         data = json.loads(rsp.data.decode("utf-8"))
-        assert(data['error'] == error.d_ERROR_STRINGS['NO_JSON'])
+        assert(data['msg'] == error.d_ERROR_STRINGS['NO_JSON'])
 
     def test_category_state_no_cid(self):
         cstate = category.CategoryState.UPLOAD.value
@@ -633,7 +643,7 @@ class TestCategory(unittest.TestCase):
                             headers={'content-type': 'application/json'})
 
         data = json.loads(rsp.data.decode("utf-8"))
-        assert(data['error'] == error.d_ERROR_STRINGS['MISSING_ARGS'])
+        assert(data['msg'] == error.d_ERROR_STRINGS['MISSING_ARGS'])
         assert (rsp.status_code == 400)
 
     def test_category_state_bad_cid(self):
@@ -642,7 +652,7 @@ class TestCategory(unittest.TestCase):
                             headers={'content-type': 'application/json'})
 
         data = json.loads(rsp.data.decode("utf-8"))
-        assert(data['error'] == 'invalid category')
+        assert(data['msg'] == 'invalid category')
         assert (rsp.status_code == 400)
 
     def test_category_state(self):
@@ -659,7 +669,8 @@ class TestCategory(unittest.TestCase):
 
         assert(rsp.status_code == 200)
         data = json.loads(rsp.data.decode("utf-8"))
-        assert(data['message'] == error.error_string('CATEGORY_STATE') )
+        msg = data['msg']
+        assert(msg == error.error_string('CATEGORY_STATE') or msg == error.iiServerErrors.error_message(error.iiServerErrors.NO_STATE_CHANGE) )
 
     @staticmethod
     def set_category_state(cid, target_state):
@@ -728,3 +739,194 @@ class TestCategory(unittest.TestCase):
                             headers={'content-type': 'text/html'})
 
         assert(rsp.status_code == 500)
+
+class TestLeaderBoard(unittest.TestCase):
+    _photos = {'Cute_Puppy.jpg',
+               'Emma Passport.jpg',
+               'Galaxy Edge 7 (full res)jpg.jpg',
+               'Galaxy Edge 7 Cat  (full res)jpg.jpg',
+               'Galaxy Edge 7 Office Desk (full res, hdr).jpg',
+               'Hawaii Palm Tree.JPG',
+               'iPhone 6 Spider web (full res).JPG',
+               'iPhone 7 statue and lake (full res).jpg',
+               'iPhone 7 Yellow Rose (full res).jpg',
+               'Netsoft USA Company Picture 1710.jpg',
+               'PrimRib.JPG',
+               'Suki.JPG',
+               'Turtle.JPG'}
+
+    _users = {'hcollins@gmail.com',
+              'bp100a@hotmail.com',
+              'dblankley@blankley.com',
+              'regcollins@hotmail.com',
+              'qaetre@hotmail.com',
+              'hcollins@prizepoint.com',
+              'hcollins@exit15w.com',
+              'harry.collins@epam.com',
+              'crazycow@netsoft-usa.com'}
+
+    _base_url = None
+
+    def setUp(self):
+        self.app = iiServer.app.test_client()
+
+    def test_leaderboard_no_args(self):
+        rsp = self.app.get(path='/leaderboard', headers={'content-type': 'text/html'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        emsg = data['msg']
+        assert(emsg == error.error_string('NO_ARGS') and rsp.status_code == 400)
+
+        return rsp
+
+    def test_leaderboard_missing_args(self):
+        rsp = self.app.get(path='/leaderboard', query_string=urlencode({'user_id':None}), headers={'content-type': 'text/html'})
+        data = json.loads(rsp.data.decode("utf-8"))
+        emsg = data['msg']
+        assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
+
+        return rsp
+
+    def upload_photo(self, tu, photo_name):
+
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        cwd = os.getcwd()
+
+        # we have our user, now we need a photo to upload
+        fn = '../photos/' + photo_name
+        ft = open(fn, 'rb')
+        assert (ft is not None)
+        ph = ft.read()
+        assert (ph is not None)
+
+        # okay, we need to post this
+        uid = tu.get_uid()
+        cid = tu.get_cid()
+        ext = 'JPEG'
+        img = base64.standard_b64encode(ph)
+        b64img = img.decode("utf-8")
+        rsp = self.app.post(path='/photo', data=json.dumps(dict(user_id=uid, category_id=cid, extension=ext, image=b64img)),
+                            headers={'content-type': 'application/json'})
+        assert (rsp.status_code == 201)
+        return
+
+    def register_and_login(self, tu):
+        u = tu.get_username()
+        p = tu.get_password()
+        g = tu.get_guid()
+        rsp = self.app.post(path='/register', data=json.dumps(dict(username=u, password=p, guid=g)),
+                            headers={'content-type': 'application/json'})
+        assert (rsp.status_code == 400 or rsp.status_code == 201)
+
+        # now let's login this user
+        rsp = self.app.post(path='/login', data=json.dumps(dict(username=u, password=p, guid=g)),
+                            headers={'content-type': 'application/json'})
+        assert (rsp.status_code == 200)
+
+        if rsp.status_code == 200:
+            data = json.loads(rsp.data.decode("utf-8"))
+            uid = data['user_id']
+            cid = data['category_id']
+            tu.set_uid(uid)
+            tu.set_cid(cid)
+
+        return rsp
+
+    def get_ballot(self, tu):
+        assert(tu is not None)
+
+        rsp = self.app.get(path='/ballot', query_string=urlencode({'user_id':tu.get_uid(), 'category_id':tu.get_cid()}),
+                            headers={'content-type': 'text/html'})
+
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(rsp.status_code == 200)
+        ballots = data
+        assert(len(ballots) == 4)
+        return ballots
+
+    def vote_ballot(self, tu, ballots):
+        if ballots is None or len(ballots) == 0:
+            return
+
+        votes = []
+        idx = 1
+        for be_dict in ballots:
+            bid = be_dict['bid']
+            if (idx % 2) == 0:
+                votes.append(dict({'bid':bid, 'vote':idx, 'like':"true"}))
+            else:
+                votes.append(dict({'bid': bid, 'vote': idx}))
+            idx += 1
+
+        jvotes = json.dumps(dict({'user_id': tu.get_uid(), 'votes':votes}))
+
+        rsp = self.app.post(path='/vote', data=jvotes, headers={'content-type': 'application/json'})
+        assert(rsp.status_code == 200)
+        return
+
+    def get_leaderboard(self, tu):
+        assert(tu is not None)
+
+        rsp = self.app.get(path='/leaderboard', query_string=urlencode({'user_id':tu.get_uid(), 'category_id':tu.get_cid()}),
+                            headers={'content-type': 'text/html'})
+
+        lb = json.loads(rsp.data.decode("utf-8"))
+        assert(rsp.status_code == 200)
+        return lb
+
+    def test_leaderboard(self):
+        self.setUp()
+
+        # okay, this will get complex. We have to do the following:
+
+        # setup a category for Uploading
+        # register a bunch of users
+        # upload photos for those users
+        # download ballots for some of the users
+        # vote a bunch of times
+        # download the leaderboard
+        # okay, we're going to create users & upload photos
+        user_list = []
+        for uname in self._users:
+            tu = TestUser()
+            tu.create_user_with_name(uname)
+            rsp = self.register_and_login(tu)
+            user_list.append(tu)
+
+        # okay, we've registered & logged in our users
+        # Now let's upload some images
+        for tu in user_list:
+            for pn in self._photos:
+                self.upload_photo(tu, pn)
+
+        # okay we've uploaded a bunch of users and gave them photos
+
+
+        # set the category to VOTING
+        TestCategory.set_category_state(tu.get_cid(), category.CategoryState.VOTING)
+
+        # now we need to do some voting
+        for tu in user_list:
+            b = self.get_ballot(tu)
+            self.vote_ballot(tu, b)
+
+        # now let's get the leaderboard
+        for tu in user_list:
+            lb = self.get_leaderboard(tu)
+
+class TestLastSubmission(unittest.TestCase):
+
+    def setUp(self):
+        self.app = iiServer.app.test_client()
+
+    def test_last_submission_no_args(self):
+        self.setUp()
+
+        rsp = self.app.get(path='/lastsubmission', headers={'content-type': 'text/html'})
+        assert(json.loads(rsp.data.decode("utf-8"))['msg'] == error.error_string('NO_ARGS') and rsp.status_code == 400)
+
+    def test_last_submission_bad_arg(self):
+        self.setUp()
+
+        rsp = self.app.get(path='/lastsubmission',  query_string=urlencode({'user_id':None}), headers={'content-type': 'text/html'})
+        assert(json.loads(rsp.data.decode("utf-8"))['msg'] == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
+

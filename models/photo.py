@@ -64,7 +64,7 @@ class Photo(Base):
             self.score = 0
 
         self.score += points
-        return
+        return self.score
 
     def set_image(self, image):
         if image is None:
@@ -278,6 +278,42 @@ class Photo(Base):
         except:
             e = sys.exc_info()[0]
             raise
+
+    def read_photo_to_b64(self):
+        self._image_type = "JPEG"       # need a better way of doing this!
+        self.create_full_filename()
+        f = open(self._full_filename, 'rb')
+        if f is None:
+            return None
+        img = f.read()
+        if img is None:
+            return None
+
+        b64_img = base64.standard_b64encode(img)
+        return b64_img
+
+    @staticmethod
+    def last_submitted_photo(session, uid):
+        if session is None or uid is None:
+            return None
+        q = session.query(Photo).filter(Photo.user_id == uid).order_by(Photo.created_date.desc())
+        p = q.first() # top entry
+        if p is not None:
+            c = category.Category.read_category_by_id(session, p.cid)
+            b64img = p.read_photo_to_b64()
+            return {'error':None, 'arg':{'image':b64img, 'category':c}}
+
+        return {'error':"Nothing found", 'arg':None}
+
+    @staticmethod
+    def read_photo_by_filename(session, uid, fn):
+        # okay the "filename" is the field stashed in the database
+        q = session.query(Photo).filter_by(filename = fn)
+        p = q.one()
+        if p is None:
+            return None
+
+        return p.read_photo_to_b64()
 
     @staticmethod
     def read_photo(session, uid, cid):
