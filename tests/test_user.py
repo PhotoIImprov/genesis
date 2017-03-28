@@ -5,7 +5,7 @@ import os, errno
 import uuid
 from models import resources
 from models import category, photo, usermgr, voting
-from . import DatabaseTest
+from tests import DatabaseTest
 
 
 class TestUserMgr(DatabaseTest):

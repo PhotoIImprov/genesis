@@ -3,9 +3,8 @@ import datetime
 
 from models import resources
 from models import usermgr
-
 from models import category, voting, photo
-from . import DatabaseTest
+from tests import DatabaseTest
 import os
 import json
 from leaderboard.leaderboard import Leaderboard
