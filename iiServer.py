@@ -14,6 +14,7 @@ from models import voting
 from models import category
 from models import error
 import json
+from flask_swagger import swagger
 
 app = Flask(__name__)
 app.debug = True
@@ -30,6 +31,14 @@ JWT_AUTH = { 'JWT_EXPIRATION_DELTA': datetime.timedelta(days=10) } # 10 days bef
 @jwt_required()
 def protected():
     return '%s' % current_identity
+
+@app.route("/spec")
+def spec():
+    swag = swagger(app)
+    swag['info']['title'] = "ImageImprov"
+    swag['info']['version'] = "1.0"
+
+    return jsonify(swag)
 
 @app.route("/")
 def hello():
@@ -70,6 +79,36 @@ def hello():
 
 @app.route("/setcategorystate", methods=['POST'])
 def set_category_state():
+    """
+    Set Category State
+    ---
+    tags:
+      - category
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        schema:
+          id: category_state
+          required:
+            - category_id
+            - state
+          properties:
+            category_id:
+              type: integer
+            state:
+              type: integer
+    responses:
+      '200':
+        description: "state changed"
+      '400':
+        description: missing required arguments
+      '500':
+        description: error operating on category id specified
+    """
     if not request.json:
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
@@ -100,6 +139,55 @@ def set_category_state():
 
 @app.route("/category", methods=['GET'])
 def get_category():
+    """
+    Fetch Category
+    ---
+    tags:
+      - category
+    summary: Fetched specified category information
+    operationId: getCategory
+    consumes:
+      - text/plain
+    produces:
+      - application/json
+    parameters:
+      - in: query
+        name: user_id
+        description: "The user context to fetch category list for"
+        required: true
+        type: integer
+    responses:
+      '200':
+        description: state changed
+        schema:
+          id: categories
+          type: array
+          items:
+            $ref: '#/definitions/Category'
+      '400':
+        description: "missing required arguments"
+      '500':
+        description: "error getting categories"
+    definitions:
+      - schema:
+          id: Category
+          properties:
+            id:
+              type: integer
+              description: category identifier
+            theme:
+              type: string
+              description: A brief description of the category
+            start:
+              type: string
+              description: When the category starts and uploading can begin
+            end:
+              type: string
+              description: When the category ends and voting can begin
+            state:
+              type: string
+              description: The current state of the category (VOTING, UPLOADING, CLOSED, etc.)
+    """
     if not request.args:
         return make_response(jsonify({'msg': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
@@ -120,6 +208,55 @@ def get_category():
 
 @app.route("/leaderboard", methods=['GET'])
 def get_leaderboard():
+    """
+    Get Leader Board
+    ---
+    tags:
+      - user
+    parameters:
+      - in: query
+        name: user_id
+        description: "User for whom a leaderboard is being retrieved"
+        required: true
+        type: integer
+      - in: query
+        name: category_id
+        description: Category of the leaderboard being requested
+        required: true
+        type: integer
+    responses:
+      '200':
+        description: leaderboard retrieved
+        schema:
+          id: scores
+          type: array
+          items:
+            $ref: '#/definitions/ranking'
+      '400':
+        description: missing required arguments
+      '500':
+        description: error getting categories
+    definitions:
+      - schema:
+          id: ranking
+          properties:
+            username:
+              type: string
+              description: username of member of this rank
+            rank:
+              type: integer
+              description: overall rank in scoring
+            score:
+              type: integer
+              description: actual score for this rank
+            you:
+              type: string
+              description: if set, then this rank is yours
+            isfriend:
+              type: string
+              description: if set, then this rank is for a friend of yours
+    
+    """
     if not request.args:
         return make_response(jsonify({'msg': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
@@ -141,6 +278,46 @@ def get_leaderboard():
 
 @app.route("/ballot", methods=['GET'])
 def get_ballot():
+    """
+    Get Ballot()
+    ---
+    tags:
+      - voting
+    parameters:
+      - in: query
+        name: user_id
+        description: "The user context to fetch category list for"
+        required: true
+        type: integer
+      - in: query
+        name: category_id
+        description: "The category we want to vote on"
+        required: true
+        type: integer
+    responses:
+      200:
+        description: "ballot"
+        schema:
+          id: category
+          title: Categories
+          type: array
+          items:
+            $ref: '#/definitions/Ballot'
+      400:
+        description: "missing required arguments"
+      500:
+        description: "no ballot"
+      default:
+        description: "unexpected error"
+    definitions:
+      - schema:
+          id: Ballot
+          properties:
+            bid:
+              type: integer
+            image:
+              type: string
+    """
     if not request.args:
         return make_response(jsonify({'msg': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
@@ -160,6 +337,34 @@ def get_ballot():
 
 @app.route("/acceptfriendrequest", methods=['POST'])
 def accept_friendship():
+    """
+        Accept Friend Request
+        ---
+        tags:
+          - user
+        consumes:
+          - application/json
+        parameters:
+          - in: body
+            name: body
+            schema:
+              id: friendreq
+              required:
+                - user_id
+                - request_id
+              properties:
+                user_id:
+                  type: integer
+                request_id:
+                  type: integer
+        responses:
+          200:
+            description: "friendship updated"
+          400:
+            description: missing required arguments
+          500:
+            description: error operating on category id specified
+        """
     if not request.json:
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
@@ -182,6 +387,36 @@ def accept_friendship():
 
 @app.route("/friendrequest", methods=['POST'])
 def tell_a_friend():
+    """
+    Issue Friendship Request
+    ---
+    tags:
+      - user
+    consumes:
+        - application/json
+    parameters:
+      - in: body
+        name: body
+        schema:
+          id: req_a_friend
+          required:
+            - user_id
+            - friend
+          properties:
+            user_id:
+              type: integer
+            friend:
+              type: string
+    responses:
+      201:
+        description: "Will notify friend"
+      400:
+        description: missing required arguments
+      500:
+        description: error requesting friendship
+      default:
+        description: "unexpected error"
+    """
     if not request.json:
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
@@ -206,6 +441,51 @@ def tell_a_friend():
 
 @app.route("/vote", methods=['POST'])
 def cast_vote():
+    """
+     Cast Vote
+     ---
+     tags:
+       - category
+     consumes:
+       - application/json
+     produces:
+       - application/json
+     parameters:
+       - in: body
+         name: body
+         schema:
+           id: vote_args
+           required:
+             - user_id
+             - votes
+           properties:
+             user_id:
+               type: integer
+             votes:
+               type: array
+               items:
+                 $ref: '#/definitions/ballotentry'
+     responses:
+       '200':
+         description: "votes recorded"
+       '400':
+         description: missing required arguments
+       '500':
+         description: error operating on category id specified
+     definitions:
+      - schema:
+          id: ballotentry
+          properties:
+            bid:
+              type: integer
+              description: ballot identifier
+            vote:
+              type: integer
+              description: ranking in ballot
+            like:
+              type: string
+              description: if present, indicates user "liked" the image
+     """
     if not request.json:
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
@@ -245,6 +525,42 @@ def return_ballot(session, uid, cid):
 @app.route("/image", methods=['GET'])
 #@jwt_required()
 def image_download():
+    """
+    Image Download
+    ---
+    tags:
+      - user
+    consumes:
+      - text/html
+    produces:
+      - application/json
+    parameters:
+      - in: query
+        name: user_id
+        description: "The user context for validation of image retrieval"
+        required: true
+        type: integer
+      - in: query
+        name: filename
+        description: "The filename you wish to retrieve"
+        required: true
+        type: string
+    responses:
+      200:
+        description: "image found"
+        schema:
+          id: download_image
+          properties:
+            image:
+              type: string
+              description: base64 encoded image file
+      400:
+        description: missing required arguments
+      500:
+        description: photo not found
+      default:
+        description: "unexpected error"
+    """
     if not request.args:
         return make_response(jsonify({'msg': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
@@ -265,6 +581,37 @@ def image_download():
 @app.route("/lastsubmission", methods=['GET'])
 #@jwt_required()
 def last_submission():
+    """
+    Get Last Submission
+    ###
+    tags:
+      - user
+    consumes:
+        - application/json
+    parameters:
+      - in: body
+        required: true
+        schema:
+          properties:
+            user_id:
+              type: integer
+    responses:
+      200:
+        description: "last submission found"
+        schema:
+          id: image
+          type: string
+          id: category
+          title: Category
+          items:
+            $ref: '#/definitions/Category'
+      400:
+        description: missing required arguments
+      500:
+        description: photo not found
+      default:
+        description: "unexpected error"
+    """
     if not request.args:
         return make_response(jsonify({'msg':error.error_string('NO_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
@@ -287,6 +634,53 @@ def last_submission():
 @app.route("/photo", methods=['POST'])
 #@jwt_required()
 def photo_upload():
+    """
+    Upload Photo
+    ---
+    tags:
+      - image
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        schema:
+          id: upload_photo
+          required:
+            - user_id
+            - category_id
+            - extension
+            - image
+          properties:
+            user_id:
+              type: integer
+              description: the user context, owner of this photo being uploaded
+            category_id:
+              type: integer
+              description: the category id of the current category accepting uploads
+            extension:
+              type: string
+              description: Extension/filetype of uploaded image
+            image:
+              type: string
+              description: Base64 encoded image
+    responses:
+      201:
+        description: "The image was properly uploaded!"
+        schema:
+          id: filename
+          properties:
+            filename:
+              type: string
+      400:
+        description: missing required arguments
+      500:
+        description: error uploading image
+      default:
+        description: "unexpected error"
+    """
     if not request.json:
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
@@ -314,6 +708,49 @@ def photo_upload():
 
 @app.route("/login", methods=['POST'])
 def login():
+    """
+    Login User
+    ---
+    tags:
+      - user
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        schema:
+          id: login_user
+          required:
+            - username
+            - password
+          properties:
+            username:
+              type: string
+              description: username being logged in, can be a GUID
+            password:
+              type: string
+              description: password to log in user, special rules for anonymous users
+    responses:
+      200:
+        description: "User logged in"
+        schema:
+          id: logged_in
+          properties:
+            user_id:
+              type: integer
+              description: the user's internal identifier
+            category_id:
+              type: integer
+              description: Current category that is accepting Uploads for this users
+      400:
+        description: missing required arguments
+      500:
+        description: error uploading image
+      default:
+        description: "unexpected error"
+    """
     if not request.json:
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
@@ -345,6 +782,44 @@ def login():
 
 @app.route("/register", methods=['POST'])
 def register():
+    """
+    Register (Create new account)
+    ---
+    tags:
+      - user
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        schema:
+          id: register_user
+          required:
+            - username
+            - password
+            - guid
+          properties:
+            username:
+              type: string
+              description: this is either a guid (anonymous registration) or an email address
+            password:
+              type: string
+              description: password to log in user, special rules for anonymous users
+            guid:
+              type: string
+              description: a UUID that uniquely identifies the user, in lieu of a username, this is their anonymous account handle
+    responses:
+      201:
+        description: "account created"
+      400:
+        description: missing required arguments
+      500:
+        description: error creating account
+      default:
+        description: "unexpected error"
+    """
     # an email address and password has been posted
     # let's create a user for this
     if not request.json:
