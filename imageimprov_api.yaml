@@ -1,0 +1,474 @@
+definitions:
+  Ballot:
+    properties:
+      bid:
+        type: integer
+      image:
+        type: string
+  Category:
+    properties:
+      end:
+        description: When the category ends and voting can begin
+        type: string
+      id:
+        description: category identifier
+        type: integer
+      start:
+        description: When the category starts and uploading can begin
+        type: string
+      state:
+        description: 'The current state of the category (VOTING, UPLOADING, CLOSED, etc.)'
+        type: string
+      theme:
+        description: A brief description of the category
+        type: string
+  ballotentry:
+    properties:
+      bid:
+        description: ballot identifier
+        type: integer
+      like:
+        description: 'if present, indicates user "liked" the image'
+        type: string
+      vote:
+        description: ranking in ballot
+        type: integer
+  categories:
+    items:
+      $ref: '#/definitions/Category'
+    type: array
+  category:
+    items:
+      $ref: '#/definitions/Ballot'
+    title: Categories
+    type: array
+  category_state:
+    properties:
+      category_id:
+        type: integer
+      state:
+        type: integer
+    required:
+      - category_id
+      - state
+  download_image:
+    properties:
+      image:
+        description: base64 encoded image file
+        type: string
+  filename:
+    properties:
+      filename:
+        type: string
+  friendreq:
+    properties:
+      request_id:
+        type: integer
+      user_id:
+        type: integer
+    required:
+      - user_id
+      - request_id
+  logged_in:
+    properties:
+      category_id:
+        description: Current category that is accepting Uploads for this users
+        type: integer
+      user_id:
+        description: the user's internal identifier
+        type: integer
+  login_user:
+    properties:
+      password:
+        description: 'password to log in user, special rules for anonymous users'
+        type: string
+      username:
+        description: 'username being logged in, can be a GUID'
+        type: string
+    required:
+      - username
+      - password
+  ranking:
+    properties:
+      isfriend:
+        description: 'if set, then this rank is for a friend of yours'
+        type: string
+      rank:
+        description: overall rank in scoring
+        type: integer
+      score:
+        description: actual score for this rank
+        type: integer
+      username:
+        description: username of member of this rank
+        type: string
+      you:
+        description: 'if set, then this rank is yours'
+        type: string
+  register_user:
+    properties:
+      guid:
+        description: >-
+          a UUID that uniquely identifies the user, in lieu of a username, this
+          is their anonymous account handle
+        type: string
+      password:
+        description: 'password to log in user, special rules for anonymous users'
+        type: string
+      username:
+        description: this is either a guid (anonymous registration) or an email address
+        type: string
+    required:
+      - username
+      - password
+      - guid
+  req_a_friend:
+    properties:
+      friend:
+        type: string
+      user_id:
+        type: integer
+    required:
+      - user_id
+      - friend
+  scores:
+    items:
+      $ref: '#/definitions/ranking'
+    type: array
+  upload_photo:
+    properties:
+      category_id:
+        description: the category id of the current category accepting uploads
+        type: integer
+      extension:
+        description: Extension/filetype of uploaded image
+        type: string
+      image:
+        description: Base64 encoded image
+        type: string
+      user_id:
+        description: 'the user context, owner of this photo being uploaded'
+        type: integer
+    required:
+      - user_id
+      - category_id
+      - extension
+      - image
+  vote_args:
+    properties:
+      user_id:
+        type: integer
+      votes:
+        items:
+          $ref: '#/definitions/ballotentry'
+        type: array
+    required:
+      - user_id
+      - votes
+host: echo-api.endpoints.ImageImprov.cloud.goog
+info:
+  description: >
+    The first version of the ImageImprov API is purely designed to interaction
+
+    with the ImageImprov mobile clients. We are aiming for a secure interface
+    that
+
+    will implement our needed features in a simple programming model
+
+
+    All endpoints are only accessible via https and are located at
+
+    'api.imageimprove.com'. Users do not need to provide any information
+
+    in order to enjoy our service, we fully support anonymous registration &
+    play
+
+
+
+    ## Limits
+
+    We are currently only allow a single photo upload per category per period
+    the
+
+    category is open for uploading
+  title: ImageImprov API
+  version: 1.0.0
+paths:
+  /acceptfriendrequest:
+    post:
+      consumes:
+        - application/json
+      description: ''
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/friendreq'
+      responses:
+        '200':
+          description: friendship updated
+        '400':
+          description: missing required arguments
+        '500':
+          description: error operating on category id specified
+      summary: Accept Friend Request
+      tags:
+        - user
+  /ballot:
+    get:
+      description: ''
+      parameters:
+        - description: The user context to fetch category list for
+          in: query
+          name: user_id
+          required: true
+          type: integer
+        - description: The category we want to vote on
+          in: query
+          name: category_id
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: ballot
+          schema:
+            $ref: '#/definitions/category'
+        '400':
+          description: missing required arguments
+        '500':
+          description: no ballot
+        default:
+          description: unexpected error
+      summary: Get Ballot()
+      tags:
+        - voting
+  /category:
+    get:
+      consumes:
+        - text/plain
+      description: ''
+      operationId: getCategory
+      parameters:
+        - description: The user context to fetch category list for
+          in: query
+          name: user_id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: state changed
+          schema:
+            $ref: '#/definitions/categories'
+        '400':
+          description: missing required arguments
+        '500':
+          description: error getting categories
+      summary: Fetch Category
+      tags:
+        - category
+  /friendrequest:
+    post:
+      consumes:
+        - application/json
+      description: ''
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/req_a_friend'
+      responses:
+        '201':
+          description: Will notify friend
+        '400':
+          description: missing required arguments
+        '500':
+          description: error requesting friendship
+        default:
+          description: unexpected error
+      summary: Issue Friendship Request
+      tags:
+        - user
+  /image:
+    get:
+      consumes:
+        - text/html
+      description: ''
+      parameters:
+        - description: The user context for validation of image retrieval
+          in: query
+          name: user_id
+          required: true
+          type: integer
+        - description: The filename you wish to retrieve
+          in: query
+          name: filename
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: image found
+          schema:
+            $ref: '#/definitions/download_image'
+        '400':
+          description: missing required arguments
+        '500':
+          description: photo not found
+        default:
+          description: unexpected error
+      summary: Image Download
+      tags:
+        - image
+  /leaderboard:
+    get:
+      description: ''
+      parameters:
+        - description: User for whom a leaderboard is being retrieved
+          in: query
+          name: user_id
+          required: true
+          type: integer
+        - description: Category of the leaderboard being requested
+          in: query
+          name: category_id
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: leaderboard retrieved
+          schema:
+            $ref: '#/definitions/scores'
+        '400':
+          description: missing required arguments
+        '500':
+          description: error getting categories
+      summary: Get Leader Board
+      tags:
+        - user
+  /login:
+    post:
+      consumes:
+        - application/json
+      description: ''
+      parameters:
+        - in: body
+          name: login-info
+          required: true
+          schema:
+            $ref: '#/definitions/login_user'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: User logged in
+          schema:
+            $ref: '#/definitions/logged_in'
+        '400':
+          description: missing required arguments
+        '500':
+          description: error uploading image
+        default:
+          description: unexpected error
+      summary: Login User
+      tags:
+        - user
+  /photo:
+    post:
+      consumes:
+        - application/json
+      description: ''
+      parameters:
+        - in: body
+          name: photo-info
+          required: true
+          schema:
+            $ref: '#/definitions/upload_photo'
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: The image was properly uploaded!
+          schema:
+            $ref: '#/definitions/filename'
+        '400':
+          description: missing required arguments
+        '500':
+          description: error uploading image
+        default:
+          description: unexpected error
+      summary: Upload Photo
+      tags:
+        - image
+  /register:
+    post:
+      consumes:
+        - application/json
+      description: ''
+      parameters:
+        - in: body
+          name: registration-info
+          required: true
+          schema:
+            $ref: '#/definitions/register_user'
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: account created
+        '400':
+          description: missing required arguments
+        '500':
+          description: error creating account
+        default:
+          description: unexpected error
+      summary: Register (Create new account)
+      tags:
+        - user
+  /setcategorystate:
+    post:
+      consumes:
+        - application/json
+      description: ''
+      parameters:
+        - in: body
+          name: arguments
+          schema:
+            $ref: '#/definitions/category_state'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: state changed
+        '400':
+          description: missing required arguments
+        '500':
+          description: error operating on category id specified
+      summary: Set Category State
+      tags:
+        - category
+  /vote:
+    post:
+      consumes:
+        - application/json
+      description: ''
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/vote_args'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: votes recorded
+        '400':
+          description: missing required arguments
+        '500':
+          description: error operating on category id specified
+      summary: Cast Vote
+      tags:
+        - voting
+swagger: '2.0'

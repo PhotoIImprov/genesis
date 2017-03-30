@@ -35,9 +35,20 @@ def protected():
 @app.route("/spec")
 def spec():
     swag = swagger(app)
-    swag['info']['title'] = "ImageImprov"
-    swag['info']['version'] = "1.0"
-
+    swag['info']['title'] = "ImageImprov API"
+    swag['info']['version'] = "1.0.0"
+    swag['info']['description'] = "The first version of the ImageImprov API is purely designed to interaction\n"\
+                                 "with the ImageImprov mobile clients. We are aiming for a secure interface that\n" \
+                                 "will implement our needed features in a simple programming model\n"\
+                                 "\n"\
+                                 "All endpoints are only accessible via https and are located at\n"\
+                                 "\'api.imageimprove.com\'. Users do not need to provide any information\n"\
+                                 "in order to enjoy our service, we fully support anonymous registration & play\n"\
+                                 "\n\n"\
+                                 "## Limits\n"\
+                                 "We are currently only allow a single photo upload per category per period the\n"\
+                                 "category is open for uploading\n"
+    swag['host'] = "echo-api.endpoints.ImageImprov.cloud.goog"
     return jsonify(swag)
 
 @app.route("/")
@@ -90,7 +101,7 @@ def set_category_state():
       - application/json
     parameters:
       - in: body
-        name: body
+        name: arguments
         schema:
           id: category_state
           required:
@@ -445,7 +456,7 @@ def cast_vote():
      Cast Vote
      ---
      tags:
-       - category
+       - voting
      consumes:
        - application/json
      produces:
@@ -529,7 +540,7 @@ def image_download():
     Image Download
     ---
     tags:
-      - user
+      - image
     consumes:
       - text/html
     produces:
@@ -645,7 +656,8 @@ def photo_upload():
       - application/json
     parameters:
       - in: body
-        name: body
+        name: photo-info
+        required: true
         schema:
           id: upload_photo
           required:
@@ -719,7 +731,8 @@ def login():
       - application/json
     parameters:
       - in: body
-        name: body
+        name: login-info
+        required: true
         schema:
           id: login_user
           required:
@@ -793,7 +806,8 @@ def register():
       - application/json
     parameters:
       - in: body
-        name: body
+        name: registration-info
+        required: true
         schema:
           id: register_user
           required:
