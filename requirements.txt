@@ -12,5 +12,7 @@ requests=2.9.1
 cv2=3.2.0
 redis=2.10.5
 leaderboard=3.7.0
+piexif==1.0.12
+Pil==3.1.2
 
 

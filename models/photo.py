@@ -12,6 +12,11 @@ import pymysql
 import base64
 import sys
 from models import error
+from PIL import Image
+from PIL.ExifTags import TAGS, GPSTAGS
+from io import BytesIO
+import piexif
+
 
 class Photo(Base):
 
@@ -248,36 +253,39 @@ class Photo(Base):
         if self._raw_image is None:
             raise BaseException(errno.EINVAL, "no raw image")
 
+        file_jpegdata = BytesIO(self.get_image())
+        pil_img = Image.open(file_jpegdata)
+        info = pil_img._getexif()
+        exif_data = {}
+        for tag, value in info.items():
+            decoded = TAGS.get(tag, tag)
+            if decoded == "GPSInfo":
+                gps_data = {}
+                for t in value:
+                    sub_decoded = GPSTAGS.get(t,t)
+                    gps_data[sub_decoded] = value[t]
+                exif_data[decoded] = gps_data
+            else:
+                exif_data[decoded] = value
+
+        exif_dict = piexif.load(pil_img.info["exif"])
+
+        # scale the image
+        new_width = int(pil_img.width * 0.2)
+        new_height = int(pil_img.height * 0.2)
+        new_size = new_width, new_height
+        exif_bytes = piexif.dump(exif_dict)
+
+        th_img = pil_img.resize(new_size)
+
         # from the supplied image, create a thumbnail
         # the original file has already been saved to the
         # filesystem, so we are just adding this file
         thumb_fn = self.create_thumb_filename()
 
-        nparr = np.fromstring(self.get_image(), np.uint8)
-        im = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        if im is None:
-            raise Exception(errno.EFAULT)
+        th_img.save(thumb_fn, exif=exif_bytes)
+        return
 
-        # Our resizing factor is based on the following:
-        # max screen geometry is Samsung 7 = 2560 x 1440
-        # we want to deliver 2 x 2 thumbnails, so 1/4 of
-        # 2560x1440 -> 640x360
-        #
-        # Our input images vary from iPhone (3264x2448) to
-        # Samsung (4032x3024), so scaling is 640/4032 -> ~16%
-        # But we have to make sure we don't scale the iPhone
-        # images too much.
-        #
-        # iPhone 7: 1340x750 -> 335x187
-        # So we need to scale from the smallest input (iPhone)
-        # to the largest output (Samsung)
-        # 3264x2448 -> 640x360, which is about 20%
-        try:
-            thumbnail = cv2.resize(im, (0,0), fx=0.2, fy=0.2)
-            cv2.imwrite(thumb_fn, thumbnail)
-        except:
-            e = sys.exc_info()[0]
-            raise
 
     def read_photo_to_b64(self):
         self._image_type = "JPEG"       # need a better way of doing this!

@@ -32,7 +32,11 @@ class InitEnvironment(unittest.TestCase):
               'Netsoft USA Company Picture 1710.jpg',
               'PrimRib.JPG',
               'Suki.JPG',
-              'Turtle.JPG'}
+              'Turtle.JPG',
+               'Portrait.JPG',
+               'Rotate90CW.JPG',
+               'Rotate180CW.JPG',
+               'Rotate270CW.JPG'}
 
     _users = {'hcollins@gmail.com',
              'bp100a@hotmail.com',
@@ -42,7 +46,10 @@ class InitEnvironment(unittest.TestCase):
              'hcollins@prizepoint.com',
              'hcollins@exit15w.com',
              'harry.collins@epam.com',
-             'crazycow@netsoft-usa.com'}
+             'crazycow@netsoft-usa.com',
+             'harry.collins@netsoft-usa.com',
+             'hcollins@altaitech.com',
+             'dblankley@uproar.com'}
 
     _base_url = None
 

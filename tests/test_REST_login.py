@@ -748,19 +748,10 @@ class TestCategory(unittest.TestCase):
         assert(rsp.status_code == 500)
 
 class TestLeaderBoard(unittest.TestCase):
-    _photos = {'Cute_Puppy.jpg',
-               'Emma Passport.jpg',
-               'Galaxy Edge 7 (full res)jpg.jpg',
-               'Galaxy Edge 7 Cat  (full res)jpg.jpg',
-               'Galaxy Edge 7 Office Desk (full res, hdr).jpg',
-               'Hawaii Palm Tree.JPG',
-               'iPhone 6 Spider web (full res).JPG',
-               'iPhone 7 statue and lake (full res).jpg',
-               'iPhone 7 Yellow Rose (full res).jpg',
-               'Netsoft USA Company Picture 1710.jpg',
-               'PrimRib.JPG',
-               'Suki.JPG',
-               'Turtle.JPG'}
+    _photos = {'Portrait.JPG',
+               'Rotate90CW.JPG',
+               'Rotate180CW.JPG',
+               'Rotate270CW.JPG'}
 
     _users = {'hcollins@gmail.com',
               'bp100a@hotmail.com',
@@ -770,7 +761,10 @@ class TestLeaderBoard(unittest.TestCase):
               'hcollins@prizepoint.com',
               'hcollins@exit15w.com',
               'harry.collins@epam.com',
-              'crazycow@netsoft-usa.com'}
+              'crazycow@netsoft-usa.com',
+              'harry.collins@netsoft-usa.com',
+              'hcollins@altaitech.com',
+              'dblankley@uproar.com'}
 
     _base_url = None
 
