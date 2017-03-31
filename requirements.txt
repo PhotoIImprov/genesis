@@ -6,13 +6,13 @@ passlib==1.7.0
 werkzeug==0.11.11
 gunicorn==19.6.0
 PyMySQL==0.7.9
-OpenCV==3.2.0
-Numpy=1.11.0
-requests=2.9.1
-cv2=3.2.0
-redis=2.10.5
-leaderboard=3.7.0
+#OpenCV==3.2.0
+#Numpy1=1.11.0
+requests1=2.9.1
+#cv2=3.2.0
+redis==2.10.5
+leaderboard==3.7.0
 piexif==1.0.12
-Pil==3.1.2
+PIL==1.1.7
 
 
