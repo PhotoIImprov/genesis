@@ -1,16 +1,16 @@
 Flask==0.11.1
 Flask-JWT==0.3.2
-Flask-API=0.6.9
+Flask-API==0.6.9
 SQLAlchemy==1.1.5
 passlib==1.7.0
 werkzeug==0.11.11
 gunicorn==19.6.0
 PyMySQL==0.7.9
 OpenCV==3.2.0
-Numpy=1.11.0
-requests=2.9.1
-cv2=3.2.0
-redis=2.10.5
-leaderboard=3.7.0
+Numpy==1.11.0
+requests==2.9.1
+cv2==3.2.0
+redis==2.10.5
+leaderboard==3.7.0
 
 
