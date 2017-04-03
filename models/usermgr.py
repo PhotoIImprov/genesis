@@ -137,9 +137,11 @@ class User(Base):
 def authenticate(username, password):
     # use the username (email) to lookup the passowrd and compare
     # after we hash the one we were sent
+    session = Session()
     if AnonUser.is_guid(username, password):
         # this is a guid, see if it's in our database
-        foundAnonUser = AnonUser.find_anon_user(Session(), username)
+        foundAnonUser = AnonUser.find_anon_user(session, username)
+        session.close()
         if foundAnonUser is not None:
             return foundAnonUser
     else:
@@ -150,7 +152,9 @@ def authenticate(username, password):
             if pbkdf2_sha256.verify(password, foundUser.hashedPWD):
                 uid = foundUser.id #foundUser.get_id()
                 au = AnonUser.get_anon_user_by_id(Session(), uid)
+                session.close()
                 return au
+        session.close()
 
     return None
 

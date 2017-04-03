@@ -89,6 +89,7 @@ def hello():
     return htmlbody
 
 @app.route("/setcategorystate", methods=['POST'])
+@jwt_required()
 def set_category_state():
     """
     Set Category State
@@ -149,6 +150,7 @@ def set_category_state():
 
 
 @app.route("/category", methods=['GET'])
+@jwt_required()
 def get_category():
     """
     Fetch Category
@@ -199,10 +201,7 @@ def get_category():
               type: string
               description: The current state of the category (VOTING, UPLOADING, CLOSED, etc.)
     """
-    if not request.args:
-        return make_response(jsonify({'msg': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
-
-    uid = request.args.get('user_id')
+    uid = current_identity.id
 
     if uid is None or uid == 'None':
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
@@ -218,6 +217,7 @@ def get_category():
     return make_response(jsonify(categories), status.HTTP_200_OK)
 
 @app.route("/leaderboard", methods=['GET'])
+@jwt_required()
 def get_leaderboard():
     """
     Get Leader Board
@@ -272,7 +272,8 @@ def get_leaderboard():
         return make_response(jsonify({'msg': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
     cid = request.args.get('category_id')
-    uid = request.args.get('user_id')
+    u = current_identity
+    uid = u.id
 
     if cid is None or cid == 'None' or uid is None or uid is 'None':
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
@@ -288,6 +289,7 @@ def get_leaderboard():
     return make_response(jsonify({'msg': error.error_string('NO_LEADERBOARD')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @app.route("/ballot", methods=['GET'])
+@jwt_required()
 def get_ballot():
     """
     Get Ballot()
@@ -332,7 +334,8 @@ def get_ballot():
     if not request.args:
         return make_response(jsonify({'msg': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
-    uid = request.args.get('user_id')
+    u = current_identity
+    uid = u.id
     cid = request.args.get('category_id')
 
     if uid is None or cid is None or uid == 'None' or cid == 'None':
@@ -341,12 +344,14 @@ def get_ballot():
     session = dbsetup.Session()
     # REALLY DON'T NEED THIS IF JWT token has identity!
     au = usermgr.AnonUser.get_anon_user_by_id(session, uid)
+    session.close()
     if au is None:
         return make_response(jsonify({'msg': error.error_string('NO_SUCH_USER')}),status.HTTP_400_BAD_REQUEST)
 
     return return_ballot(session, uid, cid)
 
 @app.route("/acceptfriendrequest", methods=['POST'])
+@jwt_required()
 def accept_friendship():
     """
         Accept Friend Request
@@ -380,7 +385,8 @@ def accept_friendship():
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
     try:
-        uid = request.json['user_id']
+        u = current_identity
+        uid = u.id
         fid = request.json['request_id'] # id of the friendship request
         accepted = request.json['accepted'] == "true" # = True, then friendship accepted
     except KeyError:
@@ -397,6 +403,7 @@ def accept_friendship():
     return make_response(jsonify({'message': error.error_string('FRIENDSHIP_UPDATED')}), status.HTTP_201_CREATED)
 
 @app.route("/friendrequest", methods=['POST'])
+@jwt_required()
 def tell_a_friend():
     """
     Issue Friendship Request
@@ -432,7 +439,8 @@ def tell_a_friend():
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
     try:
-        uid = request.json['user_id']  # user that's notifying a friend
+        u = current_identity
+        uid = u.id
         friend = request.json['friend']  # email address of friend to notify
     except KeyError:
         uid = None
@@ -451,6 +459,7 @@ def tell_a_friend():
     return make_response(jsonify({'msg': error.error_string('FRIEND_REQ_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @app.route("/vote", methods=['POST'])
+@jwt_required()
 def cast_vote():
     """
      Cast Vote
@@ -501,7 +510,8 @@ def cast_vote():
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
     try:
-        uid = request.json['user_id']
+        u = current_identity
+        uid = u.id
         votes = request.json['votes']  # list of dict() with the actual votes
     except KeyError:
         uid = None
@@ -534,7 +544,7 @@ def return_ballot(session, uid, cid):
     return make_response(jsonify(ballots), status.HTTP_200_OK)
 
 @app.route("/image", methods=['GET'])
-#@jwt_required()
+@jwt_required()
 def image_download():
     """
     Image Download
@@ -575,7 +585,8 @@ def image_download():
     if not request.args:
         return make_response(jsonify({'msg': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
-    uid = request.args.get('user_id')
+    u = current_identity
+    uid = u.id
     filename = request.args.get('filename')
 
     if uid is None or uid == 'None' or filename is None or filename == 'None':
@@ -590,7 +601,7 @@ def image_download():
     return make_response(jsonify({'msg':error.error_string('NO_PHOTO')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @app.route("/lastsubmission", methods=['GET'])
-#@jwt_required()
+@jwt_required()
 def last_submission():
     """
     Get Last Submission
@@ -623,12 +634,8 @@ def last_submission():
       default:
         description: "unexpected error"
     """
-    if not request.args:
-        return make_response(jsonify({'msg':error.error_string('NO_ARGS')}), status.HTTP_400_BAD_REQUEST)
-
-    uid = request.args.get('user_id')
-    if uid is None or uid == 'None':
-        return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
+    u = current_identity
+    uid = u.id
 
     session = dbsetup.Session()
     d = photo.Photo.last_submitted_photo(session, uid)
@@ -643,7 +650,7 @@ def last_submission():
     return make_response(jsonify({'image':i.decode("utf-8"), 'category':c.to_json()}), status.HTTP_200_OK)
 
 @app.route("/photo", methods=['POST'])
-#@jwt_required()
+@jwt_required()
 def photo_upload():
     """
     Upload Photo
@@ -700,7 +707,8 @@ def photo_upload():
         image_data_b64 = request.json['image']
         image_type     = request.json['extension']
         cid    = request.json['category_id']
-        uid = request.json['user_id']
+        u = current_identity
+        uid = u.id
     except KeyError:
         cid = None
         uid = None
@@ -709,7 +717,6 @@ def photo_upload():
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     image_data = base64.b64decode(image_data_b64)
-#    uid = current_identity
     session = dbsetup.Session()
     d = photo.Photo().save_user_image(session, image_data, image_type, uid, cid)
     session.close()
