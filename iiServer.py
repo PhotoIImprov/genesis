@@ -22,6 +22,8 @@ app.config['SECRET_KEY'] = 'super-secret'
 
 is_gunicorn = False
 
+__version__ = '0.1.0' #our version string
+
 # specify the JWT package's call backs for authentication of username/password
 # and subsequent identity from the payload in the token
 jwt = JWT(app, usermgr.authenticate, usermgr.identity)
@@ -55,11 +57,12 @@ def spec():
 def hello():
     htmlbody = "<html>\n<body>\n"
     if dbsetup.is_gunicorn():
-        htmlbody += "<h1>ImageImprov Hello World from Gunicorn!</h1><br>"
+        htmlbody += "<h1>ImageImprov Hello World from Gunicorn!</h1>"
         htmlbody += "<img src=\"/static/gunicorn_banner.jpg\"/>"
     else:
-        htmlbody += "<h1>ImageImprov Hello World from Flask!</h1><br>"
+        htmlbody += "<h1>ImageImprov Hello World from Flask!</h1>"
 
+    htmlbody += "<h2>Version {}</h2><br>".format(__version__)
     htmlbody += "<img src=\"/static/python_flask_mysql_banner.jpg\"/>\n"
 
     img_folder = dbsetup.image_store(dbsetup.determine_environment(None))
