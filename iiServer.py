@@ -203,7 +203,7 @@ def get_category():
     """
     uid = current_identity.id
 
-    if uid is None or uid == 'None':
+    if uid is None:
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
@@ -275,7 +275,7 @@ def get_leaderboard():
     u = current_identity
     uid = u.id
 
-    if cid is None or cid == 'None' or uid is None or uid is 'None':
+    if cid is None or cid == 'None' or uid is None:
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
     tm = voting.TallyMan()
@@ -338,7 +338,7 @@ def get_ballot():
     uid = u.id
     cid = request.args.get('category_id')
 
-    if uid is None or cid is None or uid == 'None' or cid == 'None':
+    if uid is None or cid is None or cid == 'None':
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
@@ -589,7 +589,7 @@ def image_download():
     uid = u.id
     filename = request.args.get('filename')
 
-    if uid is None or uid == 'None' or filename is None or filename == 'None':
+    if uid is None or filename is None or filename == 'None':
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
