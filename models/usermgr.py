@@ -15,14 +15,15 @@ class AnonUser(Base):
         if session is None or m_guid is None:
             return None
 
-        m_guid = m_guid.upper()
+        m_guid = m_guid.upper().translate({ord(c): None for c in '-'})
 
         try:
             au = session.query(AnonUser).filter_by(guid = m_guid).first()
+            return au
         except pymysql.err.IntegrityError as e:
             raise
 
-        return au
+        return None
 
     @staticmethod
     def get_anon_user_by_id(session, anon_id):
