@@ -22,7 +22,7 @@ app.config['SECRET_KEY'] = 'super-secret'
 
 is_gunicorn = False
 
-__version__ = '0.1.0' #our version string
+__version__ = '0.1.0' #our version string PEP 440
 
 # specify the JWT package's call backs for authentication of username/password
 # and subsequent identity from the payload in the token

@@ -70,7 +70,7 @@ class TestUser:
     def set_token(self, tk):
         self._token = tk
     def get_token(self):
-        return self_token         
+        return self._token
 
 class iiBaseUnitTest(unittest.TestCase):
     def setUp(self):
@@ -207,7 +207,7 @@ class TestLogin(iiBaseUnitTest):
         data = json.loads(rsp.data.decode("utf-8"))
         token = data['access_token']
         assert(rsp.status_code == 200 and token is not None)
-        tu._token = token
+        tu.set_token(token)
         tu._ia = datetime.datetime.now()
         return
 
@@ -762,6 +762,7 @@ class TestLeaderBoard(iiBaseUnitTest):
 
         # okay, we need to post this
         cid = tu.get_cid()
+        self.set_token(tu.get_token())
         ext = 'JPEG'
         img = base64.standard_b64encode(ph)
         b64img = img.decode("utf-8")
@@ -794,8 +795,8 @@ class TestLeaderBoard(iiBaseUnitTest):
 
     def get_ballot_by_user(self, tu):
         assert(tu is not None)
-        assert(tu._token is not None)
-        self.set_token(tu._token)
+        assert(tu.get_token() is not None)
+        self.set_token(tu.get_token())
         rsp = self.app.get(path='/ballot', query_string=urlencode({'category_id':tu.get_cid()}),
                             headers=self.get_header_html())
 

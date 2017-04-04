@@ -39,7 +39,8 @@ class AnonUser(Base):
         if session is None or m_guid is None:
             return False
 
-        m_guid = m_guid.upper()
+        # make uppercase, strip out hyphens
+        m_guid = m_guid.upper().translate({ord(c): None for c in '-'})
 
         # First check if guid exists in the database
         au = AnonUser.find_anon_user(session, m_guid)
@@ -139,8 +140,9 @@ def authenticate(username, password):
     # after we hash the one we were sent
     session = Session()
     if AnonUser.is_guid(username, password):
-        # this is a guid, see if it's in our database
-        foundAnonUser = AnonUser.find_anon_user(session, username)
+        # this is a guid, see if it's in our database after we normalize it
+        guid = username.upper().translate({ord(c): None for c in '-'})
+        foundAnonUser = AnonUser.find_anon_user(session, guid)
         session.close()
         if foundAnonUser is not None:
             return foundAnonUser

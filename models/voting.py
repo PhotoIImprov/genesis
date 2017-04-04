@@ -1,5 +1,6 @@
 from sqlalchemy        import Column, Integer, DateTime, text, ForeignKey, exc
 from sqlalchemy.orm import relationship
+from sqlalchemy import exists, and_
 import errno
 from dbsetup           import Base, Session
 from models import photo, category, usermgr
@@ -121,9 +122,8 @@ class Ballot(Base):
         if uid is None or cid is None or count is None:
             raise BaseException(errno.EINVAL)
 
-        q = session.query(photo.Photo)\
-        .outerjoin(BallotEntry)\
-        .filter(BallotEntry.ballot_id == None).filter(photo.Photo.user_id != uid).filter(photo.Photo.category_id == cid).limit(count)
+        q = session.query(photo.Photo).filter(photo.Photo.category_id == cid).\
+            filter(~exists().where(BallotEntry.photo_id == photo.Photo.id)).limit(count)
 
         p = q.all()
         return p
