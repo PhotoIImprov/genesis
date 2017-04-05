@@ -16,7 +16,7 @@ from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 from io import BytesIO
 import piexif
-
+from retrying import retry
 
 class Photo(Base):
 
@@ -283,9 +283,15 @@ class Photo(Base):
         # filesystem, so we are just adding this file
         thumb_fn = self.create_thumb_filename()
 
-        th_img.save(thumb_fn, exif=exif_bytes)
+        self.gcs_save_image(th_img, thumb_fn, exif_bytes)
         return
 
+    # since Google Cloud storage can be flakey, we need to retry a couple of times. Between each
+    # retry we need a random backup, with a maxium wait and # of times we'll retry.
+    # so we are waiting for an exception to be thrown, then we go into our retrying...
+    @retry(wait_exponential_multiplier=100, wait_exponential_max=1000, stop_max_attempt_number=10)
+    def gcs_save_image(self, pil_img, fn, exif_bytes):
+        pil_img.save(fn, exif=exif_bytes)
 
     def read_photo_to_b64(self):
         self._image_type = "JPEG"       # need a better way of doing this!

@@ -3,7 +3,9 @@ import unittest
 import json
 import base64
 import requests
-from . test_REST_login import TestUser
+from test_REST_login import TestUser
+from models import category
+from werkzeug.datastructures import Headers
 
 
 # ************************************************************************
@@ -49,54 +51,103 @@ class InitEnvironment(unittest.TestCase):
              'crazycow@netsoft-usa.com',
              'harry.collins@netsoft-usa.com',
              'hcollins@altaitech.com',
-             'dblankley@uproar.com'}
+             'dblankley@uproar.com',
+
+              'dblankley@uproar.us',
+              'bp100a@hotmail.us'}
 
     _base_url = None
 
-    def upload_photo(self, tu, photo_name):
+    def upload_photo(self, tu, photo_name, cid):
 
         dir_path = os.path.dirname(os.path.realpath(__file__))
         cwd = os.getcwd()
 
         # we have our user, now we need a photo to upload
-        fn = '../photos/' + photo_name
+        fn = 'photos/' + photo_name
         ft = open(fn, 'rb')
         assert (ft is not None)
         ph = ft.read()
         assert (ph is not None)
 
+        # compose header with users authorization token
+        h = Headers()
+        h.add('content-type', 'application/json')
+        h.add('Authorization', 'JWT ' + tu.get_token())
+
         # okay, we need to post this
-        uid = tu.get_uid()
-        cid = tu.get_cid()
         ext = 'JPEG'
         img = base64.standard_b64encode(ph)
         b64img = img.decode("utf-8")
         url = self._base_url + '/photo'
-        rsp = requests.post(url, data=json.dumps(dict(user_id=uid, category_id=cid, extension=ext, image=b64img)), headers={'content-type':'application/json'})
+        rsp = requests.post(url, data=json.dumps(dict(category_id=cid, extension=ext, image=b64img)), headers=h)
         assert(rsp.status_code == 201)
         return
 
-    def register_and_login(self, tu):
+    def register_and_authenticate(self, tu):
         u = tu.get_username()
         p = tu.get_password()
         g = tu.get_guid()
         url = self._base_url + '/register'
-        rsp = requests.post(url, data=json.dumps(dict(username=u, password=p, guid=g)), headers={'content-type':'application/json'})
-        assert(rsp.status_code == 400 or rsp.status_code == 201)
+        a_rsp = requests.post(url, data=json.dumps(dict(username=u, password=p, guid=g)), headers={'content-type':'application/json'})
+        assert(a_rsp.status_code == 400 or a_rsp.status_code == 201)
 
          # now let's login this user
-        url = self._base_url + '/login'
-        rsp = requests.post(url, data=json.dumps(dict(username=u, password=p, guid=g)), headers={'content-type':'application/json'})
-        assert(rsp.status_code == 200)
+        url = self._base_url + '/auth'
+        rsp = requests.post(url, data=json.dumps(dict(username=u, password=p)), headers={'content-type':'application/json'})
 
         if rsp.status_code == 200:
             data = json.loads(rsp.content.decode("utf-8"))
-            uid = data['user_id']
-            cid = data['category_id']
-            tu.set_uid(uid)
-            tu.set_cid(cid)
+            token = data['access_token']
+            tu.set_token(token)
+        else:
+            return None # this user didn't work!
 
         return rsp
+
+    def read_category(self, token):
+
+        # compose header with users authorization token
+        h = Headers()
+        h.add('content-type', 'text/html')
+        h.add('Authorization', 'JWT ' + token)
+
+        # now let's login this user
+        url = self._base_url + '/category'
+        rsp = requests.get(url, headers=h)
+        assert(rsp.status_code == 200)
+
+        cl = json.loads(rsp.content.decode("utf-8"))
+        return cl
+
+    def get_category_by_state(self, target_state, token):
+
+        cl = self.read_category(token)
+        assert(cl is not None)
+
+        for c in cl:
+            state = c['state']
+            cid = c['id']
+            desc = c['description']
+            if state == 'VOTING' and target_state == category.CategoryState.VOTING:
+                return cid
+            if state == 'UPLOAD' and target_state == category.CategoryState.UPLOAD:
+                return cid
+
+        # we didn't find an upload category, set the first one to upload
+        c = cl[0]
+        cid = c['id']
+
+        h = Headers()
+        h.add('content-type', 'application/json')
+        h.add('Authorization', 'JWT ' + token)
+
+        url = self._base_url + '/setcategorystate'
+
+        rsp = requests.post(url, data=json.dumps(dict(category_id=cid, state=target_state.value)),
+                            headers=h)
+        assert(rsp.status_code == 200)
+        return cid
 
     def test_initialize_server(self):
         # okay, we're going to create users & upload photos
@@ -105,13 +156,20 @@ class InitEnvironment(unittest.TestCase):
         for uname in self._users:
             tu = TestUser()
             tu.create_user_with_name(uname)
-            rsp = self.register_and_login(tu)
-            user_list.append(tu)
+            rsp = self.register_and_authenticate(tu)
+            if rsp is not None:
+                user_list.append(tu)
+
+        if len(user_list) == 0:
+            return
+
+        # get the uploading category
+        cid = self.get_category_by_state(category.CategoryState.UPLOAD, tu.get_token())
 
         # okay, we've registered & logged in our users
         # Now let's upload some images
         for tu in user_list:
             for pn in self._photos:
-                self.upload_photo(tu, pn)
+                self.upload_photo(tu, pn, cid)
 
         return

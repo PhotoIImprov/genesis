@@ -166,12 +166,6 @@ def get_category():
       - text/plain
     produces:
       - application/json
-    parameters:
-      - in: query
-        name: user_id
-        description: "The user context to fetch category list for"
-        required: true
-        type: integer
     responses:
       '200':
         description: state changed
@@ -228,11 +222,6 @@ def get_leaderboard():
     tags:
       - user
     parameters:
-      - in: query
-        name: user_id
-        description: "User for whom a leaderboard is being retrieved"
-        required: true
-        type: integer
       - in: query
         name: category_id
         description: Category of the leaderboard being requested
@@ -301,11 +290,6 @@ def get_ballot():
       - voting
     parameters:
       - in: query
-        name: user_id
-        description: "The user context to fetch category list for"
-        required: true
-        type: integer
-      - in: query
         name: category_id
         description: "The category we want to vote on"
         required: true
@@ -369,11 +353,8 @@ def accept_friendship():
             schema:
               id: friendreq
               required:
-                - user_id
                 - request_id
               properties:
-                user_id:
-                  type: integer
                 request_id:
                   type: integer
         responses:
@@ -421,11 +402,8 @@ def tell_a_friend():
         schema:
           id: req_a_friend
           required:
-            - user_id
             - friend
           properties:
-            user_id:
-              type: integer
             friend:
               type: string
     responses:
@@ -479,11 +457,8 @@ def cast_vote():
          schema:
            id: vote_args
            required:
-             - user_id
              - votes
            properties:
-             user_id:
-               type: integer
              votes:
                type: array
                items:
@@ -560,11 +535,6 @@ def image_download():
       - application/json
     parameters:
       - in: query
-        name: user_id
-        description: "The user context for validation of image retrieval"
-        required: true
-        type: integer
-      - in: query
         name: filename
         description: "The filename you wish to retrieve"
         required: true
@@ -613,13 +583,6 @@ def last_submission():
       - user
     consumes:
         - application/json
-    parameters:
-      - in: body
-        required: true
-        schema:
-          properties:
-            user_id:
-              type: integer
     responses:
       200:
         description: "last submission found"
@@ -671,14 +634,10 @@ def photo_upload():
         schema:
           id: upload_photo
           required:
-            - user_id
             - category_id
             - extension
             - image
           properties:
-            user_id:
-              type: integer
-              description: the user context, owner of this photo being uploaded
             category_id:
               type: integer
               description: the category id of the current category accepting uploads
