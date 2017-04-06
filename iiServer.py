@@ -15,6 +15,7 @@ from models import category
 from models import error
 import json
 from flask_swagger import swagger
+from leaderboard.leaderboard import Leaderboard
 
 app = Flask(__name__)
 app.debug = True
@@ -89,6 +90,17 @@ def hello():
             htmlbody += "\n<br><u>number photos uploaded = <b>{}</b></u>".format(num_photos)
             htmlbody += "\n<br><br>"
         htmlbody += "\n</blockquote>"
+
+    # let's see if we can access the leaderboard class, hence redis server is up
+    lb_name = 'configtest'
+    try:
+        lb = Leaderboard(lb_name, host='localhost', port='6379', page_size=10)
+        lb.check_member('no one')
+        htmlbody += "<img src=\"/static/redis.png\"/>"
+        htmlbody += "<br>leader board \'{}\' created<br>".format(lb_name)
+        lb.delete_leaderboard()
+    except:
+        htmlbody += "\n<h2>Cannot create leaderboard!!</h2> (is redis server running?)<br>"
 
     htmlbody += "\n</body>\n</html>"
     return htmlbody

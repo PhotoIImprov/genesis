@@ -222,6 +222,10 @@ class TestLogin(iiBaseUnitTest):
         assert(rsp.status_code == 200 and token is not None)
         self.set_token(token)
 
+        # see if token works
+        rsp = self.app.get(path='/category', headers=self.get_header_html())
+        assert(rsp.status_code == 200)
+
     def test_bad_password_auth(self):
         # first register a user
         tu = TestUser()

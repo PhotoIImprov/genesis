@@ -130,13 +130,21 @@ class Ballot(Base):
         return p
 
     @staticmethod
-    def read_photos_not_voted(session, uid, cid, count):
+    def read_photos_by_votes(session, uid, cid, num_votes, count):
         if uid is None or cid is None or count is None:
             raise BaseException(errno.EINVAL)
 
-        q = session.query(photo.Photo).filter(photo.Photo.category_id == cid).\
-            filter(photo.Photo.times_voted == 0).\
-            filter(photo.Photo.user_id != uid).limit(count)
+        # if ballotentry has been voted on, exclude photos the user has already seen
+        if num_votes == 0:
+            q = session.query(photo.Photo).filter(photo.Photo.category_id == cid).\
+                filter(photo.Photo.times_voted == num_votes).\
+                filter(photo.Photo.user_id != uid).limit(count)
+        else:
+            q = session.query(photo.Photo).filter(photo.Photo.category_id == cid).\
+                join(BallotEntry, photo.Photo.id == BallotEntry.photo_id).\
+                filter(photo.Photo.times_voted == num_votes).\
+                filter(BallotEntry.user_id != uid).\
+                filter(photo.Photo.user_id != uid).limit(count)
 
         p = q.all()
         return p
@@ -170,11 +178,14 @@ class Ballot(Base):
         if len(photos_for_ballot) >= count:
             return {'error': None, 'arg':photos_for_ballot}
 
-        remaining_photos_needed = count - len(photos_for_ballot)
-        # need more photos to construct the ballot
-        p = Ballot.read_photos_not_voted(session, uid, cid, remaining_photos_needed)
-        if p is not None:
-            photos_for_ballot.extend(p)
+        for num_votes in range(0,4):
+            remaining_photos_needed = count - len(photos_for_ballot)
+            if remaining_photos_needed == 0:
+                break;
+            # need more photos to construct the ballot
+            p = Ballot.read_photos_num_votes(session, uid, cid, num_votes, remaining_photos_needed)
+            if p is not None:
+                photos_for_ballot.extend(p)
 
         return {'error': None, 'arg':photos_for_ballot}
 
