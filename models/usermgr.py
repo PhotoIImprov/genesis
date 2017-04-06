@@ -166,11 +166,11 @@ def identity(payload):
     # called with decrypted payload to establish identity
     # based on a user id
     user_id = payload['identity']
-    u = User.find_user_by_id(Session(), user_id)
+    session = Session()
+    au = AnonUser.get_anon_user_by_id(session, user_id)
+    session.close()
 
-    # if u doesn't exist, that's really bad, it's a corrupted token or something
-    # really strange. We should log this
-    return u
+    return au
 
 #================================= F R I E N D - L I S T ========================================
 class Friend(Base):
