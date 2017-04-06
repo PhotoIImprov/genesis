@@ -18,7 +18,7 @@ from flask_swagger import swagger
 
 app = Flask(__name__)
 app.debug = True
-app.config['SECRET_KEY'] = 'super-secret'
+app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
@@ -26,8 +26,10 @@ __version__ = '0.1.0' #our version string PEP 440
 
 # specify the JWT package's call backs for authentication of username/password
 # and subsequent identity from the payload in the token
+#JWT_AUTH = { 'JWT_EXPIRATION_DELTA': datetime.timedelta(days=10) } # 10 days before expiry
+app.config['JWT_EXPIRATION_DELTA'] = datetime.timedelta(days=10)
+
 jwt = JWT(app, usermgr.authenticate, usermgr.identity)
-JWT_AUTH = { 'JWT_EXPIRATION_DELTA': datetime.timedelta(days=10) } # 10 days before expiry
 
 @app.route("/protected")
 @jwt_required()
