@@ -123,7 +123,20 @@ class Ballot(Base):
             raise BaseException(errno.EINVAL)
 
         q = session.query(photo.Photo).filter(photo.Photo.category_id == cid).\
+            filter(photo.Photo.user_id != uid).\
             filter(~exists().where(BallotEntry.photo_id == photo.Photo.id)).limit(count)
+
+        p = q.all()
+        return p
+
+    @staticmethod
+    def read_photos_not_voted(session, uid, cid, count):
+        if uid is None or cid is None or count is None:
+            raise BaseException(errno.EINVAL)
+
+        q = session.query(photo.Photo).filter(photo.Photo.category_id == cid).\
+            filter(photo.Photo.times_voted == 0).\
+            filter(photo.Photo.user_id != uid).limit(count)
 
         p = q.all()
         return p
@@ -154,19 +167,14 @@ class Ballot(Base):
         photos_for_ballot = []
         photos_for_ballot = Ballot.read_photos_not_balloted(session, uid, cid, count)
 
-        for idx in range(1,3):
-            if len(photos_for_ballot) >= count:
-                return {'error': None, 'arg':photos_for_ballot}
+        if len(photos_for_ballot) >= count:
+            return {'error': None, 'arg':photos_for_ballot}
 
-            remaining_photos_needed = count - len(photos_for_ballot)
-            # need more photos to construct the ballot
-            q = session.query(photo.Photo)\
-            .outerjoin(BallotEntry)\
-            .filter(BallotEntry.ballot_id == idx, BallotEntry.user_id != uid).limit(remaining_photos_needed)
-            p = q.all()
-            if p is not None:
-                photos_for_ballot.extend(p)
-
+        remaining_photos_needed = count - len(photos_for_ballot)
+        # need more photos to construct the ballot
+        p = Ballot.read_photos_not_voted(session, uid, cid, remaining_photos_needed)
+        if p is not None:
+            photos_for_ballot.extend(p)
 
         return {'error': None, 'arg':photos_for_ballot}
 
@@ -299,7 +307,7 @@ class TallyMan():
 
         # before we switch on voting, create the leaderboard
         lb_name = self.leaderboard_name(c.get_id())
-        lb = Leaderboard(lb_name)
+        lb = Leaderboard(lb_name, host='localhost', port='6379', page_size=10)
         if lb is None:
             return None
 
