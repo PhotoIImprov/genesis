@@ -41,7 +41,7 @@ def protected():
 def spec():
     swag = swagger(app)
     swag['info']['title'] = "ImageImprov API"
-    swag['info']['version'] = "1.0.0"
+    swag['info']['version'] = "0.1.0"
     swag['info']['description'] = "The first version of the ImageImprov API is purely designed to interaction\n"\
                                  "with the ImageImprov mobile clients. We are aiming for a secure interface that\n" \
                                  "will implement our needed features in a simple programming model\n"\

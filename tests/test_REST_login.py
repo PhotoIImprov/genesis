@@ -714,10 +714,46 @@ class TestCategory(iiBaseUnitTest):
 
 class TestLeaderBoard(iiBaseUnitTest):
 
-    _photos = {'Portrait.JPG',
+    _photos = {'Cute_Puppy.jpg',
+              'Emma Passport.jpg',
+              'Galaxy Edge 7 (full res)jpg.jpg',
+              'Galaxy Edge 7 Cat  (full res)jpg.jpg',
+              'Galaxy Edge 7 Office Desk (full res, hdr).jpg',
+              'Hawaii Palm Tree.JPG',
+              'iPhone 6 Spider web (full res).JPG',
+              'iPhone 7 statue and lake (full res).jpg',
+              'iPhone 7 Yellow Rose (full res).jpg',
+              'Netsoft USA Company Picture 1710.jpg',
+              'PrimRib.JPG',
+              'Suki.JPG',
+              'Turtle.JPG',
+               'Portrait.JPG',
                'Rotate90CW.JPG',
                'Rotate180CW.JPG',
-               'Rotate270CW.JPG'}
+               'Rotate270CW.JPG',
+
+               '2012-05-23 19.45.55.jpg',
+               '20130826_170610_A.jpg',
+               'img_0264_edited-100686951-orig.jpg',
+               'img_0026.jpg',
+               'img_0034.jpg',
+               'apple-iphone-7-camera-samples-27.jpg',
+               'Apple-iPhone-7-camera-photo-sample-2.jpg',
+               'iphone-7-plus-camera-trout.jpg',
+               'IMG_0307.JPG',
+               'iPhone-7-Camera-AndyNicolaides.jpg',
+               'img_0017.jpg',
+               '9lqqdnm.jpg',
+               '001-B-Moto-Z-Force-Droid-Samples.jpg',
+               'moto-z-play-camera-sample.jpg',
+               'moto_z_play_camera_samples_7.jpg',
+               'sample1.jpg',
+               'Moto-Z-Force-Droid.jpg',
+               'tf2fzhr.jpg',
+               'IMG_1218.JPG',
+               'sam_4089.jpg',
+               'vetndhl.jpg'
+               }
 
     _users = {'hcollins@gmail.com',
               'bp100a@hotmail.com',

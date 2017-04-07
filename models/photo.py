@@ -257,18 +257,21 @@ class Photo(Base):
         pil_img = Image.open(file_jpegdata)
         info = pil_img._getexif()
         exif_data = {}
-        for tag, value in info.items():
-            decoded = TAGS.get(tag, tag)
-            if decoded == "GPSInfo":
-                gps_data = {}
-                for t in value:
-                    sub_decoded = GPSTAGS.get(t,t)
-                    gps_data[sub_decoded] = value[t]
-                exif_data[decoded] = gps_data
-            else:
-                exif_data[decoded] = value
+        if info is not None:    # images could be stripped of EXif data
+            for tag, value in info.items():
+                decoded = TAGS.get(tag, tag)
+                if decoded == "GPSInfo":
+                    gps_data = {}
+                    for t in value:
+                        sub_decoded = GPSTAGS.get(t,t)
+                        gps_data[sub_decoded] = value[t]
+                    exif_data[decoded] = gps_data
+                else:
+                    exif_data[decoded] = value
 
-        exif_dict = piexif.load(pil_img.info["exif"])
+            exif_dict = piexif.load(pil_img.info["exif"])
+        else:
+            exif_dict = self.make_dummy_exif()
 
         # scale the image
         new_width = int(pil_img.width * 0.2)
@@ -292,6 +295,30 @@ class Photo(Base):
     @retry(wait_exponential_multiplier=100, wait_exponential_max=1000, stop_max_attempt_number=10)
     def gcs_save_image(self, pil_img, fn, exif_bytes):
         pil_img.save(fn, exif=exif_bytes)
+
+    def make_dummy_exif(self):
+        zeroth_ifd = {piexif.ImageIFD.Make: u"Unknown",
+                      piexif.ImageIFD.XResolution: (96, 1),
+                      piexif.ImageIFD.YResolution: (96, 1),
+                      piexif.ImageIFD.Software: u"piexif"
+                      }
+        exif_ifd = {piexif.ExifIFD.DateTimeOriginal: u"2099:09:29 10:10:10",
+                    piexif.ExifIFD.LensMake: u"LensMake",
+                    piexif.ExifIFD.Sharpness: 65535,
+                    piexif.ExifIFD.LensSpecification: ((1, 1), (1, 1), (1, 1), (1, 1)),
+                    }
+        gps_ifd = {piexif.GPSIFD.GPSVersionID: (2, 0, 0, 0),
+                   piexif.GPSIFD.GPSAltitudeRef: 1,
+                   piexif.GPSIFD.GPSDateStamp: u"1999:99:99 99:99:99",
+                   }
+        first_ifd = {piexif.ImageIFD.Make: u"Unknown",
+                     piexif.ImageIFD.XResolution: (40, 1),
+                     piexif.ImageIFD.YResolution: (40, 1),
+                     piexif.ImageIFD.Software: u"piexif"
+                     }
+        exif_dict = {"0th": zeroth_ifd, "Exif": exif_ifd, "GPS": gps_ifd, "1st": first_ifd}
+
+        return exif_dict
 
     def read_photo_to_b64(self):
         self._image_type = "JPEG"       # need a better way of doing this!
