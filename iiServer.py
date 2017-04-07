@@ -16,10 +16,15 @@ from models import error
 import json
 from flask_swagger import swagger
 from leaderboard.leaderboard import Leaderboard
+import random
+import logging
+
 
 app = Flask(__name__)
 app.debug = True
 app.config['SECRET_KEY'] = 'imageimprove3077b47'
+
+logger = logging.getLogger(__name__)
 
 is_gunicorn = False
 
@@ -102,6 +107,25 @@ def hello():
     except:
         htmlbody += "\n<h2>Cannot create leaderboard!!</h2> (is redis server running?)<br>"
 
+    au = usermgr.AnonUser.create_anon_user(session, '99275132efe811e6bc6492361f002671')
+    if au is not None:
+        u = usermgr.User.create_user(session, au.guid, 'hcollins@gmail.com', 'pa55w0rd')
+        if u is not None:
+            # see if we can read it back
+            foundUser = usermgr.User.find_user_by_email(session, 'hcollins@gmail.com')
+            if foundUser is not None:
+                foundUser.change_password(session, 'pa55w0rd')
+                htmlbody += "successfully created a test user<br>"
+            else:
+                htmlbody += "<h2>Problem finding user just created!</h2><br>"
+        else:
+            htmlbody += "<h2>Could not create a user account!!</h2><br>"
+    else:
+        htmlbody += "<h2>Could not create an anonymous user!!</h2><br>"
+
+    # just some fun!
+    quote, author = random.choice(dbsetup.QUOTES)
+    htmlbody += "\n<br><b>Quote </b>&nbsp<i>{}</i>&nbsp by {}<br>".format(quote, author)
     htmlbody += "\n</body>\n</html>"
     return htmlbody
 
@@ -865,17 +889,5 @@ def register():
 
 if __name__ == '__main__':
     dbsetup.metadata.create_all(bind=dbsetup.engine, checkfirst=True)
-
-    session = dbsetup.Session()
-
-    au = usermgr.AnonUser.create_anon_user(session, '99275132efe811e6bc6492361f002671')
-    if au is not None:
-        u = usermgr.User.create_user(session, au.guid, 'hcollins@gmail.com', 'pa55w0rd')
-        if u is not None:
-            # see if we can read it back
-            foundUser = usermgr.User.find_user_by_email(session, 'hcollins@gmail.com')
-            if foundUser is not None:
-                foundUser.change_password(session, 'pa55w0rd')
-
     if not dbsetup.is_gunicorn():
         app.run(host='0.0.0.0', port=8080)

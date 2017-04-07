@@ -3,6 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm    import sessionmaker
 from enum import Enum
 import os
+import logging
 
 class ImageType(Enum):
     UNKNOWN = 0
@@ -71,3 +72,27 @@ metadata = Base.metadata
 
 metadata.create_all(bind=engine, checkfirst=True)
 
+# format for logging information
+LOGGING_FORMAT = '%(asctime)-15s %(clientip)s %(user)-8s %(message)s'
+LOGGING_LEVEL = logging.DEBUG
+
+# just for fun
+QUOTES = (
+    ('He was a wise man who invented beer.', 'Plato'),
+    ('Beer is made by men, wine by God.', 'Martin Luther'),
+    ('Who cares how time advances? I am drinking ale today.', 'Edgar Allen Poe'),
+    ('It takes beer to make thirst worthwhile.', 'German proverb'),
+    ('Beer: So much more than just a breakfast drink.', 'Homer Simpson'),
+    ('History flows forward on a river of beer.', 'Anonymous'),
+    ('Work is the curse of the drinking classes.', 'Oscar Wilde'),
+    ('For a quart of ale is a dish for a king.', 'William Shakespeare, "A Winter\'s Tale"'),
+    ('Beer. Now there\'s a temporary solution.', 'Homer Simpson'),
+    ('What care I how time advances? I am drinking ale today', 'Edgar Allen Poe'),
+    ('Beer, if drunk in moderation, softens the temper, cheers the spirit and promotes health', 'Thomas Jefferson'),
+    ('In a study, scientists report that drinking beer can be good for the liver. I\'m sorry, did I say scientists? I mean Irish people'),
+    ('Most people hate the taste of beer - to being with. It is, however, a prejudice.', 'Winston Churchill'),
+    ('For a quart of Ale is a dish for a king', 'William Shakespeare'),
+    ('I am a firm believer in the people. If given the truth, they can be depended upon to meet any national crisis. The great point is to bring them the real facts, and beer', 'Abraham Lincoln'),
+
+    ('Whoever drinks beer, he is quick to sleep; whoever sleeps long, does not sin; whoever does not sin, enters Heaven! Thus, let us drink beer!', 'Martin Luther')
+)
