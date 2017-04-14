@@ -4,6 +4,7 @@ from sqlalchemy.orm    import sessionmaker
 from enum import Enum
 import os
 import logging
+from flask import request
 
 class ImageType(Enum):
     UNKNOWN = 0
@@ -61,6 +62,10 @@ def is_gunicorn():
     _is_gunicorn = "gunicorn" in os.environ.get("SERVER_SOFTWARE", "")
     return _is_gunicorn
 
+def log_error(req, err_msg, uid):
+    d = {'clientip': req.remote_addr, 'user': uid}
+    logger.error('Error: %s', err_msg, extra=d)
+
 # see what environment we are running on
 
 
@@ -74,7 +79,10 @@ metadata.create_all(bind=engine, checkfirst=True)
 
 # format for logging information
 LOGGING_FORMAT = '%(asctime)-15s %(clientip)s %(user)-8s %(message)s'
-LOGGING_LEVEL = logging.DEBUG
+LOGGING_LEVEL = logging.ERROR
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=LOGGING_LEVEL, format=LOGGING_FORMAT)
 
 # just for fun
 QUOTES = (

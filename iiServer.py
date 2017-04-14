@@ -24,8 +24,6 @@ app = Flask(__name__)
 app.debug = True
 app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
-logger = logging.getLogger(__name__)
-
 is_gunicorn = False
 
 __version__ = '0.1.0' #our version string PEP 440
@@ -125,7 +123,7 @@ def hello():
 
     # just some fun!
     quote, author = random.choice(dbsetup.QUOTES)
-    htmlbody += "\n<br><b>Quote </b>&nbsp<i>{}</i>&nbsp by {}<br>".format(quote, author)
+    htmlbody += "\n<br><b>Quote </b>&nbsp<i>{}</i>&nbsp by {}<br><br>".format(quote, author)
     htmlbody += "\n</body>\n</html>"
     return htmlbody
 
@@ -187,6 +185,8 @@ def set_category_state():
     if c is not None:
        return make_response(jsonify({'msg': error.error_string('CATEGORY_STATE')}),status.HTTP_200_OK)
 
+    dbsetup.log_error(request, error.iiServerErrors.error_message(d['error']), None)
+
     return make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -239,6 +239,7 @@ def get_category():
     uid = current_identity.id
 
     if uid is None:
+        dbsetup.log_error(request, error.error_string('MISSING_ARGS'), None)
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
@@ -246,6 +247,7 @@ def get_category():
     cl = category.Category.active_categories(session, uid)
     session.close()
     if cl is None:
+        dbsetup.log_error(request, error.error_string('CATEGORY_ERROR'), None)
         return make_response(jsonify({'msg': error.error_string('CATEGORY_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     categories = category.Category.list_to_json(cl)
