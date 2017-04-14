@@ -6,8 +6,6 @@ from dbsetup           import Base
 import os, os.path, errno
 import dbsetup
 from models import category
-import cv2
-import numpy as np
 import pymysql
 import base64
 import sys
