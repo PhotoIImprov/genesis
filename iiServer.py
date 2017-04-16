@@ -76,7 +76,20 @@ def hello():
     htmlbody += "\n<br>Flask instance path = \"" + app.instance_path + "\"\n"
 
     htmlbody += "<br>\n"
+
+    # display current connection string, without username/password!
+    cs = dbsetup.connection_string(None)
+    cs2 = cs.split("@",1)
+    htmlbody += "<h2>connection string:</h2>" + cs2[1] + "<br>\n"
+
     session = dbsetup.Session()
+
+    rd = voting.ServerList().get_redis_server(session)
+    if rd is not None:
+        htmlbody += "<h3>Redis server:</h3>" + rd['ip'] + ':' + rd['port'] + "<br>\n"
+    else:
+        htmlbody += "<h3>Error reading Redis server configuration!</h3><br>\n"
+
     cl = category.Category.active_categories(session, 1)
     if cl is None:
         htmlbody += "\n<br>No category information retrieved (ERROR)<br>"
@@ -125,6 +138,9 @@ def hello():
     quote, author = random.choice(dbsetup.QUOTES)
     htmlbody += "\n<br><b>Quote </b>&nbsp<i>{}</i>&nbsp by {}<br><br>".format(quote, author)
     htmlbody += "\n</body>\n</html>"
+
+    session.close()
+
     return htmlbody
 
 @app.route("/setcategorystate", methods=['POST'])

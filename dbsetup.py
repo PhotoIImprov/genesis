@@ -45,7 +45,7 @@ def connection_string(environment):
         return 'mysql+pymysql://python:python@192.168.1.149:3306/imageimprov'
 
     if environment == EnvironmentType.PROD:
-        return 'mysql+pymysql://python:python@104.196.212.140:3306/imageimprov'
+        return 'mysql+pymysql://python:python@127.0.0.1:3306/imageimprov'
 
     raise
 

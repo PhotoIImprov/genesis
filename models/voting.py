@@ -1,4 +1,4 @@
-from sqlalchemy        import Column, Integer, DateTime, text, ForeignKey, exc
+from sqlalchemy        import Column, Integer, DateTime, text, ForeignKey, String, exc
 from sqlalchemy.orm import relationship
 from sqlalchemy import exists, and_
 import errno
@@ -300,6 +300,30 @@ class BallotEntry(Base):
         session.commit() # make sure ballotentry is written out
         return be
 
+class ServerList(Base):
+    __tablename__ = 'serverlist'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    type = Column(String(32), nullable=False, index=True)
+    ipaddress = Column(String(16), nullable=False, index=False)
+    hostname = Column(String(255), nullable=False, index=False)
+
+    created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
+    last_updated = Column(DateTime, nullable=True,
+                          server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+    # ======================================================================================================
+
+    def get_redis_server(self, session):
+        # read the database and find a redis server for us to use
+        q = session.query(ServerList).filter(type == 'Redis').\
+            filter(ServerList.created_date == max(ServerList.created_date).filter(type == 'Redis'))
+
+#        q = session.query(ServerList).filter_by(type = 'Redis')
+        rs = q.one()
+
+        d = {'ip':'127.0.0.1', 'port':6379}
+        return d
+
 # this is the class that will orchestrate our voting. So it's job is to:
 #
 #  - transition categories to appropriate states
@@ -311,14 +335,19 @@ class BallotEntry(Base):
 class TallyMan():
 
     # switch our category over to Voting and perform any housekeeping that is required
-    def setup_voting(self, c):
+    def setup_voting(self, session, c):
 
         if c is None or not c.is_voting():
             return None # this is an error!
 
         # before we switch on voting, create the leaderboard
+        sl = ServerList()
+        d = sl.get_redis_server(session)
+
+        redis_host = d['ip']
+        redis_port = d['port']
         lb_name = self.leaderboard_name(c.get_id())
-        lb = Leaderboard(lb_name, host='localhost', port='6379', page_size=10)
+        lb = Leaderboard(lb_name, host=redis_host, port=redis_port, page_size=10)
         if lb is None:
             return None
 
@@ -342,7 +371,7 @@ class TallyMan():
         session.commit()
 
         if new_state == category.CategoryState.VOTING.value:
-            self.setup_voting(c)
+            self.setup_voting(session, c)
 
         return {'error': None, 'arg': c}
 
