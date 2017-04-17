@@ -318,7 +318,7 @@ class ServerList(Base):
         q = session.query(ServerList).filter_by(type = 'Redis').order_by(ServerList.created_date.desc())
         rs = q.first()
         ipaddress = '127.0.0.1'
-        port = 6739
+        port = 6379
         if rs is not None:
             ipaddress = rs.ipaddress
 

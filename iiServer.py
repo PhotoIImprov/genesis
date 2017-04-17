@@ -86,7 +86,9 @@ def hello():
 
     rd = voting.ServerList().get_redis_server(session)
     if rd is not None:
-        htmlbody += "<h3>Redis server:</h3>" + rd['ip'] + ':' + rd['port'] + "<br>\n"
+        ip = rd['ip']
+        port = str(rd['port'])
+        htmlbody += "<h3>Redis server:</h3>" + ip + ':' + port + "<br>\n"
     else:
         htmlbody += "<h3>Error reading Redis server configuration!</h3><br>\n"
 
