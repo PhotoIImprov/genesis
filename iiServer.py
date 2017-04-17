@@ -26,7 +26,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '0.1.0' #our version string PEP 440
+__version__ = '0.2.0' #our version string PEP 440
 
 # specify the JWT package's call backs for authentication of username/password
 # and subsequent identity from the payload in the token
@@ -44,7 +44,7 @@ def protected():
 def spec():
     swag = swagger(app)
     swag['info']['title'] = "ImageImprov API"
-    swag['info']['version'] = "0.1.0"
+    swag['info']['version'] = __version__
     swag['info']['description'] = "The first version of the ImageImprov API is purely designed to interaction\n"\
                                  "with the ImageImprov mobile clients. We are aiming for a secure interface that\n" \
                                  "will implement our needed features in a simple programming model\n"\
@@ -54,9 +54,10 @@ def spec():
                                  "in order to enjoy our service, we fully support anonymous registration & play\n"\
                                  "\n\n"\
                                  "## Limits\n"\
-                                 "We are currently only allow a single photo upload per category per period the\n"\
+                                 "We are currently only allowing a single photo upload per category per period the\n"\
                                  "category is open for uploading\n"
     swag['host'] = "echo-api.endpoints.ImageImprov.cloud.goog"
+    swag['swagger'] = "2.0"
     return jsonify(swag)
 
 @app.route("/")
@@ -154,6 +155,7 @@ def set_category_state():
     ---
     tags:
       - category
+    operationId: set-category-state
     consumes:
       - application/json
     produces:
@@ -218,7 +220,7 @@ def get_category():
     tags:
       - category
     summary: Fetched specified category information
-    operationId: getCategory
+    operationId: get-category
     consumes:
       - text/plain
     produces:
@@ -280,6 +282,7 @@ def get_leaderboard():
     ---
     tags:
       - user
+    operationId: get-leaderboard
     parameters:
       - in: query
         name: category_id
@@ -347,6 +350,7 @@ def get_ballot():
     ---
     tags:
       - voting
+    operationId: get-ballot
     parameters:
       - in: query
         name: category_id
@@ -404,6 +408,7 @@ def accept_friendship():
         ---
         tags:
           - user
+        operationId: accept-friendship
         consumes:
           - application/json
         parameters:
@@ -453,6 +458,7 @@ def tell_a_friend():
     ---
     tags:
       - user
+    operationId: tell-a-friend
     consumes:
         - application/json
     parameters:
@@ -506,6 +512,7 @@ def cast_vote():
      ---
      tags:
        - voting
+     operationId: cast-vote
      consumes:
        - application/json
      produces:
@@ -588,6 +595,7 @@ def image_download():
     ---
     tags:
       - image
+    operationId: image-download
     consumes:
       - text/html
     produces:
@@ -640,6 +648,7 @@ def last_submission():
     ###
     tags:
       - user
+    operationId: last-submission
     consumes:
         - application/json
     responses:
@@ -682,6 +691,7 @@ def photo_upload():
     ---
     tags:
       - image
+    operationId: photo
     consumes:
       - application/json
     produces:
@@ -753,6 +763,7 @@ def login():
     ---
     tags:
       - user
+    operationId: login
     consumes:
       - application/json
     produces:
@@ -828,6 +839,7 @@ def register():
     ---
     tags:
       - user
+    operationId: register
     consumes:
       - application/json
     produces:
