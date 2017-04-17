@@ -102,3 +102,12 @@ class TestBallot(DatabaseTest):
         total_pages = test_lb.total_pages()
         score_1 = test_lb.rank_for('TEST1')
         score_2 = test_lb.rank_for('TEST2')
+
+    def test_get_redis_server(self):
+        self.setup()
+        d = voting.ServerList().get_redis_server(self.session)
+        port = d['port']
+        ipaddress = d['ip']
+        assert(port == 6379)
+
+        self.teardown()

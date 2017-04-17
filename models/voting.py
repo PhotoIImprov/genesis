@@ -315,13 +315,14 @@ class ServerList(Base):
 
     def get_redis_server(self, session):
         # read the database and find a redis server for us to use
-        q = session.query(ServerList).filter(type == 'Redis').\
-            filter(ServerList.created_date == max(ServerList.created_date).filter(type == 'Redis'))
+        q = session.query(ServerList).filter_by(type = 'Redis').order_by(ServerList.created_date.desc())
+        rs = q.first()
+        ipaddress = '127.0.0.1'
+        port = 6739
+        if rs is not None:
+            ipaddress = rs.ipaddress
 
-#        q = session.query(ServerList).filter_by(type = 'Redis')
-        rs = q.one()
-
-        d = {'ip':'127.0.0.1', 'port':6379}
+        d = {'ip':ipaddress, 'port':port}
         return d
 
 # this is the class that will orchestrate our voting. So it's job is to:

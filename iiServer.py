@@ -110,7 +110,8 @@ def hello():
     # let's see if we can access the leaderboard class, hence redis server is up
     lb_name = 'configtest'
     try:
-        lb = Leaderboard(lb_name, host='localhost', port='6379', page_size=10)
+        rd = voting.ServerList().get_redis_server(session)
+        lb = Leaderboard(lb_name, host=rd['ip'], port=rd['port'], page_size=10)
         lb.check_member('no one')
         htmlbody += "<img src=\"/static/redis.png\"/>"
         htmlbody += "<br>leader board \'{}\' created<br>".format(lb_name)
