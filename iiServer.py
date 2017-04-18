@@ -45,20 +45,20 @@ def spec():
     swag = swagger(app)
     swag['info']['title'] = "ImageImprov API"
     swag['info']['version'] = __version__
-    swag['info']['description'] = "The first version of the ImageImprov API is purely designed to interaction\n"\
-                                 "with the ImageImprov mobile clients. We are aiming for a secure interface that\n" \
+    swag['info']['description'] = "The first version of the ImageImprov API is purely designed to interact "\
+                                 "with the ImageImprov mobile clients. We are aiming for a secure interface that " \
                                  "will implement our needed features in a simple programming model\n"\
                                  "\n"\
-                                 "All endpoints are only accessible via https and are located at\n"\
-                                 "\'api.imageimprove.com\'. Users do not need to provide any information\n"\
-                                 "in order to enjoy our service, we fully support anonymous registration & play\n"\
+                                 "All endpoints are only accessible via https and are located at"\
+                                 "\n\n```api.imageimprov.com```\n\nUsers do not need to provide any information "\
+                                 "in order to enjoy our service, we fully support anonymous registration & play"\
                                  "\n\n"\
                                  "## Limits\n"\
-                                 "We are currently only allowing a single photo upload per category per period the\n"\
+                                 "We are currently only allowing a single photo upload per category per period the"\
                                  "category is open for uploading\n"
 
     swag['info']['contact'] = {'name':'apimaster@imageimprov.com'}
-    swag['schemes'] = ['http']
+    swag['schemes'] = ['http', 'https']
     swag['host'] = "echo-api.endpoints.imageimprov.cloud.goog"
     swag['swagger'] = "2.0"
     return jsonify(swag)
