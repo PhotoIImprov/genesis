@@ -56,7 +56,8 @@ def spec():
                                  "## Limits\n"\
                                  "We are currently only allowing a single photo upload per category per period the\n"\
                                  "category is open for uploading\n"
-    swag['info']['contact']['name'] = 'apimaster@imageimprov.com'
+#    swag['info']['contact'] = 'name'
+    swag['info']['contact'] = {'name':'apimaster@imageimprov.com'}
     swag['schemes'] = 'http'
     swag['host'] = "echo-api.endpoints.imageimprov.cloud.goog"
     swag['swagger'] = "2.0"
