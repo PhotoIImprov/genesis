@@ -56,7 +56,9 @@ def spec():
                                  "## Limits\n"\
                                  "We are currently only allowing a single photo upload per category per period the\n"\
                                  "category is open for uploading\n"
-    swag['host'] = "echo-api.endpoints.ImageImprov.cloud.goog"
+    swag['info']['contact']['name'] = 'apimaster@imageimprov.com'
+    swag['schemes'] = 'http'
+    swag['host'] = "echo-api.endpoints.imageimprov.cloud.goog"
     swag['swagger'] = "2.0"
     return jsonify(swag)
 
@@ -174,12 +176,12 @@ def set_category_state():
             state:
               type: integer
     responses:
-      '200':
+      200:
         description: "state changed"
-      '400':
-        description: missing required arguments
-      '500':
-        description: error operating on category id specified
+      400:
+        description: "missing required arguments"
+      500:
+        description: "error operating on category id specified"
     """
     if not request.json:
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
@@ -226,17 +228,17 @@ def get_category():
     produces:
       - application/json
     responses:
-      '200':
-        description: state changed
+      200:
+        description: "category list retrieved"
         schema:
           id: categories
           type: array
           items:
             $ref: '#/definitions/Category'
-      '400':
+      400:
         description: "missing required arguments"
-      '500':
-        description: "error getting categories"
+      500:
+        description: "error retrieving categories"
     definitions:
       - schema:
           id: Category
@@ -286,21 +288,21 @@ def get_leaderboard():
     parameters:
       - in: query
         name: category_id
-        description: Category of the leaderboard being requested
+        description: "Category of the leaderboard being requested"
         required: true
         type: integer
     responses:
-      '200':
-        description: leaderboard retrieved
+      200:
+        description: "leaderboard retrieved"
         schema:
           id: scores
           type: array
           items:
             $ref: '#/definitions/ranking'
-      '400':
-        description: missing required arguments
-      '500':
-        description: error getting categories
+      400:
+        description: "missing required arguments"
+      500:
+        description: "error getting categories"
     definitions:
       - schema:
           id: ranking
