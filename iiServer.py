@@ -56,9 +56,9 @@ def spec():
                                  "## Limits\n"\
                                  "We are currently only allowing a single photo upload per category per period the\n"\
                                  "category is open for uploading\n"
-#    swag['info']['contact'] = 'name'
+
     swag['info']['contact'] = {'name':'apimaster@imageimprov.com'}
-    swag['schemes'] = 'http'
+    swag['schemes'] = ['http']
     swag['host'] = "echo-api.endpoints.imageimprov.cloud.goog"
     swag['swagger'] = "2.0"
     return jsonify(swag)
@@ -249,16 +249,16 @@ def get_category():
               description: category identifier
             theme:
               type: string
-              description: A brief description of the category
+              description: "A brief description of the category"
             start:
               type: string
-              description: When the category starts and uploading can begin
+              description: "When the category starts and uploading can begin"
             end:
               type: string
-              description: When the category ends and voting can begin
+              description: "When the category ends and voting can begin"
             state:
               type: string
-              description: The current state of the category (VOTING, UPLOADING, CLOSED, etc.)
+              description: "The current state of the category (VOTING, UPLOADING, CLOSED, etc.)"
     """
     uid = current_identity.id
 
@@ -313,16 +313,16 @@ def get_leaderboard():
               description: username of member of this rank
             rank:
               type: integer
-              description: overall rank in scoring
+              description: "overall rank in scoring"
             score:
               type: integer
-              description: actual score for this rank
+              description: "actual score for this rank"
             you:
               type: string
-              description: if set, then this rank is yours
+              description: "if set, then this rank is yours"
             isfriend:
               type: string
-              description: if set, then this rank is for a friend of yours
+              description: "if set, then this rank is for a friend of yours"
     
     """
     if not request.args:
@@ -371,6 +371,8 @@ def get_ballot():
             $ref: '#/definitions/Ballot'
       400:
         description: "missing required arguments"
+      403:
+        description: "no such user"
       500:
         description: "no ballot"
       default:
@@ -399,7 +401,7 @@ def get_ballot():
     au = usermgr.AnonUser.get_anon_user_by_id(session, uid)
     session.close()
     if au is None:
-        return make_response(jsonify({'msg': error.error_string('NO_SUCH_USER')}),status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'msg': error.error_string('NO_SUCH_USER')}),status.HTTP_403_FORBIDDEN)
 
     return return_ballot(session, uid, cid)
 
@@ -425,12 +427,12 @@ def accept_friendship():
                 request_id:
                   type: integer
         responses:
-          200:
+          201:
             description: "friendship updated"
           400:
-            description: missing required arguments
+            description: "missing required arguments"
           500:
-            description: error operating on category id specified
+            description: "error operating on category id specified"
         """
     if not request.json:
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
@@ -478,9 +480,9 @@ def tell_a_friend():
       201:
         description: "Will notify friend"
       400:
-        description: missing required arguments
+        description: "missing required arguments"
       500:
-        description: error requesting friendship
+        description: "error requesting friendship"
       default:
         description: "unexpected error"
     """
@@ -533,25 +535,27 @@ def cast_vote():
                items:
                  $ref: '#/definitions/ballotentry'
      responses:
-       '200':
+       200:
          description: "votes recorded"
-       '400':
-         description: missing required arguments
-       '500':
-         description: error operating on category id specified
+       400:
+         description: "missing required arguments"
+       413:
+         description: "too many ballots"
+       500:
+         description: "error operating on category id specified"
      definitions:
       - schema:
           id: ballotentry
           properties:
             bid:
               type: integer
-              description: ballot identifier
+              description: "ballot identifier"
             vote:
               type: integer
-              description: ranking in ballot
+              description: "ranking in ballot"
             like:
               type: string
-              description: if present, indicates user "liked" the image
+              description: "if present, indicates user liked the image"
      """
     if not request.json:
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
@@ -617,11 +621,11 @@ def image_download():
           properties:
             image:
               type: string
-              description: base64 encoded image file
+              description: "base64 encoded image file"
       400:
-        description: missing required arguments
+        description: "missing required arguments"
       500:
-        description: photo not found
+        description: "photo not found"
       default:
         description: "unexpected error"
     """
@@ -648,7 +652,7 @@ def image_download():
 def last_submission():
     """
     Get Last Submission
-    ###
+    ---
     tags:
       - user
     operationId: last-submission
@@ -665,9 +669,9 @@ def last_submission():
           items:
             $ref: '#/definitions/Category'
       400:
-        description: missing required arguments
+        description: "missing required arguments"
       500:
-        description: photo not found
+        description: "photo not found"
       default:
         description: "unexpected error"
     """
@@ -712,13 +716,13 @@ def photo_upload():
           properties:
             category_id:
               type: integer
-              description: the category id of the current category accepting uploads
+              description: "the category id of the current category accepting uploads"
             extension:
               type: string
-              description: Extension/filetype of uploaded image
+              description: "Extension/filetype of uploaded image"
             image:
               type: string
-              description: Base64 encoded image
+              description: "Base64 encoded image"
     responses:
       201:
         description: "The image was properly uploaded!"
@@ -728,9 +732,9 @@ def photo_upload():
             filename:
               type: string
       400:
-        description: missing required arguments
+        description: "missing required arguments"
       500:
-        description: error uploading image
+        description: "error uploading image"
       default:
         description: "unexpected error"
     """
@@ -783,10 +787,10 @@ def login():
           properties:
             username:
               type: string
-              description: username being logged in, can be a GUID
+              description: "username being logged in, can be a GUID"
             password:
               type: string
-              description: password to log in user, special rules for anonymous users
+              description: "password to log in user, special rules for anonymous users"
     responses:
       200:
         description: "User logged in"
@@ -795,14 +799,16 @@ def login():
           properties:
             user_id:
               type: integer
-              description: the user's internal identifier
+              description: "the user's internal identifier"
             category_id:
               type: integer
-              description: Current category that is accepting Uploads for this users
+              description: "Current category that is accepting Uploads for this users"
       400:
-        description: missing required arguments
+        description: "missing required arguments"
+      403:
+        description: "no such user"
       500:
-        description: error uploading image
+        description: "error uploading image"
       default:
         description: "unexpected error"
     """
@@ -860,20 +866,20 @@ def register():
           properties:
             username:
               type: string
-              description: this is either a guid (anonymous registration) or an email address
+              description: "this is either a guid (anonymous registration) or an email address"
             password:
               type: string
-              description: password to log in user, special rules for anonymous users
+              description: "password to log in user, special rules for anonymous users"
             guid:
               type: string
-              description: a UUID that uniquely identifies the user, in lieu of a username, this is their anonymous account handle
+              description: "a UUID that uniquely identifies the user, in lieu of a username, this is their anonymous account handle"
     responses:
       201:
         description: "account created"
       400:
-        description: missing required arguments
+        description: "missing required arguments"
       500:
-        description: error creating account
+        description: "error creating account"
       default:
         description: "unexpected error"
     """
