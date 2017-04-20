@@ -53,33 +53,46 @@ def spec():
                                  "in order to enjoy our service, we fully support anonymous registration & play"\
                                  "\n\n"\
                                  "## Limits\n"\
-                                 "We are currently only allowing a single photo upload per category per period the"\
+                                 "We are currently only allowing a single photo upload per category per period the "\
                                  "category is open for uploading\n"
 
     swag['info']['contact'] = {'name':'apimaster@imageimprov.com'}
     swag['schemes'] = ['http', 'https']
     swag['host'] = "echo-api.endpoints.imageimprov.cloud.goog"
 
-    """
-    Definitions
-    ###
+#    Definitions
     # [START securityDef]
-    securityDefinitions:
+#    securityDefinitions:
       # This section configures basic authentication with an API key.
-      api_key:
-        type: "apiKey"
-        name: "key"
-        in: "query"
+#      api_key:
+#        type: "apiKey"
+#        name: "key"
+#        in: "query"
     # [END securityDef]
-    """
-    swag['securityDefinitions'] = ["# This section configures basic authentication with an API key.",
-                                   {'api_key': {'type': 'apiKey', 'name': 'key', 'in': 'query'}}]
+#    swag['securityDefinitions'] = ["# This section configures basic authentication with an API key.",
+#                                   {'api_key': {'type': 'apiKey', 'name': 'key', 'in': 'query'}}]
     swag['swagger'] = "2.0"
 
     return jsonify(swag)
 
-@app.route("/")
+@app.route("/config")
 def hello():
+    """
+    Configuration
+    ---
+    tags:
+      - configuration
+    operationId: get-configuration
+    consumes:
+      - text/html
+    produces:
+      - text/html
+    responses:
+      200:
+        description: "everything is beautiful"
+      500:
+        description: "serious error dude"
+    """
     htmlbody = "<html>\n<body>\n"
     if dbsetup.is_gunicorn():
         htmlbody += "<h1>ImageImprov Hello World from Gunicorn!</h1>"

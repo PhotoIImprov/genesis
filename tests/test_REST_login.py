@@ -343,8 +343,13 @@ class TestLogin(iiBaseUnitTest):
 
         return rsp
 
+    def test_spec_page(self):
+        rsp = self.app.get(path='/spec', headers={'content-type': 'text/html'})
+        assert(rsp.status_code == 200)
+
     def test_root_page(self):
-        rsp = self.app.get(path='/', headers={'content-type': 'text/html'})
+        rsp = self.app.get(path='/config', headers={'content-type': 'text/html'})
+        assert(rsp.status_code == 200)
 
     def test_ballot_empty_args(self):
         self.create_testuser_get_token()
