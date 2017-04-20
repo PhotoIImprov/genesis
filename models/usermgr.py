@@ -177,8 +177,8 @@ class Friend(Base):
 
     __tablename__ = 'friend'
 
-    user_id      = Column(Integer, ForeignKey("userlogin.id", name="fk_friend_user_id"),     primary_key = True)  # ties us back to our user record
-    myfriend_id  = Column(Integer, ForeignKey("userlogin.id", name="fk_friend_myfriend_id"), primary_key = True)  # ties us back to our user record
+    user_id      = Column(Integer, ForeignKey("anonuser.id", name="fk_friend_user_id"),     primary_key = True)  # ties us back to our user record
+    myfriend_id  = Column(Integer, ForeignKey("anonuser.id", name="fk_friend_myfriend_id"), primary_key = True)  # ties us back to our user record
     active       = Column(Integer, nullable=False, default=1)
 
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
@@ -199,8 +199,8 @@ class FriendRequest(Base):
     __tablename__ = 'friendrequest'
 
     id                  = Column(Integer, primary_key = True, autoincrement=True)
-    asking_friend_id    = Column(Integer, ForeignKey("userlogin.id", name="fk_askingfriend_id"), nullable=False)  # ties us back to our user record
-    notifying_friend_id = Column(Integer, ForeignKey("userlogin.id", name="fk_notifyingfriend_id"), nullable=True)  # ties us back to our user record (if exists)
+    asking_friend_id    = Column(Integer, ForeignKey("anonuser.id", name="fk_askingfriend_id"), nullable=False)  # ties us back to our user record
+    notifying_friend_id = Column(Integer, ForeignKey("anonuser.id", name="fk_notifyingfriend_id"), nullable=True)  # ties us back to our user record (if exists)
     friend_email        = Column(String(200), nullable=False)
 
     # declined  accepted

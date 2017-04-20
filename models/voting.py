@@ -19,7 +19,7 @@ class Ballot(Base):
 
     id           = Column(Integer, primary_key=True, autoincrement=True)
     category_id  = Column(Integer, ForeignKey("category.id", name="fk_ballot_category_id"), nullable=False, index=True)
-    user_id      = Column(Integer, ForeignKey("userlogin.id", name="fk_ballot_user_id"),  nullable=False, index=True)
+    user_id      = Column(Integer, ForeignKey("anonuser.id", name="fk_ballot_user_id"),  nullable=False, index=True)
 
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
@@ -212,7 +212,7 @@ class BallotEntry(Base):
     id           = Column(Integer, primary_key=True, autoincrement=True)
     ballot_id    = Column(Integer, ForeignKey('ballot.id', name='fk_ballotentry_ballot_id'), nullable=False, index=True)
     category_id  = Column(Integer, ForeignKey("category.id", name="fk_ballotentry_category_id"), nullable=False, index=True)
-    user_id      = Column(Integer, ForeignKey("userlogin.id", name="fk_ballotentry_user_id"),  nullable=False, index=True)
+    user_id      = Column(Integer, ForeignKey("anonuser.id", name="fk_ballotentry_user_id"),  nullable=False, index=True)
     photo_id     = Column(Integer, ForeignKey("photo.id", name="fk_ballotentry_photo_id"), nullable=False, index=True)
     vote         = Column(Integer, nullable=True) # ranking in the ballot
     like         = Column(Integer, nullable=False, default=0) # if this photo was "liked"

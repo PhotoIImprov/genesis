@@ -143,6 +143,25 @@ class iiBaseUnitTest(unittest.TestCase):
 
         return tu
 
+    def create_anon_testuser_get_token(self):
+        # first create a user
+        tu = TestUser()
+        tu.create_anon_user()
+        self.setUp()
+        rsp = self.post_registration(tu)
+        assert (rsp.status_code == 201)
+
+        # now login and get a token
+        rsp = self.post_auth(tu)
+        assert (rsp.status_code == 200)
+        assert (rsp.content_type == 'application/json')
+        data = json.loads(rsp.data.decode("utf-8"))
+        token = data['access_token']
+        tu.set_token(token)
+        self.set_token(token)
+
+        return tu
+
 
 class TestLogin(iiBaseUnitTest):
 
@@ -476,6 +495,35 @@ class TesttVoting(iiBaseUnitTest):
         emsg = data['msg']
         assert(rsp.status_code == 500 and emsg == error.error_string('NO_BALLOT') )
         return
+
+    def test_anon_voting(self):
+
+        self.create_anon_testuser_get_token()
+
+        # first make sure we have an uploadable category
+        cid = TestCategory().get_category_by_state(category.CategoryState.UPLOAD, self.get_token())
+
+        ballots = self.get_ballot_by_token(self.get_token()) # read a ballot
+        assert(ballots is not None)
+
+        votes = []
+        idx = 1
+        for be_dict in ballots:
+            bid = be_dict['bid']
+            if (idx % 2) == 0:
+                votes.append(dict({'bid':bid, 'vote':idx, 'like':"true"}))
+            else:
+                votes.append(dict({'bid': bid, 'vote': idx}))
+            idx += 1
+
+        jvotes = json.dumps(dict({'user_id': 0, 'votes':votes}))
+
+        # now switch our category over to voting
+        TestCategory().set_category_state(cid, category.CategoryState.VOTING)
+
+        rsp = self.app.post(path='/vote', data=jvotes, headers=self.get_header_json())
+        assert(rsp.status_code == 200)
+        return self.ballot_response(rsp)
 
     def test_voting(self):
 
