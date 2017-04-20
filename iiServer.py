@@ -30,7 +30,6 @@ __version__ = '0.2.0' #our version string PEP 440
 
 # specify the JWT package's call backs for authentication of username/password
 # and subsequent identity from the payload in the token
-#JWT_AUTH = { 'JWT_EXPIRATION_DELTA': datetime.timedelta(days=10) } # 10 days before expiry
 app.config['JWT_EXPIRATION_DELTA'] = datetime.timedelta(days=10)
 
 jwt = JWT(app, usermgr.authenticate, usermgr.identity)
@@ -60,7 +59,23 @@ def spec():
     swag['info']['contact'] = {'name':'apimaster@imageimprov.com'}
     swag['schemes'] = ['http', 'https']
     swag['host'] = "echo-api.endpoints.imageimprov.cloud.goog"
+
+    """
+    Definitions
+    ###
+    # [START securityDef]
+    securityDefinitions:
+      # This section configures basic authentication with an API key.
+      api_key:
+        type: "apiKey"
+        name: "key"
+        in: "query"
+    # [END securityDef]
+    """
+    swag['securityDefinitions'] = ["# This section configures basic authentication with an API key.",
+                                   {'api_key': {'type': 'apiKey', 'name': 'key', 'in': 'query'}}]
     swag['swagger'] = "2.0"
+
     return jsonify(swag)
 
 @app.route("/")
@@ -762,84 +777,6 @@ def photo_upload():
         return make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
 
     return make_response(jsonify({'msg': error.error_string('PHOTO_UPLOADED'), 'filename': d['arg']}), status.HTTP_201_CREATED)
-
-@app.route("/login", methods=['POST'])
-def login():
-    """
-    Login User
-    ---
-    tags:
-      - user
-    operationId: login
-    consumes:
-      - application/json
-    produces:
-      - application/json
-    parameters:
-      - in: body
-        name: login-info
-        required: true
-        schema:
-          id: login_user
-          required:
-            - username
-            - password
-          properties:
-            username:
-              type: string
-              description: "username being logged in, can be a GUID"
-            password:
-              type: string
-              description: "password to log in user, special rules for anonymous users"
-    responses:
-      200:
-        description: "User logged in"
-        schema:
-          id: logged_in
-          properties:
-            user_id:
-              type: integer
-              description: "the user's internal identifier"
-            category_id:
-              type: integer
-              description: "Current category that is accepting Uploads for this users"
-      400:
-        description: "missing required arguments"
-      403:
-        description: "no such user"
-      500:
-        description: "error uploading image"
-      default:
-        description: "unexpected error"
-    """
-    if not request.json:
-        return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
-
-    try:
-        emailaddress = request.json['username']
-        password     = request.json['password']
-    except KeyError:
-        emailaddress = None
-        password = None
-
-    if emailaddress is None or password is None:
-        return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
-
-    foundUser = usermgr.authenticate(emailaddress, password)
-    if foundUser is None:
-        return make_response(jsonify({'msg': error.error_string('NO_SUCH_USER')}), status.HTTP_403_FORBIDDEN)
-
-    uid = foundUser.get_id()
-    session = dbsetup.Session()
-    c = category.Category.current_category(session, uid, category.CategoryState.UPLOAD)
-    session.close()
-    if c is None:
-        cid = 0
-    else:
-        cid = c.get_id()
-
-    return make_response(jsonify({'user_id':uid, 'category_id':cid}), status.HTTP_200_OK)
-
 
 @app.route("/register", methods=['POST'])
 def register():

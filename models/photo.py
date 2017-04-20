@@ -247,6 +247,19 @@ class Photo(Base):
 
         return {'error': None, 'arg': self.filename}
 
+    def compute_scalefactor(self, height, width):
+        if height > width:
+            sfh = 640 / height
+            sfw = 360 / width
+        else:
+            sfh = 640 / width
+            sfw = 360 / height
+
+        if sfh > sfw:
+            return sfh
+
+        return sfw
+
     def create_thumb(self):
         if self._raw_image is None:
             raise BaseException(errno.EINVAL, "no raw image")
@@ -272,8 +285,9 @@ class Photo(Base):
             exif_dict = self.make_dummy_exif()
 
         # scale the image
-        new_width = int(pil_img.width * 0.2)
-        new_height = int(pil_img.height * 0.2)
+        scaling_factor = self.compute_scalefactor(pil_img.height, pil_img.width)
+        new_width = int(pil_img.width * scaling_factor)
+        new_height = int(pil_img.height * scaling_factor)
         new_size = new_width, new_height
         exif_bytes = piexif.dump(exif_dict)
 

@@ -811,28 +811,6 @@ class TestLeaderBoard(iiBaseUnitTest):
         assert (rsp.status_code == 201)
         return
 
-    def register_and_login(self, tu):
-        u = tu.get_username()
-        p = tu.get_password()
-        g = tu.get_guid()
-        rsp = self.app.post(path='/register', data=json.dumps(dict(username=u, password=p, guid=g)),
-                            headers=self.get_header_json())
-        assert (rsp.status_code == 400 or rsp.status_code == 201)
-
-        # now let's login this user
-        rsp = self.app.post(path='/login', data=json.dumps(dict(username=u, password=p, guid=g)),
-                            headers=self.get_header_json())
-        assert (rsp.status_code == 200)
-
-        if rsp.status_code == 200:
-            data = json.loads(rsp.data.decode("utf-8"))
-            uid = data['user_id']
-            cid = data['category_id']
-            tu.set_uid(uid)
-            tu.set_cid(cid)
-
-        return rsp
-
     def get_ballot_by_user(self, tu):
         assert(tu is not None)
         assert(tu.get_token() is not None)
@@ -891,7 +869,8 @@ class TestLeaderBoard(iiBaseUnitTest):
         user_list = []
         for uname in self._users:
             tu = self.create_testuser_get_token()
-            rsp = self.register_and_login(tu)
+            cid = TestCategory().get_category_by_state(category.CategoryState.UPLOAD, token=tu.get_token())
+            tu.set_cid(cid)
             user_list.append(tu)
 
         # okay, we've registered & logged in our users
