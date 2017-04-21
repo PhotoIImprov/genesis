@@ -161,6 +161,7 @@ def hello():
     img_folder = dbsetup.image_store(dbsetup.determine_environment(None))
     htmlbody += "\n<br><b>image folder</b> =\"" + img_folder + "\""
     htmlbody += "\n<br>Flask instance path = \"" + app.instance_path + "\"\n"
+    htmlbody += "\n<br>Flask root path = \"" + app.root_path + "\"\n"
 
     htmlbody += "<br>\n"
 
