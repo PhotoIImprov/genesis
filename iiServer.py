@@ -5,6 +5,7 @@ from flask import Flask, jsonify
 from flask     import request, make_response
 from flask_jwt import JWT, jwt_required, current_identity
 from flask_api import status
+from flask import send_from_directory
 
 import initschema
 import dbsetup
@@ -39,8 +40,55 @@ jwt = JWT(app, usermgr.authenticate, usermgr.identity)
 def protected():
     return '%s' % current_identity
 
-@app.route("/spec")
+@app.route("/api/<path:path>")
+def api_spec(path):
+    """
+    Swagger UI
+    ---
+    tags:
+      - admin
+    summary: "Swagger UI - displays our local API specification"
+    operationId: get-specification
+    consumes:
+      - text/html
+    security:
+      - api_key: []
+    produces:
+      - text/html
+    responses:
+      200:
+        description: "look at our beautiful specification"
+      500:
+        description: "serious error dude"
+    """
+    # call up the /swagger-ui/dist/index.html file to display our
+    # specification
+    if path is None:
+        path = "/dist/index.html"
+
+    return send_from_directory('swagger-ui', path)
+
+@app.route("/spec/swagger.json")
 def spec():
+    """
+    Specification
+    ---
+    tags:
+      - admin
+    summary: "A JSON formatted OpenAPI/Swagger document formatting the API"
+    operationId: get-specification
+    consumes:
+      - text/html
+    security:
+      - api_key: []
+    produces:
+      - text/html
+    responses:
+      200:
+        description: "look at our beautiful specification"
+      500:
+        description: "serious error dude"
+    """
     swag = swagger(app)
     swag['info']['title'] = "ImageImprov API"
     swag['info']['version'] = __version__
@@ -69,11 +117,16 @@ def spec():
 #        name: "key"
 #        in: "query"
     # [END securityDef]
-#    swag['securityDefinitions'] = ["# This section configures basic authentication with an API key.",
-#                                   {'api_key': {'type': 'apiKey', 'name': 'key', 'in': 'query'}}]
+    swag['securityDefinitions'] = {'api_key': {'type': 'apiKey', 'name': 'key', 'in': 'query'}}
     swag['swagger'] = "2.0"
 
-    return jsonify(swag)
+    resp = make_response(jsonify(swag), status.HTTP_200_OK)
+    resp.headers['Content-Type'] = "application/json"
+    resp.headers['Access-Control-Allow-Origin'] = "*"
+    resp.headers['Access-Control-Allow-Headers'] = "Content-Type"
+    resp.headers['Access-Control-Allow-Methods'] = 'GET, POST'
+    resp.headers['Server'] = 'Flask'
+    return resp
 
 @app.route("/config")
 def hello():
@@ -81,15 +134,18 @@ def hello():
     Configuration
     ---
     tags:
-      - configuration
+      - admin
+    summary: "Simple page that checks some connections to make sure we are setup properly"
     operationId: get-configuration
     consumes:
       - text/html
+    security:
+      - api_key: []
     produces:
       - text/html
     responses:
       200:
-        description: "everything is beautiful"
+        description: "everything is running well"
       500:
         description: "serious error dude"
     """
@@ -185,10 +241,13 @@ def set_category_state():
     Set Category State
     ---
     tags:
-      - category
+      - admin
+    summary: "Sets the category state to a specific value - testing only!"
     operationId: set-category-state
     consumes:
       - application/json
+    security:
+      - api_key: []
     produces:
       - application/json
     parameters:
@@ -254,6 +313,8 @@ def get_category():
     operationId: get-category
     consumes:
       - text/plain
+    security:
+      - api_key: []
     produces:
       - application/json
     responses:
@@ -313,6 +374,7 @@ def get_leaderboard():
     ---
     tags:
       - user
+    summary: "Returns a list of the top 10 photos as well as the caller's (so 11 in total)"
     operationId: get-leaderboard
     parameters:
       - in: query
@@ -320,6 +382,8 @@ def get_leaderboard():
         description: "Category of the leaderboard being requested"
         required: true
         type: integer
+    security:
+      - api_key: []
     responses:
       200:
         description: "leaderboard retrieved"
@@ -381,6 +445,7 @@ def get_ballot():
     ---
     tags:
       - voting
+    summary: "A list of photos to be voted on, currently no more than 4"
     operationId: get-ballot
     parameters:
       - in: query
@@ -388,6 +453,8 @@ def get_ballot():
         description: "The category we want to vote on"
         required: true
         type: integer
+    security:
+      - api_key: []
     responses:
       200:
         description: "ballot"
@@ -441,6 +508,7 @@ def accept_friendship():
         ---
         tags:
           - user
+        summary: "Called to indicate a user has accepted a friend request"
         operationId: accept-friendship
         consumes:
           - application/json
@@ -454,6 +522,8 @@ def accept_friendship():
               properties:
                 request_id:
                   type: integer
+        security:
+          - api_key: []
         responses:
           201:
             description: "friendship updated"
@@ -491,6 +561,7 @@ def tell_a_friend():
     ---
     tags:
       - user
+    summary: "Issue a friendship request, server will notify person to become a friend and join site if necessary"
     operationId: tell-a-friend
     consumes:
         - application/json
@@ -504,6 +575,8 @@ def tell_a_friend():
           properties:
             friend:
               type: string
+    security:
+      - api_key: []
     responses:
       201:
         description: "Will notify friend"
@@ -545,6 +618,7 @@ def cast_vote():
      ---
      tags:
        - voting
+     summary: "Cast votes for a ballot. We choose the top photo, and then any likes"
      operationId: cast-vote
      consumes:
        - application/json
@@ -562,6 +636,8 @@ def cast_vote():
                type: array
                items:
                  $ref: '#/definitions/ballotentry'
+     security:
+       - api_key: []
      responses:
        200:
          description: "votes recorded"
@@ -630,6 +706,7 @@ def image_download():
     ---
     tags:
       - image
+    summary: "Download an image. If we have a filename, we can download the full image"
     operationId: image-download
     consumes:
       - text/html
@@ -641,6 +718,8 @@ def image_download():
         description: "The filename you wish to retrieve"
         required: true
         type: string
+    security:
+      - api_key: []
     responses:
       200:
         description: "image found"
@@ -683,9 +762,12 @@ def last_submission():
     ---
     tags:
       - user
+    summary: "returns the last submission for this user"
     operationId: last-submission
     consumes:
         - application/json
+    security:
+      - api_key: []
     responses:
       200:
         description: "last submission found"
@@ -726,6 +808,7 @@ def photo_upload():
     ---
     tags:
       - image
+    summary: "Upload a photo for the specified category"
     operationId: photo
     consumes:
       - application/json
@@ -751,6 +834,8 @@ def photo_upload():
             image:
               type: string
               description: "Base64 encoded image"
+    security:
+      - api_key: []
     responses:
       201:
         description: "The image was properly uploaded!"
@@ -798,6 +883,7 @@ def register():
     ---
     tags:
       - user
+    summary: "register a user"
     operationId: register
     consumes:
       - application/json
@@ -823,6 +909,8 @@ def register():
             guid:
               type: string
               description: "a UUID that uniquely identifies the user, in lieu of a username, this is their anonymous account handle"
+    security:
+      - api_key: []
     responses:
       201:
         description: "account created"

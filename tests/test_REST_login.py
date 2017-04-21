@@ -344,7 +344,7 @@ class TestLogin(iiBaseUnitTest):
         return rsp
 
     def test_spec_page(self):
-        rsp = self.app.get(path='/spec', headers={'content-type': 'text/html'})
+        rsp = self.app.get(path='/spec/swagger.json', headers={'content-type': 'text/html'})
         assert(rsp.status_code == 200)
 
     def test_root_page(self):
