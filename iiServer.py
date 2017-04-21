@@ -19,6 +19,7 @@ from flask_swagger import swagger
 from leaderboard.leaderboard import Leaderboard
 import random
 import logging
+import os
 
 
 app = Flask(__name__)
@@ -41,6 +42,7 @@ def protected():
     return '%s' % current_identity
 
 @app.route("/api/<path:path>")
+#@app.route("/api", defaults={'path': 'dist/index.html'})
 def api_spec(path):
     """
     Swagger UI
@@ -61,12 +63,9 @@ def api_spec(path):
       500:
         description: "serious error dude"
     """
-    # call up the /swagger-ui/dist/index.html file to display our
-    # specification
-    if path is None:
-        path = "/dist/index.html"
-
-    return send_from_directory('swagger-ui', path)
+    root_path = app.root_path
+    swagger_path = root_path + '/swagger-ui'
+    return send_from_directory(swagger_path, path)
 
 @app.route("/spec/swagger.json")
 def spec():
