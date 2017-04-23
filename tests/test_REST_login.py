@@ -109,12 +109,12 @@ class iiBaseUnitTest(unittest.TestCase):
                             headers={'content-type': 'application/json'})
         return rsp
 
-    def post_login(self, tu):
-        u = tu.get_username()
-        p = tu.get_password()
+#    def post_login(self, tu):
+#        u = tu.get_username()
+#        p = tu.get_password()
 
         # don't call login if we are using JSON Web Tokens (JWT)
-        return self.post_auth(tu)
+#        return self.post_auth(tu)
 
 
     def post_registration(self, tu):
@@ -380,10 +380,6 @@ class TestLogin(iiBaseUnitTest):
 
         return rsp
 
-
-
-
-
 class TestPhotoUpload(iiBaseUnitTest):
 
     _uid = None
@@ -396,9 +392,9 @@ class TestPhotoUpload(iiBaseUnitTest):
 
         self.setUp()
         if token is None:
-            self.create_testuser_get_token()
+            self.create_testuser_get_token() # force token creation
         else:
-            self.set_token(token)
+            self.set_token(token) # use token passed in
 
         # we have our user, now we need a photo to upload
         ft = open('../photos/Suki.JPG', 'rb')
@@ -498,7 +494,7 @@ class TesttVoting(iiBaseUnitTest):
 
         data = json.loads(rsp.data.decode("utf-8"))
         emsg = data['msg']
-        assert(rsp.status_code == 500 and emsg == error.error_string('NO_BALLOT') )
+        assert(rsp.status_code == 500 and emsg == error.iiServerErrors.error_message(error.iiServerErrors.INVALID_CATEGORY) )
         return
 
     def test_anon_voting(self):
@@ -521,7 +517,7 @@ class TesttVoting(iiBaseUnitTest):
                 votes.append(dict({'bid': bid, 'vote': idx}))
             idx += 1
 
-        jvotes = json.dumps(dict({'user_id': 0, 'votes':votes}))
+        jvotes = json.dumps(dict({'votes':votes}))
 
         # now switch our category over to voting
         TestCategory().set_category_state(cid, category.CategoryState.VOTING)
@@ -550,7 +546,32 @@ class TesttVoting(iiBaseUnitTest):
                 votes.append(dict({'bid': bid, 'vote': idx}))
             idx += 1
 
-        jvotes = json.dumps(dict({'user_id': 0, 'votes':votes}))
+        jvotes = json.dumps(dict({'votes':votes}))
+
+        # now switch our category over to voting
+        TestCategory().set_category_state(cid, category.CategoryState.VOTING)
+
+        rsp = self.app.post(path='/vote', data=jvotes, headers=self.get_header_json())
+        assert(rsp.status_code == 200)
+        return self.ballot_response(rsp)
+
+    def test_voting_one_vote(self):
+
+        self.create_testuser_get_token()
+
+        # first make sure we have an uploadable category
+        cid = TestCategory().get_category_by_state(category.CategoryState.UPLOAD, self.get_token())
+
+        ballots = self.get_ballot_by_token(self.get_token()) # read a ballot
+        assert(ballots is not None)
+
+        votes = []
+        idx = 1
+        for be_dict in ballots:
+            bid = be_dict['bid']
+            votes.append(dict({'bid':bid, 'vote':1, 'like':"true"}))
+
+        jvotes = json.dumps(dict({'votes':votes}))
 
         # now switch our category over to voting
         TestCategory().set_category_state(cid, category.CategoryState.VOTING)
@@ -683,9 +704,9 @@ class TestCategory(iiBaseUnitTest):
         rsp = self.app.post(path='/setcategorystate', data=json.dumps(dict(state=cstate)),
                             headers=self.get_header_json())
 
+        assert(rsp.status_code == 400)
         data = json.loads(rsp.data.decode("utf-8"))
         assert(data['msg'] == error.d_ERROR_STRINGS['MISSING_ARGS'])
-        assert (rsp.status_code == 400)
 
     def test_category_state_bad_cid(self):
         self.create_testuser_get_token()
@@ -693,9 +714,9 @@ class TestCategory(iiBaseUnitTest):
         rsp = self.app.post(path='/setcategorystate', data=json.dumps(dict(category_id=0, state=cstate)),
                             headers=self.get_header_json())
 
+        assert (rsp.status_code == 400)
         data = json.loads(rsp.data.decode("utf-8"))
         assert(data['msg'] == 'invalid category')
-        assert (rsp.status_code == 400)
 
     def test_category_state(self):
         # let's create a user
@@ -736,7 +757,7 @@ class TestCategory(iiBaseUnitTest):
 
     def get_category_by_state(self, target_state, token):
 
-        cl = self.read_category(token)
+        cl = self.read_category(None)
         assert(cl is not None)
 
         for c in cl:
@@ -767,7 +788,7 @@ class TestCategory(iiBaseUnitTest):
 
 class TestLeaderBoard(iiBaseUnitTest):
 
-    _photos = {'Cute_Puppy.jpg',
+    _photos = ['Cute_Puppy.jpg',
               'Emma Passport.jpg',
               'Galaxy Edge 7 (full res)jpg.jpg',
               'Galaxy Edge 7 Cat  (full res)jpg.jpg',
@@ -806,7 +827,7 @@ class TestLeaderBoard(iiBaseUnitTest):
                'IMG_1218.JPG',
                'sam_4089.jpg',
                'vetndhl.jpg'
-               }
+               ]
 
     _users = {'hcollins@gmail.com',
               'bp100a@hotmail.com',
@@ -819,7 +840,11 @@ class TestLeaderBoard(iiBaseUnitTest):
               'crazycow@netsoft-usa.com',
               'harry.collins@netsoft-usa.com',
               'hcollins@altaitech.com',
-              'dblankley@uproar.com'}
+              'dblankley@uproar.com',
+              'rcollins@exit15w.com',
+              'harry.collins@exit15w.com',
+              'admin@prizepoint.com',
+              'hcollins@pointcast.com'}
 
     _base_url = None
 
@@ -926,11 +951,15 @@ class TestLeaderBoard(iiBaseUnitTest):
             tu.set_cid(cid)
             user_list.append(tu)
 
-        # okay, we've registered & logged in our users
-        # Now let's upload some images
+        # only upload a single photo in the category
+        # for each user
+        num_photos = len(self._photos)
+        photo_idx = 0
         for tu in user_list:
-            for pn in self._photos:
-                self.upload_photo(tu, pn)
+            self.upload_photo(tu, self._photos[photo_idx])
+            photo_idx += 1
+            if photo_idx > num_photos:
+                photo_idx = 0
 
         # okay we've uploaded a bunch of users and gave them photos
 
@@ -946,6 +975,12 @@ class TestLeaderBoard(iiBaseUnitTest):
         # now let's get the leaderboard
         for tu in user_list:
             lb = self.get_leaderboard(tu)
+            for l in lb:
+                img = l['image']
+                rank = l['rank']
+                score = l['score']
+
+
 
 class TestLastSubmission(iiBaseUnitTest):
 
@@ -964,6 +999,8 @@ class TestLastSubmission(iiBaseUnitTest):
         tp.test_photo_upload(self.get_token())  # creates user, uploads a photo and downloads it again
 
         rsp = self.app.get(path='/lastsubmission', headers=self.get_header_html())
+        assert(rsp.status_code == 200)
+
         data = json.loads(rsp.data.decode("utf-8"))
         try:
             last_image = data['image']

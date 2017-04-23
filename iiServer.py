@@ -33,6 +33,7 @@ __version__ = '0.2.0' #our version string PEP 440
 # specify the JWT package's call backs for authentication of username/password
 # and subsequent identity from the payload in the token
 app.config['JWT_EXPIRATION_DELTA'] = datetime.timedelta(days=10)
+app.config['JWT_LEEWAY'] = 15
 
 jwt = JWT(app, usermgr.authenticate, usermgr.identity)
 
@@ -151,12 +152,14 @@ def hello():
     htmlbody = "<html>\n<body>\n"
     if dbsetup.is_gunicorn():
         htmlbody += "<h1>ImageImprov Hello World from Gunicorn!</h1>"
-        htmlbody += "<img src=\"/static/gunicorn_banner.jpg\"/>"
+#        htmlbody += "<img src=\"/static/gunicorn_banner.jpg\"/>"
+        htmlbody += "<img src=\"/static/gunicorn_small.png\"/>"
     else:
         htmlbody += "<h1>ImageImprov Hello World from Flask!</h1>"
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
-    htmlbody += "<img src=\"/static/python_flask_mysql_banner.jpg\"/>\n"
+#    htmlbody += "<img src=\"/static/python_flask_mysql_banner.jpg\"/>\n"
+    htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
     img_folder = dbsetup.image_store(dbsetup.determine_environment(None))
     htmlbody += "\n<br><b>image folder</b> =\"" + img_folder + "\""
@@ -415,7 +418,9 @@ def get_leaderboard():
             isfriend:
               type: string
               description: "if set, then this rank is for a friend of yours"
-    
+            image:
+              type: string
+              description: "base64 encoded thumbnail image of entry"
     """
     if not request.args:
         return make_response(jsonify({'msg': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
@@ -477,6 +482,8 @@ def get_ballot():
           id: Ballot
           properties:
             bid:
+              type: integer
+            orientation:
               type: integer
             image:
               type: string
@@ -640,13 +647,16 @@ def cast_vote():
        - api_key: []
      responses:
        200:
-         description: "votes recorded"
+         description: "ballot"
+         schema:
+           items:
+             $ref: '#/definitions/Ballot'
        400:
          description: "missing required arguments"
        413:
-         description: "too many ballots"
+         description: "too many votes being tallied"
        500:
-         description: "error operating on category id specified"
+         description: "error creating ballot to return"
      definitions:
       - schema:
           id: ballotentry
@@ -675,27 +685,31 @@ def cast_vote():
     if uid is None or votes is None:
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
-#    assert(len(votes) == 4)
-
     if len(votes) > 4:
         return make_response(jsonify({'msg': error.error_string('TOO_MANY_BALLOTS')}), status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
 
-
     session = dbsetup.Session()
 
-    cid = voting.Ballot.tabulate_votes(session, uid, votes)
-    return return_ballot(session, uid, cid)
+    try:
+        cid = voting.Ballot.tabulate_votes(session, uid, votes)
+    except:
+        return make_response(jsonify({'msg': error.error_string('TABULATE_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    rsp = return_ballot(session, uid, cid)
+    return rsp
 
 def return_ballot(session, uid, cid):
     d = voting.Ballot.create_ballot(session, uid, cid)
+    session.close()
     b = d['arg']
     if b is None:
-        session.close()
-        return make_response(jsonify({'msg': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if d['error'] is not None:
+            return make_response(jsonify({'msg':error.iiServerErrors.error_message(d['error'])}),status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return make_response(jsonify({'msg': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # we have a ballot, turn it into JSON
     ballots = b.to_json()
-    session.close()
     return make_response(jsonify(ballots), status.HTTP_200_OK)
 
 @app.route("/image", methods=['GET'])

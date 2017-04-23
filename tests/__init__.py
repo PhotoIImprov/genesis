@@ -4,6 +4,16 @@ from sqlalchemy.orm.session import Session
 import initschema
 from dbsetup import Base, connection_string
 from unittest import TestCase
+import datetime
+from flask import Flask, jsonify
+
+# specify the JWT package's call backs for authentication of username/password
+# and subsequent identity from the payload in the token
+app = Flask(__name__)
+app.debug = True
+app.config['SECRET_KEY'] = 'imageimprove3077b47'
+
+app.config['JWT_EXPIRATION_DELTA'] = datetime.timedelta(days=10)
 
 def setup_module():
     global transaction, connection, engine

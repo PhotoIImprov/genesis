@@ -1,6 +1,7 @@
 import sqlalchemy
 from sqlalchemy.schema import DDL
 from sqlalchemy        import Column, Integer, String, DateTime, text, ForeignKey, exc
+from sqlalchemy.orm import relationship
 import uuid
 from dbsetup           import Base
 import os, os.path, errno
@@ -15,6 +16,8 @@ from PIL.ExifTags import TAGS, GPSTAGS
 from io import BytesIO
 import piexif
 from retrying import retry
+import json
+
 
 class Photo(Base):
 
@@ -31,6 +34,8 @@ class Photo(Base):
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 
+    _photometa = relationship("PhotoMeta", uselist=False, backref="photo", cascade="all, delete-orphan")
+
 # ======================================================================================================
 
     _uuid          = None
@@ -39,6 +44,7 @@ class Photo(Base):
     _mnt_point     = None   # "root path" to prefix, where folders are to be created
     _image_type    = None   # e.g. "JPEG", "PNG", "TIFF", etc.
     _raw_image     = None   # this is our unadulterated image file
+    _orientation   = None   # orientation of the photo/thumbnail image
 
 # ======================================================================================================
 
@@ -75,6 +81,11 @@ class Photo(Base):
 
         self._raw_image = image
         return
+
+    def get_orientation(self):
+        return self._orientation
+    def set_orientation(self, orientation):
+        self._orientation = orientation
 
     def get_image(self):
         return self._raw_image
@@ -193,13 +204,20 @@ class Photo(Base):
     #
     def read_thumbnail_image(self):
         t_fn = self.create_thumb_filename()
-        ft = open(t_fn, 'rb')
-        if ft is None:
+        pil_img = Image.open(t_fn)
+        if pil_img is None:
             return None
-        thumb = ft.read()
+
+        thumb = pil_img.tobytes()
         if thumb is None:
             return None
 
+        # make sure the orientation is set. If there is no photometa
+        # data record, pull directly from the image
+        if self.get_orientation() is None:
+            exif_data = self.get_exif_data(pil_img)
+            if 'Orientation' in exif_data:
+                self.set_orientation(exif_data['Orientation'])
         return thumb
 
     # SaveUserImage()
@@ -260,29 +278,43 @@ class Photo(Base):
 
         return sfw
 
+    # get the raw exif data, not decoding
+    def get_exif_dict(self, pil_img):
+        info = pil_img._getexif()
+        if info is None:
+            return self.make_dummy_exif()
+
+        return piexif.load(pil_img.info["exif"])
+
+    # get the decoded exif data so we can pull out values
+    def get_exif_data(self, pil_img):
+        exif_data = {}
+        info = pil_img._getexif()
+        if info is None:        # if image has not Exif data, make a dummy and return
+            return None
+
+        for tag, value in info.items():
+            decoded = TAGS.get(tag, tag)
+            if decoded == "GPSInfo":
+                gps_data = {}
+                for t in value:
+                    sub_decoded = GPSTAGS.get(t,t)
+                    gps_data[sub_decoded] = value[t]
+                exif_data[decoded] = gps_data
+            else:
+                exif_data[decoded] = value
+
+        return exif_data
+
     def create_thumb(self):
         if self._raw_image is None:
             raise BaseException(errno.EINVAL, "no raw image")
 
         file_jpegdata = BytesIO(self.get_image())
         pil_img = Image.open(file_jpegdata)
-        info = pil_img._getexif()
-        exif_data = {}
-        if info is not None:    # images could be stripped of EXif data
-            for tag, value in info.items():
-                decoded = TAGS.get(tag, tag)
-                if decoded == "GPSInfo":
-                    gps_data = {}
-                    for t in value:
-                        sub_decoded = GPSTAGS.get(t,t)
-                        gps_data[sub_decoded] = value[t]
-                    exif_data[decoded] = gps_data
-                else:
-                    exif_data[decoded] = value
-
-            exif_dict = piexif.load(pil_img.info["exif"])
-        else:
-            exif_dict = self.make_dummy_exif()
+        exif_dict = self.get_exif_dict(pil_img)
+        exif_data = self.get_exif_data(pil_img)
+        self.set_metadata(exif_data)
 
         # scale the image
         scaling_factor = self.compute_scalefactor(pil_img.height, pil_img.width)
@@ -359,6 +391,15 @@ class Photo(Base):
         return {'error':"Nothing found", 'arg':None}
 
     @staticmethod
+    def read_photo_by_id(session, pid):
+        if pid is None or session is None:
+            return None
+        # read in the photo record using the filename
+        q = session.query(Photo).filter_by(id = pid)
+        p = q.one()
+        return p
+
+    @staticmethod
     def read_photo_by_filename(session, uid, fn):
         # okay the "filename" is the field stashed in the database
         q = session.query(Photo).filter_by(filename = fn)
@@ -375,22 +416,108 @@ class Photo(Base):
 
         return p
 
-#    @staticmethod
-#    def read_ballot_photos(session, b):
-#        if session is None or b is None:
-#            raise BaseException(errno.EINVAL)
-#
-#        idx_list = []
-#        for be in b.get_ballotentries():
-#            idx_list.append(be.photo_id)
-#
-#        p_list = Photo.read_photos_by_index(session, b.user_id, b.category_id, idx_list)
-#        # we have the list of photo records, now use this to fetch the
-#        # thumbnail images
-#
-#        return
+    def set_metadata(self, d_exif):
+        self._photometa = PhotoMeta()
+        self._photometa.set_exif_data(d_exif)
+        return
 
+class PhotoMeta(Base):
+    __tablename__ = 'photometa'
 
+    id          = Column(Integer, ForeignKey("photo.id", name="fk_photo_id"), primary_key = True)  # ties us back to our parent Photo record
+    height      = Column(Integer, nullable=True)
+    width       = Column(Integer, nullable=True)
+    orientation = Column(String(500), nullable=True, index=True)
+    gps         = Column(String(200), nullable=True)
+    j_exif      = Column(String(2000), nullable=True)
+
+    created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
+    last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
+
+    def set_exif_data(self, d_exif):
+        if d_exif is None:
+            return
+
+        # we can't jsonify the byte arrays, and they probably aren't that useful (and awfully big!)
+        d = {}
+        for k in d_exif:
+            v = d_exif[k]
+            if type(v) is dict:
+                d2 = {}
+                for k1 in v:
+                    v1 = v[k1]
+                    if type(v1) is not bytes:
+                        d2[k1] = v1
+                d[k] = d2
+            else:
+                if type(v) is not bytes:
+                    d[k] = v
+        # ['Orientation']
+        # ['GPSInfo']
+        #   GPSLatitude
+        #   GPSLatitudeRef
+        #   GPSLongitude
+        #   GPSLongitudeRef
+        #
+        # ['ExifImageHeight']
+        # ['ExifImageWidth']
+
+        self.j_exif = json.dumps(d)
+        self.set_metadata_from_exif(d)
+        return
+
+    def set_metadata_from_exif(self, d):
+        self.gps = self.get_exif_location(d)
+        if 'ExifImageHeight' in d:
+            self.height = d['ExifImageHeight']
+        if 'ExifImageWidth' in d:
+            self.width = d['ExifImageWidth']
+        if 'Orientation' in d:
+            self.orientation = d['Orientation']
+
+    def _get_if_exist(self, data, key):
+        if key in data:
+            return data[key]
+
+        return None
+
+    def _convert_to_minutes(self, value, ref):
+        """
+        Helper function to convert the GPS coordinates stored in the EXIF to degress in float format
+        :param value:
+        :type value: exifread.utils.Ratio
+        :rtype: float
+        """
+        d = float(value[0][0]) / float(value[0][1])
+        m = float(value[1][0]) / float(value[1][1])
+        s = float(value[2][0]) / float(value[2][1])
+
+        s = '{}\xb0{}\x27{}"{}'.format(d, m, s, ref)
+        return s
+
+    """
+    def _convert_to_degrees(self, value):
+       
+        d = float(value[0][0]) / float(value[0][1])
+        m = float(value[1][0]) / float(value[1][1])
+        s = float(value[2][0]) / float(value[2][1])
+
+        return d + (m / 60.0) + (s / 3600.0)
+    """
+    def get_exif_location(self, exif_data):
+        # Returns the latitude and longitude, if available, from the provided exif_data (obtained through get_exif_data above)
+        if 'GPSInfo' in exif_data:
+            gps_latitude = self._get_if_exist(exif_data['GPSInfo'], 'GPSLatitude')
+            gps_latitude_ref = self._get_if_exist(exif_data['GPSInfo'], 'GPSLatitudeRef')
+            gps_longitude = self._get_if_exist(exif_data['GPSInfo'], 'GPSLongitude')
+            gps_longitude_ref = self._get_if_exist(exif_data['GPSInfo'], 'GPSLongitudeRef')
+
+            if gps_latitude and gps_latitude_ref and gps_longitude and gps_longitude_ref:
+                s_lat = self._convert_to_minutes(gps_latitude, gps_latitude_ref)
+                s_lon = self._convert_to_minutes(gps_longitude, gps_longitude_ref)
+                return s_lat + s_lon
+
+        return None
 # ====================================================================================================================
 
 # register some DDL that we want attached to this model

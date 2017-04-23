@@ -90,7 +90,7 @@ class Ballot(Base):
         except exc.IntegrityError as e:
             if 'fk_ballot_user_id' in e.args[0] or 'fk_ballot_category_id' in e.args[0]:
                 return {'error':error.iiServerErrors.INVALID_USER, 'arg':None} # someone passed us an improper user_id
-            raise # tell someone up what teh problem is...
+            raise # tell someone up what the problem is...
 
         # =========================================================
         # ==== we need to "reset" the photo information to the ====
@@ -238,15 +238,6 @@ class BallotEntry(Base):
         self.photo = p
         return
 
-#    def get_photo(self):
-#        if self.photo is None:
-#            try:
-#                self.photo = photo.Photo.read_photo_by_index(Session(), self.photo_id)
-#            except exc.NoResultFound:   # shouldn't happen except in testing with nested sessions
-#                return None
-#
-#        return self.photo
-
     def to_json(self):
 
         if self.photo is None:
@@ -260,14 +251,12 @@ class BallotEntry(Base):
         if self._b64image is None:
             return None
 
-        d = dict({'bid':self.id, 'image':self._b64image.decode('utf-8')})
-        return d
+        orientation = 0
+        if self.photo is not None:
+            orientation = self.photo.get_orientation()
 
-#    @staticmethod
-#    def find_ballotentries(session, bid, cid, uid):
-#        q = session.query(BallotEntry).filter_by(user_id = uid, category_id = cid, ballot_id = bid)
-#        be = q.all()
-#        return be
+        d = dict({'bid':self.id, 'image':self._b64image.decode('utf-8'), 'orientation': orientation})
+        return d
 
     def set_vote(self, vote):
         self.vote = vote
@@ -424,6 +413,19 @@ class TallyMan():
         ep = u.emailaddress.split('@')
         return ep[0]
 
+    def read_thumbnail(self, session, pid):
+        p = photo.Photo.read_photo_by_id(session, pid)
+        if p is None:
+            return ''
+        bimg = p.read_thumbnail_image()
+        if bimg is None:
+            return ''
+        b64 = base64.standard_b64encode(bimg)
+        if b64 is None:
+            return ''
+        b64_utf8 = b64.decode('utf-8')
+        return b64_utf8
+
     def create_leaderboard(self, session, uid, cid):
         if cid is None:
             return None
@@ -437,26 +439,21 @@ class TallyMan():
 
         dl = lb.leaders(1, page_size=10, with_member_data=True)   # 1st page is top 25
         lb_list = []
-        in_list = False
         for d in dl:
-            lb_uid = int(str(d['member'], 'utf-8'))
-            lb_pid = int(str(d['member_data'], 'utf-8'))
+            lb_uid = int(str(d['member'], 'utf-8'))         # anonuser.id / userlogin.id
+            lb_pid = int(str(d['member_data'], 'utf-8'))    # photo.id
             lb_score = d['score']
             lb_rank = d['rank']
             lb_name = self.create_displayname(session, lb_uid)
 
+            b64_utf8 = self.read_thumbnail(session, lb_pid) # thumbnail image as utf-8 base64
+
             if lb_uid == uid:
-                in_list = True
-                lb_list.append({'name': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'you':True})
+                lb_list.append({'name': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'you':True, 'image' : b64_utf8})
             else:
                 if usermgr.Friend.is_friend(session, uid, lb_uid):
-                    lb_list.append({'name': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'isfriend':True})
+                    lb_list.append({'name': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'isfriend':True, 'image' : b64_utf8})
                 else:
-                    lb_list.append({'name': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid})
-
-        # see if we need to include ourselves in the list
-        if my_rank is not None and not in_list:
-            my_score = lb.rank_for(uid)
-            lb_list.append({'name': self.create_displayname(session, uid), 'score':my_score,'rank':my_rank, 'you':True})
+                    lb_list.append({'name': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'image' : b64_utf8})
 
         return lb_list

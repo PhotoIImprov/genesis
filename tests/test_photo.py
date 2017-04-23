@@ -137,7 +137,12 @@ class TestPhoto(DatabaseTest):
         assert (fo is not None)
 
         # read our test file
-        ft = open('../photos/Cute_Puppy.jpg', 'rb')
+        cwd = os.getcwd()
+        if 'tests' in cwd:
+            path = '../photos/Cute_Puppy.jpg'
+        else:
+            path = cwd + '/photos/Cute_Puppy.jpg'
+        ft = open(path, 'rb')
         assert (ft is not None)
 
         ph = ft.read()
