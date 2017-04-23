@@ -128,6 +128,36 @@ def spec():
     resp.headers['Server'] = 'Flask'
     return resp
 
+@app.route("/healtcheck")
+def healthcheck():
+    """
+    Health Check()
+    perform some simple tests to see if the server is viable.
+    Reporting 200 means that the loadbalancer can continue to use
+    the server, anything else takes it out of rotation
+    :return: 
+    """
+    http_status = status.HTTP_200_OK
+
+    # check that database & redis are up
+    try:
+        session = dbsetup.Session()
+        lb_name = 'configtest'
+        rd = voting.ServerList().get_redis_server(session)
+        lb = Leaderboard(lb_name, host=rd['ip'], port=rd['port'], page_size=10)
+        lb.check_member('no one')
+        lb.delete_leaderboard()
+    except:
+        http_status = status.HTTP_500_INTERNAL_SERVER_ERROR
+
+    resp = make_response("healthcheck status", http_status)
+    resp.headers['Content-Type'] = "text/html"
+    resp.headers['Access-Control-Allow-Origin'] = "*"
+    resp.headers['Access-Control-Allow-Headers'] = "Content-Type"
+    resp.headers['Access-Control-Allow-Methods'] = 'GET'
+    resp.headers['Server'] = 'iiServer'
+
+
 @app.route("/config")
 def hello():
     """

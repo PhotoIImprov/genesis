@@ -60,6 +60,7 @@ class Category(Base):
 
         return self._category_description
 
+    """
     def set_state(self, new_state):
         if self.state == CategoryState.UPLOAD and new_state == CategoryState.VOTING:
             # we're moving from uploading to voting, so there's some housekeeping to do
@@ -69,6 +70,7 @@ class Category(Base):
             lb = LeaderBoard(lb_name)
 
         self.state = new_state.value
+    """
 
     def to_json(self):
         category_description = self.get_description()

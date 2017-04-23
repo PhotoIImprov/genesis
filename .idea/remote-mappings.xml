@@ -10,6 +10,13 @@
             </list>
           </settings>
         </remote-mappings>
+        <remote-mappings server-id="python@ssh://bp100a@104.198.176.198:22/usr/bin/python3">
+          <settings>
+            <list>
+              <mapping local-root="$PROJECT_DIR$" remote-root="/home/bp100a/genesis" />
+            </list>
+          </settings>
+        </remote-mappings>
       </list>
     </list>
   </component>

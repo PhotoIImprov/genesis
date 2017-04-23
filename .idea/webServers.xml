@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="2257edb5-5b8f-424a-b95b-c0a895d1c0d8" name="104.198.176.198" url="http://104.198.176.198">
+        <fileTransfer host="104.198.176.198" port="22" privateKey="$USER_HOME$/.ssh/gce1.ppk" rootFolder="/home/bp100a" accessType="SFTP" keyPair="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
