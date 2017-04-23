@@ -393,13 +393,15 @@ class TallyMan():
         session.commit()
 
         # we have a User/Photo/Vote
-        lb = self.get_leaderboard_by_category_id(cid)
+        lb = self.get_leaderboard_by_category_id(session, cid)
         if lb is not None:
             lb.rank_member(uid, score, p.id)
         return
 
-    def get_leaderboard_by_category_id(self, cid):
-        return Leaderboard(self.leaderboard_name(cid))
+    def get_leaderboard_by_category_id(self, session, cid):
+        rd = ServerList().get_redis_server(session)
+        lb = Leaderboard(self.leaderboard_name(cid), host=rd['ip'], port=rd['port'], page_size=10)
+        return lb
 
     def create_displayname(self, session, uid):
         u = usermgr.User.find_user_by_id(session, uid)
@@ -431,7 +433,7 @@ class TallyMan():
             return None
 
         # okay lets get the leader board!
-        lb = self.get_leaderboard_by_category_id(cid)
+        lb = self.get_leaderboard_by_category_id(session, cid)
         if lb is None:
             return None
 
