@@ -266,6 +266,11 @@ def set_category_state():
               type: integer
             state:
               type: integer
+              enum:
+                - 1
+                - 2
+                - 3
+                - 4
     responses:
       200:
         description: "state changed"
@@ -350,6 +355,11 @@ def get_category():
               description: "When the category ends and voting can begin"
             state:
               type: string
+              enum:
+                - "UPLOAD"
+                - "VOTING"
+                - "COUNTING"
+                - "CLOSED"
               description: "The current state of the category (VOTING, UPLOADING, CLOSED, etc.)"
     """
     uid = current_identity.id
@@ -485,6 +495,11 @@ def get_ballot():
               type: integer
             orientation:
               type: integer
+              enum:
+                - 1
+                - 8
+                - 3
+                - 6
             image:
               type: string
     """
@@ -529,6 +544,7 @@ def accept_friendship():
               properties:
                 request_id:
                   type: integer
+                  description: "identifier from friend request this is a response to"
         security:
           - api_key: []
         responses:
@@ -582,6 +598,7 @@ def tell_a_friend():
           properties:
             friend:
               type: string
+              description: "email address of friend to send request to"
     security:
       - api_key: []
     responses:
@@ -844,6 +861,9 @@ def photo_upload():
               description: "the category id of the current category accepting uploads"
             extension:
               type: string
+              enum:
+                - "JPEG"
+                - "JPG"
               description: "Extension/filetype of uploaded image"
             image:
               type: string
