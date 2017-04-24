@@ -183,7 +183,7 @@ class Ballot(Base):
             if remaining_photos_needed == 0:
                 break;
             # need more photos to construct the ballot
-            p = Ballot.read_photos_num_votes(session, uid, cid, num_votes, remaining_photos_needed)
+            p = Ballot.read_photos_by_votes(session, uid, cid, num_votes, remaining_photos_needed)
             if p is not None:
                 photos_for_ballot.extend(p)
 
