@@ -112,7 +112,7 @@ class Category(Base):
         # we should always get back 3 after 2 days of running...
         current_time = datetime.utcnow()
         start_time = current_time - timedelta(days=2)
-        q = session.query(Category).filter(Category.start_date < start_time).filter(Category.end_date > current_time)
+        q = session.query(Category).filter(Category.start_date > start_time).filter(Category.end_date > current_time)
         c = q.all()
         return c
 
