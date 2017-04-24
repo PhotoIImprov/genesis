@@ -1,7 +1,7 @@
 from sqlalchemy        import Column, Integer, DateTime, text, ForeignKey
 from dbsetup           import Base
 import errno
-import datetime
+from datetime import datetime, timedelta
 import dbsetup
 from models import resources
 from models import usermgr
@@ -105,7 +105,14 @@ class Category(Base):
         if au is None:
             return None
 
-        q = session.query(Category).filter(Category.state.in_([CategoryState.UPLOAD.value, CategoryState.VOTING.value]))
+        # Category start/end dates define the interval for uploading
+        # so the currently voting category is 1 day old.
+        # we also want the last category that was voted on (closed) so we can display the leaderboard
+        # so we need another day in the past
+        # we should always get back 3 after 2 days of running...
+        current_time = datetime.utcnow()
+        start_time = current_time - timedelta(days=2)
+        q = session.query(Category).filter(Category.start_date < start_time).filter(Category.end_date > current_time)
         c = q.all()
         return c
 
@@ -172,7 +179,7 @@ class Category(Base):
         if au is None:
             return None
 
-        current_datetime = datetime.datetime.utcnow()
+        current_datetime = datetime.utcnow()
         q = session.query(Category).filter(Category.start_date < current_datetime) \
                                    .filter(Category.end_date > current_datetime) \
                                    .filter(Category.state == state.value)

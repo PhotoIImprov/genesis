@@ -451,11 +451,11 @@ class TallyMan():
             b64_utf8 = self.read_thumbnail(session, lb_pid) # thumbnail image as utf-8 base64
 
             if lb_uid == uid:
-                lb_list.append({'name': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'you':True, 'image' : b64_utf8})
+                lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'you':True, 'image' : b64_utf8})
             else:
                 if usermgr.Friend.is_friend(session, uid, lb_uid):
-                    lb_list.append({'name': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'isfriend':True, 'image' : b64_utf8})
+                    lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'isfriend':True, 'image' : b64_utf8})
                 else:
-                    lb_list.append({'name': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'image' : b64_utf8})
+                    lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'image' : b64_utf8})
 
         return lb_list
