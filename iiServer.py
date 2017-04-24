@@ -128,7 +128,7 @@ def spec():
     resp.headers['Server'] = 'Flask'
     return resp
 
-@app.route("/healtcheck")
+@app.route("/healthcheck")
 def healthcheck():
     """
     Health Check()
@@ -156,7 +156,7 @@ def healthcheck():
     resp.headers['Access-Control-Allow-Headers'] = "Content-Type"
     resp.headers['Access-Control-Allow-Methods'] = 'GET'
     resp.headers['Server'] = 'iiServer'
-
+    return resp
 
 @app.route("/config")
 def hello():

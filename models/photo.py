@@ -208,7 +208,9 @@ class Photo(Base):
         if pil_img is None:
             return None
 
-        thumb = pil_img.tobytes()
+        b = BytesIO()
+        pil_img.save(b, 'JPEG')
+        thumb = b.getvalue()
         if thumb is None:
             return None
 
