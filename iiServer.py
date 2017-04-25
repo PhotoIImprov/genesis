@@ -33,7 +33,8 @@ __version__ = '0.2.0' #our version string PEP 440
 # specify the JWT package's call backs for authentication of username/password
 # and subsequent identity from the payload in the token
 app.config['JWT_EXPIRATION_DELTA'] = datetime.timedelta(days=10)
-app.config['JWT_LEEWAY'] = 15
+app.config['JWT_LEEWAY'] = 10
+app.config['JWT_VERIFY_CLAIMS'] = ['signature', 'exp', 'nbf'] # keep getting iat "in the future" failure
 
 jwt = JWT(app, usermgr.authenticate, usermgr.identity)
 
@@ -399,7 +400,6 @@ def get_category():
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
-
     cl = category.Category.active_categories(session, uid)
     session.close()
     if cl is None:
