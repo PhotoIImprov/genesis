@@ -385,6 +385,10 @@ class TestPhotoUpload(iiBaseUnitTest):
     _uid = None
     _cid = None
 
+    def test_anon_user_photo_upload(self):
+        self.create_anon_testuser_get_token()
+        self.test_photo_upload(self.get_token())
+        
     def test_photo_upload(self, token=None):
 
         dir_path = os.path.dirname(os.path.realpath(__file__))
