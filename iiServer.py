@@ -49,10 +49,15 @@ def api_spec(path):
     """
     Swagger UI
     ---
+    parameters:
+      - in: path
+        name: path
+        required: true
+        type: string
     tags:
       - admin
     summary: "Swagger UI - displays our local API specification"
-    operationId: get-specification
+    operationId: swagger-specification
     consumes:
       - text/html
     security:
@@ -107,7 +112,25 @@ def spec():
 
     swag['info']['contact'] = {'name':'apimaster@imageimprov.com'}
     swag['schemes'] = ['http', 'https']
-    swag['host'] = "echo-api.endpoints.imageimprov.cloud.goog"
+    swag['host'] = "api.endpoints.imageimprov.cloud.goog"
+
+    swag['paths']["/auth"] = {'post':{'consumes': ['application/json'],
+                                      'description':'JWT authentication',
+                                      'operationId': 'jwt-auth',
+                                      'produces' : ['application/json'],
+                                      'parameters': [{'in': 'body',
+                                                      'name': 'credentials',
+                                                     'schema':
+                                                        {'required': ['username', 'password'],
+                                                         'properties':{'username':{'type':'string'},
+                                                                        'password':{'type':'string'}},
+                                                         }}],
+                                      'responses': {'200':{'description': 'user authenticated'},
+                                                    '401':{'description': 'user authentication failed'}},
+                                      'security': [{'api_key':[]}],
+                                      'summary' : "JWT authentication",
+                                      'tags':['user']}
+                              }
 
 #    Definitions
     # [START securityDef]
