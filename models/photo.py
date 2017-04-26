@@ -208,8 +208,10 @@ class Photo(Base):
         if pil_img is None:
             return None
 
+        exif_dict = self.get_exif_dict(pil_img)
+        exif_bytes = piexif.dump(exif_dict)
         b = BytesIO()
-        pil_img.save(b, 'JPEG')
+        pil_img.save(b, 'JPEG', exif=exif_bytes)
         thumb = b.getvalue()
         if thumb is None:
             return None
