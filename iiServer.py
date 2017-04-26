@@ -20,6 +20,7 @@ from leaderboard.leaderboard import Leaderboard
 import random
 import logging
 import os
+from sqlalchemy import text
 
 
 app = Flask(__name__)
@@ -125,7 +126,11 @@ def spec():
                                                          'properties':{'username':{'type':'string'},
                                                                         'password':{'type':'string'}},
                                                          }}],
-                                      'responses': {'200':{'description': 'user authenticated'},
+                                      'responses': {'200':{'description': 'user authenticated',
+                                                           'schema':
+                                                               {'properties':
+                                                                    {'access_token':
+                                                                         {'type':'string'} } } },
                                                     '401':{'description': 'user authentication failed'}},
                                       'security': [{'api_key':[]}],
                                       'summary' : "JWT authentication",
@@ -225,15 +230,35 @@ def hello():
     # display current connection string, without username/password!
     cs = dbsetup.connection_string(None)
     cs2 = cs.split("@",1)
-    htmlbody += "<h2>connection string:</h2>" + cs2[1] + "<br>\n"
+    htmlbody += "<h3>connection string:<span>" + cs2[1] + "</span></h3><br>\n"
 
     session = dbsetup.Session()
+
+    sql = text('select * from mysql.event;')
+    try:
+        result = dbsetup.engine.execute(sql)
+        htmlbody += "<h3>Scheduled Events</h3>"
+        if result is not None:
+            for row in result:
+                le = row['last_executed']
+                if le is None:
+                    last_executed = "never"
+                else:
+                    last_executed = le
+                h = "&nbsp&nbsp><b>name: </b>{}, every {} {}, last executed: {}, status: {}".format(row['name'], row['interval_value'], row['interval_field'], last_executed, row['status'])
+                htmlbody += h + "<br>"
+        else:
+            htmlbody += "<i>no events found</i><br>"
+    except:
+        htmlbody += "<h3>error reading event table</h3></br>\n"
+        pass
+
 
     rd = voting.ServerList().get_redis_server(session)
     if rd is not None:
         ip = rd['ip']
         port = str(rd['port'])
-        htmlbody += "<h3>Redis server:</h3>" + ip + ':' + port + "<br>\n"
+        htmlbody += "<h3>Redis server:<span>" + ip + ':' + port + "</span></h3><br>\n"
     else:
         htmlbody += "<h3>Error reading Redis server configuration!</h3><br>\n"
 
@@ -244,11 +269,11 @@ def hello():
         htmlbody += "\n<br><h3>Categories:</h3>"
         htmlbody += "\n<blockquote>"
         for c in cl:
-            htmlbody += "\n<br>category_id = {}".format(c.get_id())
-            htmlbody += "\n<br>description = \"{}\"".format(c.get_description())
             htmlbody += "\n<br>state = <b>{}</b>".format(category.CategoryState.to_str(c.state))
-            htmlbody += "\n<br>start date={}".format(c.start_date)
-            htmlbody += "\n<br>end date={}".format(c.end_date)
+            htmlbody += "\n<br>category_id = {}".format(c.get_id())
+            htmlbody += "\n<br>description = <b><i>\"{}\"</b></i>".format(c.get_description())
+            htmlbody += "\n<br>start date={} UTC".format(c.start_date)
+            htmlbody += "\n<br>end date={} UTC".format(c.end_date)
             num_photos = photo.Photo.count_by_category(session, c.get_id())
             htmlbody += "\n<br><u>number photos uploaded = <b>{}</b></u>".format(num_photos)
             htmlbody += "\n<br><br>"

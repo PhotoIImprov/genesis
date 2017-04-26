@@ -3,7 +3,7 @@ import unittest
 import json
 import base64
 import requests
-from test_REST_login import TestUser
+from tests import test_REST_login
 from models import category
 from werkzeug.datastructures import Headers
 
@@ -22,7 +22,7 @@ from werkzeug.datastructures import Headers
 
 class InitEnvironment(unittest.TestCase):
 
-    _photos = {'Cute_Puppy.jpg',
+    _photos = ('Cute_Puppy.jpg',
               'Emma Passport.jpg',
               'Galaxy Edge 7 (full res)jpg.jpg',
               'Galaxy Edge 7 Cat  (full res)jpg.jpg',
@@ -61,7 +61,7 @@ class InitEnvironment(unittest.TestCase):
                'IMG_1218.JPG',
                'sam_4089.jpg',
                'vetndhl.jpg'
-               }
+               )
 
     _users = {'hcollins@gmail.com',
              'bp100a@hotmail.com',
@@ -177,7 +177,7 @@ class InitEnvironment(unittest.TestCase):
         self._base_url = 'http://104.198.176.198:8080'
         user_list = []
         for uname in self._users:
-            tu = TestUser()
+            tu = test_REST_login.TestUser()
             tu.create_user_with_name(uname)
             rsp = self.register_and_authenticate(tu)
             if rsp is not None:
@@ -189,10 +189,14 @@ class InitEnvironment(unittest.TestCase):
         # get the uploading category
         cid = self.get_category_by_state(category.CategoryState.UPLOAD, tu.get_token())
 
-        # okay, we've registered & logged in our users
-        # Now let's upload some images
+        # only upload a single photo in the category
+        # for each user
+        num_photos = len(self._photos)
+        photo_idx = 0
         for tu in user_list:
-            for pn in self._photos:
-                self.upload_photo(tu, pn, cid)
+            self.upload_photo(tu, self._photos[photo_idx], cid)
+            photo_idx += 1
+            if photo_idx > num_photos:
+                photo_idx = 0
 
         return
