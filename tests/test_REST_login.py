@@ -903,7 +903,7 @@ class TestLeaderBoard(iiBaseUnitTest):
         data = json.loads(rsp.data.decode("utf-8"))
         assert(rsp.status_code == 200)
         ballots = data
-        assert(len(ballots) == 4)
+        assert(len(ballots) < 5)
         return ballots
 
     def vote_ballot(self, tu, ballots):

@@ -2,8 +2,9 @@ import datetime
 import base64
 
 from flask import Flask, jsonify
-from flask     import request, make_response
+from flask     import request, make_response, current_app
 from flask_jwt import JWT, jwt_required, current_identity
+import jwt
 from flask_api import status
 from flask import send_from_directory
 
@@ -31,13 +32,35 @@ is_gunicorn = False
 
 __version__ = '0.2.1' #our version string PEP 440
 
+
+def fix_jwt_decode_handler(token):
+    secret = current_app.config['JWT_SECRET_KEY']
+    algorithm = current_app.config['JWT_ALGORITHM']
+    leeway = current_app.config['JWT_LEEWAY']
+
+    verify_claims = current_app.config['JWT_VERIFY_CLAIMS']
+    required_claims = current_app.config['JWT_REQUIRED_CLAIMS']
+
+    options = {
+        'verify_' + claim: claim in verify_claims
+        for claim in ['signature', 'exp', 'nbf', 'iat']
+    }
+
+    options.update({
+        'require_' + claim: claim in required_claims
+        for claim in ['exp', 'nbf', 'iat']
+    })
+
+    return jwt.decode(token, secret, options=options, algorithms=[algorithm], leeway=leeway)
+
 # specify the JWT package's call backs for authentication of username/password
 # and subsequent identity from the payload in the token
 app.config['JWT_EXPIRATION_DELTA'] = datetime.timedelta(days=10)
 app.config['JWT_LEEWAY'] = 20
-app.config['JWT_VERIFY_CLAIMS'] = ['signature', 'exp', 'nbf'] # keep getting iat "in the future" failure
+app.config['JWT_VERIFY_CLAIMS'] = ['signature', 'exp'] # keep getting iat "in the future" failure
 
-jwt = JWT(app, usermgr.authenticate, usermgr.identity)
+_jwt = JWT(app, usermgr.authenticate, usermgr.identity)
+_jwt.jwt_decode_handler(fix_jwt_decode_handler)
 
 @app.route("/protected")
 @jwt_required()
@@ -147,6 +170,7 @@ def spec():
 #        in: "query"
     # [END securityDef]
     swag['securityDefinitions'] = {'api_key': {'type': 'apiKey', 'name': 'key', 'in': 'query'}}
+    swag['securityDefinitions'] = {'JWT': {'type': 'apiKey', 'name': 'access_token', 'in': 'header'}}
     swag['swagger'] = "2.0"
 
     resp = make_response(jsonify(swag), status.HTTP_200_OK)
@@ -330,6 +354,7 @@ def set_category_state():
       - application/json
     security:
       - api_key: []
+      - JWT: []
     produces:
       - application/json
     parameters:

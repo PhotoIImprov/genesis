@@ -77,7 +77,12 @@ class InitEnvironment(unittest.TestCase):
              'dblankley@uproar.com',
 
               'dblankley@uproar.us',
-              'bp100a@hotmail.us'}
+              'bp100a@hotmail.us',
+              'testuser1@hotmail.com',
+              'testuser2@hotmail.com',
+              'testuser3@hotmail.com',
+              'testuser4@hotmail.com'
+              }
 
     _base_url = None
 
@@ -113,6 +118,8 @@ class InitEnvironment(unittest.TestCase):
         g = tu.get_guid()
         url = self._base_url + '/register'
         a_rsp = requests.post(url, data=json.dumps(dict(username=u, password=p, guid=g)), headers={'content-type':'application/json'})
+        if a_rsp.status_code != 400 and a_rsp.status_code != 201:
+            pass
         assert(a_rsp.status_code == 400 or a_rsp.status_code == 201)
 
          # now let's login this user
@@ -172,9 +179,36 @@ class InitEnvironment(unittest.TestCase):
         assert(rsp.status_code == 200)
         return cid
 
+    def massive_photo_upload(self):
+
+        num_photos = len(self._photos)
+        photo_idx = 0
+
+        tu = test_REST_login.TestUser()
+        cid = None
+        for idx in range(1000):
+            uname = 'test_user{}@gmail.com'.format(idx)
+            tu.create_user_with_name(uname)
+            rsp = self.register_and_authenticate(tu)
+            if rsp is not None:
+                if cid is None:
+                    # get the uploading category
+                    cid = self.get_category_by_state(category.CategoryState.UPLOAD, tu.get_token())
+
+                self.upload_photo(tu, self._photos[photo_idx], cid)
+                photo_idx += 1
+                if photo_idx >= num_photos:
+                    photo_idx = 0
+        # we are done, we uploaded a unique photo once for a lot of users!
+
+
     def test_initialize_server(self):
         # okay, we're going to create users & upload photos
-        self._base_url = 'http://104.198.176.198:8080'
+#        self._base_url = 'http://104.198.176.198:8080'
+        self._base_url = "https://api.imageimprov.com"
+
+        return self.massive_photo_upload()
+
         user_list = []
         for uname in self._users:
             tu = test_REST_login.TestUser()

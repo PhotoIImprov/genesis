@@ -318,7 +318,7 @@ class Photo(Base):
         pil_img = Image.open(file_jpegdata)
         exif_dict = self.get_exif_dict(pil_img)
         exif_data = self.get_exif_data(pil_img)
-        self.set_metadata(exif_data)
+        self.set_metadata(exif_data, pil_img.height, pil_img.width)
 
         # scale the image
         scaling_factor = self.compute_scalefactor(pil_img.height, pil_img.width)
@@ -420,8 +420,8 @@ class Photo(Base):
 
         return p
 
-    def set_metadata(self, d_exif):
-        self._photometa = PhotoMeta()
+    def set_metadata(self, d_exif, height, width):
+        self._photometa = PhotoMeta(height, width)
         self._photometa.set_exif_data(d_exif)
         return
 
@@ -437,6 +437,14 @@ class PhotoMeta(Base):
 
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
+
+    def __init__(self, height, width):
+        self.height = height
+        self.width = width
+        if self.height > self.width:
+            self.orientation = 8    # portrait (taller than wide)
+        else:
+            self.orientation = 1    # landscape (wider than tall)
 
     def set_exif_data(self, d_exif):
         if d_exif is None:
