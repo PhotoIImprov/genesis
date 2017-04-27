@@ -30,7 +30,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '0.2.1' #our version string PEP 440
+__version__ = '0.3.0' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -234,7 +234,7 @@ def hello():
     """
     htmlbody = "<html>\n<body>\n"
     if dbsetup.is_gunicorn():
-        htmlbody += "<h1>ImageImprov Hello World from Gunicorn!</h1>"
+        htmlbody += "<h1>ImageImprov Hello World from Gunicorn & Nginx!</h1>"
 #        htmlbody += "<img src=\"/static/gunicorn_banner.jpg\"/>"
         htmlbody += "<img src=\"/static/gunicorn_small.png\"/>"
     else:

@@ -3,9 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/iiServer.py" afterPath="$PROJECT_DIR$/iiServer.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/photo.py" afterPath="$PROJECT_DIR$/models/photo.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/initialize_data.py" afterPath="$PROJECT_DIR$/tests/initialize_data.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/test_REST_login.py" afterPath="$PROJECT_DIR$/tests/test_REST_login.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -65,11 +62,11 @@
       <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/iiServer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="303">
-              <caret line="59" column="53" lean-forward="true" selection-start-line="59" selection-start-column="53" selection-end-line="59" selection-end-column="53" />
+            <state relative-caret-position="232">
+              <caret line="236" column="70" lean-forward="false" selection-start-line="236" selection-start-column="70" selection-end-line="236" selection-end-column="70" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
-                <marker date="1493318805753" expanded="true" signature="9439:9464" ph="select * fro... event" />
+                <marker date="1493319168201" expanded="true" signature="9447:9472" ph="select * fro... event" />
               </folding>
             </state>
           </provider>
@@ -185,10 +182,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>TestUser</find>
-      <find>/photo</find>
-      <find>/config</find>
-      <find>create_thumb</find>
       <find>read_thumb</find>
       <find>exif_data</find>
       <find>104</find>
@@ -215,6 +208,10 @@
       <find>jwt_decode_</find>
       <find>current_app</find>
       <find>jwt</find>
+      <find>userlogin</find>
+      <find>g</find>
+      <find>guni</find>
+      <find>gunicor</find>
     </findStrings>
     <replaceStrings>
       <replace>Photo</replace>
@@ -1522,11 +1519,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/iiServer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="303">
-          <caret line="59" column="53" lean-forward="true" selection-start-line="59" selection-start-column="53" selection-end-line="59" selection-end-column="53" />
+        <state relative-caret-position="232">
+          <caret line="236" column="70" lean-forward="false" selection-start-line="236" selection-start-column="70" selection-end-line="236" selection-end-column="70" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
-            <marker date="1493318805753" expanded="true" signature="9439:9464" ph="select * fro... event" />
+            <marker date="1493319168201" expanded="true" signature="9447:9472" ph="select * fro... event" />
           </folding>
         </state>
       </provider>
