@@ -249,6 +249,10 @@ def hello():
     htmlbody += "\n<br>Flask instance path = \"" + app.instance_path + "\"\n"
     htmlbody += "\n<br>Flask root path = \"" + app.root_path + "\"\n"
 
+    hostname = os.uname()[1]
+    if hostname is None:
+        hostname = '<i>unknown</i>!'
+    htmlbody += "\n<br><b>hostname: </b>" + hostname
     htmlbody += "<br>\n"
 
     # display current connection string, without username/password!
