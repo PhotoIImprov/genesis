@@ -23,21 +23,3 @@ class TestCategory(DatabaseTest):
         c = category.Category.create_category(r.resource_id, s_date, e_date, category.CategoryState.UPLOAD)
         category.Category.write_category(self.session, c)
         return c.id
-
-    def test_current_category(self):
-        self.setup()
-
-        # we need a valid user id
-        au = usermgr.AnonUser.create_anon_user(self.session, '99275132efe811e6bc6492361f00267A')
-
-        dummy_uid = au.get_id()
-        # see if we have a category already in the DB
-        c = category.Category.current_category(self.session, dummy_uid, category.CategoryState.UPLOAD) # for now uid is dummy & not used
-        if c is None:
-            # if no category in the DB, create one and read it back
-            cid = self.create_category()
-            c = category.Category.current_category(self.session, dummy_uid, category.CategoryState.UPLOAD) # for now uid is dummy & not used
-
-        assert(c is not None)
-
-        self.teardown()

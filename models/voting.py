@@ -10,9 +10,16 @@ import base64
 from flask import jsonify
 from leaderboard.leaderboard import Leaderboard
 from models import error
+from random import randint
 
 
+# configuration values we can move to a better place
 _NUM_BALLOT_ENTRIES = 4
+_NUM_SECTONS_ROUND2 = 4
+_ROUND1_SCORING     = {0:(3,1,0,0)}
+_ROUND2_SCORING     = {0:(7,5,3,3), 1:(6,4,2,2), 2:(5,3,1,1), 3:(4,2,0,1)}
+_ROUND1_TIMESVOTED  = 3
+_ROUND2_TIMESVOTED  = 3
 
 class Ballot(Base):
     __tablename__ = 'ballot'
@@ -44,18 +51,6 @@ class Ballot(Base):
     # A user should never see the *same* ballot twice, but entries on the ballot could be
     # almost entirely the same, particularly as the set of remaining entries is narrowed
 
-
-    # find_ballot()
-    # =============
-    # return all ballots for this user for the current category
-    # and all ballot entries for each ballot
-    #
-#    @staticmethod
-#    def find_ballot(session, uid, cid):
-#        q = session.query(Ballot).filter_by(user_id = uid, category_id = cid)
-#        b = q.one()
-#        return b
-
     def get_ballotentries(self):
         return self._ballotentries
 
@@ -70,6 +65,25 @@ class Ballot(Base):
 
     @staticmethod
     def create_ballot(session, uid, cid):
+        # determine what round of voting
+        d = category.Category.read_category_by_id(session, cid)
+        c = d['arg']
+
+        if c is None:
+            return d
+
+        if c.round == 0:
+            return Ballot.create_ballot_round1(session, uid, cid)
+
+        return VotingRound().create_ballot_round2(session,uid, cid)
+
+    @staticmethod
+    def create_ballot_round2(session, uid,cid):
+
+        return None
+
+    @staticmethod
+    def create_ballot_round1(session, uid, cid):
         count = 4 # number of photos in a ballot
         d = Ballot.create_ballot_list(session, uid, cid, count)
         plist = d['arg']
@@ -288,6 +302,60 @@ class BallotEntry(Base):
 
         session.commit() # make sure ballotentry is written out
         return be
+
+class VotingRound(Base):
+    __tablename__ = 'voting_round'
+    photo_id = Column(Integer, ForeignKey("photo.id", name="fk_votinground_photo_id"), nullable=False, primary_key=True)
+    section = Column(Integer, nullable=False)
+    times_voted = Column(Integer, nullable=True, default=0)
+
+    # ======================================================================================================
+
+    def create_ballot_round2(self, session, uid, cid):
+        if session is None or uid is None or cid is None:
+            return None
+
+        # *****************************
+        # **** CONFIGURATION ITEMS ****
+        num_sections = _NUM_SECTONS_ROUND2    # the "stratification" of the photos that received votes or likes
+        num_ballots = _NUM_BALLOT_ENTRIES     # The # of photos we display to the user in a single ballot
+        max_votes = _ROUND2_TIMESVOTED        # The max # of votes we need to pick a winner
+        # ****************************
+
+        # create an array of our sections
+        sl = []
+        for idx in range(num_sections):
+            sl[idx] = idx
+
+        bl = []
+        for tv in range(max_votes):
+            random.shuffle(sl)  # randomize the section list
+            for idx in range(num_sections):
+                q = session.query(VotingRound).filter(VotingRound.section == sl[idx]). \
+                    join(photo.Photo, VotingRound.photo_id == photo.Photo.id) . \
+                    filter(photo.Photo.user_id != uid) . \
+                    filter(photo.Photo.category_id == cid). \
+                    filter(VotingRound.times_voted == tv).limit(num_ballots)
+                b = q.all()
+                if len(b) == num_ballots:
+                    return b
+
+                bl.append(b) # accumulate ballots we've picked, can save us time later
+
+        # see if we encountered 4 in our journey
+        if len(bl) >= num_ballots:
+            b = bl[num_ballots:] # we'll use these, only return 4
+            return b
+
+        # we tried everything, let's just grab some photos (HOW TO RANDOMIZE THIS??)
+        q = session.query(VotingRound). \
+            join(photo.Photo, VotingRound.photo_id == photo.Photo.id) . \
+            filter(photo.Photo.user_id != uid) . \
+            filter(photo.Photo.category_id == cid).limit(num_ballots)
+        b = q.all()
+
+        return b
+
 
 class ServerList(Base):
     __tablename__ = 'serverlist'

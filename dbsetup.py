@@ -5,6 +5,9 @@ from enum import Enum
 import os
 import logging
 from flask import request
+from sqlalchemy import exc
+from sqlalchemy import event
+from sqlalchemy import select
 
 class ImageType(Enum):
     UNKNOWN = 0
@@ -70,12 +73,47 @@ def log_error(req, err_msg, uid):
 
 
 # connection to MySQL instance on 4KOffice (intranet)
-engine   = create_engine(connection_string(None), echo=False)
+engine   = create_engine(connection_string(None), echo=True)
 Session  = sessionmaker(bind=engine)
 Base     = declarative_base()
 metadata = Base.metadata
 
 metadata.create_all(bind=engine, checkfirst=True)
+
+@event.listens_for(engine, "engine_connect")
+def ping_connection(connection, branch):
+    if branch:
+        # "branch" refers to a sub-connection of a connection,
+        # we don't want to bother pinging on these.
+        return
+
+    # turn off "close with result".  This flag is only used with
+    # "connectionless" execution, otherwise will be False in any case
+    save_should_close_with_result = connection.should_close_with_result
+    connection.should_close_with_result = False
+
+    try:
+        # run a SELECT 1.   use a core select() so that
+        # the SELECT of a scalar value without a table is
+        # appropriately formatted for the backend
+        connection.scalar(select([1]))
+    except exc.DBAPIError as err:
+        # catch SQLAlchemy's DBAPIError, which is a wrapper
+        # for the DBAPI's exception.  It includes a .connection_invalidated
+        # attribute which specifies if this connection is a "disconnect"
+        # condition, which is based on inspection of the original exception
+        # by the dialect in use.
+        if err.connection_invalidated:
+            # run the same SELECT again - the connection will re-validate
+            # itself and establish a new connection.  The disconnect detection
+            # here also causes the whole connection pool to be invalidated
+            # so that all stale connections are discarded.
+            connection.scalar(select([1]))
+        else:
+            raise
+    finally:
+        # restore "close with result"
+        connection.should_close_with_result = save_should_close_with_result
 
 # format for logging information
 LOGGING_FORMAT = '%(asctime)-15s %(clientip)s %(user)-8s %(message)s'
@@ -101,5 +139,11 @@ QUOTES = (
     ('Most people hate the taste of beer - to being with. It is, however, a prejudice.', 'Winston Churchill'),
     ('For a quart of Ale is a dish for a king', 'William Shakespeare'),
     ('I am a firm believer in the people. If given the truth, they can be depended upon to meet any national crisis. The great point is to bring them the real facts, and beer', 'Abraham Lincoln'),
-    ('Whoever drinks beer, he is quick to sleep; whoever sleeps long, does not sin; whoever does not sin, enters Heaven! Thus, let us drink beer!', 'Martin Luther')
+    ('Whoever drinks beer, he is quick to sleep; whoever sleeps long, does not sin; whoever does not sin, enters Heaven! Thus, let us drink beer!', 'Martin Luther'),
+    ('Milk is for babies. When you grow up you have to drink beer', 'Arnold Schwarzenegger'),
+    ('I look like the kdin of guy that has a bottle of beer in my hand', 'Charles Bronson'),
+    ('Yes, sir. I\'m a real Souther boy. I got a red neck, white socks, and a BlueRibbon beer.', 'Billy Carter'),
+    ('Give a man a beer, waste an hour. Teach a man to brew, and waste a lifetime!', 'Bill Owen'),
+    ('He was a wise man who invented beer.', 'Plato'),
+    ('Beer\'s intellectual. What a shame so many idiots drink it.', 'Ray Bradbury')
 )

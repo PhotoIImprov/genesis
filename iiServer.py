@@ -136,7 +136,7 @@ def spec():
 
     swag['info']['contact'] = {'name':'apimaster@imageimprov.com'}
     swag['schemes'] = ['http', 'https']
-    swag['host'] = "api.endpoints.imageimprov.cloud.goog"
+    swag['host'] = "api.imageimprov.com"
 
     swag['paths']["/auth"] = {'post':{'consumes': ['application/json'],
                                       'description':'JWT authentication',

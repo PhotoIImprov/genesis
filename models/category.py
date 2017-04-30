@@ -34,11 +34,14 @@ class CategoryState(Enum):
 class Category(Base):
     __tablename__ = 'category'
 
-    id           = Column(Integer, primary_key=True, autoincrement=True)
-    state        = Column(Integer, nullable=False, default=CategoryState.UNKNOWN)
-    resource_id  = Column(Integer, ForeignKey("resource.resource_id", name="fk_category_resource_id"), nullable=False)
-    start_date   = Column(DateTime, nullable=False)
-    end_date     = Column(DateTime, nullable=False)
+    id              = Column(Integer, primary_key=True, autoincrement=True)
+    state           = Column(Integer, nullable=False, default=CategoryState.UNKNOWN)
+    round           = Column(Integer, nullable=False, default=0)
+    resource_id     = Column(Integer, ForeignKey("resource.resource_id", name="fk_category_resource_id"), nullable=False)
+    start_date      = Column(DateTime, nullable=False)
+    duration_upload = Column(Integer, nullable=False, default=24)
+    duration_vote   = Column(Integer, nullable=False, default=24)
+    end_date        = Column(DateTime, nullable=False)
 
 
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
@@ -59,18 +62,6 @@ class Category(Base):
             self._category_description = Category.get_description_by_resource(self.resource_id)
 
         return self._category_description
-
-    """
-    def set_state(self, new_state):
-        if self.state == CategoryState.UPLOAD and new_state == CategoryState.VOTING:
-            # we're moving from uploading to voting, so there's some housekeeping to do
-
-            # create leaderboard
-            lb_name = "highscores category {}".format(self.id)
-            lb = LeaderBoard(lb_name)
-
-        self.state = new_state.value
-    """
 
     def to_json(self):
         category_description = self.get_description()
@@ -105,14 +96,11 @@ class Category(Base):
         if au is None:
             return None
 
-        # Category start/end dates define the interval for uploading
-        # so the currently voting category is 1 day old.
-        # we also want the last category that was voted on (closed) so we can display the leaderboard
-        # so we need another day in the past
-        # we should always get back 3 after 2 days of running...
-        current_time = datetime.utcnow()
-        start_time = current_time - timedelta(days=2)
-        q = session.query(Category).filter(Category.start_date < current_time).filter(Category.end_date > start_time)
+        # display all categories that are in any of the three "Category States"
+        # - UPLOAD - category can accept photos to be uploaded
+        # - VOTING - category photos are ready for voting
+        # - COUNTING - past voting, available to see status of winners
+        q = session.query(Category).filter(Category.state.in_([CategoryState.UPLOAD.value, CategoryState.VOTING.value, CategoryState.COUNTING.value]))
         c = q.all()
         return c
 
@@ -166,25 +154,3 @@ class Category(Base):
         if c is None:
             return False
         return c.state == CategoryState.VOTING.value
-
-    @staticmethod
-    def current_category(session, uid, state):
-        if session is None or uid is None:
-            raise BaseException(errno.EINVAL)
-
-        if state != CategoryState.VOTING and state != CategoryState.UPLOAD:
-            raise BaseException(errno.ERANGE)
-
-        au = usermgr.AnonUser.get_anon_user_by_id(session, uid)
-        if au is None:
-            return None
-
-        current_datetime = datetime.utcnow()
-        q = session.query(Category).filter(Category.start_date < current_datetime) \
-                                   .filter(Category.end_date > current_datetime) \
-                                   .filter(Category.state == state.value)
-        c = q.all()
-        if c is None or len(c) == 0:
-            return None
-
-        return c[0]
