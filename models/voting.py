@@ -221,6 +221,14 @@ class Ballot(Base):
         session.commit()
         return cid
 
+    @staticmethod
+    def num_voters_by_category(session, cid):
+
+        q = session.query(Ballot.user_id).distinct().filter(Ballot.category_id == cid)
+        n = q.count()
+
+        return n
+
 class BallotEntry(Base):
     __tablename__ = 'ballotentry'
     id           = Column(Integer, primary_key=True, autoincrement=True)

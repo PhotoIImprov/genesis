@@ -145,19 +145,13 @@ def authenticate(username, password):
         guid = username.upper().translate({ord(c): None for c in '-'})
         foundAnonUser = AnonUser.find_anon_user(session, guid)
         session.close()
-        if foundAnonUser is not None:
-            return foundAnonUser
+        return foundAnonUser
     else:
-        foundUser = User.find_user_by_email(Session(), username)
-
-        if foundUser is not None:
-            # time to check the password
-            if pbkdf2_sha256.verify(password, foundUser.hashedPWD):
-                uid = foundUser.id #foundUser.get_id()
-                au = AnonUser.get_anon_user_by_id(Session(), uid)
-                session.close()
-                return au
+        foundUser = User.find_user_by_email(session, username)
         session.close()
+        if foundUser is not None:
+            if pbkdf2_sha256.verify(password, foundUser.hashedPWD):
+                return foundUser
 
     return None
 

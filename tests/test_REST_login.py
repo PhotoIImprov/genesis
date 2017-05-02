@@ -788,6 +788,11 @@ class TestCategory(iiBaseUnitTest):
 
         cl = json.loads(rsp.data.decode("utf-8"))
         assert(len(cl) != 0)
+
+        # verify that all keys are in the dictionary returned
+        keylist = ('state', 'round', 'start', 'end', 'id', 'theme')
+        for key in keylist:
+            assert(key not in cl)
         return
 
 class TestLeaderBoard(iiBaseUnitTest):

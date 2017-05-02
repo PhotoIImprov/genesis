@@ -54,6 +54,7 @@ class Photo(Base):
         c = session.query(Photo).filter_by(category_id = cid).count()
         return c
 
+
     def increment_vote_count(self):
         if self.times_voted is None:
             self.times_voted = 0
@@ -316,9 +317,9 @@ class Photo(Base):
 
         file_jpegdata = BytesIO(self.get_image())
         pil_img = Image.open(file_jpegdata)
-        exif_dict = self.get_exif_dict(pil_img)
-        exif_data = self.get_exif_data(pil_img)
-        self.set_metadata(exif_data, pil_img.height, pil_img.width)
+        exif_dict = self.get_exif_dict(pil_img) # raw data from image
+        exif_data = self.get_exif_data(pil_img) # key/value pairs reconstituted
+        self.set_metadata(exif_data, pil_img.height, pil_img.width) # set metadata about Photo
 
         # scale the image
         scaling_factor = self.compute_scalefactor(pil_img.height, pil_img.width)

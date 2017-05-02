@@ -30,7 +30,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '0.3.0' #our version string PEP 440
+__version__ = '0.3.1' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -302,8 +302,17 @@ def hello():
             htmlbody += "\n<br>description = <b><i>\"{}\"</b></i>".format(c.get_description())
             htmlbody += "\n<br>start date={} UTC".format(c.start_date)
             htmlbody += "\n<br>end date={} UTC".format(c.end_date)
+            htmlbody += "\n<br>round={}".format(c.round)
             num_photos = photo.Photo.count_by_category(session, c.get_id())
-            htmlbody += "\n<br><u>number photos uploaded = <b>{}</b></u>".format(num_photos)
+            htmlbody += "\n<br>number photos uploaded = <b>{}</b>".format(num_photos)
+            if c.state == category.CategoryState.VOTING.value:
+                num_voters = voting.Ballot.num_voters_by_category(session, c.get_id())
+                htmlbody += "\n<br>number users voting = <b>{}</b>".format(num_voters)
+            if c.state == category.CategoryState.UPLOAD.value:
+                q = session.query(photo.Photo.user_id).distinct().filter(photo.Photo.category_id == c.get_id())
+                n = q.count()
+                htmlbody += "\n<br>number users uploading = <b>{}</b>".format(n)
+
             htmlbody += "\n<br><br>"
         htmlbody += "\n</blockquote>"
 
@@ -469,6 +478,9 @@ def get_category():
                 - "COUNTING"
                 - "CLOSED"
               description: "The current state of the category (VOTING, UPLOADING, CLOSED, etc.)"
+            round:
+              type: int
+              description: "Which round of voting the category is in."
     """
     uid = current_identity.id
 

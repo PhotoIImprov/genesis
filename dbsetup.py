@@ -65,19 +65,17 @@ def is_gunicorn():
     _is_gunicorn = "gunicorn" in os.environ.get("SERVER_SOFTWARE", "")
     return _is_gunicorn
 
+"""
 def log_error(req, err_msg, uid):
     d = {'clientip': req.remote_addr, 'user': uid}
     logger.error('Error: %s', err_msg, extra=d)
+"""
 
-# see what environment we are running on
 
-
-# connection to MySQL instance on 4KOffice (intranet)
-engine   = create_engine(connection_string(None), echo=True)
+engine   = create_engine(connection_string(None), echo=False, pool_recycle=3600)
 Session  = sessionmaker(bind=engine)
 Base     = declarative_base()
 metadata = Base.metadata
-
 metadata.create_all(bind=engine, checkfirst=True)
 
 @event.listens_for(engine, "engine_connect")
@@ -116,7 +114,8 @@ def ping_connection(connection, branch):
         connection.should_close_with_result = save_should_close_with_result
 
 # format for logging information
-LOGGING_FORMAT = '%(asctime)-15s %(clientip)s %(user)-8s %(message)s'
+#LOGGING_FORMAT = '%(asctime)-15s %(clientip)s %(user)-8s %(message)s'
+LOGGING_FORMAT = '%(asctime)-15s %(message)s'
 LOGGING_LEVEL = logging.ERROR
 
 logger = logging.getLogger(__name__)
