@@ -473,13 +473,10 @@ def get_category():
             state:
               type: string
               enum:
-                - "UPLOAD"
-                - "VOTING"
-                - "COUNTING"
-                - "CLOSED"
+                - UPLOAD, VOTING, COUNTING, CLOSED
               description: "The current state of the category (VOTING, UPLOADING, CLOSED, etc.)"
             round:
-              type: int
+              type: integer
               description: "Which round of voting the category is in."
     """
     uid = current_identity.id
@@ -975,8 +972,7 @@ def photo_upload():
             extension:
               type: string
               enum:
-                - "JPEG"
-                - "JPG"
+                - JPEG, JPG
               description: "Extension/filetype of uploaded image"
             image:
               type: string
