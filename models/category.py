@@ -86,7 +86,7 @@ class Category(Base):
         return categories
 
     @staticmethod
-    @memoize_with_expiry(_memoize_cache, 300, 0)
+#    @memoize_with_expiry(_memoize_cache, 300, 0)
     def active_categories(session, uid):
         if session is None or uid is None:
             return None

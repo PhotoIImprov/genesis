@@ -10,7 +10,7 @@ import base64
 from flask import jsonify
 from leaderboard.leaderboard import Leaderboard
 from models import error
-from random import randint
+from random import randint, shuffle
 
 
 # configuration values we can move to a better place
@@ -31,7 +31,7 @@ class Ballot(Base):
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
-    _ballotentries = relationship("BallotEntry", backref="ballot")
+    _ballotentries = relationship("BallotEntry", backref="ballot", lazy="joined")
     # ======================================================================================================
 
     def __init__(self, cid, uid):
@@ -77,10 +77,6 @@ class Ballot(Base):
 
         return VotingRound().create_ballot_round2(session,uid, cid)
 
-    @staticmethod
-    def create_ballot_round2(session, uid,cid):
-
-        return None
 
     @staticmethod
     def create_ballot_round1(session, uid, cid):
@@ -319,7 +315,41 @@ class VotingRound(Base):
 
     # ======================================================================================================
 
-    def create_ballot_round2(self, session, uid, cid):
+    def create_ballot_round2(self, session,uid, cid):
+        plist = self.create_ballot_list_round2(session, uid, cid)
+        if plist is None:
+            return {'error': 'no ballot', 'arg': None}
+
+        b = Ballot(cid, uid)
+        # now create the ballot entries and attach to the ballot
+        for p in plist:
+            be = BallotEntry(p.user_id, cid, p.photo_id)
+            be.set_photo(p)            # **** THIS IS GETTING OVERWRITTEN BY THE COMMIT???****
+            b.add_ballotentry(be)
+
+        # okay we have created ballot entries for our select photos
+        # time to write it all out
+        try:
+            Ballot.write_ballot(session,b)
+        except exc.IntegrityError as e:
+            if 'fk_ballot_user_id' in e.args[0] or 'fk_ballot_category_id' in e.args[0]:
+                return {'error':error.iiServerErrors.INVALID_USER, 'arg':None} # someone passed us an improper user_id
+            raise # tell someone up what the problem is...
+
+        # =========================================================
+        # ==== we need to "reset" the photo information to the ====
+        # ==== to the ballotentry, it's getting "lost" during  ====
+        # ==== commit ???                                      ====
+        # =========================================================
+        for p in plist:
+            for be in b._ballotentries:
+                if be.photo_id == p.photo_id:
+                    be.set_photo(p)
+                    break
+
+        return {'error':None, 'arg':b}
+
+    def create_ballot_list_round2(self, session, uid, cid):
         if session is None or uid is None or cid is None:
             return None
 
@@ -333,13 +363,13 @@ class VotingRound(Base):
         # create an array of our sections
         sl = []
         for idx in range(num_sections):
-            sl[idx] = idx
+            sl.append(idx)
 
         bl = []
         for tv in range(max_votes):
-            random.shuffle(sl)  # randomize the section list
+            shuffle(sl)  # randomize the section list
             for idx in range(num_sections):
-                q = session.query(VotingRound).filter(VotingRound.section == sl[idx]). \
+                q = session.query(VotingRound.photo_id, VotingRound.section, VotingRound.times_voted, photo.Photo.user_id).filter(VotingRound.section == sl[idx]). \
                     join(photo.Photo, VotingRound.photo_id == photo.Photo.id) . \
                     filter(photo.Photo.user_id != uid) . \
                     filter(photo.Photo.category_id == cid). \
@@ -356,7 +386,7 @@ class VotingRound(Base):
             return b
 
         # we tried everything, let's just grab some photos (HOW TO RANDOMIZE THIS??)
-        q = session.query(VotingRound). \
+        q = session.query(VotingRound.photo_id, VotingRound.section, VotingRound.times_voted, photo.Photo.user_id). \
             join(photo.Photo, VotingRound.photo_id == photo.Photo.id) . \
             filter(photo.Photo.user_id != uid) . \
             filter(photo.Photo.category_id == cid).limit(num_ballots)
