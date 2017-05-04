@@ -323,7 +323,7 @@ class VotingRound(Base):
         b = Ballot(cid, uid)
         # now create the ballot entries and attach to the ballot
         for p in plist:
-            be = BallotEntry(p.user_id, cid, p.photo_id)
+            be = BallotEntry(p.user_id, cid, p.id)
             be.set_photo(p)            # **** THIS IS GETTING OVERWRITTEN BY THE COMMIT???****
             b.add_ballotentry(be)
 
@@ -343,7 +343,7 @@ class VotingRound(Base):
         # =========================================================
         for p in plist:
             for be in b._ballotentries:
-                if be.photo_id == p.photo_id:
+                if be.photo_id == p.id:
                     be.set_photo(p)
                     break
 
@@ -369,30 +369,30 @@ class VotingRound(Base):
         for tv in range(max_votes):
             shuffle(sl)  # randomize the section list
             for idx in range(num_sections):
-                q = session.query(VotingRound.photo_id, VotingRound.section, VotingRound.times_voted, photo.Photo.user_id).filter(VotingRound.section == sl[idx]). \
-                    join(photo.Photo, VotingRound.photo_id == photo.Photo.id) . \
-                    filter(photo.Photo.user_id != uid) . \
-                    filter(photo.Photo.category_id == cid). \
+                q = session.query(photo.Photo).filter(photo.Photo.user_id != uid). \
+                    filter(photo.Photo.category_id == cid).\
+                    join(VotingRound, VotingRound.photo_id == photo.Photo.id) . \
+                    filter(VotingRound.section == sl[idx]). \
                     filter(VotingRound.times_voted == tv).limit(num_ballots)
-                b = q.all()
-                if len(b) == num_ballots:
-                    return b
+                p = q.all()
+                if len(p) == num_ballots:
+                    return p
 
-                bl.append(b) # accumulate ballots we've picked, can save us time later
+                bl.append(p) # accumulate ballots we've picked, can save us time later
 
         # see if we encountered 4 in our journey
-        if len(bl) >= num_ballots:
-            b = bl[num_ballots:] # we'll use these, only return 4
-            return b
+        if len(pl) >= num_ballots:
+            p = pl[num_ballots:] # we'll use these, only return 4
+            return p
 
-        # we tried everything, let's just grab some photos (HOW TO RANDOMIZE THIS??)
-        q = session.query(VotingRound.photo_id, VotingRound.section, VotingRound.times_voted, photo.Photo.user_id). \
-            join(photo.Photo, VotingRound.photo_id == photo.Photo.id) . \
-            filter(photo.Photo.user_id != uid) . \
-            filter(photo.Photo.category_id == cid).limit(num_ballots)
-        b = q.all()
+        # we tried everything, let's just grab some photos from any section (HOW TO RANDOMIZE THIS??)
+        q = session.query(photo.Photo).filter(photo.Photo.user_id != uid). \
+            filter(photo.Photo.category_id == cid). \
+            join(VotingRound, VotingRound.photo_id == photo.Photo.id). \
+            filter(VotingRound.times_voted == tv).limit(num_ballots)
+        p = q.all()
 
-        return b
+        return p
 
 
 class ServerList(Base):

@@ -826,18 +826,25 @@ def cast_vote():
     return rsp
 
 def return_ballot(session, uid, cid):
-    d = voting.Ballot.create_ballot(session, uid, cid)
-    session.close()
-    b = d['arg']
-    if b is None:
-        if d['error'] is not None:
-            return make_response(jsonify({'msg':error.iiServerErrors.error_message(d['error'])}),status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            return make_response(jsonify({'msg': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
+    try:
+        d = voting.Ballot.create_ballot(session, uid, cid)
+        b = d['arg']
+        if b is None:
+            session.close()
+            if d['error'] is not None:
+                return make_response(jsonify({'msg':error.iiServerErrors.error_message(d['error'])}),status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                return make_response(jsonify({'msg': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    # we have a ballot, turn it into JSON
-    ballots = b.to_json()
-    return make_response(jsonify(ballots), status.HTTP_200_OK)
+        # we have a ballot, turn it into JSON
+        ballots = b.to_json()
+        rsp = make_response(jsonify(ballots), status.HTTP_200_OK)
+        session.commit()
+        session.close()
+        return rsp
+    except:
+        session.rollback()
+        return make_response(jsonify({'msg': error.error_string('NO_BALLOT')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @app.route("/image", methods=['GET'])
 @jwt_required()
