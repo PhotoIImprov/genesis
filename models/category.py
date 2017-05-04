@@ -101,8 +101,11 @@ class Category(Base):
         # - VOTING - category photos are ready for voting
         # - COUNTING - past voting, available to see status of winners
         q = session.query(Category).filter(Category.state.in_([CategoryState.UPLOAD.value, CategoryState.VOTING.value, CategoryState.COUNTING.value]))
-        c = q.all()
-        return c
+        cl = q.all()
+
+        for c in cl:
+            session.expunge(c) # so they aren't tied to the session
+        return cl
 
     @staticmethod
     def write_category(session, c):
