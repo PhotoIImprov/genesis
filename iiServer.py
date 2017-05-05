@@ -372,26 +372,28 @@ def set_category_state():
         cid = None
         cstate = None
 
-    if cid is None:
-        return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
-
     session = dbsetup.Session()
-
-    tm = voting.TallyMan()
-    d = tm.change_category_state(session, cid, cstate)
-    session.commit()
-    session.close()
-    if d['error'] is not None:
-        return make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
-
-    c = d['arg']
-    if c is not None:
-       return make_response(jsonify({'msg': error.error_string('CATEGORY_STATE')}),status.HTTP_200_OK)
-
-    dbsetup.log_error(request, error.iiServerErrors.error_message(d['error']), None)
-
-    return make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+    rsp = None
+    try:
+        if cid is None:
+            rsp = make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
+        else:
+            tm = voting.TallyMan()
+            d = tm.change_category_state(session, cid, cstate)
+            session.commit()
+            if d['error'] is not None:
+                rsp = make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
+            else:
+                c = d['arg']
+                if c is not None:
+                   rsp = make_response(jsonify({'msg': error.error_string('CATEGORY_STATE')}),status.HTTP_200_OK)
+    except:
+        rsp = make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        session.close()
+        if rsp is None:
+            rsp = make_response(jsonify({'msg': error.error_string('UNKNOWN_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return rsp
 
 @app.route("/category", methods=['GET'])
 @jwt_required()
@@ -446,16 +448,22 @@ def get_category():
               type: integer
               description: "Which round of voting the category is in."
     """
-    uid = current_identity.id
-    session = dbsetup.Session()
-    cl = category.Category.active_categories(session, uid)
-    session.close()
-    if cl is None:
-        dbsetup.log_error(request, error.error_string('CATEGORY_ERROR'), None)
-        return make_response(jsonify({'msg': error.error_string('CATEGORY_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    categories = category.Category.list_to_json(cl)
-    return make_response(jsonify(categories), status.HTTP_200_OK)
+    rsp = None
+    try:
+        uid = current_identity.id
+        session = dbsetup.Session()
+        cl = category.Category.active_categories(session, uid)
+        session.close()
+        if cl is None:
+           rsp = make_response(jsonify({'msg': error.error_string('CATEGORY_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+           categories = category.Category.list_to_json(cl)
+           rsp = make_response(jsonify(categories), status.HTTP_200_OK)
+    except:
+        rsp = make_response(jsonify({'msg': error.error_string('CATEGORY_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        session.close()
+        return rsp
 
 @app.route("/leaderboard", methods=['GET'])
 @jwt_required()
@@ -513,22 +521,23 @@ def get_leaderboard():
     if not request.args:
         return make_response(jsonify({'msg': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
-    cid = request.args.get('category_id')
-    u = current_identity
-    uid = u.id
-
-    if cid is None or cid == 'None' or uid is None:
-        return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
-
-    tm = voting.TallyMan()
-    session = dbsetup.Session()
-    d = tm.create_leaderboard(session, uid, cid)
-    session.close()
-
-    if d is not None:
-        return make_response(jsonify(d), 200)
-
-    return make_response(jsonify({'msg': error.error_string('NO_LEADERBOARD')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    try:
+        session = dbsetup.Session()
+        cid = request.args.get('category_id')
+        u = current_identity
+        uid = u.id
+        if cid is None or cid == 'None' or uid is None:
+            rsp = make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
+        else:
+            tm = voting.TallyMan()
+            d = tm.create_leaderboard(session, uid, cid)
+            if d is not None:
+                rsp = make_response(jsonify(d), 200)
+    except:
+       rsp = make_response(jsonify({'msg': error.error_string('NO_LEADERBOARD')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        session.close()
+        return rsp
 
 @app.route("/ballot", methods=['GET'])
 @jwt_required()
@@ -587,7 +596,6 @@ def get_ballot():
     u = current_identity
     uid = u.id
     cid = request.args.get('category_id')
-
     if uid is None or cid is None or cid == 'None':
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
@@ -1013,15 +1021,21 @@ def photo_upload():
     if cid is None or uid is None:
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
-    image_data = base64.b64decode(image_data_b64)
-    session = dbsetup.Session()
-    d = photo.Photo().save_user_image(session, image_data, image_type, uid, cid)
-    session.commit()
-    session.close()
-    if d['error'] is not None:
-        return make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
-
-    return make_response(jsonify({'msg': error.error_string('PHOTO_UPLOADED'), 'filename': d['arg']}), status.HTTP_201_CREATED)
+    try:
+        session = dbsetup.Session()
+        image_data = base64.b64decode(image_data_b64)
+        d = photo.Photo().save_user_image(session, image_data, image_type, uid, cid)
+        session.commit()
+        if d['error'] is not None:
+            rsp = make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
+        else:
+            rsp = make_response(jsonify({'msg': error.error_string('PHOTO_UPLOADED'), 'filename': d['arg']}), status.HTTP_201_CREATED)
+    except:
+        session.rollback()
+        rsp = make_response(jsonify({'msg': error.error_string('UPLOAD_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        session.close()
+        return rsp
 
 @app.route("/register", methods=['POST'])
 def register():
@@ -1084,35 +1098,37 @@ def register():
     if emailaddress is None or password is None:
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
-    # is the username really a guid?
-    session = dbsetup.Session()
-    if usermgr.AnonUser.is_guid(emailaddress, password):
-        foundAnonUser = usermgr.AnonUser.find_anon_user(session, emailaddress)
-        if foundAnonUser is not None:
-            session.close()
-            return make_response(jsonify({'msg': error.error_string('ANON_ALREADY_EXISTS')}), status.HTTP_400_BAD_REQUEST)
+    try:
+        rsp = None
+        session = dbsetup.Session()
+        if usermgr.AnonUser.is_guid(emailaddress, password):
+            foundAnonUser = usermgr.AnonUser.find_anon_user(session, emailaddress)
+            if foundAnonUser is not None:
+                rsp = make_response(jsonify({'msg': error.error_string('ANON_ALREADY_EXISTS')}), status.HTTP_400_BAD_REQUEST)
+            else:
+                newAnonUser = usermgr.AnonUser.create_anon_user(session, emailaddress)
+                if newAnonUser is None:
+                    rsp = make_response(jsonify({'msg': error.error_string('ANON_USER_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            foundUser = usermgr.User.find_user_by_email(session, emailaddress)
+            if foundUser is not None:
+                rsp = make_response(jsonify({'msg':error.error_string('USER_ALREADY_EXISTS')}), status.HTTP_400_BAD_REQUEST)
+            else:
+                # okay the request is valid and the user was not found, so we can
+                # create their account
+                newUser = usermgr.User.create_user(session, guid, emailaddress, password)
+                if newUser is None:
+                    rsp =  make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        newAnonUser = usermgr.AnonUser.create_anon_user(session, emailaddress)
-        if newAnonUser is None:
-            session.close()
-            return make_response(jsonify({'msg': error.error_string('ANON_USER_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        foundUser = usermgr.User.find_user_by_email(session, emailaddress)
-        if foundUser is not None:
-            session.close()
-            return make_response(jsonify({'msg':error.error_string('USER_ALREADY_EXISTS')}), status.HTTP_400_BAD_REQUEST)
-
-        # okay the request is valid and the user was not found, so we can
-        # create their account
-        newUser = usermgr.User.create_user(session, guid, emailaddress, password)
-        if newUser is None:
-            session.close()
-            return make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    # user was properly created
-    session.commit()
-    session.close()
-    return make_response(jsonify({'message': error.error_string('ACCOUNT_CREATED')}), 201)
+        if rsp is None:
+            rsp = make_response(jsonify({'message': error.error_string('ACCOUNT_CREATED')}), 201)
+        session.commit()
+    except:
+        session.rollback()
+        rsp = make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        session.close()
+        return rsp
 
 
 if __name__ == '__main__':

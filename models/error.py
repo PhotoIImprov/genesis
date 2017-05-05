@@ -75,6 +75,7 @@ d_ERROR_STRINGS = {'NO_JSON': "missing JSON data",
                    'NO_PHOTO': "no photo read",
                    'NO_SUBMISSION': "no submission read",
                    'TABULATE_ERROR': "error tabulating ballot",
+                   'UPLOAD_ERROR': "error uploading photo",
 
                    # this is if we don't map to anything
                    'UNKNOWN_ERROR': "unknown error ??"}
