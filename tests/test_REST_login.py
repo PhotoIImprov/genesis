@@ -431,6 +431,22 @@ class TestPhotoUpload(iiBaseUnitTest):
         self._cid = cid
         return
 
+    def test_healthcheck(self):
+        rsp = self.app.get(path='/healthcheck')
+        assert(rsp.status_code == 200)
+
+    def test_image_no_file(self):
+        self.setUp()
+        self.create_testuser_get_token() # force token creation
+        filename = uuid.uuid1()
+        rsp = self.app.get(path='/image', query_string=urlencode({'filename':filename}),
+                           headers=self.get_header_html())
+        assert(rsp.status_code == 500)
+        data = json.loads(rsp.data.decode('utf-8'))
+        msg = data['msg']
+        assert(msg == error.error_string('NO_PHOTO'))
+        return
+
 class TesttVoting(iiBaseUnitTest):
 
     _uid = None

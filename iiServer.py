@@ -63,41 +63,6 @@ app.config['JWT_VERIFY_CLAIMS'] = ['signature', 'exp'] # keep getting iat "in th
 _jwt = JWT(app, usermgr.authenticate, usermgr.identity)
 _jwt.jwt_decode_handler(fix_jwt_decode_handler)
 
-@app.route("/protected")
-@jwt_required()
-def protected():
-    return '%s' % current_identity
-
-@app.route("/api/<path:path>")
-#@app.route("/api", defaults={'path': 'dist/index.html'})
-def api_spec(path):
-    """
-    Swagger UI
-    ---
-    parameters:
-      - in: path
-        name: path
-        required: true
-        type: string
-    tags:
-      - admin
-    summary: "Swagger UI - displays our local API specification"
-    operationId: swagger-specification
-    consumes:
-      - text/html
-    security:
-      - api_key: []
-    produces:
-      - text/html
-    responses:
-      200:
-        description: "look at our beautiful specification"
-      500:
-        description: "serious error dude"
-    """
-    root_path = app.root_path
-    swagger_path = root_path + '/swagger-ui'
-    return send_from_directory(swagger_path, path)
 
 @app.route("/spec/swagger.json")
 def spec():
@@ -482,11 +447,6 @@ def get_category():
               description: "Which round of voting the category is in."
     """
     uid = current_identity.id
-
-    if uid is None:
-        dbsetup.log_error(request, error.error_string('MISSING_ARGS'), None)
-        return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
-
     session = dbsetup.Session()
     cl = category.Category.active_categories(session, uid)
     session.close()
@@ -916,7 +876,7 @@ def image_download():
     session = dbsetup.Session()
     try:
         b64_photo = photo.Photo.read_photo_by_filename(session, uid, filename)
-        session.close()
+        session.commit()
         if b64_photo is not None:
             rsp = make_response(jsonify({'image':b64_photo.decode('utf-8')}), status.HTTP_200_OK)
         else:
@@ -926,7 +886,7 @@ def image_download():
         session.rollback()
         rsp = make_response(jsonify({'msg':error.error_string('NO_PHOTO')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
-        session.commit()
+        session.close()
         return rsp
 
 @app.route("/lastsubmission", methods=['GET'])

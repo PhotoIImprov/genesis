@@ -470,17 +470,14 @@ class TallyMan():
         return ep[0]
 
     def read_thumbnail(self, session, pid):
-        p = session.query(photo.Photo).get(pid)
-        if p is None:
-            return ''
-        bimg = p.read_thumbnail_image()
-        if bimg is None:
-            return ''
-        b64 = base64.standard_b64encode(bimg)
-        if b64 is None:
-            return ''
-        b64_utf8 = b64.decode('utf-8')
-        return b64_utf8
+        try:
+            p = session.query(photo.Photo).get(pid)
+            bimg = p.read_thumbnail_image()
+            b64 = base64.standard_b64encode(bimg)
+            b64_utf8 = b64.decode('utf-8')
+            return b64_utf8
+        except:
+            return None
 
     def create_leaderboard(self, session, uid, cid):
         if cid is None:

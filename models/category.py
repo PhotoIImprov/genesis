@@ -130,12 +130,10 @@ class Category(Base):
         if session is None or cid is None:
             raise BaseException(errno.EINVAL)
 
-        q = session.query(Category).filter_by(id = cid)
-        c = q.one_or_none()
+        c = session.query(Category).get(cid)
         err = None
         if c is None:
             err = error.iiServerErrors.INVALID_CATEGORY
-
         d = {'error': err, 'arg':c}
         return d
 
@@ -151,11 +149,3 @@ class Category(Base):
         if c is None:
             return False
         return c.state == CategoryState.UPLOAD.value
-
-    @staticmethod
-    def is_voting_by_id(session, cid):
-        d = Category.read_category_by_id(session, cid)
-        c = d['arg']
-        if c is None:
-            return False
-        return c.state == CategoryState.VOTING.value
