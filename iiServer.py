@@ -831,8 +831,10 @@ def cast_vote():
     session = dbsetup.Session()
 
     try:
-        cid = voting.Ballot.tabulate_votes(session, uid, votes)
-    except:
+        cid = voting.BallotManager().tabulate_votes(session, uid, votes)
+#        cid = voting.Ballot.tabulate_votes(session, uid, votes)
+    except BaseException as e:
+        str_e = str(e)
         return make_response(jsonify({'msg': error.error_string('TABULATE_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     rsp = return_ballot(session, uid, cid)
@@ -854,7 +856,8 @@ def return_ballot(session, uid, cid):
             bm._ballot.read_photos_for_ballots(session)
             ballots = bm._ballot.to_json()
             rsp = make_response(jsonify(ballots), status.HTTP_200_OK)
-    except:
+    except BaseException as e:
+        str_e = str(e)
         session.rollback()
     finally:
         session.close()
@@ -918,7 +921,8 @@ def image_download():
             rsp = make_response(jsonify({'image':b64_photo.decode('utf-8')}), status.HTTP_200_OK)
         else:
             rsp = make_response(jsonify({'msg':error.error_string('NO_PHOTO')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
-    except:
+    except BaseException as e:
+        str_e = str(e)
         session.rollback()
         rsp = make_response(jsonify({'msg':error.error_string('NO_PHOTO')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:

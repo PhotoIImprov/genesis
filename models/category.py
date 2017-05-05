@@ -50,6 +50,9 @@ class Category(Base):
     _category_description = None
     # ======================================================================================================
 
+    def __init__(self, **kwargs):
+        self.id = kwargs.get('category_id', None)
+
     @staticmethod
     def get_description_by_resource(rid):
         session = dbsetup.Session()

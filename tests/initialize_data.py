@@ -92,7 +92,11 @@ class InitEnvironment(unittest.TestCase):
         cwd = os.getcwd()
 
         # we have our user, now we need a photo to upload
-        fn = 'photos/' + photo_name
+        if 'tests' in cwd:
+            fn = '../photos/' + photo_name
+        else:
+            fn = cwd + '/photos/' + photo_name
+
         ft = open(fn, 'rb')
         assert (ft is not None)
         ph = ft.read()

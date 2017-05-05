@@ -144,5 +144,9 @@ QUOTES = (
     ('Yes, sir. I\'m a real Souther boy. I got a red neck, white socks, and a BlueRibbon beer.', 'Billy Carter'),
     ('Give a man a beer, waste an hour. Teach a man to brew, and waste a lifetime!', 'Bill Owen'),
     ('He was a wise man who invented beer.', 'Plato'),
-    ('Beer\'s intellectual. What a shame so many idiots drink it.', 'Ray Bradbury')
-)
+    ('Beer\'s intellectual. What a shame so many idiots drink it.', 'Ray Bradbury'),
+    ('Beer is proof that God loves us and wants us to be happy', 'Benjamin Franklin'),
+    ('You can\'t be a real country unless you have a beer and an airline - it helps if you have some kind of football team, or some nuclear weapons, but in the very least you need a beer', 'Frank Zappa'),
+    ('The best beer in the world is the one in my hand', 'Charles Papazian'),
+    ('Give my people plenty of beer, good beer, and cheap beer, and you will have no revolution among them', 'Queen Victoria')
+    )

@@ -17,8 +17,8 @@ from random import randint, shuffle
 # configuration values we can move to a better place
 _NUM_BALLOT_ENTRIES = 4
 _NUM_SECTONS_ROUND2 = 4
-_ROUND1_SCORING     = {0:(3,1,0,0)}
-_ROUND2_SCORING     = {0:(7,5,3,3), 1:(6,4,2,2), 2:(5,3,1,1), 3:(4,2,0,1)}
+_ROUND1_SCORING     = {0:[3,1,0,0]}
+_ROUND2_SCORING     = {0:[7,5,3,1], 1:[6,4,2,2], 2:[5,3,1,1], 3:[4,2,0,1]}
 _ROUND1_TIMESVOTED  = 3
 _ROUND2_TIMESVOTED  = 3
 
@@ -54,7 +54,7 @@ class Ballot(Base):
 
     def read_photos_for_ballots(self, session):
         for be in self._ballotentries:
-            be._photo = photo.Photo.read_photo_by_id(session, be.photo_id)
+            be._photo = session.query(photo.Photo).get(be.photo_id)
 
     def get_ballotentries(self):
         return self._ballotentries
@@ -71,30 +71,10 @@ class Ballot(Base):
 
         return ballots
 
-
-    @staticmethod
-    def tabulate_votes(session, uid, ballots):
-        if uid is None or ballots is None:
-            raise BaseException(errno.EINVAL)
-
-        cid = None
-        # okay we have everything we need, the category_id can be determined from the
-        # ballot entry
-        for ballotentry in ballots:
-            likes = False
-            if 'like' in ballotentry.keys():
-                likes = True
-            be = BallotEntry.tabulate_vote(session,  ballotentry['bid'], ballotentry['vote'], likes)
-            cid = be.category_id
-
-        return cid
-
     @staticmethod
     def num_voters_by_category(session, cid):
-
         q = session.query(Ballot.user_id).distinct().filter(Ballot.category_id == cid)
         n = q.count()
-
         return n
 
 class BallotEntry(Base):
@@ -115,16 +95,16 @@ class BallotEntry(Base):
     _b64image = None
     _binary_image = None
 
-    def __init__(self, uid, cid, pid):
-        self.category_id = cid
-        self.user_id = uid
-        self.photo_id = pid
-        self.vote = 0
-        self.like = 0
+    def __init__(self, **kwargs):
+        self.id = kwargs.get('ballotentry_id', None)
+        self.vote = kwargs.get('vote', 0)
+        self.like = kwargs.get('like', 0)
+        self.user_id = kwargs.get('user_id', None)
+        self.photo_id = kwargs.get('photo_id', None)
+        self.category_id = kwargs.get('category_id', None)
         self._photo = None
         self._b64image = None
         self._binary_image = None
-        return
 
     def to_json(self):
         if self._photo is None:
@@ -142,34 +122,6 @@ class BallotEntry(Base):
         d = dict({'bid':self.id, 'image':self._b64image.decode('utf-8'), 'orientation': orientation})
         return d
 
-    def set_vote(self, vote):
-        self.vote = vote
-
-    def set_like(self, l):
-        self.like = l
-
-    @staticmethod
-    def tabulate_vote(session, bid, vote, like):
-        if bid is None:
-            raise BaseException(errno.EINVAL)
-
-        # okay, write this vote out to the ballot entry
-
-        q = session.query(BallotEntry).filter_by(id = bid)
-        be = q.one()
-        if be is None:
-            raise BaseException(errno.EADDRNOTAVAIL)
-
-        # check the category, is voting still happening?
-        if not category.Category.is_voting_by_id(session, be.category_id):
-            raise BaseException(errno.EINVAL)
-
-        be.set_vote(vote)
-        be.set_like(like)
-
-        tm = TallyMan()
-        tm.tabulate_vote(session, be.user_id, be.category_id, be.photo_id, vote)
-        return be
 
 class VotingRound(Base):
     __tablename__ = 'voting_round'
@@ -178,7 +130,8 @@ class VotingRound(Base):
     times_voted = Column(Integer, nullable=True, default=0)
 
     # ======================================================================================================
-
+    def __init__(self, **kwargs):
+        self.photo_id = kwargs.get('photo_id', None)
 
 
 class BallotManager:
@@ -188,6 +141,49 @@ class BallotManager:
     '''
 
     _ballot = None
+
+    def tabulate_votes(self, session, uid, json_ballots):
+        # we have a list of ballots, we need to determine the scoring.
+        # we'll need category information:
+        # category.round - to determine what score table to use
+        # votinground.section - further define for round #2 what scoring to use
+
+        # It's possible the ballotentries are from different sections, we'll
+        # score based on the first ballotentry
+        bid = json_ballots[0]['bid']
+        be = session.query(BallotEntry).get(bid)
+        vr = session.query(VotingRound).get(be.photo_id)
+        section = vr.section
+        cat = session.query(category.Category).get(be.category_id)
+        round = cat.round
+
+        for j_be in json_ballots:
+            bid = j_be['bid']
+            if 'like' in j_be.keys():
+                like = 1
+            else:
+                like = 0
+
+            be = session.query(BallotEntry).get(bid)
+            be.like = like
+            be.vote = j_be['vote']
+            score = self.calculate_score(j_be['vote'], round, section)
+            p = session.query(photo.Photo).get(be.photo_id)
+            p.score += score
+            p.times_voted += 1
+
+            tm = TallyMan()
+            tm.update_leaderboard(session, uid, cat.id, p)
+
+        return cat.id
+
+    def calculate_score(self, vote, round, section):
+        if round == 0:
+            score = _ROUND1_SCORING[0][vote-1]
+        else:
+            score = _ROUND2_SCORING[section][vote-1]
+
+        return score
 
     def create_ballot(self, session, uid, cid):
         '''
@@ -243,7 +239,7 @@ class BallotManager:
 
         # now create the ballot entries and attach to the ballot
         for p in plist:
-            be = BallotEntry(p.user_id, cid, p.id)
+            be = BallotEntry(user_id=p.user_id, category_id=cid, photo_id=p.id)
             self._ballot.append_ballotentry(be)
             session.add(be)
 
@@ -372,7 +368,6 @@ class BallotManager:
         return p
 
 
-
 class ServerList(Base):
     __tablename__ = 'serverlist'
 
@@ -429,7 +424,6 @@ class TallyMan():
         lb.delete_leaderboard()
 
     def change_category_state(self, session, cid, new_state):
-
         d = category.Category.read_category_by_id(session, cid)
 
         if d['error'] is not None:
@@ -452,34 +446,11 @@ class TallyMan():
     def leaderboard_name(self, cid):
         return "round_1_category{}".format(cid)
 
-    def calculate_score(self, vote):
-        # vote is  ranking: 1st or 2nd
-        if vote == 1:
-            return 7
-        if vote == 2:
-            return 3
-        return 0
-
-    def tabulate_vote(self, session, uid, cid, pid, vote):
-
-        vote_score = self.calculate_score(vote)
-        if vote_score == 0:
-            return
-
-        # okay the photo's score is going to change
-        q = session.query(photo.Photo).filter_by(id = pid)
-        p = q.one()
-        if p is None:
-            raise BaseException(errno.EADDRNOTAVAIL)
-
-        p.increment_vote_count()
-        score = p.update_score(vote_score)
-
+    def update_leaderboard(self, session, uid, cid, p):
         # we have a User/Photo/Vote
         lb = self.get_leaderboard_by_category_id(session, cid)
         if lb is not None:
-            lb.rank_member(uid, score, p.id)
-        return
+            lb.rank_member(uid, p.score, p.id)
 
     def get_leaderboard_by_category_id(self, session, cid):
         rd = ServerList().get_redis_server(session)
@@ -499,7 +470,7 @@ class TallyMan():
         return ep[0]
 
     def read_thumbnail(self, session, pid):
-        p = photo.Photo.read_photo_by_id(session, pid)
+        p = session.query(photo.Photo).get(pid)
         if p is None:
             return ''
         bimg = p.read_thumbnail_image()

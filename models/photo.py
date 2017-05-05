@@ -48,6 +48,9 @@ class Photo(Base):
 
 # ======================================================================================================
 
+    def __init__(self, *args, **kwargs):
+        self.id = kwargs.get('pid')
+
     @staticmethod
     def count_by_category(session, cid):
         # let's count how many photos are uploaded for this category
@@ -393,15 +396,6 @@ class Photo(Base):
             return {'error':None, 'arg':{'image':b64img, 'category':c['arg']}}
 
         return {'error':"Nothing found", 'arg':None}
-
-    @staticmethod
-    def read_photo_by_id(session, pid):
-        if pid is None or session is None:
-            return None
-        # read in the photo record using the filename
-        q = session.query(Photo).filter_by(id = pid)
-        p = q.one()
-        return p
 
     @staticmethod
     def read_photo_by_filename(session, uid, fn):
