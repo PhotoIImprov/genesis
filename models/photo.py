@@ -260,7 +260,6 @@ class Photo(Base):
 
         try:
             session.add(self)
-            session.commit()
         except exc.IntegrityError as e:
             if "fk_photo_user_id" in e.args[0]:
                 raise BaseException(errno.EINVAL, "invalid user")

@@ -53,8 +53,6 @@ class AnonUser(Base):
         au.guid = m_guid
 
         session.add(au)
-        session.commit()
-
         return au
 
     def get_id(self):
@@ -100,7 +98,6 @@ class User(Base):
 
     def change_password(self, session, password):
         self.hashedPWD = pbkdf2_sha256.encrypt(password, rounds=1000, salt_size=16)
-        session.commit()
 
     @staticmethod
     def create_user(session, guid, username, password):
@@ -128,8 +125,6 @@ class User(Base):
 
         # Now write the new users to the database
         session.add(new_user)
-        session.commit()
-
         return new_user
 
 #
@@ -213,6 +208,16 @@ class FriendRequest(Base):
     def get_id(self):
         return self.id
 
+    def __init__(self, uid, f_email):
+        self.friend_email = f_email
+        self.asking_friend_id = uid
+
+    def find_notifying_friend(self, session):
+        # see if the email of the friend is in our system
+        fu = User.find_user_by_email(session, self.friend_email)
+        if fu is not None:
+            self.notifying_friend_id = fu.id
+
     @staticmethod
     def update_friendship(session, uid, fid, accept):
         if fid is None or session is None or uid is None:
@@ -241,34 +246,5 @@ class FriendRequest(Base):
         new_friend.active = 1
 
         session.add(new_friend)
-        session.commit()
         return
 
-    @staticmethod
-    def write_request(session, asking_friend_id, friend_email):
-        if asking_friend_id is None or friend_email is None:
-            return 0
-
-        # okay we have a user_id for a person that wants us to ask their
-        # friend to join ImageImprov.
-        #
-        # if the friend is already in the system, we can include their
-        # user id.
-        #
-        # Note: an anonymous user can invite friends, but friends that
-        #       join cannot be anonymous as we need their email address
-        #       to tie them to the site
-
-        fr = FriendRequest()
-        fr.asking_friend_id = asking_friend_id
-        fr.friend_email = friend_email
-
-        # see if the email of the friend is in our system
-        fu = User.find_user_by_email(session, friend_email)
-        if fu is not None:
-            fr.notifying_friend_id = fu.id
-
-        session.add(fr)
-        session.commit()
-
-        return fr.id

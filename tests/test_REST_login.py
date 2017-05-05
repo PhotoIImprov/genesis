@@ -954,9 +954,11 @@ class TestLeaderBoard(iiBaseUnitTest):
         # download the leaderboard
         # okay, we're going to create users & upload photos
         user_list = []
+        cid = None
         for uname in self._users:
             tu = self.create_testuser_get_token()
-            cid = TestCategory().get_category_by_state(category.CategoryState.UPLOAD, token=tu.get_token())
+            if cid is None:
+                cid = TestCategory().get_category_by_state(category.CategoryState.UPLOAD, token=tu.get_token())
             tu.set_cid(cid)
             user_list.append(tu)
 

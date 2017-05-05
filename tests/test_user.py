@@ -34,20 +34,3 @@ class TestUserMgr(DatabaseTest):
         assert (u is not None)
 
         self.teardown()
-
-class TestFriend(DatabaseTest):
-
-    def test_friend_request(self):
-        self.setup()
-
-        fr = usermgr.FriendRequest()
-
-        self.teardown()
-
-    def test_friend(self):
-        self.setup()
-
-        f = usermgr.Friend()
-
-        self.teardown()
-

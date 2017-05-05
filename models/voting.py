@@ -1,5 +1,6 @@
 from sqlalchemy        import Column, Integer, DateTime, text, ForeignKey, String, exc
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Session
 from sqlalchemy import exists, and_
 import errno
 from dbsetup           import Base, Session
@@ -31,7 +32,7 @@ class Ballot(Base):
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
-    _ballotentries = relationship("BallotEntry", backref="ballot", lazy="joined")
+    _ballotentries = relationship("BallotEntry", backref="ballot", lazy='joined')
     # ======================================================================================================
 
     def __init__(self, cid, uid):
@@ -51,69 +52,16 @@ class Ballot(Base):
     # A user should never see the *same* ballot twice, but entries on the ballot could be
     # almost entirely the same, particularly as the set of remaining entries is narrowed
 
+    def read_photos_for_ballots(self, session):
+        for be in self._ballotentries:
+            be._photo = photo.Photo.read_photo_by_id(session, be.photo_id)
+
     def get_ballotentries(self):
         return self._ballotentries
 
-    def add_ballotentry(self, ballotentry):
+    def append_ballotentry(self, ballotentry):
         self._ballotentries.append(ballotentry)
         return
-
-    @staticmethod
-    def write_ballot(session, b):
-        session.add(b)
-        session.commit()
-
-    @staticmethod
-    def create_ballot(session, uid, cid):
-        # determine what round of voting
-        d = category.Category.read_category_by_id(session, cid)
-        c = d['arg']
-
-        if c is None:
-            return d
-
-        if c.round == 0:
-            return Ballot.create_ballot_round1(session, uid, cid)
-
-        return VotingRound().create_ballot_round2(session,uid, cid)
-
-
-    @staticmethod
-    def create_ballot_round1(session, uid, cid):
-        count = 4 # number of photos in a ballot
-        d = Ballot.create_ballot_list(session, uid, cid, count)
-        plist = d['arg']
-        if plist is None:
-            return d
-
-        b = Ballot(cid, uid)
-        # now create the ballot entries and attach to the ballot
-        for p in plist:
-            be = BallotEntry(p.user_id, p.category_id, p.id)
-            be.set_photo(p)            # **** THIS IS GETTING OVERWRITTEN BY THE COMMIT???****
-            b.add_ballotentry(be)
-
-        # okay we have created ballot entries for our select photos
-        # time to write it all out
-        try:
-            Ballot.write_ballot(session,b)
-        except exc.IntegrityError as e:
-            if 'fk_ballot_user_id' in e.args[0] or 'fk_ballot_category_id' in e.args[0]:
-                return {'error':error.iiServerErrors.INVALID_USER, 'arg':None} # someone passed us an improper user_id
-            raise # tell someone up what the problem is...
-
-        # =========================================================
-        # ==== we need to "reset" the photo information to the ====
-        # ==== to the ballotentry, it's getting "lost" during  ====
-        # ==== commit ???                                      ====
-        # =========================================================
-        for p in plist:
-            for be in b._ballotentries:
-                if be.photo_id == p.id:
-                    be.set_photo(p)
-                    break
-
-        return {'error':None, 'arg':b}
 
     def to_json(self):
 
@@ -123,81 +71,6 @@ class Ballot(Base):
 
         return ballots
 
-    # read_photos_not_balloted()
-    # ==========================
-    # Retrieve a list of photos that are not on
-    # any ballots
-    @staticmethod
-    def read_photos_not_balloted(session, uid, cid, count):
-        if uid is None or cid is None or count is None:
-            raise BaseException(errno.EINVAL)
-
-        q = session.query(photo.Photo).filter(photo.Photo.category_id == cid).\
-            filter(photo.Photo.user_id != uid).\
-            filter(~exists().where(BallotEntry.photo_id == photo.Photo.id)).limit(count)
-
-        p = q.all()
-        return p
-
-    @staticmethod
-    def read_photos_by_votes(session, uid, cid, num_votes, count):
-        if uid is None or cid is None or count is None:
-            raise BaseException(errno.EINVAL)
-
-        # if ballotentry has been voted on, exclude photos the user has already seen
-        if num_votes == 0:
-            q = session.query(photo.Photo).filter(photo.Photo.category_id == cid).\
-                filter(photo.Photo.times_voted == num_votes).\
-                filter(photo.Photo.user_id != uid).limit(count)
-        else:
-            q = session.query(photo.Photo).filter(photo.Photo.category_id == cid).\
-                join(BallotEntry, photo.Photo.id == BallotEntry.photo_id).\
-                filter(photo.Photo.times_voted == num_votes).\
-                filter(BallotEntry.user_id != uid).\
-                filter(photo.Photo.user_id != uid).limit(count)
-
-        p = q.all()
-        return p
-
-    # create_ballot_list()
-    # ======================
-    # we will read 'count' photos from the database
-    # that don't belong to this user. We loop through
-    # times voted on for our first 3 passes
-    #
-    # if we can't get 'count' photos, then we are done
-    # Round #1...
-    @staticmethod
-    def create_ballot_list(session, uid, cid, count):
-        if uid is None or cid is None or count is None:
-            raise BaseException(errno.EINVAL)
-
-        # is this category open for voting?
-        d = category.Category.read_category_by_id(session, cid)
-        c = d['arg']
-        if c is None:
-            return d
-
-        if c.state != category.CategoryState.VOTING.value:
-            return {'error': error.iiServerErrors.NOTVOTING_CATEGORY, 'arg': None}
-
-        # we need "count"
-        photos_for_ballot = []
-        photos_for_ballot = Ballot.read_photos_not_balloted(session, uid, cid, count)
-
-        if len(photos_for_ballot) >= count:
-            return {'error': None, 'arg':photos_for_ballot}
-
-        for num_votes in range(0,4):
-            remaining_photos_needed = count - len(photos_for_ballot)
-            if remaining_photos_needed == 0:
-                break;
-            # need more photos to construct the ballot
-            p = Ballot.read_photos_by_votes(session, uid, cid, num_votes, remaining_photos_needed)
-            if p is not None:
-                photos_for_ballot.extend(p)
-
-        return {'error': None, 'arg':photos_for_ballot}
 
     @staticmethod
     def tabulate_votes(session, uid, ballots):
@@ -214,7 +87,6 @@ class Ballot(Base):
             be = BallotEntry.tabulate_vote(session,  ballotentry['bid'], ballotentry['vote'], likes)
             cid = be.category_id
 
-        session.commit()
         return cid
 
     @staticmethod
@@ -238,30 +110,26 @@ class BallotEntry(Base):
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
-    photo = None
+    _photo = None # relationship("photo.Photo", backref="ballotentry", uselist=False, lazy='joined')
+
     _b64image = None
     _binary_image = None
+
     def __init__(self, uid, cid, pid):
         self.category_id = cid
         self.user_id = uid
         self.photo_id = pid
         self.vote = 0
         self.like = 0
-        self.photo = None
+        self._photo = None
         self._b64image = None
         self._binary_image = None
         return
 
-    def set_photo(self, p):
-        self.photo = p
-        return
-
     def to_json(self):
-
-        if self.photo is None:
+        if self._photo is None:
             return None
-
-        self._binary_image = self.photo.read_thumbnail_image()
+        self._binary_image = self._photo.read_thumbnail_image()
         if self._binary_image is None:
             return None
 
@@ -269,9 +137,7 @@ class BallotEntry(Base):
         if self._b64image is None:
             return None
 
-        orientation = 0
-        if self.photo is not None:
-            orientation = self.photo.get_orientation()
+        orientation = self._photo.get_orientation()
 
         d = dict({'bid':self.id, 'image':self._b64image.decode('utf-8'), 'orientation': orientation})
         return d
@@ -303,8 +169,6 @@ class BallotEntry(Base):
 
         tm = TallyMan()
         tm.tabulate_vote(session, be.user_id, be.category_id, be.photo_id, vote)
-
-        session.commit() # make sure ballotentry is written out
         return be
 
 class VotingRound(Base):
@@ -315,48 +179,88 @@ class VotingRound(Base):
 
     # ======================================================================================================
 
-    def create_ballot_round2(self, session,uid, cid):
-        plist = self.create_ballot_list_round2(session, uid, cid)
+
+
+class BallotManager:
+    '''
+    Ballot Manager
+    This class is responsible to creating our voting ballots
+    '''
+
+    _ballot = None
+
+    def create_ballot(self, session, uid, cid):
+        '''
+        Returns a ballot list containing the photos to be voted on.
+        
+        :param session: 
+        :param uid: 
+        :param cid: 
+        :return: dictionary: error:<error string>
+                             arg: ballots()
+        '''
+        # determine what round of voting
+        d = category.Category.read_category_by_id(session, cid)
+        c = d['arg']
+
+        if c is None:
+            return d
+
+        # Voting Rounds are stored in the category, 0= Round #1, 1= Round #2
+        if c.round == 0:
+            return self.create_ballot_ROUND1(session, uid, cid)
+
+        return self.create_ballot_ROUND2(session,uid, cid)
+
+    def create_ballot_ROUND1(self, session, uid, cid):
+        d = self.create_ballot_list_ROUND1(session, uid, cid, _NUM_BALLOT_ENTRIES)
+        plist = d['arg']
+        if plist is None:
+            return d
+
+        return self.add_photos_to_ballot(session, uid, cid, plist)
+
+    def create_ballot_ROUND2(self, session,uid, cid):
+        plist = self.create_ballot_list_ROUND2(session, uid, cid, _NUM_BALLOT_ENTRIES)
         if plist is None:
             return {'error': 'no ballot', 'arg': None}
 
-        b = Ballot(cid, uid)
+        # update VotingRound to track photo ballot usage
+        self.update_votinground(session, plist)
+
+        return self.add_photos_to_ballot(session, uid, cid, plist)
+
+    def update_votinground(self, session, plist):
+        for p in plist:
+            session.query(VotingRound).filter(VotingRound.photo_id == p.id).update({"times_voted": VotingRound.times_voted + 1})
+        return
+
+    def add_photos_to_ballot(self, session, uid, cid, plist):
+
+        self._ballot = Ballot(cid, uid)
+        session.add(self._ballot)
+        mysession = Session.object_session(self._ballot) # debugging to see what session it's bound to
+
         # now create the ballot entries and attach to the ballot
         for p in plist:
             be = BallotEntry(p.user_id, cid, p.id)
-            be.set_photo(p)            # **** THIS IS GETTING OVERWRITTEN BY THE COMMIT???****
-            b.add_ballotentry(be)
+            self._ballot.append_ballotentry(be)
+            session.add(be)
 
-        # okay we have created ballot entries for our select photos
-        # time to write it all out
-        try:
-            Ballot.write_ballot(session,b)
-        except exc.IntegrityError as e:
-            if 'fk_ballot_user_id' in e.args[0] or 'fk_ballot_category_id' in e.args[0]:
-                return {'error':error.iiServerErrors.INVALID_USER, 'arg':None} # someone passed us an improper user_id
-            raise # tell someone up what the problem is...
+#        except exc.IntegrityError as e:
+#            if 'fk_ballot_user_id' in e.args[0] or 'fk_ballot_category_id' in e.args[0]:
+#                return {'error':error.iiServerErrors.INVALID_USER, 'arg':None} # someone passed us an improper user_id
+#            raise # tell someone up what the problem is...
 
-        # =========================================================
-        # ==== we need to "reset" the photo information to the ====
-        # ==== to the ballotentry, it's getting "lost" during  ====
-        # ==== commit ???                                      ====
-        # =========================================================
-        for p in plist:
-            for be in b._ballotentries:
-                if be.photo_id == p.id:
-                    be.set_photo(p)
-                    break
+        return {'error':None, 'arg':self._ballot}
 
-        return {'error':None, 'arg':b}
-
-    def create_ballot_list_round2(self, session, uid, cid):
+    def create_ballot_list_ROUND2(self, session, uid, cid, num_ballots):
         if session is None or uid is None or cid is None:
             return None
 
         # *****************************
         # **** CONFIGURATION ITEMS ****
         num_sections = _NUM_SECTONS_ROUND2    # the "stratification" of the photos that received votes or likes
-        num_ballots = _NUM_BALLOT_ENTRIES     # The # of photos we display to the user in a single ballot
         max_votes = _ROUND2_TIMESVOTED        # The max # of votes we need to pick a winner
         # ****************************
 
@@ -393,6 +297,80 @@ class VotingRound(Base):
         p = q.all()
 
         return p
+
+    # create_ballot_list()
+    # ======================
+    # we will read 'count' photos from the database
+    # that don't belong to this user. We loop through
+    # times voted on for our first 3 passes
+    #
+    # if we can't get 'count' photos, then we are done
+    # Round #1...
+    def create_ballot_list_ROUND1(self, session, uid, cid, count):
+        if uid is None or cid is None or count is None:
+            raise BaseException(errno.EINVAL)
+
+        # is this category open for voting?
+        d = category.Category.read_category_by_id(session, cid)
+        c = d['arg']
+        if c is None:
+            return d
+
+        if c.state != category.CategoryState.VOTING.value:
+            return {'error': error.iiServerErrors.NOTVOTING_CATEGORY, 'arg': None}
+
+        # we need "count"
+        photos_for_ballot = []
+        photos_for_ballot = self.read_photos_not_balloted(session, uid, cid, count)
+
+        if len(photos_for_ballot) >= count:
+            return {'error': None, 'arg':photos_for_ballot}
+
+        for num_votes in range(0,4):
+            remaining_photos_needed = count - len(photos_for_ballot)
+            if remaining_photos_needed == 0:
+                break;
+            # need more photos to construct the ballot
+            p = self.read_photos_by_votes(session, uid, cid, num_votes, remaining_photos_needed)
+            if p is not None:
+                photos_for_ballot.extend(p)
+
+        return {'error': None, 'arg':photos_for_ballot}
+
+    # read_photos_not_balloted()
+    # ==========================
+    # Retrieve a list of photos that are not on
+    # any ballots
+    def read_photos_not_balloted(self, session, uid, cid, count):
+        if uid is None or cid is None or count is None:
+            raise BaseException(errno.EINVAL)
+
+        q = session.query(photo.Photo).filter(photo.Photo.category_id == cid).\
+            filter(photo.Photo.user_id != uid).\
+            filter(~exists().where(BallotEntry.photo_id == photo.Photo.id)).limit(count)
+
+        p = q.all()
+        return p
+
+    def read_photos_by_votes(self, session, uid, cid, num_votes, count):
+        if uid is None or cid is None or count is None:
+            raise BaseException(errno.EINVAL)
+
+        # if ballotentry has been voted on, exclude photos the user has already seen
+        if num_votes == 0:
+            q = session.query(photo.Photo).filter(photo.Photo.category_id == cid).\
+                filter(photo.Photo.times_voted == num_votes).\
+                filter(photo.Photo.user_id != uid).limit(count)
+        else:
+            q = session.query(photo.Photo).filter(photo.Photo.category_id == cid).\
+                join(BallotEntry, photo.Photo.id == BallotEntry.photo_id).\
+                filter(photo.Photo.times_voted == num_votes).\
+                filter(BallotEntry.user_id != uid).\
+                filter(photo.Photo.user_id != uid).limit(count)
+
+        p = q.all()
+        return p
+
 
 
 class ServerList(Base):
@@ -464,7 +442,7 @@ class TallyMan():
             return {'error':error.iiServerErrors.NO_STATE_CHANGE, 'arg':None}
 
         c.state = new_state
-        session.commit()
+        session.add(c)
 
         if new_state == category.CategoryState.VOTING.value:
             self.setup_voting(session, c)
@@ -496,7 +474,6 @@ class TallyMan():
 
         p.increment_vote_count()
         score = p.update_score(vote_score)
-        session.commit()
 
         # we have a User/Photo/Vote
         lb = self.get_leaderboard_by_category_id(session, cid)

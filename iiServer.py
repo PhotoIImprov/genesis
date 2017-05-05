@@ -22,6 +22,7 @@ import random
 import logging
 import os
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 
 app = Flask(__name__)
@@ -30,7 +31,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '0.3.1' #our version string PEP 440
+__version__ = '0.4.0' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -413,6 +414,7 @@ def set_category_state():
 
     tm = voting.TallyMan()
     d = tm.change_category_state(session, cid, cstate)
+    session.commit()
     session.close()
     if d['error'] is not None:
         return make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
@@ -736,13 +738,24 @@ def tell_a_friend():
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
-    request_id = usermgr.FriendRequest.write_request(session, uid, friend)
-    session.close()
-
-    if request_id != 0:
-        return make_response(jsonify({'message': error.error_string('WILL_NOTIFY_FRIEND'), 'request_id':request_id}), status.HTTP_201_CREATED)
-
-    return make_response(jsonify({'msg': error.error_string('FRIEND_REQ_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    try:
+        fr = usermgr.FriendRequest(uid, friend)
+        fr.find_notifying_friend(session) # see if friend is already known
+        session.add(fr)
+        session.commit()
+        request_id = fr.get_id()
+        if request_id != 0 and request_id is not None:
+            rsp = make_response(
+                jsonify({'message': error.error_string('WILL_NOTIFY_FRIEND'), 'request_id': request_id}),
+                status.HTTP_201_CREATED)
+        else:
+            rsp = make_response(jsonify({'msg': error.error_string('FRIEND_REQ_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except:
+        session.rollback()
+        rsp = make_response(jsonify({'msg': error.error_string('FRIEND_REQ_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        session.close()
+        return rsp
 
 @app.route("/vote", methods=['POST'])
 @jwt_required()
@@ -826,25 +839,28 @@ def cast_vote():
     return rsp
 
 def return_ballot(session, uid, cid):
+    rsp = None
     try:
-        d = voting.Ballot.create_ballot(session, uid, cid)
-        b = d['arg']
-        if b is None:
+        bm = voting.BallotManager()
+        d = bm.create_ballot(session, uid, cid)
+        if bm._ballot is None:
             session.close()
             if d['error'] is not None:
-                return make_response(jsonify({'msg':error.iiServerErrors.error_message(d['error'])}),status.HTTP_500_INTERNAL_SERVER_ERROR)
+                rsp = make_response(jsonify({'msg':error.iiServerErrors.error_message(d['error'])}),status.HTTP_500_INTERNAL_SERVER_ERROR)
             else:
-                return make_response(jsonify({'msg': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        # we have a ballot, turn it into JSON
-        ballots = b.to_json()
-        rsp = make_response(jsonify(ballots), status.HTTP_200_OK)
-        session.commit()
-        session.close()
-        return rsp
+                rsp =  make_response(jsonify({'msg': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            session.commit()
+            bm._ballot.read_photos_for_ballots(session)
+            ballots = bm._ballot.to_json()
+            rsp = make_response(jsonify(ballots), status.HTTP_200_OK)
     except:
         session.rollback()
-        return make_response(jsonify({'msg': error.error_string('NO_BALLOT')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        session.close()
+        if rsp is None:
+            rsp = make_response(jsonify({'msg': error.error_string('NO_BALLOT')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return rsp
 
 @app.route("/image", methods=['GET'])
 @jwt_required()
@@ -895,12 +911,19 @@ def image_download():
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
-    b64_photo = photo.Photo.read_photo_by_filename(session, uid, filename)
-    session.close()
-    if b64_photo is not None:
-        return make_response(jsonify({'image':b64_photo.decode('utf-8')}), status.HTTP_200_OK)
-
-    return make_response(jsonify({'msg':error.error_string('NO_PHOTO')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    try:
+        b64_photo = photo.Photo.read_photo_by_filename(session, uid, filename)
+        session.close()
+        if b64_photo is not None:
+            rsp = make_response(jsonify({'image':b64_photo.decode('utf-8')}), status.HTTP_200_OK)
+        else:
+            rsp = make_response(jsonify({'msg':error.error_string('NO_PHOTO')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except:
+        session.rollback()
+        rsp = make_response(jsonify({'msg':error.error_string('NO_PHOTO')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        session.commit()
+        return rsp
 
 @app.route("/lastsubmission", methods=['GET'])
 @jwt_required()
@@ -935,18 +958,27 @@ def last_submission():
     """
     u = current_identity
     uid = u.id
-
+    rsp = None
     session = dbsetup.Session()
-    d = photo.Photo.last_submitted_photo(session, uid)
-    session.close()
-    if d['arg'] is None:
-        return make_response(jsonify({'msg': error.error_string('NO_SUBMISSION')}), status.HTTP_200_OK)
+    try:
+        d = photo.Photo.last_submitted_photo(session, uid)
+        if d['arg'] is None:
+            rsp = make_response(jsonify({'msg': error.error_string('NO_SUBMISSION')}), status.HTTP_200_OK)
+        else:
+            darg = d['arg']
+            c = darg['category']
+            i = darg['image']
 
-    darg = d['arg']
-    c = darg['category']
-    i = darg['image']
-
-    return make_response(jsonify({'image':i.decode("utf-8"), 'category':c.to_json()}), status.HTTP_200_OK)
+            rsp = make_response(jsonify({'image':i.decode("utf-8"), 'category':c.to_json()}), status.HTTP_200_OK)
+        session.commit()
+    except:
+        session.rollback()
+        rsp = make_response(jsonify({'msg': error.error_string('NO_SUBMISSION')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        session.close()
+        if rsp is None:
+            rsp = make_response(jsonify({'msg': error.error_string('NO_SUBMISSION')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return rsp
 
 @app.route("/photo", methods=['POST'])
 @jwt_required()
@@ -1020,6 +1052,7 @@ def photo_upload():
     image_data = base64.b64decode(image_data_b64)
     session = dbsetup.Session()
     d = photo.Photo().save_user_image(session, image_data, image_type, uid, cid)
+    session.commit()
     session.close()
     if d['error'] is not None:
         return make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
@@ -1113,6 +1146,7 @@ def register():
             return make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # user was properly created
+    session.commit()
     session.close()
     return make_response(jsonify({'message': error.error_string('ACCOUNT_CREATED')}), 201)
 
