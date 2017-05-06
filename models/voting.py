@@ -153,7 +153,10 @@ class BallotManager:
         bid = json_ballots[0]['bid']
         be = session.query(BallotEntry).get(bid)
         vr = session.query(VotingRound).get(be.photo_id)
-        section = vr.section
+        section = 0
+        if vr is not None: # sections only matter for round 2
+            section = vr.section
+
         cat = session.query(category.Category).get(be.category_id)
         round = cat.round
 

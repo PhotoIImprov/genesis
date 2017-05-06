@@ -654,7 +654,7 @@ def accept_friendship():
     usermgr.FriendRequest.update_friendship(session, uid, fid, accepted)
     session.close()
 
-    return make_response(jsonify({'message': error.error_string('FRIENDSHIP_UPDATED')}), status.HTTP_201_CREATED)
+    return make_response(jsonify({'msg': error.error_string('FRIENDSHIP_UPDATED')}), status.HTTP_201_CREATED)
 
 @app.route("/friendrequest", methods=['POST'])
 @jwt_required()
@@ -714,7 +714,7 @@ def tell_a_friend():
         request_id = fr.get_id()
         if request_id != 0 and request_id is not None:
             rsp = make_response(
-                jsonify({'message': error.error_string('WILL_NOTIFY_FRIEND'), 'request_id': request_id}),
+                jsonify({'msg': error.error_string('WILL_NOTIFY_FRIEND'), 'request_id': request_id}),
                 status.HTTP_201_CREATED)
         else:
             rsp = make_response(jsonify({'msg': error.error_string('FRIEND_REQ_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -885,14 +885,11 @@ def image_download():
     try:
         b64_photo = photo.Photo.read_photo_by_filename(session, uid, filename)
         session.commit()
-        if b64_photo is not None:
-            rsp = make_response(jsonify({'image':b64_photo.decode('utf-8')}), status.HTTP_200_OK)
-        else:
-            rsp = make_response(jsonify({'msg':error.error_string('NO_PHOTO')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+        rsp = make_response(jsonify({'image':b64_photo.decode('utf-8')}), status.HTTP_200_OK)
     except BaseException as e:
         str_e = str(e)
         session.rollback()
-        rsp = make_response(jsonify({'msg':error.error_string('NO_PHOTO')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+        rsp = make_response(jsonify({'msg':error.error_string('ERROR_PHOTO')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         session.close()
         return rsp
@@ -1121,7 +1118,7 @@ def register():
                     rsp =  make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         if rsp is None:
-            rsp = make_response(jsonify({'message': error.error_string('ACCOUNT_CREATED')}), 201)
+            rsp = make_response(jsonify({'msg': error.error_string('ACCOUNT_CREATED')}), 201)
         session.commit()
     except:
         session.rollback()

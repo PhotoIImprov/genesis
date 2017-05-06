@@ -435,7 +435,7 @@ class TestPhotoUpload(iiBaseUnitTest):
         rsp = self.app.get(path='/healthcheck')
         assert(rsp.status_code == 200)
 
-    def test_image_no_file(self):
+    def test_image_no_such_file(self):
         self.setUp()
         self.create_testuser_get_token() # force token creation
         filename = uuid.uuid1()
@@ -444,8 +444,33 @@ class TestPhotoUpload(iiBaseUnitTest):
         assert(rsp.status_code == 500)
         data = json.loads(rsp.data.decode('utf-8'))
         msg = data['msg']
-        assert(msg == error.error_string('NO_PHOTO'))
+        assert(msg == error.error_string('ERROR_PHOTO'))
         return
+
+    def test_image_no_file(self):
+        self.setUp()
+        self.create_testuser_get_token()  # force token creation
+        filename = uuid.uuid1()
+        rsp = self.app.get(path='/image', query_string=urlencode({'filename': None}),
+                           headers=self.get_header_html())
+        assert (rsp.status_code == 400)
+        data = json.loads(rsp.data.decode('utf-8'))
+        msg = data['msg']
+        assert (msg == error.error_string('MISSING_ARGS'))
+        return
+
+    def test_image_no_args(self):
+        self.setUp()
+        self.create_testuser_get_token()  # force token creation
+        filename = uuid.uuid1()
+        rsp = self.app.get(path='/image', headers=self.get_header_html())
+        assert (rsp.status_code == 400)
+        data = json.loads(rsp.data.decode('utf-8'))
+        msg = data['msg']
+        assert (msg == error.error_string('NO_ARGS'))
+        return
+
+
 
 class TesttVoting(iiBaseUnitTest):
 
@@ -630,8 +655,18 @@ class TesttVoting(iiBaseUnitTest):
 
         data = json.loads(rsp.data.decode("utf-8"))
         rid = data['request_id']
-        assert(rsp.status_code == 201 and data['message'] == error.error_string('WILL_NOTIFY_FRIEND') and rid != 0)
+        assert(rsp.status_code == 201 and data['msg'] == error.error_string('WILL_NOTIFY_FRIEND') and rid != 0)
         return rid
+
+    def test_friend_request_no_arg(self):
+        # let's create a user
+        self.create_testuser_get_token()
+        rsp = self.app.post(path='/friendrequest', data=json.dumps(dict(dummy="bp100a@hotmail.com")),
+                           headers=self.get_header_json())
+
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(rsp.status_code == 400 and data['msg'] == error.error_string('MISSING_ARGS'))
+        return
 
     def test_friend_request_no_json(self):
         # let's create a user
@@ -657,7 +692,7 @@ class TesttVoting(iiBaseUnitTest):
 
         data = json.loads(rsp.data.decode("utf-8"))
         rid = data['request_id']
-        assert (rsp.status_code == 201 and data['message'] == error.error_string('WILL_NOTIFY_FRIEND') and rid != 0)
+        assert (rsp.status_code == 201 and data['msg'] == error.error_string('WILL_NOTIFY_FRIEND') and rid != 0)
         return dict(request_id=rid, user_id=fu.get_uid())
 
 
@@ -674,7 +709,7 @@ class TesttVoting(iiBaseUnitTest):
                             headers=self.get_header_json())
         data = json.loads(rsp.data.decode("utf-8"))
         assert(rsp.status_code == 201)
-        assert(data['message'] == "friendship updated")
+        assert(data['msg'] == "friendship updated")
 
     def test_friend_request_accepted_no_json(self):
 

@@ -35,10 +35,10 @@ class Category(Base):
     __tablename__ = 'category'
 
     id              = Column(Integer, primary_key=True, autoincrement=True)
-    state           = Column(Integer, nullable=False, default=CategoryState.UNKNOWN)
+    state           = Column(Integer, nullable=False, default=CategoryState.UNKNOWN, index=True)
     round           = Column(Integer, nullable=False, default=0)
     resource_id     = Column(Integer, ForeignKey("resource.resource_id", name="fk_category_resource_id"), nullable=False)
-    start_date      = Column(DateTime, nullable=False)
+    start_date      = Column(DateTime, nullable=False, index=True)
     duration_upload = Column(Integer, nullable=False, default=24)
     duration_vote   = Column(Integer, nullable=False, default=24)
     end_date        = Column(DateTime, nullable=False)
