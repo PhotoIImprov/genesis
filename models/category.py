@@ -134,6 +134,7 @@ class Category(Base):
         err = None
         if c is None:
             err = error.iiServerErrors.INVALID_CATEGORY
+
         d = {'error': err, 'arg':c}
         return d
 

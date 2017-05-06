@@ -24,3 +24,15 @@ class TestDBsetup(TestCase):
 
         env = dbsetup.determine_environment("QA")
         assert(env == EnvironmentType.QA)
+
+        env = dbsetup.determine_environment("XYZ")
+        assert (env == EnvironmentType.UNKNOWN)
+
+    def test_image_store(self):
+        str = dbsetup.image_store(EnvironmentType.DEV)
+        assert(str == '/mnt/image_files')
+        str = dbsetup.image_store(EnvironmentType.PROD)
+        assert(str == '/mnt/gcs-photos')
+
+    def test_ping_connection(self):
+        dbsetup.ping_connection(None, True)

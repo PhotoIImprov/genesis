@@ -7,6 +7,19 @@ class TestError(TestCase):
         msg = error.iiServerErrors.error_message((error.iiServerErrors.INVALID_ARGS))
         assert(msg == "unknown error")
 
+        msg = error.iiServerErrors.error_message((error.iiServerErrors.NOTUPLOAD_CATEGORY))
+        assert(msg == "category specified is not accepting uploads")
+
+        msg = error.iiServerErrors.error_message((error.iiServerErrors.INVALID_FRIEND))
+        assert (msg == "invalid friend")
+
+        msg = error.iiServerErrors.error_message((error.iiServerErrors.INVALID_USER))
+        assert (msg == "invalid user")
+
+        msg = error.iiServerErrors.error_message((error.iiServerErrors.NOTVOTING_CATEGORY))
+        assert (msg == "category is not accepting votes")
+
+
     def test_http_status(self):
         code = error.iiServerErrors.http_status(error.iiServerErrors.INVALID_CATEGORY)
         assert(code == status.HTTP_400_BAD_REQUEST)
@@ -20,3 +33,6 @@ class TestError(TestCase):
         code = error.iiServerErrors.http_status(error.iiServerErrors.INVALID_ARGS)
         assert (code == status.HTTP_400_BAD_REQUEST)
 
+    def test_error_string(self):
+        e = error.error_string('invalidkey')
+        assert(e == error.d_ERROR_STRINGS['UNKNOWN_ERROR'])

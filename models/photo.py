@@ -57,28 +57,6 @@ class Photo(Base):
         c = session.query(Photo).filter_by(category_id = cid).count()
         return c
 
-
-    def increment_vote_count(self):
-        if self.times_voted is None:
-            self.times_voted = 0
-
-        self.times_voted += 1
-        return
-
-    def increment_likes(self):
-        if self.likes is None:
-            self.likes = 0
-
-        self.likes += 1
-        return
-
-    def update_score(self, points):
-        if self.score is None:
-            self.score = 0
-
-        self.score += points
-        return self.score
-
     def set_image(self, image):
         if image is None:
             raise Exception(errno.EINVAL)
@@ -116,7 +94,8 @@ class Photo(Base):
         except OSError as exc:
             if exc.errno == errno.EEXIST and os.path.isdir(path):
                 pass
-            else: raise
+            else:
+                raise
         return
 
     @staticmethod
@@ -137,9 +116,6 @@ class Photo(Base):
                 path_only = os.path.dirname(path_and_name)
                 Photo.mkdir_p(path_only)
             except OSError as err:
-                if err.errno == errno.EACCES:
-                    # we don't have permissions to this folder! log it and fail
-                    raise
                 raise
 
             # try writing again
@@ -207,26 +183,26 @@ class Photo(Base):
     # associated with the photo record
     #
     def read_thumbnail_image(self):
-        t_fn = self.create_thumb_filename()
-        pil_img = Image.open(t_fn)
-        if pil_img is None:
-            return None
+        try:
+            t_fn = self.create_thumb_filename()
+            pil_img = Image.open(t_fn)
 
-        exif_dict = self.get_exif_dict(pil_img)
-        exif_bytes = piexif.dump(exif_dict)
-        b = BytesIO()
-        pil_img.save(b, 'JPEG', exif=exif_bytes)
-        thumb = b.getvalue()
-        if thumb is None:
-            return None
+            exif_dict = self.get_exif_dict(pil_img)
+            exif_bytes = piexif.dump(exif_dict)
+            b = BytesIO()
+            pil_img.save(b, 'JPEG', exif=exif_bytes)
+            thumb = b.getvalue()
 
-        # make sure the orientation is set. If there is no photometa
-        # data record, pull directly from the image
-        if self.get_orientation() is None:
-            exif_data = self.get_exif_data(pil_img)
-            if 'Orientation' in exif_data:
-                self.set_orientation(exif_data['Orientation'])
-        return thumb
+            # make sure the orientation is set. If there is no photometa
+            # data record, pull directly from the image
+            if self.get_orientation() is None:
+                exif_data = self.get_exif_data(pil_img)
+                if 'Orientation' in exif_data:
+                    self.set_orientation(exif_data['Orientation'])
+            return thumb
+
+        except:
+            return None
 
     # SaveUserImage()
     # ===============
@@ -260,16 +236,7 @@ class Photo(Base):
         # okay, now we need to save all this information to the
         self.user_id  = uid
         self.category_id = cid
-
-        try:
-            session.add(self)
-        except exc.IntegrityError as e:
-            if "fk_photo_user_id" in e.args[0]:
-                raise BaseException(errno.EINVAL, "invalid user")
-            if "fk_photo_category_id" in e.args[0]:
-                raise BaseException(errno.EINVAL, "invalid category")
-            raise
-
+        session.add(self)
         return {'error': None, 'arg': self.filename}
 
     def compute_scalefactor(self, height, width):
@@ -375,19 +342,12 @@ class Photo(Base):
         self._image_type = "JPEG"       # need a better way of doing this!
         self.create_full_filename()
         f = open(self._full_filename, 'rb')
-        if f is None:
-            return None
         img = f.read()
-        if img is None:
-            return None
-
         b64_img = base64.standard_b64encode(img)
         return b64_img
 
     @staticmethod
     def last_submitted_photo(session, uid):
-        if session is None or uid is None:
-            return None
         q = session.query(Photo).filter(Photo.user_id == uid).order_by(Photo.created_date.desc())
         p = q.first() # top entry
         if p is not None:
@@ -402,9 +362,6 @@ class Photo(Base):
         # okay the "filename" is the field stashed in the database
         q = session.query(Photo).filter_by(filename = fn)
         p = q.one()
-        if p is None:
-            return None
-
         return p.read_photo_to_b64()
 
     @staticmethod

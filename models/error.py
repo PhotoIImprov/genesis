@@ -83,8 +83,9 @@ d_ERROR_STRINGS = {'NO_JSON': "missing JSON data",
                    'UNKNOWN_ERROR': "unknown error ??"}
 
 def error_string(key):
-    value = d_ERROR_STRINGS[key]
-    if value is None:
+    try:
+        value = d_ERROR_STRINGS[key]
+    except:
         value = d_ERROR_STRINGS['UNKNOWN_ERROR']
-
-    return str(value)
+    finally:
+        return str(value)

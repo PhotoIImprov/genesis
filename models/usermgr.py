@@ -80,9 +80,6 @@ class User(Base):
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 
-    def get_id(self):
-        return self.id
-
     @staticmethod
     def find_user_by_id(session, m_id):
         q = session.query(User).filter_by(id = m_id)

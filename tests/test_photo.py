@@ -86,6 +86,38 @@ class TestPhoto(DatabaseTest):
         assert (fo._uuid is not None)
         assert (fo.filename is not None)
 
+    def test_set_image_no_image(self):
+        p = photo.Photo()
+        try:
+            p.set_image(None)
+        except Exception as e:
+            assert(e.args[0] == errno.EINVAL)
+
+    def test_create_full_file_path(self):
+        p = photo.Photo()
+        p._sub_path = 'foo'
+        p.create_full_path(None)
+        assert(p.filepath == p._sub_path)
+
+    def test_read_thumbnail_image_no_file(self):
+        p = photo.Photo()
+        p.filepath = "/mnt/image_files"
+        p.filename = "foobar.gif"
+
+        f = p.read_thumbnail_image()
+        assert(f == None)
+
+    def test_set_exif_data(self):
+        pm = photo.PhotoMeta(640, 480)
+        pm.set_exif_data(None)
+
+    def test_make_dummy_exif(self):
+        p = photo.Photo()
+        d_exif = p.make_dummy_exif()
+        gps_ifd = d_exif['GPS']
+        assert(gps_ifd[29] == '1999:99:99 99:99:99')
+
+
     def test_save_user_image(self):
         return            # issue with non-image JPEG generates thumbnail and fails.
         self.setup()
@@ -94,13 +126,16 @@ class TestPhoto(DatabaseTest):
         assert (fo is not None)
 
 
-        data = b'\xFF\xD8\xFF\xE0\x00\x10\x4A\x46\x49\x46\x00\x01\x01\x01\x00\x48\x00\x48\x00\x00' \
-               b'\xFF\xDB\x00\x43\x00\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF' \
-               b'\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF' \
-               b'\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF' \
-               b'\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xC2\x00\x0B\x08\x00\x01\x00\x01\x01\x01' \
-               b'\x11\x00\xFF\xC4\x00\x14\x10\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' \
-               b'\x00\x00\x00\x00\xFF\xDA\x00\x08\x01\x01\x00\x01\x3F\x10'
+        cwd = os.getcwd()
+        if 'tests' in cwd:
+            path = '../photos/Cute_Puppy.jpg'
+        else:
+            path = cwd + '/photos/Cute_Puppy.jpg'
+        ft = open(path, 'rb')
+        assert (ft is not None)
+
+        ph = ft.read()
+        assert (ph is not None)
 
         # first we need a resource
         r = resources.Resource.create_resource(5555, 'EN', 'Kittens')

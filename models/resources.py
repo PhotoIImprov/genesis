@@ -40,30 +40,5 @@ class Resource(Base):
 
     @staticmethod
     def write_resource(session, r):
-        try:
-            session.add(r)
-            session.commit()
-        except:
-            my_str = sys.exc_info()[0]
-            raise
-
-        return
-
-#    @staticmethod
-#    def executeScriptsFromFile(session, filename):
-#        fd = open(filename, 'r')
-#        sqlFile = fd.read()
-#        fd.close()
-#
-#        sqlCommands = sqlFile.split(';')
-#        c = session.connection()
-#        log = None
-#        for command in sqlCommands:
-#            try:
-#                c.execute(command)
-#            except OperationalError as msg:
-#                log = log + "Command skipped: " + msg
-#
-#        return
-
-
+        session.add(r)
+        session.commit()
