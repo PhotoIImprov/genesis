@@ -651,10 +651,16 @@ def accept_friendship():
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
-    usermgr.FriendRequest.update_friendship(session, uid, fid, accepted)
-    session.close()
-
-    return make_response(jsonify({'msg': error.error_string('FRIENDSHIP_UPDATED')}), status.HTTP_201_CREATED)
+    try:
+        usermgr.FriendRequest.update_friendship(session, uid, fid, accepted)
+        rsp = make_response(jsonify({'msg': error.error_string('FRIENDSHIP_UPDATED')}), status.HTTP_201_CREATED)
+        session.commit()
+    except:
+        session.rollback()
+        rsp = make_response(jsonify({'msg': error.error_string('NO_SUCH_FRIEND')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        session.close()
+        return rsp
 
 @app.route("/friendrequest", methods=['POST'])
 @jwt_required()

@@ -174,9 +174,6 @@ class Friend(Base):
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 
-    def get_id(self):
-        return self.id
-
     @staticmethod
     def is_friend(session, uid, maybe_friend_uid):
         # lookup and see if this person is a friend!
@@ -227,10 +224,10 @@ class FriendRequest(Base):
         q = session.query(FriendRequest).filter_by(id = fid)
         fr = q.first()
         if fr is None:
-            return
+            raise
 
-        if fr.notifying_friend_id is not None and fr.notifying_friend_id != uid:
-            return # something wrong!!
+        if fr.notifying_friend_id is not None and fr.notifying_friend_id == uid:
+            raise # something wrong!!
 
         if accept:
             fr.accepted = True

@@ -711,6 +711,21 @@ class TesttVoting(iiBaseUnitTest):
         assert(rsp.status_code == 201)
         assert(data['msg'] == "friendship updated")
 
+    def test_friend_request_bogus_accepted(self):
+
+        self.create_testuser_get_token()
+        d = self.test_friend_request_current_user()    # create a request
+        rid = d['request_id']
+
+        # we need to create a friend request
+        # okay we created 2 users, one is asking the other to be a friend and the 2nd is in the system
+        rsp = self.app.post(path='/acceptfriendrequest',
+                            data=json.dumps(dict(request_id=rid+1, accepted="true")),
+                            headers=self.get_header_json())
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(rsp.status_code == 500)
+        assert(data['msg'] == error.error_string('NO_SUCH_FRIEND'))
+
     def test_friend_request_accepted_no_json(self):
 
         self.create_testuser_get_token()
