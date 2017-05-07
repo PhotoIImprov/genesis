@@ -32,7 +32,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '0.4.0' #our version string PEP 440
+__version__ = '0.4.1' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
