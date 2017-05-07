@@ -8,7 +8,6 @@ from models import usermgr
 from enum import Enum
 from models import error
 from leaderboard.leaderboard import Leaderboard # how we track high scores
-from models import photo
 # from iiMemoize import memoize_with_expiry, _memoize_cache
 
 class CategoryState(Enum):
