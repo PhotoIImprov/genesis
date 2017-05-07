@@ -351,20 +351,6 @@ class TestLogin(iiBaseUnitTest):
         rsp = self.app.get(path='/config', headers={'content-type': 'text/html'})
         assert(rsp.status_code == 200)
 
-    def test_ballot_empty_args(self):
-        self.create_testuser_get_token()
-        rsp = self.app.get(path='/ballot', query_string=urlencode({'category_id':None}), headers=self.get_header_html())
-        data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['msg']
-        assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
-
-    def test_ballot_missing_args(self):
-        self.create_testuser_get_token()
-        rsp = self.app.get(path='/ballot', query_string=urlencode({'username':'bp100a'}), headers=self.get_header_html())
-        data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['msg']
-        assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
-
     def test_vote_missing_args(self):
         self.create_testuser_get_token()
         self.create_testuser_get_token()
@@ -538,6 +524,7 @@ class TesttVoting(iiBaseUnitTest):
                            headers=self.get_header_html())
 
         data = json.loads(rsp.data.decode("utf-8"))
+        assert('msg' in data.keys())
         emsg = data['msg']
         assert(rsp.status_code == 500 and emsg == error.iiServerErrors.error_message(error.iiServerErrors.INVALID_CATEGORY) )
         return

@@ -8,6 +8,7 @@ from models import usermgr
 from enum import Enum
 from models import error
 from leaderboard.leaderboard import Leaderboard # how we track high scores
+from models import photo
 # from iiMemoize import memoize_with_expiry, _memoize_cache
 
 class CategoryState(Enum):
@@ -42,7 +43,6 @@ class Category(Base):
     duration_upload = Column(Integer, nullable=False, default=24)
     duration_vote   = Column(Integer, nullable=False, default=24)
     end_date        = Column(DateTime, nullable=False)
-
 
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
@@ -105,9 +105,6 @@ class Category(Base):
         # - COUNTING - past voting, available to see status of winners
         q = session.query(Category).filter(Category.state.in_([CategoryState.UPLOAD.value, CategoryState.VOTING.value, CategoryState.COUNTING.value]))
         cl = q.all()
-
-        for c in cl:
-            session.expunge(c) # so they aren't tied to the session
         return cl
 
     @staticmethod

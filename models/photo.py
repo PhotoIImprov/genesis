@@ -201,7 +201,8 @@ class Photo(Base):
                     self.set_orientation(exif_data['Orientation'])
             return thumb
 
-        except:
+        except Exception as e:
+            str_e = str(e)
             return None
 
     # SaveUserImage()

@@ -23,6 +23,7 @@ import logging
 import os
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+from random import shuffle
 
 
 app = Flask(__name__)
@@ -596,8 +597,6 @@ def get_ballot():
     u = current_identity
     uid = u.id
     cid = request.args.get('category_id')
-    if uid is None or cid is None or cid == 'None':
-        return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
     return return_ballot(session, uid, cid)
@@ -805,19 +804,21 @@ def cast_vote():
     session = dbsetup.Session()
 
     try:
-        cid = voting.BallotManager().tabulate_votes(session, uid, votes)
-#        cid = voting.Ballot.tabulate_votes(session, uid, votes)
+        voting.BallotManager().tabulate_votes(session, uid, votes)
     except BaseException as e:
         str_e = str(e)
         return make_response(jsonify({'msg': error.error_string('TABULATE_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    rsp = return_ballot(session, uid, cid)
-    return rsp
+    return return_ballot(session, uid, None)
 
 def return_ballot(session, uid, cid):
     rsp = None
     try:
         bm = voting.BallotManager()
+        if cid is None:
+            cl = bm.active_voting_categories(session, uid)
+            shuffle(cl)
+            cid = cl[0].id
         d = bm.create_ballot(session, uid, cid)
         if bm._ballot is None:
             session.close()

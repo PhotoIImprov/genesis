@@ -1,4 +1,4 @@
-from sqlalchemy        import Column, Integer, DateTime, text, ForeignKey, String, exc
+from sqlalchemy        import Column, Integer, DateTime, text, ForeignKey, String, exc, func
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session
 from sqlalchemy import exists, and_
@@ -369,6 +369,21 @@ class BallotManager:
 
         p = q.all()
         return p
+
+    def active_voting_categories(self, session, uid):
+        '''
+        Only return categories that have photos that can be voted on
+        :param session: 
+        :param uid: 
+        :return: 
+        '''
+        q = session.query(category.Category).filter(category.Category.state == category.CategoryState.VOTING.value).\
+            join(photo.Photo, photo.Photo.category_id == category.Category.id).\
+            filter(photo.Photo.user_id != uid).\
+            group_by(category.Category.id).having(func.count(photo.Photo.id) > 4)
+        cl = q.all()
+        return cl
+
 
 
 class ServerList(Base):
