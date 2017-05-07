@@ -2,17 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tests/test_voting.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/category.py" afterPath="$PROJECT_DIR$/models/category.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/error.py" afterPath="$PROJECT_DIR$/models/error.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/photo.py" afterPath="$PROJECT_DIR$/models/photo.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/resources.py" afterPath="$PROJECT_DIR$/models/resources.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/usermgr.py" afterPath="$PROJECT_DIR$/models/usermgr.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/test_category.py" afterPath="$PROJECT_DIR$/tests/test_category.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/test_dbsetup.py" afterPath="$PROJECT_DIR$/tests/test_dbsetup.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/test_iiServerErrors.py" afterPath="$PROJECT_DIR$/tests/test_iiServerErrors.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/test_photo.py" afterPath="$PROJECT_DIR$/tests/test_photo.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/test_user.py" afterPath="$PROJECT_DIR$/tests/test_user.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/test_REST_voting.py" afterPath="$PROJECT_DIR$/tests/test_REST_voting.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -32,6 +22,7 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestPhotoUpload_test_healthcheck.coverage" NAME="Unittests for test_REST_login.TestPhotoUpload.test_healthcheck Coverage Results" MODIFIED="1494008200123" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_photo_TestPhoto_test_save_user_image_bad_user.coverage" NAME="Unittests for test_photo.TestPhoto.test_save_user_image_bad_user Coverage Results" MODIFIED="1494100751309" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_resource.coverage" NAME="Unittests in test_resource Coverage Results" MODIFIED="1494102784149" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_REST_voting_py.coverage" NAME="Unittests in test_REST_voting.py Coverage Results" MODIFIED="1494113204198" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittest_TestLogin_test_auth.coverage" NAME="Unittest TestLogin.test_auth Coverage Results" MODIFIED="1490642236096" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Cloud.coverage" NAME="Cloud Coverage Results" MODIFIED="1492981314343" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/iiServer$iiServer.coverage" NAME="iiServer Coverage Results" MODIFIED="1486600933995" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
@@ -67,7 +58,7 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestLogin_test_root_page.coverage" NAME="Unittests for test_REST_login.TestLogin.test_root_page Coverage Results" MODIFIED="1492394171904" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_tests_test_REST_login_TesttVoting_test_anon_voting.coverage" NAME="Unittests for tests.test_REST_login.TesttVoting.test_anon_voting Coverage Results" MODIFIED="1492709779881" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_category_TestCategory_test_active_category_bad_user.coverage" NAME="Unittests for test_category.TestCategory.test_active_category_bad_user Coverage Results" MODIFIED="1494102760213" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/genesis$Unittests_in_tests.coverage" NAME="Unittests in tests Coverage Results" MODIFIED="1494113033395" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_in_tests.coverage" NAME="Unittests in tests Coverage Results" MODIFIED="1494166652606" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_photo.coverage" NAME="Unittests in test_photo Coverage Results" MODIFIED="1490029558190" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_tests_test_photo_TestPhoto_test_save_user_image2.coverage" NAME="Unittests for tests.test_photo.TestPhoto.test_save_user_image2 Coverage Results" MODIFIED="1492896643608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/genesis$Unittest_TestCategory_test_current_category.coverage" NAME="Unittest TestCategory.test_current_category Coverage Results" MODIFIED="1489180305656" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -91,8 +82,8 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestPhotoUpload_test_image_no_file.coverage" NAME="Unittests for test_REST_login.TestPhotoUpload.test_image_no_file Coverage Results" MODIFIED="1494007945263" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittest_TestLogin_test_bad_password_auth.coverage" NAME="Unittest TestLogin.test_bad_password_auth Coverage Results" MODIFIED="1490641803003" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_category.coverage" NAME="Unittests in test_category Coverage Results" MODIFIED="1489867202685" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_voting_TestVotingRounds_MAIN_setup_users.coverage" NAME="Unittests for test_REST_voting.TestVotingRounds.MAIN_setup_users Coverage Results" MODIFIED="1493921188010" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestCategory_test_category_state_no_cid.coverage" NAME="Unittests for test_REST_login.TestCategory.test_category_state_no_cid Coverage Results" MODIFIED="1494011672057" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_voting_TestVotingRounds_MAIN_setup_users.coverage" NAME="Unittests for test_REST_voting.TestVotingRounds.MAIN_setup_users Coverage Results" MODIFIED="1494165884189" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_iiFile.coverage" NAME="Unittests in test_iiFile Coverage Results" MODIFIED="1487375764722" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_tests_test_REST_login_TestLogin_test_spec_page.coverage" NAME="Unittests for tests.test_REST_login.TestLogin.test_spec_page Coverage Results" MODIFIED="1492717476155" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_leaderBoard.coverage" NAME="Unittests in test_leaderBoard Coverage Results" MODIFIED="1489180292264" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -119,10 +110,22 @@
       <file leaf-file-name="voting.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/models/voting.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="87">
+            <state relative-caret-position="-399">
               <caret line="307" column="8" lean-forward="false" selection-start-line="307" selection-start-column="8" selection-end-line="307" selection-end-column="8" />
               <folding>
                 <element signature="e#0#86#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test_REST_voting.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/test_REST_voting.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="317">
+              <caret line="255" column="12" lean-forward="false" selection-start-line="255" selection-start-column="12" selection-end-line="255" selection-end-column="12" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -291,7 +294,6 @@
         <option value="$PROJECT_DIR$/requirements.txt" />
         <option value="$PROJECT_DIR$/tests/__init__.py" />
         <option value="$PROJECT_DIR$/iiMemoize.py" />
-        <option value="$PROJECT_DIR$/tests/test_REST_voting.py" />
         <option value="$PROJECT_DIR$/tests/test_ballot.py" />
         <option value="$PROJECT_DIR$/tests/initialize_data.py" />
         <option value="$PROJECT_DIR$/dbsetup.py" />
@@ -309,6 +311,7 @@
         <option value="$PROJECT_DIR$/tests/test_user.py" />
         <option value="$PROJECT_DIR$/models/category.py" />
         <option value="$PROJECT_DIR$/tests/test_voting.py" />
+        <option value="$PROJECT_DIR$/tests/test_REST_voting.py" />
       </list>
     </option>
   </component>
@@ -432,38 +435,6 @@
     </option>
   </component>
   <component name="RunManager" selected="Python tests.Unittests in tests">
-    <configuration default="false" name="Unittests for test_voting.TestVoting.test_create_ballot_list_ROUND1_bad_category" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="iiServer" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_voting.TestVoting.test_create_ballot_list_ROUND1_bad_category&quot;" />
-      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
-      <method />
-    </configuration>
-    <configuration default="false" name="Unittests for test_voting.TestVoting.test_read_photos_not_balloted_noargs" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="iiServer" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_voting.TestVoting.test_read_photos_not_balloted_noargs&quot;" />
-      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
-      <method />
-    </configuration>
     <configuration default="false" name="Unittests in test_voting.py" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -509,6 +480,38 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
       <option name="_new_target" value="&quot;test_voting.TestVoting.test_votinground_init&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method />
+    </configuration>
+    <configuration default="false" name="Unittests in test_REST_voting.py" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="iiServer" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/test_REST_voting.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method />
+    </configuration>
+    <configuration default="false" name="Unittests for test_REST_voting.TestVotingRounds.MAIN_setup_users" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="iiServer" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_REST_voting.TestVotingRounds.MAIN_setup_users&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method />
     </configuration>
@@ -786,19 +789,19 @@
       <item index="0" class="java.lang.String" itemvalue="Python.iiServer" />
       <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests in test_resource" />
       <item index="2" class="java.lang.String" itemvalue="Python.Cloud" />
-      <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests for test_voting.TestVoting.test_create_ballot_list_ROUND1_bad_category" />
-      <item index="4" class="java.lang.String" itemvalue="Python tests.Unittests for test_voting.TestVoting.test_read_photos_not_balloted_noargs" />
-      <item index="5" class="java.lang.String" itemvalue="Python tests.Unittests in test_voting.py" />
-      <item index="6" class="java.lang.String" itemvalue="Python tests.Unittests in tests" />
-      <item index="7" class="java.lang.String" itemvalue="Python tests.Unittests for test_voting.TestVoting.test_votinground_init" />
+      <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests in test_voting.py" />
+      <item index="4" class="java.lang.String" itemvalue="Python tests.Unittests in tests" />
+      <item index="5" class="java.lang.String" itemvalue="Python tests.Unittests for test_voting.TestVoting.test_votinground_init" />
+      <item index="6" class="java.lang.String" itemvalue="Python tests.Unittests in test_REST_voting.py" />
+      <item index="7" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_voting.TestVotingRounds.MAIN_setup_users" />
     </list>
     <recent_temporary>
       <list size="5">
         <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in tests" />
-        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests for test_voting.TestVoting.test_votinground_init" />
-        <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests in test_voting.py" />
-        <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests for test_voting.TestVoting.test_create_ballot_list_ROUND1_bad_category" />
-        <item index="4" class="java.lang.String" itemvalue="Python tests.Unittests for test_voting.TestVoting.test_read_photos_not_balloted_noargs" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_voting.TestVotingRounds.MAIN_setup_users" />
+        <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests in test_REST_voting.py" />
+        <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests for test_voting.TestVoting.test_votinground_init" />
+        <item index="4" class="java.lang.String" itemvalue="Python tests.Unittests in test_voting.py" />
       </list>
     </recent_temporary>
     <configuration default="true" type="tests" factoryName="Attests">
@@ -938,20 +941,17 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Unittests_for_test_voting_TestVoting_test_create_ballot_list_ROUND1_bad_category - 2017.05.06 at 19h 01m 59s.xml">
-      <configuration name="Unittests for test_voting.TestVoting.test_create_ballot_list_ROUND1_bad_category" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_test_voting_TestVoting_test_create_ballot_list_ROUND1_bad_category - 2017.05.06 at 19h 03m 19s.xml">
-      <configuration name="Unittests for test_voting.TestVoting.test_create_ballot_list_ROUND1_bad_category" configurationId="tests" />
+    <history-entry file="Unittests_for_test_REST_voting_TestVotingRounds_MAIN_setup_users - 2017.05.07 at 10h 13m 16s.xml">
+      <configuration name="Unittests for test_REST_voting.TestVotingRounds.MAIN_setup_users" configurationId="tests" />
     </history-entry>
     <history-entry file="Unittests_for_test_voting_TestVoting_test_create_ballot_list_ROUND1_bad_category - 2017.05.06 at 19h 08m 47s.xml">
       <configuration name="Unittests for test_voting.TestVoting.test_create_ballot_list_ROUND1_bad_category" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_for_test_voting_TestVoting_test_read_photos_not_balloted_noargs - 2017.05.06 at 19h 07m 15s.xml">
-      <configuration name="Unittests for test_voting.TestVoting.test_read_photos_not_balloted_noargs" configurationId="tests" />
-    </history-entry>
     <history-entry file="Unittests_for_test_voting_TestVoting_test_votinground_init - 2017.05.06 at 19h 22m 53s.xml">
       <configuration name="Unittests for test_voting.TestVoting.test_votinground_init" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_test_REST_voting_py - 2017.05.06 at 19h 26m 45s.xml">
+      <configuration name="Unittests in test_REST_voting.py" configurationId="tests" />
     </history-entry>
     <history-entry file="Unittests_in_test_voting_py - 2017.05.06 at 19h 07m 28s.xml">
       <configuration name="Unittests in test_voting.py" configurationId="tests" />
@@ -968,6 +968,9 @@
     <history-entry file="Unittests_in_tests - 2017.05.06 at 19h 25m 23s.xml">
       <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
+    <history-entry file="Unittests_in_tests - 2017.05.07 at 10h 38m 11s.xml">
+      <configuration name="Unittests in tests" configurationId="tests" />
+    </history-entry>
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="27" width="1920" height="1053" extended-state="6" />
@@ -977,8 +980,8 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3284091" sideWeight="0.50250536" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32941177" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3090909" sideWeight="0.49749464" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3090909" sideWeight="0.49749464" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18229167" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1390,16 +1393,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_REST_voting.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="168" column="0" lean-forward="false" selection-start-line="163" selection-start-column="0" selection-end-line="168" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/iiServer.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="203">
@@ -1558,9 +1551,19 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_REST_voting.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="317">
+          <caret line="255" column="12" lean-forward="false" selection-start-line="255" selection-start-column="12" selection-end-line="255" selection-end-column="12" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/models/voting.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="87">
+        <state relative-caret-position="-399">
           <caret line="307" column="8" lean-forward="false" selection-start-line="307" selection-start-column="8" selection-end-line="307" selection-end-column="8" />
           <folding>
             <element signature="e#0#86#0" expanded="true" />

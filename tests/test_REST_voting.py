@@ -253,7 +253,7 @@ class TestVotingRounds(unittest.TestCase):
         connection.commit()
         return results
 
-    def MAIN_setup_users(self):
+    def test_setup_users(self):
         self.setUp()
         self.create_test_users()
         self._tu = TestUser()
