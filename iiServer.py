@@ -24,7 +24,7 @@ import os
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from random import shuffle
-
+from datetime import timedelta
 
 app = Flask(__name__)
 app.debug = True
@@ -268,17 +268,21 @@ def hello():
             htmlbody += "\n<br>category_id = {}".format(c.get_id())
             htmlbody += "\n<br>description = <b><i>\"{}\"</b></i>".format(c.get_description())
             htmlbody += "\n<br>start date={} UTC".format(c.start_date)
-            htmlbody += "\n<br>end date={} UTC".format(c.end_date)
             htmlbody += "\n<br>round={}".format(c.round)
+            htmlbody += " (Voting Round #{})".format(c.round+1)
             num_photos = photo.Photo.count_by_category(session, c.get_id())
             htmlbody += "\n<br>number photos uploaded = <b>{}</b>".format(num_photos)
             if c.state == category.CategoryState.VOTING.value:
                 num_voters = voting.Ballot.num_voters_by_category(session, c.get_id())
                 htmlbody += "\n<br>number users voting = <b>{}</b>".format(num_voters)
+                end_of_voting = c.start_date + timedelta(hours=(c.duration_vote + c.duration_upload))
+                htmlbody += "\n, voting ends @{}".format(end_of_voting)
             if c.state == category.CategoryState.UPLOAD.value:
                 q = session.query(photo.Photo.user_id).distinct().filter(photo.Photo.category_id == c.get_id())
                 n = q.count()
                 htmlbody += "\n<br>number users uploading = <b>{}</b>".format(n)
+                end_of_uploading = c.start_date + timedelta(hours=c.duration_upload)
+                htmlbody += "\n, uploading ends @{}".format(end_of_uploading)
 
             htmlbody += "\n<br><br>"
         htmlbody += "\n</blockquote>"
@@ -431,7 +435,7 @@ def get_category():
             id:
               type: integer
               description: category identifier
-            theme:
+            description:
               type: string
               description: "A brief description of the category"
             start:
@@ -762,8 +766,14 @@ def cast_vote():
        200:
          description: "ballot"
          schema:
-           items:
-             $ref: '#/definitions/Ballot'
+           category:
+             type: item
+             items:
+                $ref: '#/definitions/Category'
+           ballots:
+              type: array
+              items:
+                $ref: '#/definitions/Ballot'
        400:
          description: "missing required arguments"
        413:
@@ -818,8 +828,12 @@ def return_ballot(session, uid, cid):
         if cid is None:
             cl = bm.active_voting_categories(session, uid)
             shuffle(cl)
-            cid = cl[0].id
-        d = bm.create_ballot(session, uid, cid)
+            cat = cl[0]
+        else:
+            d = category.Category.read_category_by_id(session, cid)
+            cat = d['arg']
+
+        d = bm.create_ballot(session, uid, cat.id)
         if bm._ballot is None:
             session.close()
             if d['error'] is not None:
@@ -830,7 +844,8 @@ def return_ballot(session, uid, cid):
             session.commit()
             bm._ballot.read_photos_for_ballots(session)
             ballots = bm._ballot.to_json()
-            rsp = make_response(jsonify(ballots), status.HTTP_200_OK)
+            d = {'category': cat.to_json(), 'ballots': ballots}
+            rsp = make_response(jsonify(d), status.HTTP_200_OK)
     except BaseException as e:
         str_e = str(e)
         session.rollback()

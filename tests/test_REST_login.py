@@ -470,7 +470,7 @@ class TesttVoting(iiBaseUnitTest):
 
         assert(rsp.status_code == 200)
 
-        ballots = data
+        ballots = data['ballots']
 
         assert(len(ballots) == 4)
 
@@ -526,7 +526,7 @@ class TesttVoting(iiBaseUnitTest):
         data = json.loads(rsp.data.decode("utf-8"))
         assert('msg' in data.keys())
         emsg = data['msg']
-        assert(rsp.status_code == 500 and emsg == error.iiServerErrors.error_message(error.iiServerErrors.INVALID_CATEGORY) )
+        assert(rsp.status_code == 500 and emsg == error.error_string('NO_BALLOT') )
         return
 
     def test_anon_voting(self):
@@ -960,7 +960,7 @@ class TestLeaderBoard(iiBaseUnitTest):
 
         data = json.loads(rsp.data.decode("utf-8"))
         assert(rsp.status_code == 200)
-        ballots = data
+        ballots = data['ballots']
         assert(len(ballots) < 5)
         return ballots
 

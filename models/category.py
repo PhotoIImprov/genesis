@@ -8,6 +8,7 @@ from models import usermgr
 from enum import Enum
 from models import error
 from leaderboard.leaderboard import Leaderboard # how we track high scores
+
 # from iiMemoize import memoize_with_expiry, _memoize_cache
 
 class CategoryState(Enum):
@@ -68,7 +69,8 @@ class Category(Base):
     def to_json(self):
         category_description = self.get_description()
         json_start_date = "{}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}Z".format(self.start_date.year, self.start_date.month, self.start_date.day, self.start_date.hour, self.start_date.minute, self.start_date.second)
-        json_end_date   = "{}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}Z".format(self.end_date.year, self.end_date.month, self.end_date.day, self.end_date.hour, self.end_date.minute, self.end_date.second)
+        _end_date = self.start_date + timedelta(hours=(self.duration_upload + self.duration_vote))
+        json_end_date   = "{}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}Z".format(_end_date.year, _end_date.month, _end_date.day, _end_date.hour, _end_date.minute, _end_date.second)
         json_state = CategoryState.to_str(self.state)
         d = dict({'id':self.id, 'description':category_description, 'start':json_start_date, 'end':json_end_date, 'state':json_state, 'round': str(self.round)})
         return d
