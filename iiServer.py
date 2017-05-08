@@ -200,12 +200,13 @@ def hello():
         description: "serious error dude"
     """
     htmlbody = "<html>\n<body>\n"
+    dtNow = datetime.datetime.now()
     if dbsetup.is_gunicorn():
-        htmlbody += "<h1>ImageImprov Hello World from Gunicorn & Nginx!</h1>"
+        htmlbody += "<h1>ImageImprov Hello World from Gunicorn & Nginx!</h1> last called {}".format(dtNow)
 #        htmlbody += "<img src=\"/static/gunicorn_banner.jpg\"/>"
         htmlbody += "<img src=\"/static/gunicorn_small.png\"/>"
     else:
-        htmlbody += "<h1>ImageImprov Hello World from Flask!</h1>"
+        htmlbody += "<h1>ImageImprov Hello World from Flask!</h1> last called {}".format(dtNow)
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
 #    htmlbody += "<img src=\"/static/python_flask_mysql_banner.jpg\"/>\n"
