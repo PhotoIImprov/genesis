@@ -113,7 +113,8 @@ class BallotEntry(Base):
             return None
 
         orientation = self._photo.get_orientation()
-
+        if orientation is None:
+            orientation = 0
         d = dict({'bid':self.id, 'image':self._b64image.decode('utf-8'), 'orientation': orientation})
         return d
 
