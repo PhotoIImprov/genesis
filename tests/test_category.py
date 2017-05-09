@@ -39,13 +39,6 @@ class TestCategory(DatabaseTest):
         cl = category.Category.active_categories(None, 3)
         assert(cl is None)
 
-    def test_read_category_by_id_no_args(self):
-        try:
-            c = category.Category.read_category_by_id(None, None)
-        except BaseException as e:
-            assert(e.args[0] == errno.EINVAL)
-            pass
-
     def test_is_upload(self):
         c = category.Category()
         c.state = category.CategoryState.UPLOAD.value

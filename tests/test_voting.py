@@ -11,11 +11,6 @@ from models import error
 
 class TestVoting(DatabaseTest):
 
-    def test_create_ballot_list_ROUND2_noargs(self):
-        bm = voting.BallotManager()
-        d = bm.create_ballot_list_ROUND2(None, None, None, 4)
-        assert(d is None)
-
     def test_calculate_score_round2(self):
         bm = voting.BallotManager()
 
@@ -28,45 +23,9 @@ class TestVoting(DatabaseTest):
         score = bm.calculate_score(1,1,3)
         assert(score == 4)
 
-    def test_create_ballot_list_ROUND1_noargs(self):
-        bm = voting.BallotManager()
-
-        try:
-            d = bm.create_ballot_list_ROUND1(None, None, None, 4)
-            assert(False)
-        except BaseException as e:
-            assert(e.args[0] == errno.EINVAL)
-
-    def test_create_ballot_list_ROUND1_bad_category(self):
-        self.setup()
-        bm = voting.BallotManager()
-
-        d = bm.create_ballot_list_ROUND1(self.session, 1, 0, 4)
-    #    assert(d[error] is not None)
-
-    def test_read_photos_not_balloted_noargs(self):
-        self.setup()
-        bm = voting.BallotManager()
-
-        try:
-            bm.read_photos_not_balloted(None, None, None, 4)
-            assert(False)
-        except BaseException as e:
-            assert(e.args[0] == errno.EINVAL)
-
     def test_votinground_init(self):
         vr = voting.VotingRound(photo_id=1)
         assert(vr.photo_id == 1)
-
-    def test_read_photo_by_votes_noargs(self):
-        bm = voting.BallotManager()
-        try:
-            bm.read_photos_not_balloted(None, None, None, 4)
-        except BaseException as e:
-            assert(e.args[0] == errno.EINVAL)
-            return
-
-        assert(False) # should never get here...
 
     def test_read_thumbnail_fakepid(self):
         self.setup()
@@ -76,9 +35,15 @@ class TestVoting(DatabaseTest):
         assert(th == None)
 
     def test_create_leaderboard_nocid(self):
+        self.setup()
         tm = voting.TallyMan()
-        r = tm.create_leaderboard(1, 1, None)
-        assert(r == None)
+        try:
+            r = tm.create_leaderboard(self.session, 1, None)
+        except Exception as e:
+            assert(e.args[0] == errno.EINVAL and e.args[1] == 'cannot create leaderboard name')
+            return
+
+        assert(False)
 
     def test_create_displayname_anonymous(self):
         tm = voting.TallyMan()

@@ -272,7 +272,7 @@ class TestPhoto(DatabaseTest):
             fo.save_user_image(self.session, ph, "JPEG", u.id, 0)
         except BaseException as e:
             assert (e.args[0] == errno.EINVAL)
-            assert (e.args[1] == "invalid category")
+            assert (e.args[1] == "No Category found for cid=0")
 
         self.teardown()
 

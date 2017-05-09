@@ -469,9 +469,9 @@ class TesttVoting(iiBaseUnitTest):
         data = json.loads(rsp.data.decode("utf-8"))
 
         assert(rsp.status_code == 200)
-
         ballots = data['ballots']
-
+        if len(ballots) != 4:
+            assert(False)
         assert(len(ballots) == 4)
 
         for be_dict in ballots:
@@ -771,9 +771,9 @@ class TestCategory(iiBaseUnitTest):
         rsp = self.app.post(path='/setcategorystate', data=json.dumps(dict(category_id=0, state=cstate)),
                             headers=self.get_header_json())
 
-        assert (rsp.status_code == 400)
+        assert (rsp.status_code == 500)
         data = json.loads(rsp.data.decode("utf-8"))
-        assert(data['msg'] == 'invalid category')
+        assert(data['msg'] == error.error_string('UNKNOWN_ERROR'))
 
     def test_category_state(self):
         # let's create a user

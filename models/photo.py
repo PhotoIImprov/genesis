@@ -65,6 +65,9 @@ class Photo(Base):
         return
 
     def get_orientation(self):
+        if self._orientation is None and self._photometa is not None:
+            self._orientation = self._photometa.orientation
+
         return self._orientation
     def set_orientation(self, orientation):
         self._orientation = orientation
@@ -354,7 +357,7 @@ class Photo(Base):
         if p is not None:
             c = category.Category.read_category_by_id(session, p.category_id)
             b64img = p.read_photo_to_b64()
-            return {'error':None, 'arg':{'image':b64img, 'category':c['arg']}}
+            return {'error':None, 'arg':{'image':b64img, 'category':c}}
 
         return {'error':"Nothing found", 'arg':None}
 

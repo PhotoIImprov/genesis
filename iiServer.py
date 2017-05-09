@@ -32,7 +32,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '0.4.1' #our version string PEP 440
+__version__ = '0.5.0' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -393,7 +393,7 @@ def set_category_state():
                 c = d['arg']
                 if c is not None:
                    rsp = make_response(jsonify({'msg': error.error_string('CATEGORY_STATE')}),status.HTTP_200_OK)
-    except:
+    except Exception as e:
         rsp = make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         session.close()
@@ -536,10 +536,11 @@ def get_leaderboard():
             rsp = make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
         else:
             tm = voting.TallyMan()
-            d = tm.create_leaderboard(session, uid, cid)
+            c = category.Category.read_category_by_id(session, cid)
+            d = tm.create_leaderboard(session, uid, c)
             if d is not None:
                 rsp = make_response(jsonify(d), 200)
-    except:
+    except Exception as e:
        rsp = make_response(jsonify({'msg': error.error_string('NO_LEADERBOARD')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         session.close()
@@ -829,23 +830,22 @@ def return_ballot(session, uid, cid):
         if cid is None:
             cl = bm.active_voting_categories(session, uid)
             shuffle(cl)
-            cat = cl[0]
+            c = cl[0]
         else:
-            d = category.Category.read_category_by_id(session, cid)
-            cat = d['arg']
+            c = category.Category.read_category_by_id(session, cid)
 
-        d = bm.create_ballot(session, uid, cat.id)
-        if bm._ballot is None:
+        ballots = bm.create_ballot(session, uid, c)
+        if ballots is None:
+            ballots = bm.create_ballot(session, uid, c)
+            if len(ballots) == 0:
+                ballots = bm.create_ballot(session, uid, c) # try it again with the debugger!
             session.close()
-            if d['error'] is not None:
-                rsp = make_response(jsonify({'msg':error.iiServerErrors.error_message(d['error'])}),status.HTTP_500_INTERNAL_SERVER_ERROR)
-            else:
-                rsp =  make_response(jsonify({'msg': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
+            rsp =  make_response(jsonify({'msg': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             session.commit()
-            bm._ballot.read_photos_for_ballots(session)
-            ballots = bm._ballot.to_json()
-            d = {'category': cat.to_json(), 'ballots': ballots}
+            ballots.read_photos_for_ballots(session)
+            j_ballots = ballots.to_json()
+            d = {'category': c.to_json(), 'ballots': j_ballots}
             rsp = make_response(jsonify(d), status.HTTP_200_OK)
     except BaseException as e:
         str_e = str(e)
@@ -963,7 +963,7 @@ def last_submission():
 
             rsp = make_response(jsonify({'image':i.decode("utf-8"), 'category':c.to_json()}), status.HTTP_200_OK)
         session.commit()
-    except:
+    except Exception as e:
         session.rollback()
         rsp = make_response(jsonify({'msg': error.error_string('NO_SUBMISSION')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
@@ -1050,11 +1050,13 @@ def photo_upload():
             rsp = make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
         else:
             rsp = make_response(jsonify({'msg': error.error_string('PHOTO_UPLOADED'), 'filename': d['arg']}), status.HTTP_201_CREATED)
-    except:
+    except Exception as e:
         session.rollback()
-        rsp = make_response(jsonify({'msg': error.error_string('UPLOAD_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         session.close()
+        if rsp is None:
+            rsp = make_response(jsonify({'msg': error.error_string('UPLOAD_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         return rsp
 
 @app.route("/register", methods=['POST'])

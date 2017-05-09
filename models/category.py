@@ -125,16 +125,8 @@ class Category(Base):
 
     @staticmethod
     def read_category_by_id(session, cid):
-        if session is None or cid is None:
-            raise BaseException(errno.EINVAL)
-
         c = session.query(Category).get(cid)
-        err = None
-        if c is None:
-            err = error.iiServerErrors.INVALID_CATEGORY
-
-        d = {'error': err, 'arg':c}
-        return d
+        return c
 
     def is_upload(self):
         return self.state == CategoryState.UPLOAD.value
@@ -143,8 +135,7 @@ class Category(Base):
 
     @staticmethod
     def is_upload_by_id(session, cid):
-        d = Category.read_category_by_id(session, cid)
-        c = d['arg']
+        c = Category.read_category_by_id(session, cid)
         if c is None:
-            return False
+            raise Exception(errno.EINVAL, 'No Category found for cid={}'.format(cid))
         return c.state == CategoryState.UPLOAD.value
