@@ -285,6 +285,17 @@ def hello():
                 end_of_uploading = c.start_date + timedelta(hours=c.duration_upload)
                 htmlbody += "\n, uploading ends @{}".format(end_of_uploading)
 
+            # let's get # of votes and average vote/photo
+            q = session.query(voting.BallotEntry).filter(voting.BallotEntry.category_id == c.get_id())
+            total_votes = q.count()
+            htmlbody += "\n<br>Total votes for category = <b>{}</b>".format(total_votes)
+            htmlbody += "\n<br>Average votes per photo = "
+            if num_photos != 0:
+                average_votes = total_votes / num_photos
+                htmlbody += "<b>{:6.2f}</b>".format(average_votes)
+            else:
+                htmlbody += "<b><i>undefined</b></i>"
+
             htmlbody += "\n<br><br>"
         htmlbody += "\n</blockquote>"
 
