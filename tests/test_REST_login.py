@@ -283,9 +283,7 @@ class TestLogin(iiBaseUnitTest):
         self.create_testuser_get_token()
         hd=self.get_header_html()
         rsp = self.app.get(path='/ballot', headers=hd)
-        data = json.loads(rsp.data.decode("utf-8"))
-        emsg = data['msg']
-        assert(emsg == error.error_string('NO_ARGS') and rsp.status_code == 400)
+        assert(rsp.status_code == 200)
 
         return rsp
 

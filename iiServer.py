@@ -616,12 +616,12 @@ def get_ballot():
             image:
               type: string
     """
-    if not request.args:
-        return make_response(jsonify({'msg': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
-
     u = current_identity
     uid = u.id
-    cid = request.args.get('category_id')
+    if not request.args:
+        cid = None
+    else:
+        cid = request.args.get('category_id')
 
     session = dbsetup.Session()
     return return_ballot(session, uid, cid)
