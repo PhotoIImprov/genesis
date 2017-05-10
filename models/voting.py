@@ -153,8 +153,7 @@ class BallotManager:
         if vr is not None: # sections only matter for round 2
             section = vr.section
 
-        cat = session.query(category.Category).get(be.category_id)
-        round = cat.round
+        c = session.query(category.Category).get(be.category_id)
 
         for j_be in json_ballots:
             bid = j_be['bid']
@@ -166,22 +165,19 @@ class BallotManager:
             be = session.query(BallotEntry).get(bid)
             be.like = like
             be.vote = j_be['vote']
-            score = self.calculate_score(j_be['vote'], round, section)
+            score = self.calculate_score(j_be['vote'], c.round, section)
             p = session.query(photo.Photo).get(be.photo_id)
             p.score += score
             p.times_voted += 1
 
             tm = TallyMan()
-            tm.update_leaderboard(session, uid, cat, p)
-
-        return cat.id
+            tm.update_leaderboard(session, c, p)
 
     def calculate_score(self, vote, round, section):
         if round == 0:
             score = _ROUND1_SCORING[0][vote-1]
         else:
             score = _ROUND2_SCORING[section][vote-1]
-
         return score
 
     def create_ballot(self, session, uid, c):
@@ -278,7 +274,7 @@ class BallotManager:
         count = _NUM_BALLOT_ENTRIES
         photos_for_ballot = []
         for num_votes in range(0,4):
-            if c.round == 0:
+            if c.round == 0 or True:
                 pl = self.read_photos_by_ballots_round1(session, uid, c, num_votes, count)
             else:
                 pl = self.read_photos_by_ballots_round2(session, uid, c, num_votes, count)
@@ -400,11 +396,11 @@ class TallyMan():
 
         return str_lb
 
-    def update_leaderboard(self, session, uid, c, p):
+    def update_leaderboard(self, session, c, p):
         # we have a User/Photo/Vote
         lb = self.get_leaderboard_by_category(session, c)
         if lb is not None:
-            lb.rank_member(uid, p.score, p.id)
+            lb.rank_member(p.user_id, p.score, p.id)
 
     def get_leaderboard_by_category(self, session, c):
         rd = ServerList().get_redis_server(session)

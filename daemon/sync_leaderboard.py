@@ -36,18 +36,14 @@ class sync_daemon(Daemon):
             filter(category.Category.state != category.CategoryState.UNKNOWN.value)
         return q.all()
 
+    def leaderboard_exists(self,tm, c):
+        lb_name = tm.leaderboard_name(c)
+
     def scored_photos_by_category(self, session, c):
         # there could be millions of records, so we need to page
         more_photos = True
         tm = voting.TallyMan()
-
-        # see how many members are in the leaderboard vs. how many have scores
-        members_in = tm.total_members_in_leaderboard(session, c)
-        q = session.query(photo.Photo).filter(photo.Photo.category_id == c.id). \
-            filter(photo.Photo.score > 0). \
-            filter(photo.Photo.id > max_pid).order_by(photo.Photo.id.asc()).limit(_PAGE_SIZE_PHOTOS)
-        scored_members = q.count()
-        if members_in == scored_members:
+        if leaderboard_exists(tm, c):
             return
 
         max_pid = 0
@@ -59,7 +55,7 @@ class sync_daemon(Daemon):
             more_photos = pl is not None
             max_pid = pl[0].pid
             for p in pl:
-                tm.update_leaderboard(session, p.user_id, c.id, p)
+                tm.update_leaderboard(session, c, p)
                 max_pid = p.id
             sleep(_THROTTLE_UPDATES_SECONDS) # brief pause so machine can catch it's breath
 

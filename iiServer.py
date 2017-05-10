@@ -277,7 +277,15 @@ def hello():
                 num_voters = voting.Ballot.num_voters_by_category(session, c.get_id())
                 htmlbody += "\n<br>number users voting = <b>{}</b>".format(num_voters)
                 end_of_voting = c.start_date + timedelta(hours=(c.duration_vote + c.duration_upload))
+                start_of_voting = c.start_date + timedelta(hours=c.duration_upload)
                 htmlbody += "\n, voting ends @{}".format(end_of_voting)
+                # display how close we are (% wise) to end of voting
+                # % = (now - start) / (end - start)
+                denominator = (end_of_voting - start_of_voting) / timedelta(seconds=1)
+                numerator = (datetime.datetime.now() - start_of_voting) / timedelta(seconds=1)
+                percent_done = numerator / denominator
+                htmlbody += "\n, <b>{:6.2f}%</b> of voting done".format(percent_done * 100.0)
+
             if c.state == category.CategoryState.UPLOAD.value:
                 q = session.query(photo.Photo.user_id).distinct().filter(photo.Photo.category_id == c.get_id())
                 n = q.count()
@@ -848,9 +856,6 @@ def return_ballot(session, uid, cid):
         ballots = bm.create_ballot(session, uid, c)
         if ballots is None:
             ballots = bm.create_ballot(session, uid, c)
-            if len(ballots) == 0:
-                ballots = bm.create_ballot(session, uid, c) # try it again with the debugger!
-            session.close()
             rsp =  make_response(jsonify({'msg': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             session.commit()
