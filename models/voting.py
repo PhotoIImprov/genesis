@@ -274,7 +274,7 @@ class BallotManager:
         count = _NUM_BALLOT_ENTRIES
         photos_for_ballot = []
         for num_votes in range(0,4):
-            if c.round == 0:
+            if c.round == 0 or True:
                 pl = self.read_photos_by_ballots_round1(session, uid, c, num_votes, count)
             else:
                 pl = self.read_photos_by_ballots_round2(session, uid, c, num_votes, count)
