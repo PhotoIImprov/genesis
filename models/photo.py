@@ -243,15 +243,25 @@ class Photo(Base):
         session.add(self)
         return {'error': None, 'arg': self.filename}
 
-    def compute_scalefactor(self, height, width):
-        if height > width:
-            sfh = 640 / height
-            sfw = 360 / width
-        else:
-            sfh = 640 / width
-            sfw = 360 / height
 
-        if sfh > sfw:
+    def compute_scalefactor(self, height, width):
+        '''
+        
+        :param height: 
+        :param width: 
+        :return: a scaling factor such that the result is no dimension larger than _MAX_HEIGHT and _MAX_WIDTH
+         yet retain aspect ratio
+        '''
+        _MAX_HEIGHT = 640
+        _MAX_WIDTH = 360
+        if height > width:
+            sfh = _MAX_HEIGHT / height
+            sfw = _MAX_WIDTH / width
+        else:
+            sfh = _MAX_HEIGHT / width
+            sfw = _MAX_WIDTH / height
+
+        if sfh < sfw:
             return sfh
 
         return sfw

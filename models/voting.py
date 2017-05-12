@@ -106,12 +106,7 @@ class BallotEntry(Base):
         if self._photo is None:
             return None
         self._binary_image = self._photo.read_thumbnail_image()
-        if self._binary_image is None:
-            return None
-
         self._b64image = base64.standard_b64encode(self._binary_image)
-        if self._b64image is None:
-            return None
 
         orientation = self._photo.get_orientation()
         if orientation is None:
@@ -239,25 +234,24 @@ class BallotManager:
                 filter(VotingRound.section == s). \
                 filter(VotingRound.times_voted == num_votes).limit(count)
             pl = q.all()
-            if len(pl) == count:
-                return pl
-
             bl.extend(pl) # accumulate ballots we've picked, can save us time later
-
             # see if we encountered 4 in our journey
             if len(bl) >= count:
-                pl = bl[count:] # we'll use these, only return 4
-                return pl
+                return bl
 
         # we tried everything, let's just grab some photos from any section (HOW TO RANDOMIZE THIS??)
         if num_votes == _MAX_VOTING_ROUNDS:
-            q = session.query(photo.Photo).filter(photo.Photo.user_id != uid). \
-                filter(photo.Photo.category_id == c.id). \
-                join(VotingRound, VotingRound.photo_id == photo.Photo.id). \
-                filter(VotingRound.section == s).limit(count)
-            pl = q.all()
+            for s in sl:
+                q = session.query(photo.Photo).filter(photo.Photo.user_id != uid). \
+                    filter(photo.Photo.category_id == c.id). \
+                    join(VotingRound, VotingRound.photo_id == photo.Photo.id). \
+                    filter(VotingRound.section == s).limit(count)
+                pl = q.all()
+                bl.extend(pl) # accumulate ballots we've picked, can save us time later
+                if len(bl) >= count:
+                    return bl
 
-        return pl
+        return bl # return what we have
 
     # create_ballot_list()
     # ======================
@@ -375,9 +369,6 @@ class TallyMan():
         redis_port = d['port']
         lb_name = self.leaderboard_name(c)
         lb = Leaderboard(lb_name, host=redis_host, port=redis_port, page_size=10)
-        if lb is None:
-            return False
-
         # start with a clean leaderboard
         lb.delete_leaderboard()
         return True
@@ -437,19 +428,9 @@ class TallyMan():
         except:
             return None
 
-    def total_members_in_leaderboard(self, session, c):
-        lb = self.get_leaderboard_by_category(session, c)
-        if lb is None:
-            return -1
-        return lb.total_members_in(self.leaderboard_name(c))
-
-
     def create_leaderboard(self, session, uid, c):
         # okay lets get the leader board!
         lb = self.get_leaderboard_by_category(session, c)
-        if lb is None:
-            return None
-
         my_rank = lb.rank_for(uid)
 
         dl = lb.leaders(1, page_size=10, with_member_data=True)   # 1st page is top 25

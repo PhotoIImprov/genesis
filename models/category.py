@@ -80,13 +80,9 @@ class Category(Base):
 
     @staticmethod
     def list_to_json(cl):
-        if cl is None or len(cl) == 0:
-            return None
-
         categories = []
         for c in cl:
             categories.append(c.to_json())
-
         return categories
 
     @staticmethod

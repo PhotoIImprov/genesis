@@ -32,7 +32,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '0.5.0' #our version string PEP 440
+__version__ = '0.5.1' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -559,6 +559,8 @@ def get_leaderboard():
             d = tm.create_leaderboard(session, uid, c)
             if d is not None:
                 rsp = make_response(jsonify(d), 200)
+            else:
+                rsp = make_response(jsonify({'msg': error.error_string('NO_LEADERBOARD')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     except Exception as e:
        rsp = make_response(jsonify({'msg': error.error_string('NO_LEADERBOARD')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:

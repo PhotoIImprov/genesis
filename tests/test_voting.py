@@ -110,7 +110,8 @@ class TestVoting(DatabaseTest):
         ft = open('../photos/Cute_Puppy.jpg', 'rb')
         ph = ft.read()
 
-        for i in range(0,40):
+        _NUM_PHOTOS_UPLOADED = 40
+        for i in range(0,_NUM_PHOTOS_UPLOADED):
             self.upload_image(ph, c, u)
 
         # switch category to voting state
@@ -121,7 +122,7 @@ class TestVoting(DatabaseTest):
         nu = self.create_user()
 
         bm = voting.BallotManager()
-        for i in range(0,6):
+        for i in range(0,_NUM_PHOTOS_UPLOADED+1): # need to ask for enough ballots to test all cases
             b = bm.create_ballot(self.session, nu.id, c)
             self.session.flush() # write ballot/ballotentries to DB
             j_votes = []

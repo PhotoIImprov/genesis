@@ -19,6 +19,9 @@ class TestError(TestCase):
         msg = error.iiServerErrors.error_message((error.iiServerErrors.NOTVOTING_CATEGORY))
         assert (msg == "category is not accepting votes")
 
+        msg = error.iiServerErrors.error_message((error.iiServerErrors.INVALID_CATEGORY))
+        assert (msg == "invalid category")
+
 
     def test_http_status(self):
         code = error.iiServerErrors.http_status(error.iiServerErrors.INVALID_CATEGORY)
@@ -32,6 +35,9 @@ class TestError(TestCase):
 
         code = error.iiServerErrors.http_status(error.iiServerErrors.INVALID_ARGS)
         assert (code == status.HTTP_400_BAD_REQUEST)
+
+        code = error.iiServerErrors.http_status(error.iiServerErrors.NOTVOTING_CATEGORY)
+        assert (code == status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def test_error_string(self):
         e = error.error_string('invalidkey')

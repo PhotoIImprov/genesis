@@ -155,8 +155,6 @@ def identity(payload):
     session = Session()
     au = AnonUser.get_anon_user_by_id(session, user_id)
     session.close()
-    if au is None:
-        return None
     return au
 
 #================================= F R I E N D - L I S T ========================================

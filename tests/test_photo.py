@@ -309,3 +309,22 @@ class TestPhoto(DatabaseTest):
             fo.create_thumb()
         except BaseException as e:
             assert(e.args[0] == errno.EINVAL)
+
+    def test_compute_scale_factor(self):
+        p = photo.Photo()
+
+        # 1280 x 360 -> 640 x 180
+        sf = p.compute_scalefactor(640*2, 360*1)
+        assert(sf == 0.5)
+
+        # 360 x 1280 -> 180 x 640
+        sf = p.compute_scalefactor(360*1, 640*2)
+        assert(sf == 0.5)
+
+        # 1280 x 540 -> 640 x 270
+        sf = p.compute_scalefactor(640*2, 360*1.5)
+        assert(sf == 0.5)
+
+        # 1920 x 1440 -> 480 x 360
+        sf = p.compute_scalefactor(640*3, 360*4)
+        assert(sf == 0.25)
