@@ -71,7 +71,7 @@ class TestBallot(DatabaseTest):
 
         # now set this category to voting
         c.state = category.CategoryState.VOTING.value
-        self.session.commit()
+        self.session.flush()
 
         # Now let's created a ballot
         b = voting.BallotManager().create_ballot(self.session, u.id, c)

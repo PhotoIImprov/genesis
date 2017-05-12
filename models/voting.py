@@ -21,6 +21,7 @@ _ROUND1_SCORING     = {0:[3,1,0,0]}
 _ROUND2_SCORING     = {0:[7,5,3,1], 1:[6,4,2,2], 2:[5,3,1,1], 3:[4,2,0,1]}
 _ROUND1_TIMESVOTED  = 3
 _ROUND2_TIMESVOTED  = 3
+_MAX_VOTING_ROUNDS  = 4
 
 class Ballot(Base):
     __tablename__ = 'ballot'
@@ -216,7 +217,7 @@ class BallotManager:
             session.add(be)
         return self._ballot
 
-    def read_photos_by_ballots_round2(self, session, uid, c, num_ballots):
+    def read_photos_by_ballots_round2(self, session, uid, c, num_votes, count):
 
         # *****************************
         # **** CONFIGURATION ITEMS ****
@@ -230,33 +231,33 @@ class BallotManager:
             sl.append(idx)
 
         bl = []
-        for tv in range(max_votes):
-            shuffle(sl)  # randomize the section list
-            for idx in range(num_sections):
-                q = session.query(photo.Photo).filter(photo.Photo.user_id != uid). \
-                    filter(photo.Photo.category_id == c.id).\
-                    join(VotingRound, VotingRound.photo_id == photo.Photo.id) . \
-                    filter(VotingRound.section == sl[idx]). \
-                    filter(VotingRound.times_voted == tv).limit(num_ballots)
-                p = q.all()
-                if len(p) == num_ballots:
-                    return p
+        shuffle(sl)  # randomize the section list
+        for s in sl:
+            q = session.query(photo.Photo).filter(photo.Photo.user_id != uid). \
+                filter(photo.Photo.category_id == c.id).\
+                join(VotingRound, VotingRound.photo_id == photo.Photo.id) . \
+                filter(VotingRound.section == s). \
+                filter(VotingRound.times_voted == num_votes).limit(count)
+            pl = q.all()
+            if len(pl) == count:
+                return pl
 
-                bl.append(p) # accumulate ballots we've picked, can save us time later
+            bl.extend(pl) # accumulate ballots we've picked, can save us time later
 
-        # see if we encountered 4 in our journey
-        if len(pl) >= num_ballots:
-            p = pl[num_ballots:] # we'll use these, only return 4
-            return p
+            # see if we encountered 4 in our journey
+            if len(bl) >= count:
+                pl = bl[count:] # we'll use these, only return 4
+                return pl
 
         # we tried everything, let's just grab some photos from any section (HOW TO RANDOMIZE THIS??)
-        q = session.query(photo.Photo).filter(photo.Photo.user_id != uid). \
-            filter(photo.Photo.category_id == cid). \
-            join(VotingRound, VotingRound.photo_id == photo.Photo.id). \
-            filter(VotingRound.times_voted == tv).limit(num_ballots)
-        p = q.all()
+        if num_votes == _MAX_VOTING_ROUNDS:
+            q = session.query(photo.Photo).filter(photo.Photo.user_id != uid). \
+                filter(photo.Photo.category_id == c.id). \
+                join(VotingRound, VotingRound.photo_id == photo.Photo.id). \
+                filter(VotingRound.section == s).limit(count)
+            pl = q.all()
 
-        return p
+        return pl
 
     # create_ballot_list()
     # ======================
@@ -273,8 +274,8 @@ class BallotManager:
         # we need "count"
         count = _NUM_BALLOT_ENTRIES
         photos_for_ballot = []
-        for num_votes in range(0,4):
-            if c.round == 0 or True:
+        for num_votes in range(0,_MAX_VOTING_ROUNDS+1):
+            if c.round == 0:
                 pl = self.read_photos_by_ballots_round1(session, uid, c, num_votes, count)
             else:
                 pl = self.read_photos_by_ballots_round2(session, uid, c, num_votes, count)
@@ -293,11 +294,17 @@ class BallotManager:
                 filter(photo.Photo.user_id != uid). \
                 filter(~exists().where(BallotEntry.photo_id == photo.Photo.id)).limit(count)
         else:
-            q = session.query(photo.Photo).filter(photo.Photo.category_id == c.id).\
-                join(BallotEntry, photo.Photo.id == BallotEntry.photo_id).\
-                filter(photo.Photo.user_id != uid).\
-                group_by(photo.Photo.id).\
-                having(func.count(BallotEntry.photo_id) == num_votes).limit(count)
+            if num_votes == _MAX_VOTING_ROUNDS:
+                q = session.query(photo.Photo).filter(photo.Photo.category_id == c.id). \
+                    join(BallotEntry, photo.Photo.id == BallotEntry.photo_id). \
+                    filter(photo.Photo.user_id != uid). \
+                    group_by(photo.Photo.id).limit(count)
+            else:
+                q = session.query(photo.Photo).filter(photo.Photo.category_id == c.id).\
+                    join(BallotEntry, photo.Photo.id == BallotEntry.photo_id).\
+                    filter(photo.Photo.user_id != uid).\
+                    group_by(photo.Photo.id).\
+                    having(func.count(BallotEntry.photo_id) == num_votes).limit(count)
 
         pl = q.all()
            
@@ -358,7 +365,7 @@ class TallyMan():
     def setup_voting(self, session, c):
 
         if c is None or not c.is_voting():
-            return None # this is an error!
+            return False # this is an error!
 
         # before we switch on voting, create the leaderboard
         sl = ServerList()
@@ -369,10 +376,11 @@ class TallyMan():
         lb_name = self.leaderboard_name(c)
         lb = Leaderboard(lb_name, host=redis_host, port=redis_port, page_size=10)
         if lb is None:
-            return None
+            return False
 
         # start with a clean leaderboard
         lb.delete_leaderboard()
+        return True
 
     def change_category_state(self, session, cid, new_state):
         c = category.Category.read_category_by_id(session, cid)

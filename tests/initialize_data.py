@@ -20,6 +20,26 @@ from werkzeug.datastructures import Headers
 # ************************************************************************
 # ************************************************************************
 
+class PhotoCache():
+    _b64img = None
+
+    def __init__(self, photo_name):
+        cwd = os.getcwd()
+
+        # we have our user, now we need a photo to upload
+        if 'tests' in cwd:
+            fn = '../photos/' + photo_name
+        else:
+            fn = cwd + '/photos/' + photo_name
+
+        ft = open(fn, 'rb')
+        assert (ft is not None)
+        ph = ft.read()
+        assert (ph is not None)
+
+        img = base64.standard_b64encode(ph)
+        self._b64img = img.decode("utf-8")
+
 class InitEnvironment(unittest.TestCase):
 
     _photos = ('Cute_Puppy.jpg',
@@ -62,7 +82,7 @@ class InitEnvironment(unittest.TestCase):
                'sam_4089.jpg',
                'vetndhl.jpg'
                )
-
+    _pcache = []
     _users = {'hcollins@gmail.com',
              'bp100a@hotmail.com',
              'dblankley@blankley.com',
@@ -86,21 +106,7 @@ class InitEnvironment(unittest.TestCase):
 
     _base_url = None
 
-    def upload_photo(self, tu, photo_name, cid):
-
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        cwd = os.getcwd()
-
-        # we have our user, now we need a photo to upload
-        if 'tests' in cwd:
-            fn = '../photos/' + photo_name
-        else:
-            fn = cwd + '/photos/' + photo_name
-
-        ft = open(fn, 'rb')
-        assert (ft is not None)
-        ph = ft.read()
-        assert (ph is not None)
+    def upload_photo(self, tu, pc, cid):
 
         # compose header with users authorization token
         h = Headers()
@@ -109,8 +115,7 @@ class InitEnvironment(unittest.TestCase):
 
         # okay, we need to post this
         ext = 'JPEG'
-        img = base64.standard_b64encode(ph)
-        b64img = img.decode("utf-8")
+        b64img = pc._b64img
         url = self._base_url + '/photo'
         rsp = requests.post(url, data=json.dumps(dict(category_id=cid, extension=ext, image=b64img)), headers=h)
         assert(rsp.status_code == 201)
@@ -185,7 +190,12 @@ class InitEnvironment(unittest.TestCase):
 
     def massive_photo_upload(self):
 
-        num_photos = len(self._photos)
+        # load up the photos into our cache
+        for p in self._photos:
+            pc = PhotoCache(p)
+            self._pcache.append(pc)
+
+        num_photos = len(self._pcache)
         photo_idx = 0
 
         tu = test_REST_login.TestUser()
@@ -199,7 +209,7 @@ class InitEnvironment(unittest.TestCase):
                     # get the uploading category
                     cid = self.get_category_by_state(category.CategoryState.UPLOAD, tu.get_token())
 
-                self.upload_photo(tu, self._photos[photo_idx], cid)
+                self.upload_photo(tu, self._pcache[photo_idx], cid)
                 photo_idx += 1
                 if photo_idx >= num_photos:
                     photo_idx = 0

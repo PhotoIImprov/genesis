@@ -41,4 +41,4 @@ class Resource(Base):
     @staticmethod
     def write_resource(session, r):
         session.add(r)
-        session.commit()
+        session.flush()

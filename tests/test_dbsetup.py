@@ -8,6 +8,8 @@ class TestDBsetup(TestCase):
         assert(cs == "mysql+pymysql://python:python@192.168.1.149:3306/imageimprov")
         cs = dbsetup.connection_string(EnvironmentType.PROD)
         assert(cs == "mysql+pymysql://python:python@127.0.0.1:3306/imageimprov")
+        cs = dbsetup.connection_string(EnvironmentType.UNKNOWN)
+        assert(cs is None)
 
     def test_environment(self):
         env = dbsetup.determine_environment("PROD")
@@ -33,6 +35,9 @@ class TestDBsetup(TestCase):
         assert(str == '/mnt/image_files')
         str = dbsetup.image_store(EnvironmentType.PROD)
         assert(str == '/mnt/gcs-photos')
+        str = dbsetup.image_store(EnvironmentType.UNKNOWN)
+        assert(str is None)
 
     def test_ping_connection(self):
         dbsetup.ping_connection(None, True)
+

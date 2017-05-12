@@ -50,7 +50,7 @@ def connection_string(environment):
     if environment == EnvironmentType.PROD:
         return 'mysql+pymysql://python:python@127.0.0.1:3306/imageimprov'
 
-    raise
+    return None
 
 def image_store(environment):
     if environment == EnvironmentType.DEV:
@@ -149,4 +149,4 @@ QUOTES = (
     ('You can\'t be a real country unless you have a beer and an airline - it helps if you have some kind of football team, or some nuclear weapons, but in the very least you need a beer', 'Frank Zappa'),
     ('The best beer in the world is the one in my hand', 'Charles Papazian'),
     ('Give my people plenty of beer, good beer, and cheap beer, and you will have no revolution among them', 'Queen Victoria')
-    )
+)
