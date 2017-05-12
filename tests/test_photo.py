@@ -15,9 +15,9 @@ class TestPhoto(DatabaseTest):
 
         # read our test file
         ft = open('../photos/Cute_Puppy.jpg', 'rb')
-        assert (ft is not None)
-        ph = ft.read()
-        assert (ph is not None)
+        pi = photo.PhotoImage()
+        pi._extension = 'JPEG'
+        pi._binary_image = ft.read()
 
         for i in range(1, 50):
             email = 'bp100a_' + str(i) + '@gmail.com'
@@ -26,9 +26,8 @@ class TestPhoto(DatabaseTest):
             if au is not None:
                 u = usermgr.User.create_user(self.session, au.guid, email, 'pa55w0rd')
                 fo = photo.Photo()
-                assert (fo is not None)
                 fo.category_id = cid
-                fo.save_user_image(self.session, ph, "JPEG", au.id, cid)
+                fo.save_user_image(self.session, pi, au.id, cid)
                 fn = fo.filename
                 fo.create_thumb()
 
@@ -59,9 +58,10 @@ class TestPhoto(DatabaseTest):
     def test_safe_write_file(self):
 
         guid = "UT_" + str(uuid.uuid1()) + "/testdata.bin"
-        data = bytes("Now is the time for all good men", encoding='UTF-8')
-
-        photo.Photo.safe_write_file(guid, data)
+        pi = photo.PhotoImage()
+        pi._binary_image = bytes("Now is the time for all good men", encoding='UTF-8')
+        pi._extension = 'JPEG'
+        photo.Photo.safe_write_file(guid, pi)
 
         # now cleanup!
         os.remove(guid)
@@ -85,13 +85,6 @@ class TestPhoto(DatabaseTest):
 
         assert (fo._uuid is not None)
         assert (fo.filename is not None)
-
-    def test_set_image_no_image(self):
-        p = photo.Photo()
-        try:
-            p.set_image(None)
-        except Exception as e:
-            assert(e.args[0] == errno.EINVAL)
 
     def test_create_full_file_path(self):
         p = photo.Photo()
@@ -117,59 +110,13 @@ class TestPhoto(DatabaseTest):
         gps_ifd = d_exif['GPS']
         assert(gps_ifd[29] == '1999:99:99 99:99:99')
 
-
-    def test_save_user_image(self):
-        return            # issue with non-image JPEG generates thumbnail and fails.
-        self.setup()
-
-        fo = photo.Photo()
-        assert (fo is not None)
-
-
-        cwd = os.getcwd()
-        if 'tests' in cwd:
-            path = '../photos/Cute_Puppy.jpg'
-        else:
-            path = cwd + '/photos/Cute_Puppy.jpg'
-        ft = open(path, 'rb')
-        assert (ft is not None)
-
-        ph = ft.read()
-        assert (ph is not None)
-
-        # first we need a resource
-        r = resources.Resource.create_resource(5555, 'EN', 'Kittens')
-        resources.Resource.write_resource(self.session, r)
-
-        # now create our category
-        s_date = datetime.datetime.now()
-        e_date = s_date + datetime.timedelta(days=1)
-        c = category.Category.create_category(r.resource_id, s_date, e_date)
-        category.Category.write_category(self.session, c)
-
-        # create a user
-        au = usermgr.AnonUser.create_anon_user(self.session, '99275132efe811e6bc6492361f002672')
-        if au is not None:
-            u = usermgr.User.create_user(self.session, au.guid, 'harry.collins@gmail.com', 'pa55w0rd')
-
-        fo.category_id = c.id
-        fo.user_id = u.id
-        try:
-            fo.save_user_image(self.session, data, "JPEG", u.id, c.id)
-        except Exception as e:
-            assert(e == errno.EFAULT)
-
-        # now clean up
-        os.remove(fo.filepath + "/" + fo.filename + ".JPEG")
-        os.removedirs(fo.filepath)
-        self.teardown()
-
     def test_save_user_image2(self):
 
         self.setup()
 
         fo = photo.Photo()
-        assert (fo is not None)
+        pi = photo.PhotoImage()
+        pi._extension = 'JPEG'
 
         # read our test file
         cwd = os.getcwd()
@@ -178,10 +125,7 @@ class TestPhoto(DatabaseTest):
         else:
             path = cwd + '/photos/Cute_Puppy.jpg'
         ft = open(path, 'rb')
-        assert (ft is not None)
-
-        ph = ft.read()
-        assert (ph is not None)
+        pi._binary_image = ft.read()
 
         # first we need a resource
         r = resources.Resource.create_resource(5555, 'EN', 'Kittens')
@@ -199,9 +143,8 @@ class TestPhoto(DatabaseTest):
             u = usermgr.User.create_user(self.session, au.guid, 'harry.collins@gmail.com', 'pa55w0rd')
 
         fo.category_id = c.id
-        fo.save_user_image(self.session, ph, "JPEG", u.id, c.id)
+        fo.save_user_image(self.session, pi, u.id, c.id)
         fn = fo.filename
-
         fo.create_thumb()
 
         flist = photo.Photo.read_photo(self.session, u.id, c.id)
@@ -227,8 +170,9 @@ class TestPhoto(DatabaseTest):
         ft = open('../photos/Cute_Puppy.jpg', 'rb')
         assert (ft is not None)
 
-        ph = ft.read()
-        assert (ph is not None)
+        pi = photo.PhotoImage()
+        pi._binary_image = ft.read()
+        pi._extension = 'JPEG'
 
         # first we need a resource
         r = resources.Resource.create_resource(5555, 'EN', 'Kittens')
@@ -242,7 +186,7 @@ class TestPhoto(DatabaseTest):
 
         fo.category_id = c.id
         try:
-            fo.save_user_image(self.session, ph, "JPEG", 0, c.id)
+            fo.save_user_image(self.session, pi, 0, c.id)
         except BaseException as e:
             assert(e.args[0] == errno.EINVAL)
             assert(e.args[1] == "invalid user")
@@ -256,12 +200,12 @@ class TestPhoto(DatabaseTest):
         fo = photo.Photo()
         assert (fo is not None)
 
+        pi = photo.PhotoImage()
+
         # read our test file
         ft = open('../photos/Cute_Puppy.jpg', 'rb')
-        assert (ft is not None)
-
-        ph = ft.read()
-        assert (ph is not None)
+        pi._binary_image = ft.read()
+        pi._extension = 'JPEG'
 
         # create a user
         au = usermgr.AnonUser.create_anon_user(self.session, '99275132efe811e6bc6492361f002673')
@@ -269,7 +213,7 @@ class TestPhoto(DatabaseTest):
             u = usermgr.User.create_user(self.session, au.guid, 'harry.collins@gmail.com', 'pa55w0rd')
 
         try:
-            fo.save_user_image(self.session, ph, "JPEG", u.id, 0)
+            fo.save_user_image(self.session, pi, u.id, 0)
         except BaseException as e:
             assert (e.args[0] == errno.EINVAL)
             assert (e.args[1] == "No Category found for cid=0")
@@ -304,7 +248,16 @@ class TestPhoto(DatabaseTest):
     def test_generate_thumb_fail(self):
         fo = photo.Photo()
         assert (fo is not None)
+        try:
+            fo.create_thumb()
+        except BaseException as e:
+            assert(e.args[0] == errno.EINVAL)
 
+    def test_generate_thumb_fail_no_image(self):
+        fo = photo.Photo()
+        assert (fo is not None)
+        pi = photo.PhotoImage()
+        fo._photoimage = pi
         try:
             fo.create_thumb()
         except BaseException as e:

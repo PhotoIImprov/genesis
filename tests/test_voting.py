@@ -82,12 +82,12 @@ class TestVoting(DatabaseTest):
 
         return u
 
-    def upload_image(self, ph, c, u):
+    def upload_image(self, pi, c, u):
         fo = photo.Photo()
         fo.category_id = c.id
 
         try:
-            fo.save_user_image(self.session, ph, "JPEG", u.id, c.id)
+            fo.save_user_image(self.session, pi, u.id, c.id)
         except BaseException as e:
             assert(e.args[0] == errno.EINVAL)
             assert(e.args[1] == "invalid user")
@@ -108,11 +108,13 @@ class TestVoting(DatabaseTest):
         u = self.create_user()
         # read our test file
         ft = open('../photos/Cute_Puppy.jpg', 'rb')
-        ph = ft.read()
+        pi = photo.PhotoImage()
+        pi._binary_image = ft.read()
+        pi._extension = 'JPEG'
 
         _NUM_PHOTOS_UPLOADED = 40
         for i in range(0,_NUM_PHOTOS_UPLOADED):
-            self.upload_image(ph, c, u)
+            self.upload_image(pi, c, u)
 
         # switch category to voting state
         c.state = category.CategoryState.VOTING.value

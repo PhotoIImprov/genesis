@@ -41,9 +41,9 @@ class TestBallot(DatabaseTest):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         cwd = os.getcwd()
         ft = open('../photos/Cute_Puppy.jpg', 'rb')
-        assert (ft is not None)
-        ph = ft.read()
-        assert (ph is not None)
+        pi = photo.PhotoImage()
+        pi._binary_image = ft.read()
+        pi._extension = 'JPEG'
 
         # first we need a resource
         r = resources.Resource.create_resource(5555, 'EN', 'Kittens')
@@ -65,9 +65,8 @@ class TestBallot(DatabaseTest):
                 # Now add a photo for this user
                 # read our test file
                 fo = photo.Photo()
-                assert (fo is not None)
                 fo.category_id = c.id
-                fo.save_user_image(self.session, ph, "JPEG", au.id, c.id)
+                fo.save_user_image(self.session, pi, au.id, c.id)
 
         # now set this category to voting
         c.state = category.CategoryState.VOTING.value

@@ -1046,23 +1046,26 @@ def photo_upload():
     if not request.json:
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
+    pi = photo.PhotoImage()
     try:
-        image_data_b64 = request.json['image']
-        image_type     = request.json['extension']
+        pi._binary_image = base64.b64decode(request.json['image'])
+        pi._extension = request.json['extension']
         cid    = request.json['category_id']
         u = current_identity
         uid = u.id
     except KeyError:
         cid = None
         uid = None
+        pass
+    except BaseException as e:
+        return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     if cid is None or uid is None:
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     try:
         session = dbsetup.Session()
-        image_data = base64.b64decode(image_data_b64)
-        d = photo.Photo().save_user_image(session, image_data, image_type, uid, cid)
+        d = photo.Photo().save_user_image(session, pi, uid, cid)
         session.commit()
         if d['error'] is not None:
             rsp = make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))

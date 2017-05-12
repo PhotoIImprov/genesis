@@ -19,6 +19,12 @@ from retrying import retry
 import json
 
 
+class PhotoImage():
+    _binary_image = None
+    _extension = None
+    def __init__(self):
+        pass
+
 class Photo(Base):
 
     __tablename__ = 'photo'
@@ -42,10 +48,8 @@ class Photo(Base):
     _sub_path      = None
     _full_filename = None
     _mnt_point     = None   # "root path" to prefix, where folders are to be created
-    _image_type    = None   # e.g. "JPEG", "PNG", "TIFF", etc.
-    _raw_image     = None   # this is our unadulterated image file
     _orientation   = None   # orientation of the photo/thumbnail image
-
+    _photoimage    = None
 # ======================================================================================================
 
     def __init__(self, *args, **kwargs):
@@ -57,13 +61,6 @@ class Photo(Base):
         c = session.query(Photo).filter_by(category_id = cid).count()
         return c
 
-    def set_image(self, image):
-        if image is None:
-            raise Exception(errno.EINVAL)
-
-        self._raw_image = image
-        return
-
     def get_orientation(self):
         if self._orientation is None and self._photometa is not None:
             self._orientation = self._photometa.orientation
@@ -71,9 +68,6 @@ class Photo(Base):
 
     def set_orientation(self, orientation):
         self._orientation = orientation
-
-    def get_image(self):
-        return self._raw_image
 
     # okay, if the directory hasn't been created this will fail!
     @staticmethod
@@ -102,13 +96,13 @@ class Photo(Base):
         return
 
     @staticmethod
-    def safe_write_file(path_and_name, fdata):
+    def safe_write_file(path_and_name, pi):
         # the path may not be created, so we try to write the file
         # catch the exception and try again
 
         write_status = False
         try:
-            Photo.write_file(path_and_name, fdata)
+            Photo.write_file(path_and_name, pi._binary_image)
         except OSError as err:
             # see if this is our "no such dir error
             if err.errno == errno.EEXIST:
@@ -122,7 +116,7 @@ class Photo(Base):
                 raise
 
             # try writing again
-            Photo.write_file(path_and_name, fdata)
+            Photo.write_file(path_and_name, pi._binary_image)
 
         return
 
@@ -172,8 +166,8 @@ class Photo(Base):
 
         return
 
-    def create_full_filename(self):
-        self._full_filename = self.filepath + "/" + self.filename + "." + self._image_type
+    def create_full_filename(self, extension):
+        self._full_filename = self.filepath + "/" + self.filename + "." + extension
         return self._full_filename
 
     def create_thumb_filename(self):
@@ -215,26 +209,25 @@ class Photo(Base):
     # database
     #
     # Note: We also create the thumbnail file as well
-    def save_user_image(self, session, image_data, image_type, uid, cid):
+    def save_user_image(self, session, pi, uid, cid):
         err = None
-        if image_data is None or uid is None or cid is None:
+        if pi._binary_image is None or uid is None or cid is None:
             return {'error': error.iiServerErrors.INVALID_ARGS, 'arg': None}
 
         if not category.Category.is_upload_by_id(session, cid):
             return {'error': error.iiServerErrors.INVALID_ARGS, 'arg': None}
 
-        self.set_image(image_data)
-        self._image_type = image_type
+        self._photoimage = pi
 
         # okay we have arguments, lets create our file name
         self.create_name()      # our globally unique filename
         self.create_sub_path()  # a path to distribute the load
         self._mnt_point = dbsetup.image_store(dbsetup.determine_environment(None)) # get the mount point
         self.create_full_path(self._mnt_point) # put it all together
-        self.create_full_filename()
+        self.create_full_filename('JPEG')
 
         # write to the folder
-        Photo.safe_write_file(self._full_filename, image_data)
+        Photo.safe_write_file(self._full_filename, pi)
         self.create_thumb()
 
         # okay, now we need to save all this information to the
@@ -295,10 +288,10 @@ class Photo(Base):
         return exif_data
 
     def create_thumb(self):
-        if self._raw_image is None:
+        if self._photoimage is None or self._photoimage._binary_image is None:
             raise BaseException(errno.EINVAL, "no raw image")
 
-        file_jpegdata = BytesIO(self.get_image())
+        file_jpegdata = BytesIO(self._photoimage._binary_image)
         pil_img = Image.open(file_jpegdata)
         exif_dict = self.get_exif_dict(pil_img) # raw data from image
         exif_data = self.get_exif_data(pil_img) # key/value pairs reconstituted
@@ -353,8 +346,7 @@ class Photo(Base):
         return exif_dict
 
     def read_photo_to_b64(self):
-        self._image_type = "JPEG"       # need a better way of doing this!
-        self.create_full_filename()
+        self.create_full_filename('JPEG')
         f = open(self._full_filename, 'rb')
         img = f.read()
         b64_img = base64.standard_b64encode(img)

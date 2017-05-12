@@ -115,9 +115,14 @@ class InitEnvironment(unittest.TestCase):
 
         # okay, we need to post this
         ext = 'JPEG'
-        b64img = pc._b64img
         url = self._base_url + '/photo'
-        rsp = requests.post(url, data=json.dumps(dict(category_id=cid, extension=ext, image=b64img)), headers=h)
+
+        # we can occasionally get a '502, Bad Gateway', let's retry if we do'
+        for i in range(0,2):
+            rsp = requests.post(url, data=json.dumps(dict(category_id=cid, extension=ext, image=pc._b64img)), headers=h)
+            if rsp.status_code != 502:
+                break;
+
         assert(rsp.status_code == 201)
         return
 
