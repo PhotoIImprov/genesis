@@ -1,4 +1,5 @@
-﻿#
+﻿#!/bin/bash
+#
 # Redis server creation script.
 # -------------------------
 # Author: HjC
@@ -6,6 +7,15 @@
 # This script will initialize a GCE instance to run the Redis
 #
 
+# Check to see if this script has already been run
+file="/home/bp100a/gcs-serviceaccount.json"
+if [ -f "$file" ]
+then
+   echo "script already run, exiting"
+   exit 0
+else
+   echo "first time running script, proceeding"
+fi
 
 # Step #1
 # update and get necessary tools installed
@@ -67,6 +77,15 @@ EXECUTABLE=/usr/local/bin/redis-server
 echo -e \
 "${PORT}\n${CONFIG_FILE}\n${LOG_FILE}\n${DATA_DIR}\n${EXECUTABLE}\n" | \
 sudo utils/install_server.sh
+
+# Now allow Redis to take connections on the intranet address for this server
+# Note: This may change on reboot, might need to be part of startup
+cd /etc/redis
+sed -i "s/bind 127.0.0.1/bind `hostname -I`/g" 6379.conf
+sed -i "s/protected-mode yes/protected-mode no/g" 6379.conf
+
+# restart redis to pickup our config changes
+sudo /etc/init.d/redis_6379 restart
 
 # we connect to cloud SQL via a proxy
 cd /home/bp100a
