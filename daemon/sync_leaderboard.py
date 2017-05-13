@@ -160,9 +160,19 @@ class sync_daemon(Daemon):
 _PIDFILE = '/var/run/synchronize_iiDaemon.pid'
 _LOGFILE = '/var/log/synchronize_iiDaemon.log'
 if __name__ == "__main__":
-    daemon = sync_daemon(pidf=_PIDFILE, logf=_LOGFILE)
+    redis_host_ip = None
+    for arg in sys.argv:
+        kwarg = arg.split('=')
+        for k in kwarg:
+            if k == 'ip':
+                redis_host_ip = kwarg[1]
 
-    daemon.run(ip='127.0.0.1')
+    if redis_host_ip is not None:
+        print ("redis_host_ip = %s"% redis_host_ip)
+
+    daemon = sync_daemon(pidf=_PIDFILE, logf=_LOGFILE)
+    daemon.run(ip=redis_host_ip)
+
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:
             deamon.start()
