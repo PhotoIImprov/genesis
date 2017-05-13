@@ -12,7 +12,7 @@ import dbsetup
 from datetime import timedelta, datetime
 
 _SCHEDULED_TIME_SECONDS_DEV = 1
-_SCHEDULED_TIME_SECONDS_PROD = 60 * 10 # 10 minutes
+_SCHEDULED_TIME_SECONDS_PROD = 60 * 2 # 2 minutes for testing
 _PAGE_SIZE_PHOTOS = 1000
 _THROTTLE_UPDATES_SECONDS = 0.010 # 10 milliseconds between '_PAGE_SIZE_PHOTOS' record updates
 
@@ -84,9 +84,13 @@ class sync_daemon(Daemon):
             self._redis_host = '127.0.0.1' # d['ip']
             self._redis_port = d['port']
             self._redis_conn = redis.Redis(host=self._redis_host, port=self._redis_port)
+            tm._redis_host = self._redis_host
+            tm._redis_port = self._redis_port
+            tm._redis_conn = self._redis_conn
 
         self._current_lbname = tm.leaderboard_name(c)
-        return self._redis_conn.exists(self._current_lbname)
+        lb_exists = self._redis_conn.exists(self._current_lbname) == 1
+        return lb_exists
 
     def scored_photos_by_category(self, session, tm, c):
         # there could be millions of records, so we need to page
