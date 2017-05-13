@@ -12,7 +12,7 @@ import dbsetup
 from datetime import timedelta, datetime
 
 _SCHEDULED_TIME_SECONDS_DEV = 1
-_SCHEDULED_TIME_SECONDS_PROD = 60 * 2 # 2 minutes for testing
+_SCHEDULED_TIME_SECONDS_PROD = 60 * 5 # 5 minutes for testing
 _PAGE_SIZE_PHOTOS = 1000
 _THROTTLE_UPDATES_SECONDS = 0.010 # 10 milliseconds between '_PAGE_SIZE_PHOTOS' record updates
 
@@ -30,6 +30,11 @@ class sync_daemon(Daemon):
         self._logf = kwargs.get('logf')
 
     def run(self):
+        '''
+        called once to kick things off, we'll sleep here and wake up
+        periodically to see if there's any work to do
+        :return: *never* 
+        '''
         env = dbsetup.determine_environment(None)
         if env == dbsetup.EnvironmentType.DEV:
             schedule_time = _SCHEDULED_TIME_SECONDS_DEV
@@ -37,19 +42,26 @@ class sync_daemon(Daemon):
             schedule_time = _SCHEDULED_TIME_SECONDS_PROD
 
         print ("sleep time %d seconds" % (schedule_time))
-
+        pass_number = 1
         while True:
             time.sleep(schedule_time)
             session = dbsetup.Session()
             try:
-                self.perform_task(session)
+                print ("Pass #%d" % (pass_number))
+                self.perform_task(session, pass_number)
                 session.commit()
             except:
                 session.rollback()
             finally:
+                pass_number += 1
                 session.close()
 
     def perform_task(self, session):
+        '''
+        here's where we do all the work.
+        :param session: 
+        :return: 
+        '''
         cl = self.read_all_categories(session)
         tm = voting.TallyMan()
         if self._redis_conn is not None:
@@ -61,6 +73,11 @@ class sync_daemon(Daemon):
             self.scored_photos_by_category(session, tm, c)
 
     def read_all_categories(self, session):
+        '''
+        get a complete list of categories no older than 7 days
+        :param session: 
+        :return: list of categories 
+        '''
         earliest_category = datetime.now() + timedelta(days=-7)
         q = session.query(category.Category).filter(category.Category.start_date > earliest_category).\
             filter(category.Category.state != category.CategoryState.UNKNOWN.value)
@@ -78,10 +95,18 @@ class sync_daemon(Daemon):
 
 
     def leaderboard_exists(self,session, tm, c):
+        '''
+        check if the leaderboard already exists. We use a direct
+        redis connection and look for the label
+        :param session: 
+        :param tm: 
+        :param c: 
+        :return: 
+        '''
         if self._redis_conn is None:
             sl = voting.ServerList()
             d = sl.get_redis_server(session)
-            self._redis_host = '127.0.0.1' # d['ip']
+            self._redis_host = d['ip']
             self._redis_port = d['port']
             self._redis_conn = redis.Redis(host=self._redis_host, port=self._redis_port)
             tm._redis_host = self._redis_host
@@ -93,6 +118,14 @@ class sync_daemon(Daemon):
         return lb_exists
 
     def scored_photos_by_category(self, session, tm, c):
+        '''
+        if a category doesn't have a leaderboard, we'll read in
+        the photos that have scores and rank them in the leaderboard
+        :param session: database access
+        :param tm: our TallyMan(), our handle to leaderboard functions
+        :param c: category we are focused on 
+        :return: 
+        '''
         # there could be millions of records, so we need to page
         print ("category %d" % (c.id))
         if self.leaderboard_exists(session, tm, c):
@@ -120,8 +153,10 @@ class sync_daemon(Daemon):
 
 # ================================================================================================================
 
+_PIDFILE = '/var/run/synchronize_iiDaemon.pid'
+_LOGFILE = '/var/log/synchronize_iiDaemon.log'
 if __name__ == "__main__":
-    daemon = sync_daemon(pidf='/var/run/synchronize_iiDaemon.pid', logf='/var/log/synchronize_iiDaemon.log')
+    daemon = sync_daemon(pidf=_PIDFILE, logf=_LOGFILE)
 
     daemon.run()
     if len(sys.argv) == 2:
