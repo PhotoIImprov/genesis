@@ -29,12 +29,14 @@ class sync_daemon(Daemon):
         self._pidf = kwargs.get('pidf')
         self._logf = kwargs.get('logf')
 
-    def run(self):
+    def run(self, *args, **kwargs):
         '''
         called once to kick things off, we'll sleep here and wake up
         periodically to see if there's any work to do
         :return: *never* 
         '''
+        self._redis_host = kwargs.get('ip')
+
         env = dbsetup.determine_environment(None)
         if env == dbsetup.EnvironmentType.DEV:
             schedule_time = _SCHEDULED_TIME_SECONDS_DEV
@@ -48,9 +50,9 @@ class sync_daemon(Daemon):
             session = dbsetup.Session()
             try:
                 print ("Pass #%d" % (pass_number))
-                self.perform_task(session, pass_number)
+                self.perform_task(session)
                 session.commit()
-            except:
+            except Exception as e:
                 session.rollback()
             finally:
                 pass_number += 1
@@ -106,7 +108,9 @@ class sync_daemon(Daemon):
         if self._redis_conn is None:
             sl = voting.ServerList()
             d = sl.get_redis_server(session)
-            self._redis_host = d['ip']
+            if self._redis_host is None:
+                self._redis_host = d['ip']
+
             self._redis_port = d['port']
             self._redis_conn = redis.Redis(host=self._redis_host, port=self._redis_port)
             tm._redis_host = self._redis_host
@@ -158,7 +162,7 @@ _LOGFILE = '/var/log/synchronize_iiDaemon.log'
 if __name__ == "__main__":
     daemon = sync_daemon(pidf=_PIDFILE, logf=_LOGFILE)
 
-    daemon.run()
+    daemon.run(ip='127.0.0.1')
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:
             deamon.start()
