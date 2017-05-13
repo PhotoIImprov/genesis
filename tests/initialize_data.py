@@ -80,7 +80,17 @@ class InitEnvironment(unittest.TestCase):
                'tf2fzhr.jpg',
                'IMG_1218.JPG',
                'sam_4089.jpg',
-               'vetndhl.jpg'
+               'vetndhl.jpg',
+               'Passaic River.JPG',
+               'Suki on Balcony.JPG',
+               'Kirby on Log.JPG',
+               'Flowering Tree.JPG',
+               'Two Dogs.JPG',
+               'Troegs start.JPG',
+               'First Dance Burag and Kea.JPG',
+               'Emma in Lithuania.JPG',
+               'Suki on Dash.JPG',
+               'Taplist.JPG'
                )
     _pcache = []
     _users = {'hcollins@gmail.com',

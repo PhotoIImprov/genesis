@@ -52,6 +52,11 @@ class sync_daemon(Daemon):
     def perform_task(self, session):
         cl = self.read_all_categories(session)
         tm = voting.TallyMan()
+        if self._redis_conn is not None:
+            tm._redis_host = self._redis_host
+            tm._redis_port = self._redis_port
+            tm._redis_conn = self._redis_conn
+
         for c in cl:
             self.scored_photos_by_category(session, tm, c)
 
@@ -61,11 +66,22 @@ class sync_daemon(Daemon):
             filter(category.Category.state != category.CategoryState.UNKNOWN.value)
         return q.all()
 
+    def create_key(self, lb):
+        '''
+        create_key()
+        rank a dummy value to create the category entry properly.
+        we'll need to filter this out in the server
+        :param lb: leaderboard object
+        :return: 
+        '''
+        lb.rank_member(0, 0, 0)
+
+
     def leaderboard_exists(self,session, tm, c):
         if self._redis_conn is None:
             sl = voting.ServerList()
             d = sl.get_redis_server(session)
-            self._redis_host = d['ip']
+            self._redis_host = '127.0.0.1' # d['ip']
             self._redis_port = d['port']
             self._redis_conn = redis.Redis(host=self._redis_host, port=self._redis_port)
 
@@ -78,7 +94,8 @@ class sync_daemon(Daemon):
         if self.leaderboard_exists(session, tm, c):
             return
         print("leaderboard does not exist for category %d" % (c.id))
-        tm.get_leaderboard_by_category(session, c)
+        lb = tm.get_leaderboard_by_category(session, c)
+        self.create_key(lb)
 
         more_photos = True
         max_pid = 0

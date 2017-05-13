@@ -148,7 +148,7 @@ class TestVoting(DatabaseTest):
         vr = q.all()
 
         # vote again!!
-        for i in range(0,6):
+        for i in range(0,_NUM_PHOTOS_UPLOADED+1):
             b = bm.create_ballot(self.session, nu.id, c)
             self.session.flush() # write ballot/ballotentries to DB
             j_votes = []
@@ -167,10 +167,3 @@ class TestVoting(DatabaseTest):
         # clear out Category & Resource
 
  #       self.teardown()
-
-    def test_setup_voting_no_category(self):
-        self.setup()
-        tm = voting.TallyMan()
-        b = tm.setup_voting(self.session, None)
-        assert(not b)
-

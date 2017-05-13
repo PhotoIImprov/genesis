@@ -12,7 +12,7 @@ from flask import jsonify
 from leaderboard.leaderboard import Leaderboard
 from models import error
 from random import randint, shuffle
-
+import redis
 
 # configuration values we can move to a better place
 _NUM_BALLOT_ENTRIES = 4
@@ -282,6 +282,17 @@ class BallotManager:
         return photos_for_ballot # return what we have
 
     def read_photos_by_ballots_round1(self, session, uid, c, num_votes, count):
+        '''
+        read_photos_by_ballots_round1()
+        read a list of photos to construct our return ballot. 
+
+        :param session: 
+        :param uid: user id that's voting, filter out photos that are their's 
+        :param c: category
+        :param num_votes: select photos with this # of votes 
+        :param count: how many photos to fetch
+        :return: list of Photo objects
+        '''
         # if ballotentry has been voted on, exclude photos the user has already seen
         if num_votes == 0:
             q = session.query(photo.Photo).filter(photo.Photo.category_id == c.id). \
@@ -307,8 +318,8 @@ class BallotManager:
     def active_voting_categories(self, session, uid):
         '''
         Only return categories that have photos that can be voted on
-        :param session: 
-        :param uid: 
+        :param session: database connection
+        :param uid: user id, incase there's a filter in the future
         :return: 
         '''
         q = session.query(category.Category).filter(category.Category.state == category.CategoryState.VOTING.value).\
@@ -354,24 +365,20 @@ class ServerList(Base):
 #  - any other ancillary needs of voting
 #
 class TallyMan():
+    _redis_host = None
+    _redis_port = None
+    _redis_conn = None
 
-    # switch our category over to Voting and perform any housekeeping that is required
-    def setup_voting(self, session, c):
+    def leaderboard_exists(self, session, c):
+        if self._redis_conn is None:
+            sl = ServerList()
+            d = sl.get_redis_server(session)
+            self._redis_host = d['ip']
+            self._redis_port = d['port']
+            self._redis_conn = redis.Redis(host=self._redis_host, port=self._redis_port)
 
-        if c is None or not c.is_voting():
-            return False # this is an error!
-
-        # before we switch on voting, create the leaderboard
-        sl = ServerList()
-        d = sl.get_redis_server(session)
-
-        redis_host = d['ip']
-        redis_port = d['port']
-        lb_name = self.leaderboard_name(c)
-        lb = Leaderboard(lb_name, host=redis_host, port=redis_port, page_size=10)
-        # start with a clean leaderboard
-        lb.delete_leaderboard()
-        return True
+        lbname = self.leaderboard_name(c)
+        return self._redis_conn.exists(lbname)
 
     def change_category_state(self, session, cid, new_state):
         c = category.Category.read_category_by_id(session, cid)
@@ -380,10 +387,6 @@ class TallyMan():
 
         c.state = new_state
         session.add(c)
-
-        if new_state == category.CategoryState.VOTING.value:
-            self.setup_voting(session, c)
-
         return {'error': None, 'arg': c}
 
     def leaderboard_name(self, c):
@@ -395,15 +398,38 @@ class TallyMan():
 
         return str_lb
 
-    def update_leaderboard(self, session, c, p):
+    def update_leaderboard(self, session, c, p, check_exist=True):
+        '''
+        update_leaderboard():
+        Everytime a vote is cast, we'll update the leaderboard if it exists,
+        otherwise we'll be counting on the background task to keep it up to date
+        :param session: database connection
+        :param c: - category
+        :param p: - photo object, has score & id
+        :param check_exist: =true if we should check if leaderboard exists
+                            The updating of a leaderboard will create it if
+                            it doesn't already exist. Leaderboard creation
+                            is the sole province of the daemon that will
+                            ensure leaderboards are created and populated
+                            for non-voting categories in the event of a 
+                            Redis failure.
+        :return: 
+        '''
         # we have a User/Photo/Vote
+        if check_exist and not self.leaderboard_exists(session, c):
+            return
+
         lb = self.get_leaderboard_by_category(session, c)
         if lb is not None:
             lb.rank_member(p.user_id, p.score, p.id)
 
     def get_leaderboard_by_category(self, session, c):
-        rd = ServerList().get_redis_server(session)
-        lb = Leaderboard(self.leaderboard_name(c), host=rd['ip'], port=rd['port'], page_size=10)
+        if self._redis_host is None:
+            rd = ServerList().get_redis_server(session)
+            self._redis_host = rd['ip']
+            self._redis_port = rd['port']
+
+        lb = Leaderboard(self.leaderboard_name(c), host=self._redis_host, port=self._redis_port, page_size=10)
         return lb
 
     def create_displayname(self, session, uid):
@@ -430,6 +456,10 @@ class TallyMan():
 
     def create_leaderboard(self, session, uid, c):
         # okay lets get the leader board!
+        if not self.leaderboard_exists(session, c):
+            return None
+
+        # okay, there's a valid leaderboard!
         lb = self.get_leaderboard_by_category(session, c)
         my_rank = lb.rank_for(uid)
 
@@ -440,10 +470,11 @@ class TallyMan():
             lb_pid = int(str(d['member_data'], 'utf-8'))    # photo.id
             lb_score = d['score']
             lb_rank = d['rank']
+            if lb_uid == 0 or lb_pid == 0:  # we use a dummy value to persist leaderboard existance in daemon, filter it out
+                continue
+
             lb_name = self.create_displayname(session, lb_uid)
-
             b64_utf8 = self.read_thumbnail(session, lb_pid) # thumbnail image as utf-8 base64
-
             if lb_uid == uid:
                 lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'you':True, 'image' : b64_utf8})
             else:
@@ -453,3 +484,4 @@ class TallyMan():
                     lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'image' : b64_utf8})
 
         return lb_list
+
