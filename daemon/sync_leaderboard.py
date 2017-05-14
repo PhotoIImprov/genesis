@@ -36,6 +36,7 @@ class sync_daemon(Daemon):
         :return: *never* 
         '''
         self._redis_host = kwargs.get('ip')
+        self._redis_port = kwargs.get('port')
 
         env = dbsetup.determine_environment(None)
         if env == dbsetup.EnvironmentType.DEV:
@@ -77,12 +78,15 @@ class sync_daemon(Daemon):
     def read_all_categories(self, session):
         '''
         get a complete list of categories no older than 7 days
+        exclude "UNKNOWN" (not open yet) and categories that
+        are uploading ("UPLOAD")
         :param session: 
         :return: list of categories 
         '''
         earliest_category = datetime.now() + timedelta(days=-7)
         q = session.query(category.Category).filter(category.Category.start_date > earliest_category).\
-            filter(category.Category.state != category.CategoryState.UNKNOWN.value)
+            filter(category.Category.state != category.CategoryState.UNKNOWN.value).\
+            filter(category.Category.state != category.CategoryState.UPLOAD.value)
         return q.all()
 
     def create_key(self, lb):
@@ -111,7 +115,9 @@ class sync_daemon(Daemon):
             if self._redis_host is None:
                 self._redis_host = d['ip']
 
-            self._redis_port = d['port']
+            if self._redis_port is None:
+                self._redis_port = d['port']
+
             self._redis_conn = redis.Redis(host=self._redis_host, port=self._redis_port)
             tm._redis_host = self._redis_host
             tm._redis_port = self._redis_port
@@ -161,17 +167,22 @@ _PIDFILE = '/var/run/synchronize_iiDaemon.pid'
 _LOGFILE = '/var/log/synchronize_iiDaemon.log'
 if __name__ == "__main__":
     redis_host_ip = None
+    redis_host_port = None
     for arg in sys.argv:
         kwarg = arg.split('=')
         for k in kwarg:
             if k == 'ip':
                 redis_host_ip = kwarg[1]
+            if k == 'port':
+                redis_host_port = kwarg[1]
 
     if redis_host_ip is not None:
         print ("redis_host_ip = %s"% redis_host_ip)
+    if redis_host_port is not None:
+        print ("redis_host_port = %s" % redis_host_port)
 
     daemon = sync_daemon(pidf=_PIDFILE, logf=_LOGFILE)
-    daemon.run(ip=redis_host_ip)
+    daemon.run(ip=redis_host_ip, port=redis_host_port)
 
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:
