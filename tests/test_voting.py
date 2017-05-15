@@ -39,7 +39,7 @@ class TestVoting(DatabaseTest):
         self.setup()
         tm = voting.TallyMan()
         try:
-            r = tm.create_leaderboard(self.session, 1, None)
+            r = tm.fetch_leaderboard(self.session, 1, None)
         except Exception as e:
             assert(e.args[0] == errno.EINVAL and e.args[1] == 'cannot create leaderboard name')
             return

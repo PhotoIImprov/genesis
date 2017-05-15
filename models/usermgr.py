@@ -20,7 +20,7 @@ class AnonUser(Base):
         try:
             au = session.query(AnonUser).filter_by(guid = m_guid).first()
             return au
-        except pymysql.err.IntegrityError as e:
+        except Exception as e:
             raise
 
         return None

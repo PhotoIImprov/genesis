@@ -415,19 +415,23 @@ class TallyMan():
                             Redis failure.
         :return: 
         '''
-        # we have a User/Photo/Vote
-        if check_exist and not self.leaderboard_exists(session, c):
-            return
-
-        lb = self.get_leaderboard_by_category(session, c)
+        lb = self.get_leaderboard_by_category(session, c, check_exist=True)
         if lb is not None:
             lb.rank_member(p.user_id, p.score, p.id)
 
-    def get_leaderboard_by_category(self, session, c):
-        if self._redis_host is None:
-            rd = ServerList().get_redis_server(session)
-            self._redis_host = rd['ip']
-            self._redis_port = rd['port']
+    def get_leaderboard_by_category(self, session, c, check_exist=True):
+        '''
+        this routine will return a leaderboard if it exists. Note, by
+        instantiating the leaderboard object we will create a leaderboard
+        entry in the Redis cache. Since leaderboard entries are created by
+        a separate service, we need to check if the leaderboard exists 
+        via Redis directly.
+        :param session: 
+        :param c: category we are checking for 
+        :return: leaderboard object if leaderboard has been created
+        '''
+        if check_exist and not self.leaderboard_exists(session, c):
+            return None
 
         lb = Leaderboard(self.leaderboard_name(c), host=self._redis_host, port=self._redis_port, page_size=10)
         return lb
@@ -454,14 +458,21 @@ class TallyMan():
         except:
             return None
 
-    def create_leaderboard(self, session, uid, c):
-        # okay lets get the leader board!
-        if not self.leaderboard_exists(session, c):
-            return None
+    def fetch_leaderboard(self, session, uid, c):
+        '''
+        read the leaderboard object and construct a list of 
+        leaderboard dictionary elements for later jsonification
+        :param session: database
+        :param uid: user requesting leaderboard
+        :param c: category for which leaderboard is request
+        :return: list of of leaderboard dictionary elements or None if leaderboard doesn't exist
+        '''
 
-        # okay, there's a valid leaderboard!
-        lb = self.get_leaderboard_by_category(session, c)
-        my_rank = lb.rank_for(uid)
+        lb = self.get_leaderboard_by_category(session, c, check_exist=True)
+        if lb is None:
+            return
+
+#        my_rank = lb.rank_for(uid)
 
         dl = lb.leaders(1, page_size=10, with_member_data=True)   # 1st page is top 25
         lb_list = []

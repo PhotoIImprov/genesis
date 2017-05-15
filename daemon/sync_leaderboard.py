@@ -11,7 +11,7 @@ from models import category, usermgr, photo, voting
 import dbsetup
 from datetime import timedelta, datetime
 
-_SCHEDULED_TIME_SECONDS_DEV = 1
+_SCHEDULED_TIME_SECONDS_DEV = 5
 _SCHEDULED_TIME_SECONDS_PROD = 60 * 5 # 5 minutes for testing
 _PAGE_SIZE_PHOTOS = 1000
 _THROTTLE_UPDATES_SECONDS = 0.010 # 10 milliseconds between '_PAGE_SIZE_PHOTOS' record updates
@@ -141,25 +141,28 @@ class sync_daemon(Daemon):
         if self.leaderboard_exists(session, tm, c):
             return
         print("leaderboard does not exist for category %d" % (c.id))
-        lb = tm.get_leaderboard_by_category(session, c)
+        lb = tm.get_leaderboard_by_category(session, c, check_exist=False)
         self.create_key(lb)
 
         more_photos = True
         max_pid = 0
+        total_records_processed = 0
         while more_photos:
-            print("...read 1000 records")
             q = session.query(photo.Photo).filter(photo.Photo.category_id == c.id).\
                 filter(photo.Photo.score > 0).\
                 filter(photo.Photo.id > max_pid).order_by(photo.Photo.id.asc()).limit(_PAGE_SIZE_PHOTOS)
             pl = q.all()
-            more_photos = len(pl) > 0
-            if more_photos:
-                max_pid = pl[0].id
+            more_photos = (len(pl) == _PAGE_SIZE_PHOTOS)
+            print ("...read %d records" % len(pl))
+            if len(pl) > 0:
+                max_pid = pl[-1].id # last element is max photo_id for this pageset
                 for p in pl:
                     tm.update_leaderboard(session, c, p, check_exist=False)
-                    max_pid = p.id
+                total_records_processed += len(pl)
 
             time.sleep(_THROTTLE_UPDATES_SECONDS) # brief pause so machine can catch it's breath
+
+        print ("...%d total records processed" % total_records_processed)
 
 # ================================================================================================================
 

@@ -50,3 +50,11 @@ class TestUserMgr(DatabaseTest):
     def test_find_anon_user_no_args(self):
         au = usermgr.AnonUser.find_anon_user(None, None)
         assert(au is None)
+
+    def test_find_anon_user_not_exists(self):
+        self.setup()
+        guid = str(uuid.uuid1)
+        guid = guid.upper().translate({ord(c): None for c in '-'})
+        au = usermgr.AnonUser.find_anon_user(self.session, guid)
+        assert(au is None)
+        self.teardown()

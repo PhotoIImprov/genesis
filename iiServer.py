@@ -286,6 +286,10 @@ def hello():
                 numerator = (datetime.datetime.now() - start_of_voting) / timedelta(seconds=1)
                 percent_done = numerator / denominator
                 htmlbody += "\n, <b>{:6.2f}%</b> of voting done".format(percent_done * 100.0)
+                if c.round == 1:
+                    photo_cnt = session.query(photo.Photo).filter(photo.Photo.category_id == c.id).\
+                                join(voting.VotingRound, voting.VotingRound.photo_id == photo.Photo.id).count()
+                    htmlbody += "\n<br>{} photos in voting_round table<br>".format(photo_cnt)
 
             if c.state == category.CategoryState.UPLOAD.value:
                 q = session.query(photo.Photo.user_id).distinct().filter(photo.Photo.category_id == c.get_id())
@@ -557,7 +561,7 @@ def get_leaderboard():
         else:
             tm = voting.TallyMan()
             c = category.Category.read_category_by_id(session, cid)
-            d = tm.create_leaderboard(session, uid, c)
+            d = tm.fetch_leaderboard(session, uid, c)
             if d is not None:
                 rsp = make_response(jsonify(d), 200)
             else:
