@@ -330,7 +330,7 @@ def hello():
         htmlbody += "<img src=\"/static/redis.png\"/>"
         htmlbody += "<br>leader board \'{}\' created<br>".format(lb_name)
         lb.delete_leaderboard()
-    except Exception as e:
+    except:
         logger.exception(msg='error creating leaderboard')
         htmlbody += "\n<h2>Cannot create leaderboard!!</h2> (is redis server running?)<br>"
 
