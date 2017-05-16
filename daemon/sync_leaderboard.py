@@ -11,6 +11,8 @@ from models import category, usermgr, photo, voting
 import dbsetup
 from datetime import timedelta, datetime
 
+from logsetup import logger
+
 _SCHEDULED_TIME_SECONDS_DEV = 5
 _SCHEDULED_TIME_SECONDS_PROD = 60 * 5 # 5 minutes for testing
 _PAGE_SIZE_PHOTOS = 1000
@@ -44,7 +46,9 @@ class sync_daemon(Daemon):
         else:
             schedule_time = _SCHEDULED_TIME_SECONDS_PROD
 
-        print ("sleep time %d seconds" % (schedule_time))
+        m = "Leaderboard synchronization started, sleep time {} seconds".format(schedule_time)
+        logger.info(msg=m)
+        print(m)
         pass_number = 1
         while True:
             session = dbsetup.Session()
@@ -54,6 +58,7 @@ class sync_daemon(Daemon):
                 session.commit()
             except Exception as e:
                 session.rollback()
+                logger.exception(msg='failure performing task #{}'.format(pass_number))
             finally:
                 pass_number += 1
                 session.close()
@@ -140,6 +145,8 @@ class sync_daemon(Daemon):
         print ("category %d" % (c.id))
         if self.leaderboard_exists(session, tm, c):
             return
+
+        logger.info("processing category {0} \'{1}\'".format(c.id, c.get_description()))
         print("leaderboard does not exist for category %d" % (c.id))
         lb = tm.get_leaderboard_by_category(session, c, check_exist=False)
         self.create_key(lb)
@@ -153,7 +160,8 @@ class sync_daemon(Daemon):
                 filter(photo.Photo.id > max_pid).order_by(photo.Photo.id.asc()).limit(_PAGE_SIZE_PHOTOS)
             pl = q.all()
             more_photos = (len(pl) == _PAGE_SIZE_PHOTOS)
-            print ("...read %d records" % len(pl))
+            logger.info("read {} records".format(len(pl)))
+            print("...read %d records" % len(pl))
             if len(pl) > 0:
                 max_pid = pl[-1].id # last element is max photo_id for this pageset
                 for p in pl:

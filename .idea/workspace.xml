@@ -137,23 +137,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="sql_handler.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/handlers/sql_handler.py">
+      <file leaf-file-name="category.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/models/category.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="324">
-              <caret line="18" column="0" lean-forward="false" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
-              <folding>
-                <element signature="e#0#14#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
-        <entry file="file:///usr/lib/python3.5/logging/__init__.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="275">
-              <caret line="1313" column="0" lean-forward="false" selection-start-line="1313" selection-start-column="0" selection-end-line="1313" selection-end-column="0" />
+            <state relative-caret-position="-633">
+              <caret line="64" column="6" lean-forward="true" selection-start-line="64" selection-start-column="6" selection-end-line="64" selection-end-column="6" />
               <folding />
             </state>
           </provider>
@@ -171,11 +159,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="sync_leaderboard.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="sync_leaderboard.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/daemon/sync_leaderboard.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="51" column="0" lean-forward="false" selection-start-line="51" selection-start-column="0" selection-end-line="51" selection-end-column="0" />
+            <state relative-caret-position="233">
+              <caret line="164" column="0" lean-forward="false" selection-start-line="164" selection-start-column="0" selection-end-line="164" selection-end-column="0" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -183,11 +171,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="initialize_data.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="case.py" pinned="false" current-in-tab="false">
+        <entry file="file:///usr/lib/python3.5/unittest/case.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="215">
+              <caret line="792" column="53" lean-forward="false" selection-start-line="792" selection-start-column="53" selection-end-line="792" selection-end-column="53" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="initialize_data.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tests/initialize_data.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="151" column="0" lean-forward="false" selection-start-line="151" selection-start-column="0" selection-end-line="151" selection-end-column="0" />
+            <state relative-caret-position="456">
+              <caret line="153" column="0" lean-forward="true" selection-start-line="153" selection-start-column="0" selection-end-line="153" selection-end-column="0" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -243,9 +241,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>create_leaderboard</find>
-      <find>g</find>
-      <find>get_</find>
       <find>get_leaderbo</find>
       <find>get_leaderboard_by_cate</find>
       <find>get_leaderboard_by_category</find>
@@ -273,6 +268,9 @@
       <find>get_exif_dict</find>
       <find>logger.</find>
       <find>except</find>
+      <find>print m</find>
+      <find>c.d</find>
+      <find>c.des</find>
     </findStrings>
     <replaceStrings>
       <replace>Photo</replace>
@@ -1164,7 +1162,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/daemon/sync_leaderboard.py</url>
-          <line>173</line>
+          <line>181</line>
           <option name="timeStamp" value="942" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1421,14 +1419,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/lib/python3.5/unittest/case.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="599" column="0" lean-forward="false" selection-start-line="599" selection-start-column="0" selection-end-line="599" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/models/error.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="450">
@@ -1482,7 +1472,7 @@
         <state relative-caret-position="666">
           <caret line="37" column="44" lean-forward="false" selection-start-line="37" selection-start-column="44" selection-end-line="37" selection-end-column="44" />
           <folding>
-            <element signature="e#0#29#0" expanded="true" />
+            <element signature="e#0#29#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1518,7 +1508,7 @@
         <state relative-caret-position="195">
           <caret line="122" column="0" lean-forward="false" selection-start-line="122" selection-start-column="0" selection-end-line="122" selection-end-column="0" />
           <folding>
-            <element signature="e#0#52#0" expanded="true" />
+            <element signature="e#0#52#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1527,14 +1517,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="204">
           <caret line="894" column="0" lean-forward="false" selection-start-line="894" selection-start-column="0" selection-end-line="894" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/models/category.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="429">
-          <caret line="135" column="24" lean-forward="false" selection-start-line="135" selection-start-column="18" selection-end-line="135" selection-end-column="24" />
           <folding />
         </state>
       </provider>
@@ -1562,7 +1544,7 @@
         <state relative-caret-position="324">
           <caret line="18" column="0" lean-forward="false" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
           <folding>
-            <element signature="e#0#14#0" expanded="true" />
+            <element signature="e#0#14#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1644,22 +1626,38 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/daemon/sync_leaderboard.py">
+    <entry file="file://$PROJECT_DIR$/tests/initialize_data.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="51" column="0" lean-forward="false" selection-start-line="51" selection-start-column="0" selection-end-line="51" selection-end-column="0" />
+        <state relative-caret-position="456">
+          <caret line="153" column="0" lean-forward="true" selection-start-line="153" selection-start-column="0" selection-end-line="153" selection-end-column="0" />
           <folding>
-            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/initialize_data.py">
+    <entry file="file:///usr/lib/python3.5/unittest/case.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="151" column="0" lean-forward="false" selection-start-line="151" selection-start-column="0" selection-end-line="151" selection-end-column="0" />
+        <state relative-caret-position="215">
+          <caret line="792" column="53" lean-forward="false" selection-start-line="792" selection-start-column="53" selection-end-line="792" selection-end-column="53" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/category.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-633">
+          <caret line="64" column="6" lean-forward="true" selection-start-line="64" selection-start-column="6" selection-end-line="64" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/daemon/sync_leaderboard.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="233">
+          <caret line="164" column="0" lean-forward="false" selection-start-line="164" selection-start-column="0" selection-end-line="164" selection-end-column="0" />
           <folding>
-            <element signature="e#0#9#0" expanded="true" />
+            <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>
