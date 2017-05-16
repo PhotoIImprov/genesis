@@ -47,7 +47,6 @@ class sync_daemon(Daemon):
         print ("sleep time %d seconds" % (schedule_time))
         pass_number = 1
         while True:
-            time.sleep(schedule_time)
             session = dbsetup.Session()
             try:
                 print ("Pass #%d" % (pass_number))
@@ -58,6 +57,7 @@ class sync_daemon(Daemon):
             finally:
                 pass_number += 1
                 session.close()
+            time.sleep(schedule_time)
 
     def perform_task(self, session):
         '''
