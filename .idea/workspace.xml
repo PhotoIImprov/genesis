@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/iiServer.py" afterPath="$PROJECT_DIR$/iiServer.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/voting.py" afterPath="$PROJECT_DIR$/models/voting.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -39,7 +40,7 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_initialize_data.coverage" NAME="Unittests in initialize_data Coverage Results" MODIFIED="1490036243481" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_ballot.coverage" NAME="Unittests in test_ballot Coverage Results" MODIFIED="1490038618298" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_photo_TestPhoto_test_make_dummy_exif.coverage" NAME="Unittests for test_photo.TestPhoto.test_make_dummy_exif Coverage Results" MODIFIED="1494101496976" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_voting_TestVoting_test_create_leaderboard_nocid.coverage" NAME="Unittests for test_voting.TestVoting.test_create_leaderboard_nocid Coverage Results" MODIFIED="1494874300660" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_voting_TestVoting_test_create_leaderboard_nocid.coverage" NAME="Unittests for test_voting.TestVoting.test_create_leaderboard_nocid Coverage Results" MODIFIED="1494947513899" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestCategory_test_category_state_bad_cid.coverage" NAME="Unittests for test_REST_login.TestCategory.test_category_state_bad_cid Coverage Results" MODIFIED="1494335426780" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_voting_TestVoting_test_voting_max.coverage" NAME="Unittests for test_voting.TestVoting.test_voting_max Coverage Results" MODIFIED="1494618126226" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$iiServer.coverage" NAME="iiServer Coverage Results" MODIFIED="1494781089356" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
@@ -66,7 +67,7 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestLogin_test_root_page.coverage" NAME="Unittests for test_REST_login.TestLogin.test_root_page Coverage Results" MODIFIED="1492394171904" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_tests_test_REST_login_TesttVoting_test_anon_voting.coverage" NAME="Unittests for tests.test_REST_login.TesttVoting.test_anon_voting Coverage Results" MODIFIED="1492709779881" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_category_TestCategory_test_active_category_bad_user.coverage" NAME="Unittests for test_category.TestCategory.test_active_category_bad_user Coverage Results" MODIFIED="1494102760213" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/genesis$Unittests_in_tests.coverage" NAME="Unittests in tests Coverage Results" MODIFIED="1494946553356" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_in_tests.coverage" NAME="Unittests in tests Coverage Results" MODIFIED="1494947524856" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_photo.coverage" NAME="Unittests in test_photo Coverage Results" MODIFIED="1490029558190" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_tests_test_photo_TestPhoto_test_save_user_image2.coverage" NAME="Unittests for tests.test_photo.TestPhoto.test_save_user_image2 Coverage Results" MODIFIED="1492896643608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/genesis$Unittest_TestCategory_test_current_category.coverage" NAME="Unittest TestCategory.test_current_category Coverage Results" MODIFIED="1489180305656" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -112,26 +113,38 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/iiServer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="551">
-              <caret line="325" column="1" lean-forward="true" selection-start-line="325" selection-start-column="1" selection-end-line="325" selection-end-column="1" />
+            <state relative-caret-position="-43">
+              <caret line="254" column="49" lean-forward="false" selection-start-line="254" selection-start-column="33" selection-end-line="254" selection-end-column="49" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
-                <marker date="1494946553334" expanded="true" signature="9094:9119" ph="select * fro... event" />
+                <marker date="1494947267938" expanded="true" signature="8954:8979" ph="select * fro... event" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="voting.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="voting.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/models/voting.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="317">
-              <caret line="374" column="0" lean-forward="false" selection-start-line="374" selection-start-column="0" selection-end-line="374" selection-end-column="0" />
+            <state relative-caret-position="239">
+              <caret line="407" column="17" lean-forward="false" selection-start-line="407" selection-start-column="17" selection-end-line="407" selection-end-column="17" />
               <folding>
                 <element signature="e#0#92#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test_voting.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/test_voting.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="195">
+              <caret line="46" column="0" lean-forward="false" selection-start-line="46" selection-start-column="0" selection-end-line="46" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#29#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -212,18 +225,6 @@
               <caret line="243" column="0" lean-forward="true" selection-start-line="243" selection-start-column="0" selection-end-line="243" selection-end-column="0" />
               <folding>
                 <element signature="e#0#43#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="test_REST_login.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_REST_login.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="167">
-              <caret line="991" column="0" lean-forward="false" selection-start-line="991" selection-start-column="0" selection-end-line="991" selection-end-column="0" />
-              <folding>
-                <element signature="e#0#9#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -352,11 +353,11 @@
         <option value="$PROJECT_DIR$/tests/initialize_data.py" />
         <option value="$PROJECT_DIR$/logsetup.py" />
         <option value="$PROJECT_DIR$/models/sql_logging.py" />
-        <option value="$PROJECT_DIR$/models/voting.py" />
         <option value="$PROJECT_DIR$/models/photo.py" />
         <option value="$PROJECT_DIR$/models/usermgr.py" />
         <option value="$PROJECT_DIR$/daemon/sync_leaderboard.py" />
         <option value="$PROJECT_DIR$/iiServer.py" />
+        <option value="$PROJECT_DIR$/models/voting.py" />
       </list>
     </option>
   </component>
@@ -857,9 +858,9 @@
     <recent_temporary>
       <list size="5">
         <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in tests" />
-        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests in initialize_data.py" />
-        <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TestLeaderBoard.test_leaderboard" />
-        <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests for test_voting.TestVoting.test_create_leaderboard_nocid" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests for test_voting.TestVoting.test_create_leaderboard_nocid" />
+        <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests in initialize_data.py" />
+        <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TestLeaderBoard.test_leaderboard" />
         <item index="4" class="java.lang.String" itemvalue="Python tests.Unittests for test_user.TestUserMgr.test_find_anon_user_not_exists" />
       </list>
     </recent_temporary>
@@ -1000,23 +1001,17 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Unittests_for_test_REST_login_TestLeaderBoard_test_leaderboard - 2017.05.16 at 08h 35m 09s.xml">
-      <configuration name="Unittests for test_REST_login.TestLeaderBoard.test_leaderboard" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_test_REST_login_TestLeaderBoard_test_leaderboard - 2017.05.16 at 08h 38m 03s.xml">
-      <configuration name="Unittests for test_REST_login.TestLeaderBoard.test_leaderboard" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_test_REST_login_TestLeaderBoard_test_leaderboard - 2017.05.16 at 08h 39m 47s.xml">
-      <configuration name="Unittests for test_REST_login.TestLeaderBoard.test_leaderboard" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_test_REST_login_TestLeaderBoard_test_leaderboard - 2017.05.16 at 08h 42m 56s.xml">
-      <configuration name="Unittests for test_REST_login.TestLeaderBoard.test_leaderboard" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_test_REST_login_TestLeaderBoard_test_leaderboard - 2017.05.16 at 08h 48m 18s.xml">
-      <configuration name="Unittests for test_REST_login.TestLeaderBoard.test_leaderboard" configurationId="tests" />
-    </history-entry>
     <history-entry file="Unittests_for_test_REST_login_TestLeaderBoard_test_leaderboard - 2017.05.16 at 08h 50m 28s.xml">
       <configuration name="Unittests for test_REST_login.TestLeaderBoard.test_leaderboard" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_voting_TestVoting_test_create_leaderboard_nocid - 2017.05.16 at 11h 11m 15s.xml">
+      <configuration name="Unittests for test_voting.TestVoting.test_create_leaderboard_nocid" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_voting_TestVoting_test_create_leaderboard_nocid - 2017.05.16 at 11h 11m 45s.xml">
+      <configuration name="Unittests for test_voting.TestVoting.test_create_leaderboard_nocid" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_voting_TestVoting_test_create_leaderboard_nocid - 2017.05.16 at 11h 11m 55s.xml">
+      <configuration name="Unittests for test_voting.TestVoting.test_create_leaderboard_nocid" configurationId="tests" />
     </history-entry>
     <history-entry file="Unittests_in_initialize_data_py - 2017.05.16 at 09h 38m 34s.xml">
       <configuration name="Unittests in initialize_data.py" configurationId="tests" />
@@ -1028,6 +1023,12 @@
       <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
     <history-entry file="Unittests_in_tests - 2017.05.16 at 09h 30m 50s.xml">
+      <configuration name="Unittests in tests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_tests - 2017.05.16 at 10h 59m 00s.xml">
+      <configuration name="Unittests in tests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_tests - 2017.05.16 at 11h 10m 45s.xml">
       <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
   </component>
@@ -1142,12 +1143,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>1006</line>
+          <line>1003</line>
           <option name="timeStamp" value="850" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>1010</line>
+          <line>1007</line>
           <option name="timeStamp" value="855" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1172,12 +1173,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>575</line>
+          <line>572</line>
           <option name="timeStamp" value="949" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>578</line>
+          <line>575</line>
           <option name="timeStamp" value="950" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1187,17 +1188,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/voting.py</url>
-          <line>418</line>
+          <line>422</line>
           <option name="timeStamp" value="957" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>887</line>
+          <line>884</line>
           <option name="timeStamp" value="959" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>892</line>
+          <line>889</line>
           <option name="timeStamp" value="960" />
         </line-breakpoint>
       </breakpoints>
@@ -1493,16 +1494,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_voting.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="167">
-          <caret line="43" column="0" lean-forward="false" selection-start-line="43" selection-start-column="0" selection-end-line="43" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#29#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/local/lib/python3.5/dist-packages/leaderboard/leaderboard.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
@@ -1641,23 +1632,33 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/models/voting.py">
+    <entry file="file://$PROJECT_DIR$/iiServer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="317">
-          <caret line="374" column="0" lean-forward="false" selection-start-line="374" selection-start-column="0" selection-end-line="374" selection-end-column="0" />
+        <state relative-caret-position="-43">
+          <caret line="254" column="49" lean-forward="false" selection-start-line="254" selection-start-column="33" selection-end-line="254" selection-end-column="49" />
           <folding>
-            <element signature="e#0#92#0" expanded="true" />
+            <element signature="e#0#15#0" expanded="true" />
+            <marker date="1494947267938" expanded="true" signature="8954:8979" ph="select * fro... event" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/iiServer.py">
+    <entry file="file://$PROJECT_DIR$/tests/test_voting.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="551">
-          <caret line="325" column="1" lean-forward="true" selection-start-line="325" selection-start-column="1" selection-end-line="325" selection-end-column="1" />
+        <state relative-caret-position="195">
+          <caret line="46" column="0" lean-forward="false" selection-start-line="46" selection-start-column="0" selection-end-line="46" selection-end-column="0" />
           <folding>
-            <element signature="e#0#15#0" expanded="true" />
-            <marker date="1494946553334" expanded="true" signature="9094:9119" ph="select * fro... event" />
+            <element signature="e#0#29#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/voting.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="239">
+          <caret line="407" column="17" lean-forward="false" selection-start-line="407" selection-start-column="17" selection-end-line="407" selection-end-column="17" />
+          <folding>
+            <element signature="e#0#92#0" expanded="true" />
           </folding>
         </state>
       </provider>

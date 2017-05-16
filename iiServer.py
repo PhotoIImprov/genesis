@@ -206,14 +206,12 @@ def hello():
     dtNow = datetime.datetime.now()
     if dbsetup.is_gunicorn():
         htmlbody += "<h1>ImageImprov Hello World from Gunicorn & Nginx!</h1> last called {}".format(dtNow)
-#        htmlbody += "<img src=\"/static/gunicorn_banner.jpg\"/>"
         htmlbody += "<img src=\"/static/gunicorn_small.png\"/>"
     else:
         htmlbody += "<h1>ImageImprov Hello World from Flask!</h1> last called {}".format(dtNow)
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
     htmlbody += "(Redis initialization daemon, ballot shuffling, logging to db)"
-#    htmlbody += "<img src=\"/static/python_flask_mysql_banner.jpg\"/>\n"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
     img_folder = dbsetup.image_store(dbsetup.determine_environment(None))
@@ -252,7 +250,6 @@ def hello():
     except Exception as e:
         logger.exception(msg='error reading mysql.event table')
         htmlbody += "<h3>error reading event table</h3></br>\n"
-        pass
 
     try:
         rd = voting.ServerList().get_redis_server(session)
@@ -327,7 +324,7 @@ def hello():
         htmlbody += "<br>leader board \'{}\' created<br>".format(lb_name)
         lb.delete_leaderboard()
     except Exception as e:
-        logger.exception(msg=str(e))
+        logger.exception(msg='error creating leaderboard')
         htmlbody += "\n<h2>Cannot create leaderboard!!</h2> (is redis server running?)<br>"
 
     au = usermgr.AnonUser.create_anon_user(session, '99275132efe811e6bc6492361f002671')

@@ -393,15 +393,19 @@ class TallyMan():
     _redis_conn = None
 
     def leaderboard_exists(self, session, c):
-        if self._redis_conn is None:
-            sl = ServerList()
-            d = sl.get_redis_server(session)
-            self._redis_host = d['ip']
-            self._redis_port = d['port']
-            self._redis_conn = redis.Redis(host=self._redis_host, port=self._redis_port)
+        try:
+            if self._redis_conn is None:
+                sl = ServerList()
+                d = sl.get_redis_server(session)
+                self._redis_host = d['ip']
+                self._redis_port = d['port']
+                self._redis_conn = redis.Redis(host=self._redis_host, port=self._redis_port)
 
-        lbname = self.leaderboard_name(c)
-        return self._redis_conn.exists(lbname)
+            lbname = self.leaderboard_name(c)
+            return self._redis_conn.exists(lbname)
+        except Exception as e:
+            logger.exception(msg='error checking if leaderboard exists')
+            raise
 
     def change_category_state(self, session, cid, new_state):
         c = category.Category.read_category_by_id(session, cid)
@@ -439,9 +443,13 @@ class TallyMan():
                             Redis failure.
         :return: 
         '''
-        lb = self.get_leaderboard_by_category(session, c, check_exist=True)
-        if lb is not None:
-            lb.rank_member(p.user_id, p.score, p.id)
+        try:
+            lb = self.get_leaderboard_by_category(session, c, check_exist=True)
+            if lb is not None:
+                lb.rank_member(p.user_id, p.score, p.id)
+        except Exception as e:
+            logger.exception(msg="error updating the leaderboard")
+            raise
 
     def get_leaderboard_by_category(self, session, c, check_exist=True):
         '''
@@ -457,8 +465,12 @@ class TallyMan():
         if check_exist and not self.leaderboard_exists(session, c):
             return None
 
-        lb = Leaderboard(self.leaderboard_name(c), host=self._redis_host, port=self._redis_port, page_size=10)
-        return lb
+        try:
+            lb = Leaderboard(self.leaderboard_name(c), host=self._redis_host, port=self._redis_port, page_size=10)
+            return lb
+        except Exception as e:
+            logger.exception(msg="error getting leader board by category")
+            return None
 
     def create_displayname(self, session, uid):
         u = usermgr.User.find_user_by_id(session, uid)
@@ -493,32 +505,35 @@ class TallyMan():
         :return: list of of leaderboard dictionary elements or None if leaderboard doesn't exist
         '''
 
-        lb = self.get_leaderboard_by_category(session, c, check_exist=True)
-        if lb is None:
-            return
+        try:
+            lb = self.get_leaderboard_by_category(session, c, check_exist=True)
+            if lb is None:
+                return
 
-        logger.info(msg="retrieving leader board for category {}, \'{}\'".format(c.id, c.get_description()))
-#        my_rank = lb.rank_for(uid)
+            logger.info(msg="retrieving leader board for category {}, \'{}\'".format(c.id, c.get_description()))
+    #        my_rank = lb.rank_for(uid)
 
-        dl = lb.leaders(1, page_size=10, with_member_data=True)   # 1st page is top 25
-        lb_list = []
-        for d in dl:
-            lb_uid = int(str(d['member'], 'utf-8'))         # anonuser.id / userlogin.id
-            lb_pid = int(str(d['member_data'], 'utf-8'))    # photo.id
-            lb_score = d['score']
-            lb_rank = d['rank']
-            if lb_uid == 0 or lb_pid == 0:  # we use a dummy value to persist leaderboard existance in daemon, filter it out
-                continue
+            dl = lb.leaders(1, page_size=10, with_member_data=True)   # 1st page is top 25
+            lb_list = []
+            for d in dl:
+                lb_uid = int(str(d['member'], 'utf-8'))         # anonuser.id / userlogin.id
+                lb_pid = int(str(d['member_data'], 'utf-8'))    # photo.id
+                lb_score = d['score']
+                lb_rank = d['rank']
+                if lb_uid == 0 or lb_pid == 0:  # we use a dummy value to persist leaderboard existance in daemon, filter it out
+                    continue
 
-            lb_name = self.create_displayname(session, lb_uid)
-            b64_utf8 = self.read_thumbnail(session, lb_pid) # thumbnail image as utf-8 base64
-            if lb_uid == uid:
-                lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'you':True, 'image' : b64_utf8})
-            else:
-                if usermgr.Friend.is_friend(session, uid, lb_uid):
-                    lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'isfriend':True, 'image' : b64_utf8})
+                lb_name = self.create_displayname(session, lb_uid)
+                b64_utf8 = self.read_thumbnail(session, lb_pid) # thumbnail image as utf-8 base64
+                if lb_uid == uid:
+                    lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'you':True, 'image' : b64_utf8})
                 else:
-                    lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'image' : b64_utf8})
+                    if usermgr.Friend.is_friend(session, uid, lb_uid):
+                        lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'isfriend':True, 'image' : b64_utf8})
+                    else:
+                        lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'image' : b64_utf8})
 
-        return lb_list
-
+            return lb_list
+        except:
+            logger.exception(msg="error fetching leaderboard")
+            raise
