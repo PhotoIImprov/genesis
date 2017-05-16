@@ -12,6 +12,7 @@ import dbsetup
 from datetime import timedelta, datetime
 
 from logsetup import logger
+from models import sql_logging
 
 _SCHEDULED_TIME_SECONDS_DEV = 5
 _SCHEDULED_TIME_SECONDS_PROD = 60 * 5 # 5 minutes for testing
