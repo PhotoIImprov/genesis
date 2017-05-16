@@ -9,6 +9,8 @@ from enum import Enum
 from models import error
 from leaderboard.leaderboard import Leaderboard # how we track high scores
 
+from logsetup import logger
+
 # from iiMemoize import memoize_with_expiry, _memoize_cache
 
 class CategoryState(Enum):
@@ -56,9 +58,15 @@ class Category(Base):
     @staticmethod
     def get_description_by_resource(rid):
         session = dbsetup.Session()
-        r = resources.Resource.load_resource_by_id(session, rid, 'EN')
-        session.close()
-        return r.resource_string
+        resource_string = None
+        try:
+            r = resources.Resource.load_resource_by_id(session, rid, 'EN')
+            resource_string = r.resource_string
+        except Exception as e:
+            logger.exception(msg="error reading resource string for category")
+        finally:
+            session.close()
+            return resource_string
 
     def get_description(self):
         if self._category_description is None:
@@ -67,13 +75,17 @@ class Category(Base):
         return self._category_description
 
     def to_json(self):
-        category_description = self.get_description()
-        json_start_date = "{}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}Z".format(self.start_date.year, self.start_date.month, self.start_date.day, self.start_date.hour, self.start_date.minute, self.start_date.second)
-        _end_date = self.start_date + timedelta(hours=(self.duration_upload + self.duration_vote))
-        json_end_date   = "{}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}Z".format(_end_date.year, _end_date.month, _end_date.day, _end_date.hour, _end_date.minute, _end_date.second)
-        json_state = CategoryState.to_str(self.state)
-        d = dict({'id':self.id, 'description':category_description, 'start':json_start_date, 'end':json_end_date, 'state':json_state, 'round': str(self.round)})
-        return d
+        try:
+            category_description = self.get_description()
+            json_start_date = "{}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}Z".format(self.start_date.year, self.start_date.month, self.start_date.day, self.start_date.hour, self.start_date.minute, self.start_date.second)
+            _end_date = self.start_date + timedelta(hours=(self.duration_upload + self.duration_vote))
+            json_end_date   = "{}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}Z".format(_end_date.year, _end_date.month, _end_date.day, _end_date.hour, _end_date.minute, _end_date.second)
+            json_state = CategoryState.to_str(self.state)
+            d = dict({'id':self.id, 'description':category_description, 'start':json_start_date, 'end':json_end_date, 'state':json_state, 'round': str(self.round)})
+            return d
+        except Exception as e:
+            logger.exception(msg="error json category values")
+            raise
 
     def get_id(self):
         return self.id
@@ -100,14 +112,17 @@ class Category(Base):
         # - UPLOAD - category can accept photos to be uploaded
         # - VOTING - category photos are ready for voting
         # - COUNTING - past voting, available to see status of winners
-        q = session.query(Category).filter(Category.state.in_([CategoryState.UPLOAD.value, CategoryState.VOTING.value, CategoryState.COUNTING.value]))
-        cl = q.all()
-        return cl
+        try:
+            q = session.query(Category).filter(Category.state.in_([CategoryState.UPLOAD.value, CategoryState.VOTING.value, CategoryState.COUNTING.value]))
+            cl = q.all()
+            return cl
+        except Exception as e:
+            logger.exception(msg='error reading active categories')
+            raise
 
     @staticmethod
     def write_category(session, c):
         session.add(c)
-        return
 
     @staticmethod
     def create_category(rid, sd, ed, st):
@@ -134,4 +149,5 @@ class Category(Base):
         c = Category.read_category_by_id(session, cid)
         if c is None:
             raise Exception(errno.EINVAL, 'No Category found for cid={}'.format(cid))
+
         return c.state == CategoryState.UPLOAD.value

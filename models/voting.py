@@ -420,7 +420,6 @@ class TallyMan():
         try:
             str_lb = "leaderboard_category{0}".format(c.id)
         except Exception as e:
-            str_e = str(e)
             logger.exception(msg='leaderboard_name(), error creating name')
             raise Exception(errno.EINVAL, 'cannot create leaderboard name')
 

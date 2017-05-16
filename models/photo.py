@@ -267,7 +267,7 @@ class Photo(Base):
     def get_exif_dict(self, pil_img):
         info = pil_img._getexif()
         if info is None:
-            logger.info(msg='no EXIF data in file, making dummy data')
+            logger.warn(msg='no EXIF data in file, making dummy data file for {0}/{1}'.format(self.filepath, self.filename))
             return self.make_dummy_exif()
 
         return piexif.load(pil_img.info["exif"])
