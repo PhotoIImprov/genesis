@@ -92,6 +92,21 @@ class TestVoting(DatabaseTest):
             assert(e.args[0] == errno.EINVAL)
             assert(e.args[1] == "invalid user")
 
+    def test_create_ballot_list_upload_category(self):
+        # need to test when everything has been voted on max # of times
+        # that we still get sent images
+        self.setup()
+
+        try:
+            c = self.create_category()
+            u = self.create_user()
+            bm = voting.BallotManager()
+            b = bm.create_ballot(self.session, u.id, c)
+            assert(False)
+        except Exception as e:
+            assert(e.args[0] == errno.EINVAL and e.args[1] == 'category not in VOTING state')
+            pass
+
     def test_voting_max(self):
         # need to test when everything has been voted on max # of times
         # that we still get sent images

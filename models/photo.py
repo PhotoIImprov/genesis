@@ -97,6 +97,7 @@ class Photo(Base):
         return
 
     @staticmethod
+    @retry(wait_exponential_multiplier=100, wait_exponential_max=1000, stop_max_attempt_number=10)
     def safe_write_file(path_and_name, pi):
         # the path may not be created, so we try to write the file
         # catch the exception and try again

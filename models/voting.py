@@ -284,7 +284,7 @@ class BallotManager:
                 shuffle the result and trim the list lenght, so we get some randomness
         '''
         if c.state != category.CategoryState.VOTING.value:
-            return {'error': error.iiServerErrors.NOTVOTING_CATEGORY, 'arg': None}
+            raise Exception(errno.EINVAL, 'category not in VOTING state')
 
         # we need "count"
         count = _NUM_BALLOT_ENTRIES
@@ -506,9 +506,6 @@ class TallyMan():
 
         try:
             lb = self.get_leaderboard_by_category(session, c, check_exist=True)
-            if lb is None:
-                return
-
             logger.info(msg="retrieving leader board for category {}, \'{}\'".format(c.id, c.get_description()))
     #        my_rank = lb.rank_for(uid)
 
