@@ -10,7 +10,7 @@ class Log(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     host = Column(String(100), index=True, nullable=False)
     logger = Column(String(200))
-    level = Column(String(64))
+    level = Column(String(64), index=True, nullable=False)
     trace = Column(String(2000))
     msg = Column(String(500))
 

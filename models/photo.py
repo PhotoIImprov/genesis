@@ -18,6 +18,7 @@ import piexif
 from retrying import retry
 import json
 
+from logsetup import logger
 
 class PhotoImage():
     _binary_image = None
@@ -196,10 +197,13 @@ class Photo(Base):
                 exif_data = self.get_exif_data(pil_img)
                 if 'Orientation' in exif_data:
                     self.set_orientation(exif_data['Orientation'])
+                else:
+                    logger.info(msg='no orientation data in file \'{}\''.format(t_fn))
             return thumb
 
         except Exception as e:
             str_e = str(e)
+            logger.exception(msg='error reading thumbnail image')
             return None
 
     # SaveUserImage()
@@ -263,6 +267,7 @@ class Photo(Base):
     def get_exif_dict(self, pil_img):
         info = pil_img._getexif()
         if info is None:
+            logger.info(msg='no EXIF data in file, making dummy data')
             return self.make_dummy_exif()
 
         return piexif.load(pil_img.info["exif"])

@@ -3,6 +3,7 @@ from sqlalchemy        import Column, Integer, String, DateTime, text, ForeignKe
 from dbsetup           import Session, Base
 import hashlib
 import pymysql
+from logsetup import logger
 
 class AnonUser(Base):
     __tablename__ = "anonuser"
@@ -20,6 +21,7 @@ class AnonUser(Base):
         try:
             au = session.query(AnonUser).filter_by(guid = m_guid).first()
         except Exception as e:
+            logger.exception(msg='error finding anonymous user {}'.format(m_guid))
             raise
         finally:
             return au

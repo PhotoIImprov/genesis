@@ -14,19 +14,7 @@ from models import error
 from random import randint, shuffle
 import redis
 
-# ============================= L O G G I N G   S U P P O R T =======================
-import logging
-from handlers import sql_handler
-from models import sql_logging
-
-logger = logging.getLogger('SQL_log')
-logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-hndlr = sql_handler.SQLAlchemyHandler()
-hndlr.setLevel(logging.DEBUG)
-hndlr.setFormatter(formatter)
-logger.addHandler(hndlr)
-# ============================= L O G G I N G   S U P P O R T =======================
+from logsetup import logger
 
 # configuration values we can move to a better place
 _NUM_BALLOT_ENTRIES = 4
@@ -73,6 +61,17 @@ class Ballot(Base):
     def read_photos_for_ballots(self, session):
         for be in self._ballotentries:
             be._photo = session.query(photo.Photo).get(be.photo_id)
+
+    def to_log(self):
+        """
+        Dump out the list of ballot entries as a string for the log
+        :return: 
+        """
+        str_ballots = 'category_id={}\n '.format(self.category_id)
+        for be in self._ballotentries:
+            str_ballots += 'bid:{0}, photo{1}\n'.format(be.id, be.photo_id)
+
+        return str_ballots
 
     def to_json(self):
 
@@ -418,7 +417,7 @@ class TallyMan():
             str_lb = "leaderboard_category{0}".format(c.id)
         except Exception as e:
             str_e = str(e)
-            logger.exception(msg=str_e)
+            logger.exception(msg='leaderboard_name(), error creating name')
             raise Exception(errno.EINVAL, 'cannot create leaderboard name')
 
         return str_lb
@@ -481,7 +480,7 @@ class TallyMan():
             b64_utf8 = b64.decode('utf-8')
             return b64_utf8
         except Exception as e:
-            logger.exception(msg=str(e))
+            logger.exception(msg='error reading thumbnail!')
             return None
 
     def fetch_leaderboard(self, session, uid, c):

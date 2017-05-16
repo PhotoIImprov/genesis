@@ -26,13 +26,15 @@ from sqlalchemy.orm import Session
 from random import shuffle
 from datetime import timedelta
 
+from logsetup import logger
+
 app = Flask(__name__)
 app.debug = True
 app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '0.7.0' #our version string PEP 440
+__version__ = '0.7.1' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -167,7 +169,8 @@ def healthcheck():
         lb = Leaderboard(lb_name, host=rd['ip'], port=rd['port'], page_size=10)
         lb.check_member('no one')
         lb.delete_leaderboard()
-    except:
+    except Exception as e:
+        logger.exception(msg=str(e))
         http_status = status.HTTP_500_INTERNAL_SERVER_ERROR
 
     resp = make_response("healthcheck status", http_status)
@@ -209,7 +212,7 @@ def hello():
         htmlbody += "<h1>ImageImprov Hello World from Flask!</h1> last called {}".format(dtNow)
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
-    htmlbody += "(Redis initialization daemon, ballot shuffling)"
+    htmlbody += "(Redis initialization daemon, ballot shuffling, logging to db)"
 #    htmlbody += "<img src=\"/static/python_flask_mysql_banner.jpg\"/>\n"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
@@ -246,7 +249,8 @@ def hello():
                 htmlbody += h + "<br>"
         else:
             htmlbody += "<i>no events found</i><br>"
-    except:
+    except Exception as e:
+        logger.exception(msg=str(e))
         htmlbody += "<h3>error reading event table</h3></br>\n"
         pass
 
@@ -321,7 +325,8 @@ def hello():
         htmlbody += "<img src=\"/static/redis.png\"/>"
         htmlbody += "<br>leader board \'{}\' created<br>".format(lb_name)
         lb.delete_leaderboard()
-    except:
+    except Exception as e:
+        logger.exception(msg=str(e))
         htmlbody += "\n<h2>Cannot create leaderboard!!</h2> (is redis server running?)<br>"
 
     au = usermgr.AnonUser.create_anon_user(session, '99275132efe811e6bc6492361f002671')
@@ -418,6 +423,7 @@ def set_category_state():
                 if c is not None:
                    rsp = make_response(jsonify({'msg': error.error_string('CATEGORY_STATE')}),status.HTTP_200_OK)
     except Exception as e:
+        logger.exception(msg=str(e))
         rsp = make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         session.close()
@@ -489,7 +495,8 @@ def get_category():
         else:
            categories = category.Category.list_to_json(cl)
            rsp = make_response(jsonify(categories), status.HTTP_200_OK)
-    except:
+    except Exception as e:
+        logger.exception(msg=str(e))
         rsp = make_response(jsonify({'msg': error.error_string('CATEGORY_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         session.close()
@@ -567,7 +574,8 @@ def get_leaderboard():
             else:
                 rsp = make_response(jsonify({'msg': error.error_string('NO_LEADERBOARD')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     except Exception as e:
-       rsp = make_response(jsonify({'msg': error.error_string('NO_LEADERBOARD')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+        logger.exception(msg=str(e))
+        rsp = make_response(jsonify({'msg': error.error_string('NO_LEADERBOARD')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         session.close()
         return rsp
@@ -686,7 +694,8 @@ def accept_friendship():
         usermgr.FriendRequest.update_friendship(session, uid, fid, accepted)
         rsp = make_response(jsonify({'msg': error.error_string('FRIENDSHIP_UPDATED')}), status.HTTP_201_CREATED)
         session.commit()
-    except:
+    except Exception as e:
+        logger.exception(msg=str(e))
         session.rollback()
         rsp = make_response(jsonify({'msg': error.error_string('NO_SUCH_FRIEND')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
@@ -755,8 +764,9 @@ def tell_a_friend():
                 status.HTTP_201_CREATED)
         else:
             rsp = make_response(jsonify({'msg': error.error_string('FRIEND_REQ_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
-    except:
+    except Exception as e:
         session.rollback()
+        logger.exception(msg=str(e))
         rsp = make_response(jsonify({'msg': error.error_string('FRIEND_REQ_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         session.close()
@@ -845,6 +855,7 @@ def cast_vote():
         voting.BallotManager().tabulate_votes(session, uid, votes)
     except BaseException as e:
         str_e = str(e)
+        logger.exception(msg=str_e)
         return make_response(jsonify({'msg': error.error_string('TABULATE_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return return_ballot(session, uid, None)
@@ -862,17 +873,19 @@ def return_ballot(session, uid, cid):
 
         ballots = bm.create_ballot(session, uid, c)
         if ballots is None:
-            ballots = bm.create_ballot(session, uid, c)
             rsp =  make_response(jsonify({'msg': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             session.commit()
+            logger.info(msg=ballots.to_log())
+
             ballots.read_photos_for_ballots(session)
             j_ballots = ballots.to_json()
             d = {'category': c.to_json(), 'ballots': j_ballots}
             rsp = make_response(jsonify(d), status.HTTP_200_OK)
     except BaseException as e:
-        str_e = str(e)
         session.rollback()
+        str_e = str(e)
+        logger.exception(msg=str_e)
     finally:
         session.close()
         if rsp is None:
@@ -934,6 +947,7 @@ def image_download():
         rsp = make_response(jsonify({'image':b64_photo.decode('utf-8')}), status.HTTP_200_OK)
     except BaseException as e:
         str_e = str(e)
+        logger.exception(msg=str_e)
         session.rollback()
         rsp = make_response(jsonify({'msg':error.error_string('ERROR_PHOTO')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
@@ -988,6 +1002,7 @@ def last_submission():
         session.commit()
     except Exception as e:
         session.rollback()
+        logger.exception(msg=str(e))
         rsp = make_response(jsonify({'msg': error.error_string('NO_SUBMISSION')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         session.close()
@@ -1063,6 +1078,7 @@ def photo_upload():
         uid = None
         pass
     except BaseException as e:
+        logger.exception(msg=str(e))
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     if cid is None or uid is None:
@@ -1078,6 +1094,7 @@ def photo_upload():
             rsp = make_response(jsonify({'msg': error.error_string('PHOTO_UPLOADED'), 'filename': d['arg']}), status.HTTP_201_CREATED)
     except Exception as e:
         session.rollback()
+        logger.exception(msg=str(e))
     finally:
         session.close()
         if rsp is None:
@@ -1173,6 +1190,7 @@ def register():
         session.commit()
     except:
         session.rollback()
+        logger.exception(msg=str(e))
         rsp = make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         session.close()
