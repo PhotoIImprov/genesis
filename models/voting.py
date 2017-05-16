@@ -14,6 +14,20 @@ from models import error
 from random import randint, shuffle
 import redis
 
+# ============================= L O G G I N G   S U P P O R T =======================
+import logging
+from handlers import sql_handler
+from models import sql_logging
+
+logger = logging.getLogger('SQL_log')
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+hndlr = sql_handler.SQLAlchemyHandler()
+hndlr.setLevel(logging.DEBUG)
+hndlr.setFormatter(formatter)
+logger.addHandler(hndlr)
+# ============================= L O G G I N G   S U P P O R T =======================
+
 # configuration values we can move to a better place
 _NUM_BALLOT_ENTRIES = 4
 _NUM_SECTONS_ROUND2 = 4
@@ -227,12 +241,13 @@ class BallotManager:
 
         bl = []
         shuffle(sl)  # randomize the section list
+        oversize = count * 10
         for s in sl:
             q = session.query(photo.Photo).filter(photo.Photo.user_id != uid). \
                 filter(photo.Photo.category_id == c.id).\
                 join(VotingRound, VotingRound.photo_id == photo.Photo.id) . \
                 filter(VotingRound.section == s). \
-                filter(VotingRound.times_voted == num_votes).limit(count)
+                filter(VotingRound.times_voted == num_votes).limit(oversize)
             pl = q.all()
             bl.extend(pl) # accumulate ballots we've picked, can save us time later
             # see if we encountered 4 in our journey
@@ -245,12 +260,11 @@ class BallotManager:
                 q = session.query(photo.Photo).filter(photo.Photo.user_id != uid). \
                     filter(photo.Photo.category_id == c.id). \
                     join(VotingRound, VotingRound.photo_id == photo.Photo.id). \
-                    filter(VotingRound.section == s).limit(count)
+                    filter(VotingRound.section == s).limit(oversize)
                 pl = q.all()
                 bl.extend(pl) # accumulate ballots we've picked, can save us time later
                 if len(bl) >= count:
                     return bl
-
         return bl # return what we have
 
     # create_ballot_list()
@@ -262,6 +276,14 @@ class BallotManager:
     # if we can't get 'count' photos, then we are done
     # Round #1...
     def create_ballot_list(self, session, uid, c):
+        '''
+        
+        :param session: 
+        :param uid: the user asking for the ballot (so we can exclude their photos) 
+        :param c: category
+        :return: a list of '_NUM_BALLOT_ENTRIES'. We ask for more than this,
+                shuffle the result and trim the list lenght, so we get some randomness
+        '''
         if c.state != category.CategoryState.VOTING.value:
             return {'error': error.iiServerErrors.NOTVOTING_CATEGORY, 'arg': None}
 
@@ -277,9 +299,10 @@ class BallotManager:
             if pl is not None:
                 photos_for_ballot.extend(pl)
                 if len(photos_for_ballot) >= count:
-                    return photos_for_ballot[:count]  # return only the # we need
+                    break
 
-        return photos_for_ballot # return what we have
+        shuffle(photos_for_ballot)
+        return photos_for_ballot[:count] # return what we have
 
     def read_photos_by_ballots_round1(self, session, uid, c, num_votes, count):
         '''
@@ -293,26 +316,27 @@ class BallotManager:
         :param count: how many photos to fetch
         :return: list of Photo objects
         '''
+
+        over_size = count * 10 # ask for a lot more so we can randomize a bit
         # if ballotentry has been voted on, exclude photos the user has already seen
         if num_votes == 0:
             q = session.query(photo.Photo).filter(photo.Photo.category_id == c.id). \
                 filter(photo.Photo.user_id != uid). \
-                filter(~exists().where(BallotEntry.photo_id == photo.Photo.id)).limit(count)
+                filter(~exists().where(BallotEntry.photo_id == photo.Photo.id)).limit(over_size)
         else:
             if num_votes == _MAX_VOTING_ROUNDS:
                 q = session.query(photo.Photo).filter(photo.Photo.category_id == c.id). \
                     join(BallotEntry, photo.Photo.id == BallotEntry.photo_id). \
                     filter(photo.Photo.user_id != uid). \
-                    group_by(photo.Photo.id).limit(count)
+                    group_by(photo.Photo.id).limit(over_size)
             else:
                 q = session.query(photo.Photo).filter(photo.Photo.category_id == c.id).\
                     join(BallotEntry, photo.Photo.id == BallotEntry.photo_id).\
                     filter(photo.Photo.user_id != uid).\
                     group_by(photo.Photo.id).\
-                    having(func.count(BallotEntry.photo_id) == num_votes).limit(count)
+                    having(func.count(BallotEntry.photo_id) == num_votes).limit(over_size)
 
         pl = q.all()
-           
         return pl
 
     def active_voting_categories(self, session, uid):
@@ -391,9 +415,10 @@ class TallyMan():
 
     def leaderboard_name(self, c):
         try:
-            str_lb = "round_{0}_category{1}".format((c.round+1), c.id)
+            str_lb = "leaderboard_category{0}".format(c.id)
         except Exception as e:
             str_e = str(e)
+            logger.exception(msg=str_e)
             raise Exception(errno.EINVAL, 'cannot create leaderboard name')
 
         return str_lb
@@ -455,7 +480,8 @@ class TallyMan():
             b64 = base64.standard_b64encode(bimg)
             b64_utf8 = b64.decode('utf-8')
             return b64_utf8
-        except:
+        except Exception as e:
+            logger.exception(msg=str(e))
             return None
 
     def fetch_leaderboard(self, session, uid, c):
@@ -472,6 +498,7 @@ class TallyMan():
         if lb is None:
             return
 
+        logger.info(msg="retrieving leader board for category {}, \'{}\'".format(c.id, c.get_description()))
 #        my_rank = lb.rank_for(uid)
 
         dl = lb.leaders(1, page_size=10, with_member_data=True)   # 1st page is top 25

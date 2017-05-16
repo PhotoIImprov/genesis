@@ -16,14 +16,13 @@ class AnonUser(Base):
             return None
 
         m_guid = m_guid.upper().translate({ord(c): None for c in '-'})
-
+        au = None
         try:
             au = session.query(AnonUser).filter_by(guid = m_guid).first()
-            return au
         except Exception as e:
             raise
-
-        return None
+        finally:
+            return au
 
     @staticmethod
     def get_anon_user_by_id(session, anon_id):

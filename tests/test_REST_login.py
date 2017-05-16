@@ -6,13 +6,13 @@ import iiServer
 import json
 import base64
 import datetime
-from models import category, resources
+from models import category, resources, voting
 from collections import namedtuple
 import requests
 from models import error
 from urllib.parse import urlencode
 from werkzeug.datastructures import Headers
-
+import dbsetup
 
 class TestUser:
     _u = None   # username
@@ -1028,6 +1028,14 @@ class TestLeaderBoard(iiBaseUnitTest):
 
         # set the category to VOTING
         TestCategory().set_category_state(tu.get_cid(), category.CategoryState.VOTING)
+
+        # we need to create the leaderboard
+        tm = voting.TallyMan()
+        session = dbsetup.Session()
+        c = category.Category().read_category_by_id(session, tu.get_cid())
+        tm.leaderboard_exists(session, c) # this forms connections to Redis
+        lb = tm.get_leaderboard_by_category(session, c, check_exist=False)
+        lb.rank_member(0, 0, 0) # create dummy entry to spur leaderboard creation
 
         # now we need to do some voting
         for tu in user_list:

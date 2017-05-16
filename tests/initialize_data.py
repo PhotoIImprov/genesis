@@ -90,7 +90,23 @@ class InitEnvironment(unittest.TestCase):
                'First Dance Burag and Kea.JPG',
                'Emma in Lithuania.JPG',
                'Suki on Dash.JPG',
-               'Taplist.JPG'
+               'Taplist.JPG',
+               'Portrait_1.jpg',
+               'Portrait_2.jpg',
+               'Portrait_3.jpg',
+               'Portrait_4.jpg',
+               'Portrait_5.jpg',
+               'Portrait_6.jpg',
+               'Portrait_7.jpg',
+               'Portrait_8.jpg',
+               'Landscape_1.jpg',
+               'Landscape_2.jpg',
+               'Landscape_3.jpg',
+               'Landscape_4.jpg',
+               'Landscape_5.jpg',
+               'Landscape_6.jpg',
+               'Landscape_7.jpg',
+               'Landscape_8.jpg'
                )
     _pcache = []
     _users = {'hcollins@gmail.com',

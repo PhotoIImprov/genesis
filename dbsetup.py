@@ -65,13 +65,6 @@ def is_gunicorn():
     _is_gunicorn = "gunicorn" in os.environ.get("SERVER_SOFTWARE", "")
     return _is_gunicorn
 
-"""
-def log_error(req, err_msg, uid):
-    d = {'clientip': req.remote_addr, 'user': uid}
-    logger.error('Error: %s', err_msg, extra=d)
-"""
-
-
 engine   = create_engine(connection_string(None), echo=False, pool_recycle=3600)
 Session  = sessionmaker(bind=engine)
 Base     = declarative_base()
@@ -112,14 +105,6 @@ def ping_connection(connection, branch):
     finally:
         # restore "close with result"
         connection.should_close_with_result = save_should_close_with_result
-
-# format for logging information
-#LOGGING_FORMAT = '%(asctime)-15s %(clientip)s %(user)-8s %(message)s'
-LOGGING_FORMAT = '%(asctime)-15s %(message)s'
-LOGGING_LEVEL = logging.ERROR
-
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=LOGGING_LEVEL, format=LOGGING_FORMAT)
 
 # just for fun
 QUOTES = (
