@@ -178,6 +178,9 @@ class sync_daemon(Daemon):
 _PIDFILE = '/var/run/synchronize_iiDaemon.pid'
 _LOGFILE = '/var/log/synchronize_iiDaemon.log'
 if __name__ == "__main__":
+    # build tables if required
+    dbsetup.metadata.create_all(bind=dbsetup.engine, checkfirst=True)
+
     redis_host_ip = None
     redis_host_port = None
     for arg in sys.argv:
