@@ -250,17 +250,18 @@ def hello():
         else:
             htmlbody += "<i>no events found</i><br>"
     except Exception as e:
-        logger.exception(msg=str(e))
+        logger.exception(msg='error reading mysql.event table')
         htmlbody += "<h3>error reading event table</h3></br>\n"
         pass
 
-
-    rd = voting.ServerList().get_redis_server(session)
-    if rd is not None:
-        ip = rd['ip']
-        port = str(rd['port'])
-        htmlbody += "<h3>Redis server:<span>" + ip + ':' + port + "</span></h3><br>\n"
-    else:
+    try:
+        rd = voting.ServerList().get_redis_server(session)
+        if rd is not None:
+            ip = rd['ip']
+            port = str(rd['port'])
+            htmlbody += "<h3>Redis server:<span>" + ip + ':' + port + "</span></h3><br>\n"
+    except Exception as e:
+        logger.exception(msg='error reading serverlist')
         htmlbody += "<h3>Error reading Redis server configuration!</h3><br>\n"
 
     cl = category.Category.active_categories(session, 1)
