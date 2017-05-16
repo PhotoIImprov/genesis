@@ -202,6 +202,7 @@ def hello():
       500:
         description: "serious error dude"
     """
+    logger.info(msg='/config page launched')
     htmlbody = "<html>\n<body>\n"
     dtNow = datetime.datetime.now()
     if dbsetup.is_gunicorn():
@@ -251,6 +252,8 @@ def hello():
         logger.exception(msg='error reading mysql.event table')
         htmlbody += "<h3>error reading event table</h3></br>\n"
 
+    logger.info(msg='[config] Find Redis server')
+
     try:
         rd = voting.ServerList().get_redis_server(session)
         if rd is not None:
@@ -260,6 +263,8 @@ def hello():
     except Exception as e:
         logger.exception(msg='error reading serverlist')
         htmlbody += "<h3>Error reading Redis server configuration!</h3><br>\n"
+
+    logger.info(msg='[config] List active categories')
 
     cl = category.Category.active_categories(session, 1)
     if cl is None:
@@ -314,6 +319,8 @@ def hello():
             htmlbody += "\n<br><br>"
         htmlbody += "\n</blockquote>"
 
+    logger.info(msg='[config] Test Redis server')
+
     # let's see if we can access the leaderboard class, hence redis server is up
     lb_name = 'configtest'
     try:
@@ -326,6 +333,8 @@ def hello():
     except Exception as e:
         logger.exception(msg='error creating leaderboard')
         htmlbody += "\n<h2>Cannot create leaderboard!!</h2> (is redis server running?)<br>"
+
+    logger.info(msg='[config] Test anon user registration')
 
     au = usermgr.AnonUser.create_anon_user(session, '99275132efe811e6bc6492361f002671')
     if au is not None:
