@@ -69,7 +69,7 @@ class Ballot(Base):
         """
         str_ballots = 'category_id={}\n '.format(self.category_id)
         for be in self._ballotentries:
-            str_ballots += 'bid:{0}, photo{1}\n'.format(be.id, be.photo_id)
+            str_ballots += 'bid:{0}, photo:{1}\n'.format(be.id, be.photo_id)
 
         return str_ballots
 

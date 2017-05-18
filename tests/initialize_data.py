@@ -77,7 +77,7 @@ class InitEnvironment(unittest.TestCase):
                'moto_z_play_camera_samples_7.jpg',
                'sample1.jpg',
                'Moto-Z-Force-Droid.jpg',
-               'tf2fzhr.jpg',
+               #'tf2fzhr.jpg',
                'IMG_1218.JPG',
                'sam_4089.jpg',
                #'vetndhl.jpg',

@@ -120,7 +120,7 @@ QUOTES = (
     ('What care I how time advances? I am drinking ale today', 'Edgar Allen Poe'),
     ('Beer, if drunk in moderation, softens the temper, cheers the spirit and promotes health', 'Thomas Jefferson'),
     ('In a study, scientists report that drinking beer can be good for the liver. I\'m sorry, did I say scientists? I mean Irish people', 'Tina Fey'),
-    ('Most people hate the taste of beer - to being with. It is, however, a prejudice.', 'Winston Churchill'),
+    ('Most people hate the taste of beer - to begin with. It is, however, a prejudice.', 'Winston Churchill'),
     ('For a quart of Ale is a dish for a king', 'William Shakespeare'),
     ('I am a firm believer in the people. If given the truth, they can be depended upon to meet any national crisis. The great point is to bring them the real facts, and beer', 'Abraham Lincoln'),
     ('Whoever drinks beer, he is quick to sleep; whoever sleeps long, does not sin; whoever does not sin, enters Heaven! Thus, let us drink beer!', 'Martin Luther'),

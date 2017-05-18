@@ -78,8 +78,6 @@ def spec():
     operationId: get-specification
     consumes:
       - text/html
-    security:
-      - api_key: []
     produces:
       - text/html
     responses:
@@ -124,7 +122,7 @@ def spec():
                                                                     {'access_token':
                                                                          {'type':'string'} } } },
                                                     '401':{'description': 'user authentication failed'}},
-                                      'security': [{'api_key':[]}],
+#                                      'security': [{'api_key':[]}],
                                       'summary' : "JWT authentication",
                                       'tags':['user']}
                               }
@@ -140,6 +138,7 @@ def spec():
     # [END securityDef]
     swag['securityDefinitions'] = {'api_key': {'type': 'apiKey', 'name': 'key', 'in': 'query'}}
     swag['securityDefinitions'] = {'JWT': {'type': 'apiKey', 'name': 'access_token', 'in': 'header'}}
+#    swag['definitions'] = {'Error': {'properties': {'msg':{'type':'string'}}}}
     swag['swagger'] = "2.0"
 
     resp = make_response(jsonify(swag), status.HTTP_200_OK)
@@ -192,8 +191,6 @@ def hello():
     operationId: get-configuration
     consumes:
       - text/html
-    security:
-      - api_key: []
     produces:
       - text/html
     responses:
@@ -201,6 +198,8 @@ def hello():
         description: "everything is running well"
       500:
         description: "serious error dude"
+        schema:
+          $ref: '#/definitions/Error'
     """
     logger.info(msg='/config page launched')
     htmlbody = "<html>\n<body>\n"
@@ -278,10 +277,10 @@ def hello():
             htmlbody += "\n<br>description = <b><i>\"{}\"</b></i>".format(c.get_description())
             htmlbody += "\n<br>start date={} UTC".format(c.start_date)
             htmlbody += "\n<br>round={}".format(c.round)
-            htmlbody += " (Voting Round #{})".format(c.round+1)
             num_photos = photo.Photo.count_by_category(session, c.get_id())
             htmlbody += "\n<br>number photos uploaded = <b>{}</b>".format(num_photos)
             if c.state == category.CategoryState.VOTING.value:
+                htmlbody += " (Voting Round #{})".format(c.round + 1)
                 num_voters = voting.Ballot.num_voters_by_category(session, c.get_id())
                 htmlbody += "\n<br>number users voting = <b>{}</b>".format(num_voters)
                 end_of_voting = c.start_date + timedelta(hours=(c.duration_vote + c.duration_upload))
@@ -375,7 +374,6 @@ def set_category_state():
     consumes:
       - application/json
     security:
-      - api_key: []
       - JWT: []
     produces:
       - application/json
@@ -402,8 +400,12 @@ def set_category_state():
         description: "state changed"
       400:
         description: "missing required arguments"
+        schema:
+          $ref: '#/definitions/Error'
       500:
         description: "error operating on category id specified"
+        schema:
+          $ref: '#/definitions/Error'
     """
     if not request.json:
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
@@ -452,7 +454,7 @@ def get_category():
     consumes:
       - text/plain
     security:
-      - api_key: []
+      - JWT: []
     produces:
       - application/json
     responses:
@@ -465,8 +467,12 @@ def get_category():
             $ref: '#/definitions/Category'
       400:
         description: "missing required arguments"
+        schema:
+          $ref: '#/definitions/Error'
       500:
         description: "error retrieving categories"
+        schema:
+          $ref: '#/definitions/Error'
     definitions:
       - schema:
           id: Category
@@ -527,7 +533,7 @@ def get_leaderboard():
         required: true
         type: integer
     security:
-      - api_key: []
+      - JWT: []
     responses:
       200:
         description: "leaderboard retrieved"
@@ -538,8 +544,12 @@ def get_leaderboard():
             $ref: '#/definitions/ranking'
       400:
         description: "missing required arguments"
+        schema:
+          $ref: '#/definitions/Error'
       500:
         description: "error getting categories"
+        schema:
+          $ref: '#/definitions/Error'
     definitions:
       - schema:
           id: ranking
@@ -601,28 +611,37 @@ def get_ballot():
     parameters:
       - in: query
         name: category_id
-        description: "The category we want to vote on"
-        required: true
+        description: "The category we want to vote on. If not specified, a random category will be returned."
+        required: false
         type: integer
     security:
-      - api_key: []
+      - JWT: []
     responses:
       200:
-        description: "ballot"
-        schema:
-          id: category
-          title: Categories
-          type: array
-          items:
-            $ref: '#/definitions/Ballot'
+         description: list of images to vote on with their originating category
+         properties:
+           ballots:
+             type: array
+             items:
+               $ref: '#/definitions/Ballot'
+           category:
+             $ref: '#/definitions/Category'
       400:
         description: "missing required arguments"
+        schema:
+          $ref: '#/definitions/Error'
       403:
         description: "no such user"
+        schema:
+          $ref: '#/definitions/Error'
       500:
         description: "no ballot"
+        schema:
+          $ref: '#/definitions/Error'
       default:
         description: "unexpected error"
+        schema:
+          $ref: '#/definitions/Error'
     definitions:
       - schema:
           id: Ballot
@@ -673,14 +692,18 @@ def accept_friendship():
                   type: integer
                   description: "identifier from friend request this is a response to"
         security:
-          - api_key: []
+          - JWT: []
         responses:
           201:
             description: "friendship updated"
           400:
             description: "missing required arguments"
+            schema:
+              $ref: '#/definitions/Error'
           500:
             description: "error operating on category id specified"
+            schema:
+              $ref: '#/definitions/Error'
         """
     if not request.json:
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
@@ -734,16 +757,22 @@ def tell_a_friend():
               type: string
               description: "email address of friend to send request to"
     security:
-      - api_key: []
+      - JWT: []
     responses:
       201:
         description: "Will notify friend"
       400:
         description: "missing required arguments"
+        schema:
+          $ref: '#/definitions/Error'
       500:
         description: "error requesting friendship"
+        schema:
+          $ref: '#/definitions/Error'
       default:
         description: "unexpected error"
+        schema:
+          $ref: '#/definitions/Error'
     """
     if not request.json:
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
@@ -788,7 +817,7 @@ def cast_vote():
      ---
      tags:
        - voting
-     summary: "Cast votes for a ballot. We choose the top photo, and then any likes"
+     summary: "Cast votes for a ballot. Will return a ballot from a random category."
      operationId: cast-vote
      consumes:
        - application/json
@@ -807,26 +836,36 @@ def cast_vote():
                items:
                  $ref: '#/definitions/ballotentry'
      security:
-       - api_key: []
+       - JWT: []
      responses:
        200:
-         description: "ballot"
-         schema:
-           category:
-             type: item
-             items:
-                $ref: '#/definitions/Category'
+         description: ballot of images to vote on with originating category information
+         properties:
            ballots:
-              type: array
-              items:
-                $ref: '#/definitions/Ballot'
+             type: array
+             items:
+               $ref: '#/definitions/Ballot'
+           category:
+             $ref: '#/definitions/Category'
        400:
          description: "missing required arguments"
+         schema:
+           $ref: '#/definitions/Error'
        413:
          description: "too many votes being tallied"
+         schema:
+           $ref: '#/definitions/Error'
        500:
          description: "error creating ballot to return"
+         schema:
+            $ref: '#/definitions/Error'
      definitions:
+      - schema:
+          id: Error
+          properties:
+            msg:
+              type: string
+              description: "error message"
       - schema:
           id: ballotentry
           properties:
@@ -921,7 +960,7 @@ def image_download():
         required: true
         type: string
     security:
-      - api_key: []
+      - JWT: []
     responses:
       200:
         description: "image found"
@@ -933,10 +972,16 @@ def image_download():
               description: "base64 encoded image file"
       400:
         description: "missing required arguments"
+        schema:
+          $ref: '#/definitions/Error'
       500:
         description: "photo not found"
+        schema:
+          $ref: '#/definitions/Error'
       default:
         description: "unexpected error"
+        schema:
+          $ref: '#/definitions/Error'
     """
     if not request.args:
         return make_response(jsonify({'msg': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
@@ -975,7 +1020,7 @@ def last_submission():
     consumes:
         - application/json
     security:
-      - api_key: []
+      - JWT: []
     responses:
       200:
         description: "last submission found"
@@ -988,10 +1033,16 @@ def last_submission():
             $ref: '#/definitions/Category'
       400:
         description: "missing required arguments"
+        schema:
+          $ref: '#/definitions/Error'
       500:
         description: "photo not found"
+        schema:
+          $ref: '#/definitions/Error'
       default:
         description: "unexpected error"
+        schema:
+          $ref: '#/definitions/Error'
     """
     u = current_identity
     uid = u.id
@@ -1055,7 +1106,7 @@ def photo_upload():
               type: string
               description: "Base64 encoded image"
     security:
-      - api_key: []
+      - JWT: []
     responses:
       201:
         description: "The image was properly uploaded!"
@@ -1066,10 +1117,16 @@ def photo_upload():
               type: string
       400:
         description: "missing required arguments"
+        schema:
+          $ref: '#/definitions/Error'
       500:
         description: "error uploading image"
+        schema:
+          $ref: '#/definitions/Error'
       default:
         description: "unexpected error"
+        schema:
+          $ref: '#/definitions/Error'
     """
     if not request.json:
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
@@ -1144,16 +1201,22 @@ def register():
               type: string
               description: "a UUID that uniquely identifies the user, in lieu of a username, this is their anonymous account handle"
     security:
-      - api_key: []
+      - JWT: []
     responses:
       201:
         description: "account created"
       400:
         description: "missing required arguments"
+        schema:
+          $ref: '#/definitions/Error'
       500:
         description: "error creating account"
+        schema:
+          $ref: '#/definitions/Error'
       default:
         description: "unexpected error"
+        schema:
+          $ref: '#/definitions/Error'
     """
     # an email address and password has been posted
     # let's create a user for this
