@@ -14,7 +14,8 @@ class TestPhoto(DatabaseTest):
         # create a bunch of test photos for the specified category
 
         # read our test file
-        ft = open('../photos/Cute_Puppy.jpg', 'rb')
+#        ft = open('../photos/Cute_Puppy.jpg', 'rb')
+        ft = open('../photos/Galaxy Edge 7 Office Desk (full res, hdr).jpg', 'rb')
         pi = photo.PhotoImage()
         pi._extension = 'JPEG'
         pi._binary_image = ft.read()
@@ -121,9 +122,9 @@ class TestPhoto(DatabaseTest):
         # read our test file
         cwd = os.getcwd()
         if 'tests' in cwd:
-            path = '../photos/Cute_Puppy.jpg'
+            path = '../photos/Galaxy Edge 7 Office Desk (full res, hdr).jpg' #'../photos/Cute_Puppy.jpg'
         else:
-            path = cwd + '/photos/Cute_Puppy.jpg'
+            path = cwd + '/photos/Galaxy Edge 7 Office Desk (full res, hdr).jpg' #'/photos/Cute_Puppy.jpg'
         ft = open(path, 'rb')
         pi._binary_image = ft.read()
 

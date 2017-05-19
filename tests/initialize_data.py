@@ -6,7 +6,8 @@ import requests
 from tests import test_REST_login
 from models import category
 from werkzeug.datastructures import Headers
-
+import _thread
+import time
 
 # ************************************************************************
 # ************************************************************************
@@ -229,23 +230,42 @@ class InitEnvironment(unittest.TestCase):
         num_photos = len(self._pcache)
         photo_idx = 0
 
-        tu = test_REST_login.TestUser()
+        th = []
+
         cid = None
-        for idx in range(1000):
+        for idx in range(10):
             uname = 'test_user{}@gmail.com'.format(idx)
+            tu = test_REST_login.TestUser()
             tu.create_user_with_name(uname)
             rsp = self.register_and_authenticate(tu)
             if rsp is not None:
                 if cid is None:
-                    # get the uploading category
                     cid = self.get_category_by_state(category.CategoryState.UPLOAD, tu.get_token())
+                try:
+                    _thread.start_new_thread(self.upload_photos, (), {'user':tu, 'category_id':cid})
+                except Exception as e:
+                    pass
 
-                self.upload_photo(tu, self._pcache[photo_idx], cid)
-                photo_idx += 1
-                if photo_idx >= num_photos:
-                    photo_idx = 0
-        # we are done, we uploaded a unique photo once for a lot of users!
+        c = 1
+        while(c > 0):
+            time.sleep(0.010)    # sleep 10ms
+            c = _thread._count()
 
+    def upload_photos(self, *args, **kwargs):
+        '''
+        upload all the photos for a single user
+        :param args: 
+        :param kwargs: user = tu object,
+                       cid = category id
+        :return: 
+        '''
+        tu = kwargs.get('user')
+        cid = kwargs.get('category_id')
+
+        for p in self._pcache:
+            self.upload_photo(tu, p, cid)
+
+        _thread.exit()
 
     def test_initialize_server(self):
         # okay, we're going to create users & upload photos

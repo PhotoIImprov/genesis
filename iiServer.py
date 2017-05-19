@@ -263,8 +263,25 @@ def hello():
         logger.exception(msg='error reading serverlist')
         htmlbody += "<h3>Error reading Redis server configuration!</h3><br>\n"
 
+    logger.info(msg='[config] Test Redis server')
+    lb = None
+    # let's see if we can access the leaderboard class, hence redis server is up
+    try:
+        lb_name = 'configtest'
+        rd = voting.ServerList().get_redis_server(session)
+        logger.info(msg='[config] lb_name:{0}, host={1}, port={2}'.format(lb_name, rd['ip'], rd['port']))
+        lb = Leaderboard(lb_name, host=rd['ip'], port=rd['port'], page_size=10)
+        lb.check_member('no one')
+        htmlbody += "<img src=\"/static/redis.png\"/>"
+        htmlbody += "<br>leader board \'{}\' created<br>".format(lb_name)
+        lb.delete_leaderboard()
+    except:
+        logger.exception(msg='error creating leaderboard')
+        htmlbody += "\n<h2>Cannot create leaderboard!!</h2> (is redis server running?)<br>"
+
     logger.info(msg='[config] List active categories')
 
+    tm = voting.TallyMan()
     cl = category.Category.active_categories(session, 1)
     if cl is None:
         htmlbody += "\n<br>No category information retrieved (ERROR)<br>"
@@ -276,11 +293,10 @@ def hello():
             htmlbody += "\n<br>category_id = {}".format(c.get_id())
             htmlbody += "\n<br>description = <b><i>\"{}\"</b></i>".format(c.get_description())
             htmlbody += "\n<br>start date={} UTC".format(c.start_date)
-            htmlbody += "\n<br>round={}".format(c.round)
             num_photos = photo.Photo.count_by_category(session, c.get_id())
             htmlbody += "\n<br>number photos uploaded = <b>{}</b>".format(num_photos)
             if c.state == category.CategoryState.VOTING.value:
-                htmlbody += " (Voting Round #{})".format(c.round + 1)
+                htmlbody += "\n<br>round={0} (Voting Round #{1}".format(c.round, c.round+1)
                 num_voters = voting.Ballot.num_voters_by_category(session, c.get_id())
                 htmlbody += "\n<br>number users voting = <b>{}</b>".format(num_voters)
                 end_of_voting = c.start_date + timedelta(hours=(c.duration_vote + c.duration_upload))
@@ -303,36 +319,27 @@ def hello():
                 htmlbody += "\n<br>number users uploading = <b>{}</b>".format(n)
                 end_of_uploading = c.start_date + timedelta(hours=c.duration_upload)
                 htmlbody += "\n, uploading ends @{}".format(end_of_uploading)
-
-            # let's get # of votes and average vote/photo
-            q = session.query(voting.BallotEntry).filter(voting.BallotEntry.category_id == c.get_id())
-            total_votes = q.count()
-            htmlbody += "\n<br>Total votes for category = <b>{}</b>".format(total_votes)
-            htmlbody += "\n<br>Average votes per photo = "
-            if num_photos != 0:
-                average_votes = total_votes / num_photos
-                htmlbody += "<b>{:6.2f}</b>".format(average_votes)
             else:
-                htmlbody += "<b><i>undefined</b></i>"
+                # let's get # of votes and average vote/photo
+                q = session.query(voting.BallotEntry).filter(voting.BallotEntry.category_id == c.get_id())
+                total_votes = q.count()
+                htmlbody += "\n<br>Total votes for category = <b>{}</b>".format(total_votes)
+                htmlbody += "\n<br>Average votes per photo = "
+                if num_photos != 0:
+                    average_votes = total_votes / num_photos
+                    htmlbody += "<b>{:6.2f}</b>".format(average_votes)
+                else:
+                    htmlbody += "<b><i>undefined</b></i>"
+
+                try:
+                    lbname = tm.leaderboard_name(c)
+                    lb_count = lb.total_members_in(lbname)
+                    htmlbody += "<br>{} entries in the leaderboard".format(lb_count)
+                except Exception as e:
+                    htmlbody += "<br><i>failure getting leaderboard count for category</i>"
 
             htmlbody += "\n<br><br>"
         htmlbody += "\n</blockquote>"
-
-    logger.info(msg='[config] Test Redis server')
-
-    # let's see if we can access the leaderboard class, hence redis server is up
-    try:
-        lb_name = 'configtest'
-        rd = voting.ServerList().get_redis_server(session)
-        logger.info(msg='[config] lb_name:{0}, host={1}, port={2}'.format(lb_name, rd['ip'], rd['port']))
-        lb = Leaderboard(lb_name, host=rd['ip'], port=rd['port'], page_size=10)
-        lb.check_member('no one')
-        htmlbody += "<img src=\"/static/redis.png\"/>"
-        htmlbody += "<br>leader board \'{}\' created<br>".format(lb_name)
-        lb.delete_leaderboard()
-    except:
-        logger.exception(msg='error creating leaderboard')
-        htmlbody += "\n<h2>Cannot create leaderboard!!</h2> (is redis server running?)<br>"
 
     logger.info(msg='[config] Test anon user registration')
 
