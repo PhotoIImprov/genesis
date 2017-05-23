@@ -268,17 +268,19 @@ class TestPhoto(DatabaseTest):
         p = photo.Photo()
 
         # 1280 x 360 -> 640 x 180
-        sf = p.compute_scalefactor(640*2, 360*1)
+        height = 1280
+        width = 720
+        sf = p.compute_scalefactor(height*2, width*1)
         assert(sf == 0.5)
 
         # 360 x 1280 -> 180 x 640
-        sf = p.compute_scalefactor(360*1, 640*2)
+        sf = p.compute_scalefactor(width*1, height*2)
         assert(sf == 0.5)
 
         # 1280 x 540 -> 640 x 270
-        sf = p.compute_scalefactor(640*2, 360*1.5)
+        sf = p.compute_scalefactor(height*2, width*1.5)
         assert(sf == 0.5)
 
         # 1920 x 1440 -> 480 x 360
-        sf = p.compute_scalefactor(640*3, 360*4)
+        sf = p.compute_scalefactor(height*3, width*4)
         assert(sf == 0.25)

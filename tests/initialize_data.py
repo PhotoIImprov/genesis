@@ -233,7 +233,7 @@ class InitEnvironment(unittest.TestCase):
         th = []
 
         cid = None
-        for idx in range(10):
+        for idx in range(100):
             uname = 'test_user{}@gmail.com'.format(idx)
             tu = test_REST_login.TestUser()
             tu.create_user_with_name(uname)

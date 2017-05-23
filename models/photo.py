@@ -250,8 +250,8 @@ class Photo(Base):
         :return: a scaling factor such that the result is no dimension larger than _MAX_HEIGHT and _MAX_WIDTH
          yet retain aspect ratio
         '''
-        _MAX_HEIGHT = 640
-        _MAX_WIDTH = 360
+        _MAX_HEIGHT = 1280
+        _MAX_WIDTH = 720
         if height > width:
             sfh = _MAX_HEIGHT / height
             sfw = _MAX_WIDTH / width
