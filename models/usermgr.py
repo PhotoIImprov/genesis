@@ -90,8 +90,13 @@ class User(Base):
     @staticmethod
     def find_user_by_email(session, m_emailaddress):
         # Does the user already exist?
-        q = session.query(User).filter_by(emailaddress = m_emailaddress)
-        u = q.first()
+        u = None
+        try:
+            q = session.query(User).filter_by(emailaddress = m_emailaddress)
+            u = q.first()
+        except Exception as e:
+            return None
+
         return u
 
     def change_password(self, session, password):

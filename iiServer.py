@@ -161,8 +161,8 @@ def healthcheck():
     http_status = status.HTTP_200_OK
 
     # check that database & redis are up
+    session = dbsetup.Session()
     try:
-        session = dbsetup.Session()
         lb_name = 'configtest'
         rd = voting.ServerList().get_redis_server(session)
         lb = Leaderboard(lb_name, host=rd['ip'], port=rd['port'], page_size=10)
@@ -171,6 +171,8 @@ def healthcheck():
     except Exception as e:
         logger.exception(msg=str(e))
         http_status = status.HTTP_500_INTERNAL_SERVER_ERROR
+    finally:
+        session.close()
 
     resp = make_response("healthcheck status", http_status)
     resp.headers['Content-Type'] = "text/html"
@@ -929,13 +931,12 @@ def return_ballot(session, uid, cid):
         if ballots is None:
             rsp =  make_response(jsonify({'msg': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
-            session.commit()
-            logger.info(msg=ballots.to_log())
-
             ballots.read_photos_for_ballots(session)
             j_ballots = ballots.to_json()
             d = {'category': c.to_json(), 'ballots': j_ballots}
             rsp = make_response(jsonify(d), status.HTTP_200_OK)
+            session.commit()
+            logger.info(msg=ballots.to_log())
     except BaseException as e:
         session.rollback()
         str_e = str(e)
@@ -1156,9 +1157,11 @@ def photo_upload():
     if cid is None or uid is None:
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
+    rsp = None
+    session = dbsetup.Session()
     try:
-        session = dbsetup.Session()
-        d = photo.Photo().save_user_image(session, pi, uid, cid)
+        p = photo.Photo()
+        d = p.save_user_image(session, pi, uid, cid)
         session.commit()
         if d['error'] is not None:
             rsp = make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))

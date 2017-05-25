@@ -240,7 +240,7 @@ class BallotManager:
 
         bl = []
         shuffle(sl)  # randomize the section list
-        oversize = count * 10
+        oversize = count * 20
         for s in sl:
             q = session.query(photo.Photo).filter(photo.Photo.user_id != uid). \
                 filter(photo.Photo.category_id == c.id).\
@@ -300,8 +300,58 @@ class BallotManager:
                 if len(photos_for_ballot) >= count:
                     break
 
-        shuffle(photos_for_ballot)
-        return photos_for_ballot[:count] # return what we have
+        return self.balance_ballot(photos_for_ballot, count)
+#        return photos_for_ballot[:count]
+
+    def balance_ballot(self, p4b, ballot_size):
+        """
+        Let's make sure we have a balanced ballot either
+        4 x landscape, 4 x portrait, or 2 x landscape & 2 x portrait
+        :param photos_for_ballot: a list of more than "ballot_size" photos
+        :param ballot_size: # of images in a ballot to vote on
+        :return: 
+        """
+        shuffle(p4b)
+
+        # now create a list for Landscape and a separate list for Portrait
+        # orientations
+        pl = []
+        ll = []
+        try:
+            for i in range(0,len(p4b)):
+                pm = p4b[i]._photometa
+                if pm is not None:
+                    if pm.orientation in ('1','2','3','4'):
+                        pl.append(p4b[i])
+                    if pm.orientation in ('5','6','7','8'):
+                        ll.append(p4b[i])
+        except Exception as e:
+            raise
+
+        # if 4 x portrait, 4 x landscape, or 2x2, then we are done
+        # Note: We don't want to always pick landscape or portrait first, so mix it up
+        #       using a "random" value, in this case the photo.id of the first record
+        if (p4b[0].id % 2 == 0):
+            if len(ll) >= ballot_size:
+                return ll[:ballot_size]
+            if len(pl)  >= ballot_size:
+                return pl[:ballot_size]
+        else:
+            if len(pl) >= ballot_size:
+                return pl[:ballot_size]
+            if len(ll) >= ballot_size:
+                return ll[:ballot_size]
+
+        # if we don't have "ballot_size" of landscape or portrait (how can that be???)
+        # then send a split value with 2 of each
+        if (len(pl) >= ballot_size/2 and len(ll) >= ballot_size/2):
+            p4b = pl[:ballot_size/2]
+            p4b.extend(ll[:ballot_size/2])
+            return p4b
+
+        # this should never happen! but just in case, send back the first 4
+        # (this could happen if photometa data is messing so we can't determine orientation)
+        return p4b[:ballot_size]
 
     def read_photos_by_ballots_round1(self, session, uid, c, num_votes, count):
         '''
@@ -316,7 +366,7 @@ class BallotManager:
         :return: list of Photo objects
         '''
 
-        over_size = count * 10 # ask for a lot more so we can randomize a bit
+        over_size = count * 20 # ask for a lot more so we can randomize a bit
         # if ballotentry has been voted on, exclude photos the user has already seen
         if num_votes == 0:
             q = session.query(photo.Photo).filter(photo.Photo.category_id == c.id). \

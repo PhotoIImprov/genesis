@@ -1080,5 +1080,6 @@ class TestLastSubmission(iiBaseUnitTest):
 
         assert (rsp.status_code == 200)
 
+        self.tearDown()
 
 
