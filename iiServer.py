@@ -34,7 +34,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '0.7.2' #our version string PEP 440
+__version__ = '0.8.0' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -213,7 +213,7 @@ def hello():
         htmlbody += "<h1>ImageImprov Hello World from Flask!</h1> last called {}".format(dtNow)
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
-    htmlbody += "(Redis initialization daemon, ballot shuffling, logging to db)"
+    htmlbody += "(Redis initialization daemon, ballot shuffling, logging to db, balanced ballotls /v)"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
     img_folder = dbsetup.image_store(dbsetup.determine_environment(None))
