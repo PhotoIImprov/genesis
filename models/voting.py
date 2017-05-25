@@ -345,8 +345,9 @@ class BallotManager:
         # if we don't have "ballot_size" of landscape or portrait (how can that be???)
         # then send a split value with 2 of each
         if (len(pl) >= ballot_size/2 and len(ll) >= ballot_size/2):
-            p4b = pl[:ballot_size/2]
-            p4b.extend(ll[:ballot_size/2])
+            half_ballot = int(ballot_size/2)
+            p4b = pl[:half_ballot]
+            p4b.extend(ll[:half_ballot])
             return p4b
 
         # this should never happen! but just in case, send back the first 4

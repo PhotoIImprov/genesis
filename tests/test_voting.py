@@ -182,3 +182,58 @@ class TestVoting(DatabaseTest):
         # clear out Category & Resource
 
  #       self.teardown()
+
+    def test_ballot_size(self):
+        BALLOT_SIZE  = 4
+        bm = voting.BallotManager()
+
+        pl = [] # list of photo candidates
+
+        for i in range(0,40):
+            p = photo.Photo(pid=i+1)
+            pl.append(p)
+            p._photometa = photo.PhotoMeta(1280,720)
+
+        # set them all to landscape
+        for p in pl:
+            p._photometa.orientation = '5'
+
+        pb = bm.balance_ballot(pl, BALLOT_SIZE)
+        assert(len(pb) == BALLOT_SIZE)
+
+        # set them all to portrait
+        for p in pl:
+            p._photometa.orientation = '1'
+
+        pb = bm.balance_ballot(pl, BALLOT_SIZE)
+        assert(len(pb) == BALLOT_SIZE)
+
+        # make a copy of our list
+        new_p = []
+        for p in pl:
+            new_p.append(p)
+
+        # Now set 2 to landscape, 2 to portrait, the rest to "no meta"
+        for i in range(0,len(new_p)):
+            if i == 0 or i == 1:
+                new_p[i]._photometa.orientation = '6'
+            if i == 2 or i == 3:
+                new_p[i]._photometa.orientation = '2'
+            if i > 3:
+                new_p[i]._photometa = None
+
+        pb = bm.balance_ballot(new_p, BALLOT_SIZE)
+        assert(len(pb) == BALLOT_SIZE)
+
+        # now set 3 landscape, no portrait
+        del new_p[:]
+        for p in pl:    # reset the list
+            new_p.append(p)
+        for i in range(0,len(new_p)):
+            if i < 3:
+                new_p[i]._photometa.orientation = '6'
+            if i >= 3:
+                new_p[i]._photometa = None
+
+        pb = bm.balance_ballot(new_p, BALLOT_SIZE)
+        assert(len(pb) == BALLOT_SIZE)
