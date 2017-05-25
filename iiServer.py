@@ -912,6 +912,7 @@ def cast_vote():
     except BaseException as e:
         str_e = str(e)
         logger.exception(msg=str_e)
+        session.close()
         return make_response(jsonify({'msg': error.error_string('TABULATE_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return return_ballot(session, uid, None)

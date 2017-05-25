@@ -15,5 +15,8 @@ class SQLAlchemyHandler(logging.Handler):
                   msg=record.__dict__['msg'])
 
         session = dbsetup.Session()
-        session.add(log)
-        session.commit()
+        try:
+            session.add(log)
+            session.commit()
+        finally:
+            session.close()
