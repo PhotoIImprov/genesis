@@ -300,10 +300,10 @@ class BallotManager:
                 if len(photos_for_ballot) >= count:
                     break
 
-        return self.balance_ballot(photos_for_ballot, count)
+        return self.balance_ballot(photos_for_ballot, count, c)
 #        return photos_for_ballot[:count]
 
-    def balance_ballot(self, p4b, ballot_size):
+    def balance_ballot(self, p4b, ballot_size, c):
         """
         Let's make sure we have a balanced ballot either
         4 x landscape, 4 x portrait, or 2 x landscape & 2 x portrait
@@ -311,6 +311,11 @@ class BallotManager:
         :param ballot_size: # of images in a ballot to vote on
         :return: 
         """
+        if len(p4b) < ballot_size:
+            logger.info(msg="only {} photos in ballot for category {}".format(len(p4b), c.id))
+            if len(p4b) == 0: # nothing to do here!
+                return p4b
+
         shuffle(p4b)
 
         # now create a list for Landscape and a separate list for Portrait

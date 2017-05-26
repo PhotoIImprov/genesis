@@ -33,55 +33,45 @@ class PhotoCache():
         else:
             fn = cwd + '/photos/' + photo_name
 
-        ft = open(fn, 'rb')
-        assert (ft is not None)
-        ph = ft.read()
-        assert (ph is not None)
-
-        img = base64.standard_b64encode(ph)
-        self._b64img = img.decode("utf-8")
+        try:
+            ft = open(fn, 'rb')
+            assert (ft is not None)
+            ph = ft.read()
+            assert (ph is not None)
+            img = base64.standard_b64encode(ph)
+            self._b64img = img.decode("utf-8")
+        except Exception as e:
+            pass
 
 class InitEnvironment(unittest.TestCase):
 
+
     _photos = ('Cute_Puppy.jpg',
-              #'Emma Passport.jpg',
-              'Galaxy Edge 7 (full res)jpg.jpg',
-              'Galaxy Edge 7 Cat  (full res)jpg.jpg',
-              'Galaxy Edge 7 Office Desk (full res, hdr).jpg',
-              'Hawaii Palm Tree.JPG',
-              'iPhone 6 Spider web (full res).JPG',
-              'iPhone 7 statue and lake (full res).jpg',
-              'iPhone 7 Yellow Rose (full res).jpg',
-              'Netsoft USA Company Picture 1710.jpg',
-              'PrimRib.JPG',
-              'Suki.JPG',
-              'Turtle.JPG',
+               'Galaxy Edge 7 (full res)jpg.jpg',
+               'Galaxy Edge 7 Cat  (full res)jpg.jpg',
+               'Galaxy Edge 7 Office Desk (full res, hdr).jpg',
+               'Hawaii Palm Tree.JPG',
+               'iPhone 6 Spider web (full res).JPG',
+               'iPhone 7 statue and lake (full res).jpg',
+               'iPhone 7 Yellow Rose (full res).jpg',
+               'Netsoft USA Company Picture 1710.jpg',
+               'PrimRib.JPG',
+               'Suki.JPG',
+               'Turtle.JPG',
                'Portrait.JPG',
                'Rotate90CW.JPG',
                'Rotate180CW.JPG',
                'Rotate270CW.JPG',
-
                '2012-05-23 19.45.55.jpg',
                '20130826_170610_A.jpg',
-               #'img_0264_edited-100686951-orig.jpg',
-               #'img_0026.jpg',
-               #'img_0034.jpg',
-               #'apple-iphone-7-camera-samples-27.jpg',
-               #'Apple-iPhone-7-camera-photo-sample-2.jpg',
-               #'iphone-7-plus-camera-trout.jpg',
                'IMG_0307.JPG',
-               #'iPhone-7-Camera-AndyNicolaides.jpg',
-               #'img_0017.jpg',
-               #'9lqqdnm.jpg',
                '001-B-Moto-Z-Force-Droid-Samples.jpg',
                'moto-z-play-camera-sample.jpg',
                'moto_z_play_camera_samples_7.jpg',
                'sample1.jpg',
                'Moto-Z-Force-Droid.jpg',
-               #'tf2fzhr.jpg',
                'IMG_1218.JPG',
                'sam_4089.jpg',
-               #'vetndhl.jpg',
                'Passaic River.JPG',
                'Suki on Balcony.JPG',
                'Kirby on Log.JPG',
@@ -107,21 +97,64 @@ class InitEnvironment(unittest.TestCase):
                'Landscape_5.jpg',
                'Landscape_6.jpg',
                'Landscape_7.jpg',
-               'Landscape_8.jpg'
+               'Landscape_8.jpg',
+               'ADXF2532.jpg',
+               'IMG_3278.JPG',
+               'IMG_3277.JPG',
+               'IMG_3201.JPG',
+               'IMG_3202.JPG',
+               'IMG_3203.JPG',
+               'IMG_3200.JPG',
+               'IMG_3199.JPG',
+               'IMG_3224.JPG',
+               'IMG_3197.JPG',
+               'IMG_3199.JPG',
+               'IMG_3218.JPG',
+               'IMG_3163.JPG',
+               'IMG_3164.JPG',
+               'IMG_3188.JPG',
+               'IMG_2970.JPG',
+               'IMG_2966.JPG',
+               'IMG_2929.JPG',
+               'IMG_2444.JPG',
+               'IMG_2441.JPG',
+               'IMG_2464.JPG',
+               'IMG_1763.JPG',
+               'IMG_1771.JPG',
+               'IMG_1797.JPG',
+               'IMG_1831.JPG',
+               'IMG_1833.JPG',
+               'IMG_1849.JPG',
+               'IMG_0855.JPG',
+               'IMG_0951.JPG'
+
+
+               #'Emma Passport.jpg',
+               #'img_0264_edited-100686951-orig.jpg',
+               #'img_0026.jpg',
+               #'img_0034.jpg',
+               #'apple-iphone-7-camera-samples-27.jpg',
+               #'Apple-iPhone-7-camera-photo-sample-2.jpg',
+               #'iphone-7-plus-camera-trout.jpg',
+               #'iPhone-7-Camera-AndyNicolaides.jpg',
+               #'img_0017.jpg',
+               #'9lqqdnm.jpg',
+               #'tf2fzhr.jpg',
+               #'vetndhl.jpg',
                )
     _pcache = []
     _users = {'hcollins@gmail.com',
-             'bp100a@hotmail.com',
-             'dblankley@blankley.com',
-             'regcollins@hotmail.com',
-             'qaetre@hotmail.com',
-             'hcollins@prizepoint.com',
-             'hcollins@exit15w.com',
-             'harry.collins@epam.com',
-             'crazycow@netsoft-usa.com',
-             'harry.collins@netsoft-usa.com',
-             'hcollins@altaitech.com',
-             'dblankley@uproar.com',
+              'bp100a@hotmail.com',
+              'dblankley@blankley.com',
+              'regcollins@hotmail.com',
+              'qaetre@hotmail.com',
+              'hcollins@prizepoint.com',
+              'hcollins@exit15w.com',
+              'harry.collins@epam.com',
+              'crazycow@netsoft-usa.com',
+              'harry.collins@netsoft-usa.com',
+              'hcollins@altaitech.com',
+              'dblankley@uproar.com',
 
               'dblankley@uproar.us',
               'bp100a@hotmail.us',

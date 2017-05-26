@@ -1,4 +1,4 @@
-from sqlalchemy import Column
+from sqlalchemy import Column, text
 from sqlalchemy.types import DateTime, Integer, String
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
@@ -14,7 +14,7 @@ class Log(Base):
     trace = Column(String(2000))
     msg = Column(String(500))
 
-    created_date = Column(DateTime, default=func.now(), nullable=False)
+    created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
 
     def __init__(self, logger=None, level=None, trace=None, msg=None):
         self.logger = logger

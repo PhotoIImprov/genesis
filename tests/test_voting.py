@@ -186,6 +186,8 @@ class TestVoting(DatabaseTest):
     def test_ballot_size(self):
         BALLOT_SIZE  = 4
         bm = voting.BallotManager()
+        c = category.Category()
+        c.id = 1
 
         pl = [] # list of photo candidates
 
@@ -198,14 +200,14 @@ class TestVoting(DatabaseTest):
         for p in pl:
             p._photometa.orientation = '5'
 
-        pb = bm.balance_ballot(pl, BALLOT_SIZE)
+        pb = bm.balance_ballot(pl, BALLOT_SIZE, c)
         assert(len(pb) == BALLOT_SIZE)
 
         # set them all to portrait
         for p in pl:
             p._photometa.orientation = '1'
 
-        pb = bm.balance_ballot(pl, BALLOT_SIZE)
+        pb = bm.balance_ballot(pl, BALLOT_SIZE, c)
         assert(len(pb) == BALLOT_SIZE)
 
         # make a copy of our list
@@ -222,7 +224,7 @@ class TestVoting(DatabaseTest):
             if i > 3:
                 new_p[i]._photometa = None
 
-        pb = bm.balance_ballot(new_p, BALLOT_SIZE)
+        pb = bm.balance_ballot(new_p, BALLOT_SIZE, c)
         assert(len(pb) == BALLOT_SIZE)
 
         # now set 3 landscape, no portrait
@@ -235,5 +237,13 @@ class TestVoting(DatabaseTest):
             if i >= 3:
                 new_p[i]._photometa = None
 
-        pb = bm.balance_ballot(new_p, BALLOT_SIZE)
+        pb = bm.balance_ballot(new_p, BALLOT_SIZE, c)
         assert(len(pb) == BALLOT_SIZE)
+
+        # finally let's send too few
+        pb = bm.balance_ballot(new_p[:BALLOT_SIZE-2], BALLOT_SIZE, c)
+        assert(len(pb) == BALLOT_SIZE-2)
+
+        empty_p = []
+        pb = bm.balance_ballot(empty_p, BALLOT_SIZE, c)
+        assert(len(empty_p) == 0)
