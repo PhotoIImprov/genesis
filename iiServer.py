@@ -298,7 +298,7 @@ def hello():
             num_photos = photo.Photo.count_by_category(session, c.get_id())
             htmlbody += "\n<br>number photos uploaded = <b>{}</b>".format(num_photos)
             if c.state == category.CategoryState.VOTING.value:
-                htmlbody += "\n<br>round={0} (Voting Round #{1}".format(c.round, c.round+1)
+                htmlbody += "\n<br>round={0} (Voting Round #{1})".format(c.round, c.round+1)
                 num_voters = voting.Ballot.num_voters_by_category(session, c.get_id())
                 htmlbody += "\n<br>number users voting = <b>{}</b>".format(num_voters)
                 end_of_voting = c.start_date + timedelta(hours=(c.duration_vote + c.duration_upload))

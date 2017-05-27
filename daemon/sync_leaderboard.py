@@ -105,7 +105,7 @@ class sync_daemon(Daemon):
         :param lb: leaderboard object
         :return: 
         '''
-        lb.rank_member(0, 0, 0)
+        lb.rank_member('0', 0, '0')
 
 
     def leaderboard_exists(self,session, tm, c):

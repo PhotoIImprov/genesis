@@ -126,8 +126,23 @@ class InitEnvironment(unittest.TestCase):
                'IMG_1833.JPG',
                'IMG_1849.JPG',
                'IMG_0855.JPG',
-               'IMG_0951.JPG'
+               'IMG_0951.JPG',
 
+               'Samsung G7-1.jpg',
+               'Samsung G7-2.jpg',
+               'Samsung G7-3.jpg',
+               'Samsung G7-4.jpg',
+               'Samsung G7-5.jpg',
+
+               # iPad Mini 2 images
+               'IMG_0243.JPG', #square
+               'IMG_0244.JPG',
+               'IMG_0245.JPG',
+               'IMG_0246.JPG',
+               'IMG_0247.JPG', # non-square
+               'IMG_0248.JPG',
+               'IMG_0249.JPG',
+               'IMG_0250.JPG'
 
                #'Emma Passport.jpg',
                #'img_0264_edited-100686951-orig.jpg',
@@ -142,7 +157,9 @@ class InitEnvironment(unittest.TestCase):
                #'tf2fzhr.jpg',
                #'vetndhl.jpg',
                )
+
     _pcache = []
+
     _users = {'hcollins@gmail.com',
               'bp100a@hotmail.com',
               'dblankley@blankley.com',

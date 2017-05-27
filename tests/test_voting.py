@@ -46,6 +46,28 @@ class TestVoting(DatabaseTest):
 
         assert(False)
 
+    def test_leaderboard_member(self):
+        self.setup()
+        tm = voting.TallyMan()
+        c = category.Category()
+        c.id = 87654321
+
+        if not tm.leaderboard_exists(self.session, c):
+            lb = tm.get_leaderboard_by_category(self.session, c, check_exist=True)
+            lb.delete_leaderboard()
+
+        lb = tm.get_leaderboard_by_category(self.session, c, check_exist=False)
+        assert(lb is not None)
+
+        # we have a leaderboard for this category, create an empty key
+        lb.rank_member('0', 0, '0') # member, score, member_data
+        try:
+            d = tm.fetch_leaderboard(self.session, 1, c)
+            assert(d is not None)
+        except Exception as e:
+            assert(False)
+
+
     def test_create_displayname_anonymous(self):
         tm = voting.TallyMan()
         self.setup()

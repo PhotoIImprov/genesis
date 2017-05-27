@@ -501,7 +501,7 @@ class TallyMan():
         try:
             lb = self.get_leaderboard_by_category(session, c, check_exist=True)
             if lb is not None:
-                lb.rank_member(p.user_id, p.score, p.id)
+                lb.rank_member(p.user_id, p.score, str(p.id))
         except Exception as e:
             logger.exception(msg="error updating the leaderboard")
             raise
@@ -588,4 +588,8 @@ class TallyMan():
             return lb_list
         except:
             logger.exception(msg="error fetching leaderboard")
+            if c is not None:
+                logger.info(msg="leaderboard error for category id ={}".format(c.id))
+            else:
+                logger.info(msg="leaderboard error, no category specified")
             raise
