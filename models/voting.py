@@ -569,7 +569,11 @@ class TallyMan():
             lb_list = []
             for d in dl:
                 lb_uid = int(str(d['member'], 'utf-8'))         # anonuser.id / userlogin.id
-                lb_pid = int(str(d['member_data'], 'utf-8'))    # photo.id
+                try:
+                    lb_pid = int(str(d['member_data'], 'utf-8'))    # photo.id
+                except Exception as e:
+                    continue
+
                 lb_score = d['score']
                 lb_rank = d['rank']
                 if lb_uid == 0 or lb_pid == 0:  # we use a dummy value to persist leaderboard existance in daemon, filter it out
