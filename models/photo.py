@@ -17,6 +17,7 @@ from io import BytesIO
 import piexif
 from retrying import retry
 import json
+import hashlib
 
 from logsetup import logger
 
@@ -29,6 +30,7 @@ class PhotoImage():
 class Photo(Base):
 
     __tablename__ = 'photo'
+    __table_args__ = {'extend_existing':True}
 
     id           = Column(Integer, primary_key = True, autoincrement=True)
     user_id      = Column(Integer, ForeignKey("anonuser.id", name="fk_photo_user_id"), nullable=False, index=True)
@@ -298,10 +300,14 @@ class Photo(Base):
             raise BaseException(errno.EINVAL, "no raw image")
 
         file_jpegdata = BytesIO(self._photoimage._binary_image)
+        m = hashlib.md5()
+        m.update(file_jpegdata.getvalue())
+        digest = m.hexdigest()
+        digest = digest.upper()
         pil_img = Image.open(file_jpegdata)
         exif_dict = self.get_exif_dict(pil_img) # raw data from image
         exif_data = self.get_exif_data(pil_img) # key/value pairs reconstituted
-        self.set_metadata(exif_data, pil_img.height, pil_img.width) # set metadata about Photo
+        self.set_metadata(exif_data, pil_img.height, pil_img.width, digest) # set metadata about Photo
 
         # scale the image
         scaling_factor = self.compute_scalefactor(pil_img.height, pil_img.width)
@@ -352,10 +358,17 @@ class Photo(Base):
         return exif_dict
 
     def read_photo_to_b64(self):
-        self.create_full_filename('JPEG')
-        f = open(self._full_filename, 'rb')
-        img = f.read()
-        b64_img = base64.standard_b64encode(img)
+        b64_img = None
+        f = None
+        try:
+            self.create_full_filename('JPEG')
+            f = open(self._full_filename, 'rb')
+            img = f.read()
+            b64_img = base64.standard_b64encode(img)
+        except Exception as e:
+            logger.exception(msg="error reading thumbnail to b64")
+        finally:
+            f.close()
         return b64_img
 
     @staticmethod
@@ -383,13 +396,14 @@ class Photo(Base):
 
         return p
 
-    def set_metadata(self, d_exif, height, width):
-        self._photometa = PhotoMeta(height, width)
+    def set_metadata(self, d_exif, height, width, th_hash):
+        self._photometa = PhotoMeta(height, width, th_hash)
         self._photometa.set_exif_data(d_exif)
         return
 
 class PhotoMeta(Base):
     __tablename__ = 'photometa'
+    __table_args__ = {'extend_existing':True}
 
     id          = Column(Integer, ForeignKey("photo.id", name="fk_photo_id"), primary_key = True)  # ties us back to our parent Photo record
     height      = Column(Integer, nullable=True)
@@ -397,17 +411,19 @@ class PhotoMeta(Base):
     orientation = Column(String(500), nullable=True, index=True)
     gps         = Column(String(200), nullable=True)
     j_exif      = Column(String(2000), nullable=True)
+    thumb_hash  = Column(String(64), nullable=True)
 
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 
-    def __init__(self, height, width):
+    def __init__(self, height, width, th_hash):
         self.height = height
         self.width = width
         if self.height > self.width:
             self.orientation = 8    # portrait (taller than wide)
         else:
             self.orientation = 1    # landscape (wider than tall)
+        self.thumb_hash = th_hash
 
     def set_exif_data(self, d_exif):
         if d_exif is None:

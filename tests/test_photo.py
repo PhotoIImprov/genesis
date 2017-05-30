@@ -102,7 +102,7 @@ class TestPhoto(DatabaseTest):
         assert(f == None)
 
     def test_set_exif_data(self):
-        pm = photo.PhotoMeta(640, 480)
+        pm = photo.PhotoMeta(640, 480, 'hashstring substitute')
         pm.set_exif_data(None)
 
     def test_make_dummy_exif(self):

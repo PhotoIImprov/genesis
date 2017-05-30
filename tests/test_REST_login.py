@@ -937,6 +937,7 @@ class TestLeaderBoard(iiBaseUnitTest):
         assert (ft is not None)
         ph = ft.read()
         assert (ph is not None)
+        ft.close()
 
         # okay, we need to post this
         cid = tu.get_cid()

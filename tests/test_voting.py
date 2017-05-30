@@ -216,7 +216,7 @@ class TestVoting(DatabaseTest):
         for i in range(0,40):
             p = photo.Photo(pid=i+1)
             pl.append(p)
-            p._photometa = photo.PhotoMeta(1280,720)
+            p._photometa = photo.PhotoMeta(1280,720, 'hash substitute')
 
         # set them all to landscape
         for p in pl:

@@ -56,7 +56,7 @@ class sync_daemon(Daemon):
         while True:
             session = dbsetup.Session()
             try:
-                print ("Pass #%d" % (pass_number))
+                logger.info("Pass #{}".format(pass_number))
                 self.perform_task(session)
                 session.commit()
             except Exception as e:
@@ -145,12 +145,10 @@ class sync_daemon(Daemon):
         :return: 
         '''
         # there could be millions of records, so we need to page
-        print ("category %d" % (c.id))
         if self.leaderboard_exists(session, tm, c):
             return
 
         logger.info("processing category {0} \'{1}\'".format(c.id, c.get_description()))
-        print("leaderboard does not exist for category %d" % (c.id))
         lb = tm.get_leaderboard_by_category(session, c, check_exist=False)
         self.create_key(lb)
 
@@ -164,7 +162,6 @@ class sync_daemon(Daemon):
             pl = q.all()
             more_photos = (len(pl) == _PAGE_SIZE_PHOTOS)
             logger.info("read {} records".format(len(pl)))
-            print("...read %d records" % len(pl))
             if len(pl) > 0:
                 max_pid = pl[-1].id # last element is max photo_id for this pageset
                 for p in pl:
@@ -173,7 +170,7 @@ class sync_daemon(Daemon):
 
             time.sleep(_THROTTLE_UPDATES_SECONDS) # brief pause so machine can catch it's breath
 
-        print ("...%d total records processed" % total_records_processed)
+        logger.info("...{} total records processed".format(total_records_processed))
 
 # ================================================================================================================
 

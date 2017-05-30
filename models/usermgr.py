@@ -100,7 +100,7 @@ class User(Base):
         return u
 
     def change_password(self, session, password):
-        self.hashedPWD = pbkdf2_sha256.encrypt(password, rounds=1000, salt_size=16)
+        self.hashedPWD = pbkdf2_sha256.hash(password, rounds=1000, salt_size=16)
 
     @staticmethod
     def create_user(session, guid, username, password):
@@ -122,7 +122,7 @@ class User(Base):
 
         # okay, we can create a new UserLogin entry
         new_user = User()
-        new_user.hashedPWD = pbkdf2_sha256.encrypt(password, rounds=1000, salt_size=16)
+        new_user.hashedPWD = pbkdf2_sha256.hash(password, rounds=1000, salt_size=16)
         new_user.emailaddress = username
         new_user.id = au.get_id()
 
