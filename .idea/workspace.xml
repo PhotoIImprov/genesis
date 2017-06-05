@@ -2,12 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dbsetup.py" afterPath="$PROJECT_DIR$/dbsetup.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/iiServer.py" afterPath="$PROJECT_DIR$/iiServer.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/logsetup.py" afterPath="$PROJECT_DIR$/logsetup.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/usermgr.py" afterPath="$PROJECT_DIR$/models/usermgr.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/__init__.py" afterPath="$PROJECT_DIR$/tests/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/test_user.py" afterPath="$PROJECT_DIR$/tests/test_user.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -128,14 +123,14 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/iiServer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="149">
-              <caret line="318" column="28" lean-forward="false" selection-start-line="318" selection-start-column="28" selection-end-line="318" selection-end-column="28" />
+            <state relative-caret-position="432">
+              <caret line="215" column="18" lean-forward="false" selection-start-line="215" selection-start-column="18" selection-end-line="215" selection-end-column="18" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
-                <marker date="1496344907078" expanded="true" signature="9136:9161" ph="select * fro... event" />
+                <marker date="1496668430574" expanded="true" signature="9155:9180" ph="select * fro... event" />
               </folding>
             </state>
           </provider>
@@ -175,11 +170,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="usermgr.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="usermgr.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models/usermgr.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2682">
-              <caret line="154" column="14" lean-forward="false" selection-start-line="154" selection-start-column="11" selection-end-line="154" selection-end-column="16" />
+            <state relative-caret-position="180">
+              <caret line="15" column="12" lean-forward="false" selection-start-line="15" selection-start-column="12" selection-end-line="15" selection-end-column="12" />
               <folding />
             </state>
           </provider>
@@ -317,12 +312,12 @@
         <option value="$PROJECT_DIR$/tests/test_voting.py" />
         <option value="$PROJECT_DIR$/models/photo.py" />
         <option value="$PROJECT_DIR$/tests/test_REST_login.py" />
-        <option value="$PROJECT_DIR$/iiServer.py" />
         <option value="$PROJECT_DIR$/dbsetup.py" />
         <option value="$PROJECT_DIR$/logsetup.py" />
         <option value="$PROJECT_DIR$/tests/__init__.py" />
         <option value="$PROJECT_DIR$/models/usermgr.py" />
         <option value="$PROJECT_DIR$/tests/test_user.py" />
+        <option value="$PROJECT_DIR$/iiServer.py" />
       </list>
     </option>
   </component>
@@ -1013,10 +1008,11 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="27" width="1920" height="1053" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5052083" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3090909" sideWeight="0.4953125" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3090909" sideWeight="0.4953125" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32941177" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
@@ -1357,6 +1353,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1542,17 +1539,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/iiServer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="149">
-          <caret line="318" column="28" lean-forward="false" selection-start-line="318" selection-start-column="28" selection-end-line="318" selection-end-column="28" />
-          <folding>
-            <element signature="e#0#15#0" expanded="true" />
-            <marker date="1496344907078" expanded="true" signature="9136:9161" ph="select * fro... event" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/logsetup.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="234">
@@ -1653,9 +1639,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/models/usermgr.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2682">
-          <caret line="154" column="14" lean-forward="false" selection-start-line="154" selection-start-column="11" selection-end-line="154" selection-end-column="16" />
+        <state relative-caret-position="180">
+          <caret line="15" column="12" lean-forward="false" selection-start-line="15" selection-start-column="12" selection-end-line="15" selection-end-column="12" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/iiServer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="432">
+          <caret line="215" column="18" lean-forward="false" selection-start-line="215" selection-start-column="18" selection-end-line="215" selection-end-column="18" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+            <marker date="1496668430574" expanded="true" signature="9155:9180" ph="select * fro... event" />
+          </folding>
         </state>
       </provider>
     </entry>
