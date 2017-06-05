@@ -455,6 +455,14 @@ class TestPhotoUpload(iiBaseUnitTest):
         return
 
 
+class TestLogging(iiBaseUnitTest):
+
+    def test_log_event(self):
+        self.create_testuser_get_token()
+        rsp = self.app.post(path='/log', data=json.dumps(dict(msg='Test logging message')), headers=self.get_header_json())
+
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(rsp.status_code == 200)
 
 class TesttVoting(iiBaseUnitTest):
 

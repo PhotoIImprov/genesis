@@ -178,6 +178,20 @@ class Photo(Base):
         thumb_filename = self.filepath + "/th_" + self.filename + ".jpg"
         return thumb_filename
 
+    def samsung_fix(self, exif_dict, exif_data):
+        try:
+            if exif_data['Make'] != 'samsung':
+                return
+
+            exif_data_orientation = exif_data['Orientation']
+            exif_dict_orientation = exif_dict['1st'][0x112]
+
+            if exif_data_orientation != exif_dict_orientation:
+                exif_data['Orientation'] = exif_dict_orientation
+                logger.info(msg="swapping orientation for file {0}".format(self.filename))
+        except Exception as e:
+            logger.exception(msg="Error with EXIF data parsing for file {0}".format(self.filename))
+
     # read_thumbnail_image()
     # ======================
     # returns the binary value of the thumbnail
@@ -293,6 +307,7 @@ class Photo(Base):
             else:
                 exif_data[decoded] = value
 
+
         return exif_data
 
     def create_thumb(self):
@@ -307,6 +322,7 @@ class Photo(Base):
         pil_img = Image.open(file_jpegdata)
         exif_dict = self.get_exif_dict(pil_img) # raw data from image
         exif_data = self.get_exif_data(pil_img) # key/value pairs reconstituted
+        self.samsung_fix(exif_dict, exif_data)
         self.set_metadata(exif_data, pil_img.height, pil_img.width, digest) # set metadata about Photo
 
         # scale the image

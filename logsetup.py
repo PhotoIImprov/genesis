@@ -4,11 +4,14 @@ from models import sql_logging
 from dbsetup import _DEBUG
 
 logger = logging.getLogger('SQL_log')
+client_logger = logging.getLogger('Client_log')
 
 if _DEBUG:
     logger.setLevel(logging.DEBUG)
+    client_logger.setLevel(logging.DEBUG)
 else:
     logger.setLevel(logging.INFO)
+    client_logger.setLevel(logging.INFO)
 
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 hndlr = sql_handler.SQLAlchemyHandler()
@@ -19,3 +22,4 @@ else:
 
 hndlr.setFormatter(formatter)
 logger.addHandler(hndlr)
+client_logger.addHandler(hndlr)

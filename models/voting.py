@@ -448,6 +448,8 @@ class TallyMan():
     _redis_port = None
     _redis_conn = None
 
+    _orientation = None
+
     def leaderboard_exists(self, session, c):
         try:
             if self._redis_conn is None:
@@ -545,6 +547,7 @@ class TallyMan():
             bimg = p.read_thumbnail_image()
             b64 = base64.standard_b64encode(bimg)
             b64_utf8 = b64.decode('utf-8')
+            self._orientation = p.get_orientation()
             return b64_utf8
         except Exception as e:
             logger.exception(msg='error reading thumbnail!')
@@ -582,12 +585,12 @@ class TallyMan():
                 lb_name = self.create_displayname(session, lb_uid)
                 b64_utf8 = self.read_thumbnail(session, lb_pid) # thumbnail image as utf-8 base64
                 if lb_uid == uid:
-                    lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'you':True, 'image' : b64_utf8})
+                    lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'you':True, 'orientation': self._orientation, 'image' : b64_utf8})
                 else:
                     if usermgr.Friend.is_friend(session, uid, lb_uid):
-                        lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'isfriend':True, 'image' : b64_utf8})
+                        lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'isfriend':True, 'orientation': self._orientation, 'image' : b64_utf8})
                     else:
-                        lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'image' : b64_utf8})
+                        lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'orientation': self._orientation, 'image' : b64_utf8})
 
             return lb_list
         except:

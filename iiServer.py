@@ -26,7 +26,7 @@ from sqlalchemy.orm import Session
 from random import shuffle
 from datetime import timedelta
 
-from logsetup import logger
+from logsetup import logger, client_logger
 
 app = Flask(__name__)
 app.debug = True
@@ -34,7 +34,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '0.9.0' #our version string PEP 440
+__version__ = '0.9.1' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -213,7 +213,7 @@ def hello():
         htmlbody += "<h1>ImageImprov Hello World from Flask!</h1> last called {}".format(dtNow)
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
-    htmlbody += "(Redis initialization daemon, ballot shuffling, logging to db, balanced ballots, photometa.th_hash, anonuser.usertype)"
+    htmlbody += "(Redis initialization daemon, ballot shuffling, logging to db, balanced ballots, photometa.th_hash, anonuser.usertype, Samsung orientation fix)"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
     img_folder = dbsetup.image_store(dbsetup.determine_environment(None))
@@ -578,6 +578,14 @@ def get_leaderboard():
             isfriend:
               type: string
               description: "if set, then this rank is for a friend of yours"
+            orientation:
+              type: integer
+              enum:
+                - 1
+                - 8
+                - 3
+                - 6
+              description: "EXIF orientation of the image"
             image:
               type: string
               description: "base64 encoded thumbnail image of entry"
@@ -1177,6 +1185,62 @@ def photo_upload():
             rsp = make_response(jsonify({'msg': error.error_string('UPLOAD_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return rsp
+
+@app.route("/log", methods=['POST'])
+@jwt_required()
+def log_event():
+    """
+    Log ClientEvent
+    ---
+    tags:
+      - image
+    summary: "log an error condition from the client"
+    operationId: log
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - in: body
+        name: log-info
+        required: true
+        schema:
+          id: upload_log
+          required:
+            - msg
+          properties:
+            msg:
+              type: string
+              description: "descriptive message of problem"
+    security:
+      - JWT: []
+    responses:
+      201:
+        description: "The data was logged"
+      400:
+        description: "missing required arguments"
+        schema:
+          $ref: '#/definitions/Error'
+      500:
+        description: "error uploading log!"
+        schema:
+          $ref: '#/definitions/Error'
+      default:
+        description: "unexpected error"
+        schema:
+          $ref: '#/definitions/Error'
+    """
+    if not request.json:
+        return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
+
+    try:
+        client_msg = request.json['msg']
+        client_logger.error(msg=client_msg)
+    except Exception as e:
+        logger.exception(msg=str(e))
+        return make_response(jsonify({'msg': error.error_string('UPLOAD_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    return make_response(jsonify({'msg': 'OK'}), status.HTTP_200_OK)
 
 @app.route("/register", methods=['POST'])
 def register():

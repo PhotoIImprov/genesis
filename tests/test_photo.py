@@ -7,6 +7,10 @@ from models import resources
 from models import category, photo, usermgr, voting
 from tests import DatabaseTest
 from random import randint
+from PIL import Image
+from PIL.ExifTags import TAGS, GPSTAGS
+from io import BytesIO
+import piexif
 
 class TestPhoto(DatabaseTest):
 
@@ -284,3 +288,25 @@ class TestPhoto(DatabaseTest):
         # 1920 x 1440 -> 480 x 360
         sf = p.compute_scalefactor(height*3, width*4)
         assert(sf == 0.25)
+
+    def test_bad_exif_data(self):
+        ft = open('../photos/Galaxy Edge 7 Office Desk (full res, hdr).jpg', 'rb')
+        pi = photo.PhotoImage()
+        pi._extension = 'JPEG'
+        pi._binary_image = ft.read()
+
+        p = photo.Photo()
+        p._photoimage = pi
+        file_jpegdata = BytesIO(p._photoimage._binary_image)
+        pil_img = Image.open(file_jpegdata)
+        exif_dict = p.get_exif_dict(pil_img) # raw data from image
+        exif_data = p.get_exif_data(pil_img) # key/value pairs reconstituted
+
+        p.samsung_fix(exif_dict, exif_data)
+
+        assert(exif_dict is not None)
+        assert(exif_data is not None)
+
+        exif_data_orientation = exif_data['Orientation']
+        exif_dict_orientation = exif_dict['1st'][0x112]
+        assert(exif_data_orientation == exif_dict_orientation)
