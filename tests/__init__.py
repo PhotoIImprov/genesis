@@ -2,7 +2,7 @@
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm.session import Session
 import initschema
-from dbsetup import Base, connection_string
+from dbsetup import Base, connection_string, Session
 from unittest import TestCase
 import datetime
 from flask import Flask, jsonify
@@ -36,7 +36,7 @@ def teardown_module():
 class DatabaseTest(TestCase):
     def setup(self):
         self.__transaction = connection.begin_nested()
-        self.session = Session(connection)
+        self.session = Session() #Session(connection)
 
     def teardown(self):
         self.session.close()

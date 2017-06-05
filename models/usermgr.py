@@ -9,6 +9,7 @@ class AnonUser(Base):
     __tablename__ = "anonuser"
     id            = Column(Integer, primary_key = True, autoincrement=True)
     guid          = Column(String(32), nullable=False, unique=True)
+    usertype      = Column(Integer, default=0)
     created_date  = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
 
     @staticmethod
@@ -151,6 +152,7 @@ def authenticate(username, password):
             if pbkdf2_sha256.verify(password, foundUser.hashedPWD):
                 return foundUser
 
+    logger.debug(msg="login failed for u:{0}, p:{1}".format(username, password))
     return None
 
 # subsequent calls with JWT payload call here to confirm identity

@@ -4,9 +4,12 @@ import datetime
 import os, errno
 import uuid
 from models import resources
-from models import category, photo, usermgr, voting
+from models import category, photo, usermgr, voting, sql_logging
 from tests import DatabaseTest
-
+import dbsetup
+import logsetup
+import logging
+from sqlalchemy.sql import func
 
 class TestUserMgr(DatabaseTest):
     def test_change_password(self):
@@ -53,8 +56,40 @@ class TestUserMgr(DatabaseTest):
 
     def test_find_anon_user_not_exists(self):
         self.setup()
-        guid = str(uuid.uuid1)
+        guid = str(uuid.uuid1())
         guid = guid.upper().translate({ord(c): None for c in '-'})
         au = usermgr.AnonUser.find_anon_user(self.session, guid)
         assert(au is None)
         self.teardown()
+
+    def test_authenticate_not_exist_not_DEBUG(self):
+        self.setup()
+        guid = str(uuid.uuid1())
+        guid = guid.upper().translate({ord(c): None for c in '-'})
+        username = 'testuser@foo.us'
+        password = guid + username
+        dbsetup._DEBUG = False
+
+        num_logs_before = self.session.query(sql_logging.Log).count()
+        au = usermgr.authenticate(username, password)
+        assert(au is None)
+        num_logs_after = self.session.query(sql_logging.Log).count()
+#        assert(num_logs_before == num_logs_after)
+        self.teardown()
+
+    def test_authenticate_not_exist_DEBUG(self):
+#        self.setup()
+        guid = str(uuid.uuid1())
+        guid = guid.upper().translate({ord(c): None for c in '-'})
+        username = 'testuser@foo.us'
+        password = guid + username
+        dbsetup._DEBUG = True
+        logsetup.logger.setLevel(logging.DEBUG)
+        logsetup.hndlr.setLevel(logging.DEBUG)
+        self.session = dbsetup.Session()
+        num_logs_before = self.session.query(func.count(sql_logging.Log.id)).one()
+        au = usermgr.authenticate(username, password)
+        assert (au is None)
+        num_logs_after = self.session.query(func.count(sql_logging.Log.id)).one()
+#        assert (num_logs_before < num_logs_after)
+#        self.teardown()

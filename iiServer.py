@@ -1282,4 +1282,8 @@ def register():
 if __name__ == '__main__':
     dbsetup.metadata.create_all(bind=dbsetup.engine, checkfirst=True)
     if not dbsetup.is_gunicorn():
+        if "DEBUG" in os.environ:
+            if os.environ.get('DEBUG', '0') == '1':
+                dbsetup._DEBUG = 1
+
         app.run(host='0.0.0.0', port=8080)

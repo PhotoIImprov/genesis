@@ -3,7 +3,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm    import sessionmaker
 from enum import Enum
 import os
-import logging
 from flask import request
 from sqlalchemy import exc
 from sqlalchemy import event
@@ -70,6 +69,7 @@ Session  = sessionmaker(bind=engine)
 Base     = declarative_base()
 metadata = Base.metadata
 metadata.create_all(bind=engine, checkfirst=True)
+_DEBUG   = False
 
 @event.listens_for(engine, "engine_connect")
 def ping_connection(connection, branch):
