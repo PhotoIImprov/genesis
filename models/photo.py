@@ -188,9 +188,10 @@ class Photo(Base):
 
             if exif_data_orientation != exif_dict_orientation:
                 exif_data['Orientation'] = exif_dict_orientation
-                logger.info(msg="swapping orientation for file {0}".format(self.filename))
+                exif_dict['0th'][0x112] = exif_dict_orientation
+                logger.info(msg="swapping orientation {0}->{1} for file {2}/{3}".format(exif_data_orientation, exif_dict_orientation, self.filepath, self.filename))
         except Exception as e:
-            logger.exception(msg="Error with EXIF data parsing for file {0}".format(self.filename))
+            logger.exception(msg="Error with EXIF data parsing for file {0}/{1}".format(self.filepath, self.filename))
 
     # read_thumbnail_image()
     # ======================
