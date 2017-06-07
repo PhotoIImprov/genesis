@@ -10,6 +10,8 @@ import dbsetup
 import logsetup
 import logging
 from sqlalchemy.sql import func
+from handlers import dbg_handler
+from logsetup import logger
 
 class TestUserMgr(DatabaseTest):
     def test_change_password(self):
@@ -70,26 +72,33 @@ class TestUserMgr(DatabaseTest):
         password = guid + username
         dbsetup._DEBUG = False
 
-        num_logs_before = self.session.query(sql_logging.Log).count()
+        hndlr = dbg_handler.DebugHandler()
+        logger.addHandler(hndlr)
+        hndlr._dbg_log = None
+        logsetup.logger.setLevel(logging.INFO)
+        logsetup.hndlr.setLevel(logging.INFO)
+
         au = usermgr.authenticate(username, password)
         assert(au is None)
-        num_logs_after = self.session.query(sql_logging.Log).count()
-#        assert(num_logs_before == num_logs_after)
+        log = hndlr._dbg_log
+        assert(log is None)
         self.teardown()
 
     def test_authenticate_not_exist_DEBUG(self):
-#        self.setup()
+        self.setup()
         guid = str(uuid.uuid1())
         guid = guid.upper().translate({ord(c): None for c in '-'})
         username = 'testuser@foo.us'
         password = guid + username
         dbsetup._DEBUG = True
+
+        hndlr = dbg_handler.DebugHandler()
+        logger.addHandler(hndlr)
         logsetup.logger.setLevel(logging.DEBUG)
         logsetup.hndlr.setLevel(logging.DEBUG)
-        self.session = dbsetup.Session()
-        num_logs_before = self.session.query(func.count(sql_logging.Log.id)).one()
+
         au = usermgr.authenticate(username, password)
         assert (au is None)
-        num_logs_after = self.session.query(func.count(sql_logging.Log.id)).one()
-#        assert (num_logs_before < num_logs_after)
-#        self.teardown()
+        log = hndlr._dbg_log
+        assert(log is not None)
+        self.teardown()

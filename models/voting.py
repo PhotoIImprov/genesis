@@ -180,7 +180,10 @@ class BallotManager:
             p.times_voted += 1
 
             tm = TallyMan()
-            tm.update_leaderboard(session, c, p)
+            try:
+                tm.update_leaderboard(session, c, p) # leaderboard may not be defined yet!
+            except:
+                pass
 
     def calculate_score(self, vote, round, section):
         if round == 0:
@@ -303,6 +306,21 @@ class BallotManager:
         return self.balance_ballot(photos_for_ballot, count, c)
 #        return photos_for_ballot[:count]
 
+    def is_portrait(self, pm):
+        """
+        From the orientation and height/width, determine if the
+        image is portrait (taller than wide) or landscape (wider than tall)
+        for grouping
+
+        :param pm:
+        :return:
+        """
+        isPortrait = pm.height > pm.width
+        if pm.orientation in ('6','8', '7', '5'):
+            isPortrait = isPortrait ^ True
+
+        return isPortrait
+
     def balance_ballot(self, p4b, ballot_size, c):
         """
         Let's make sure we have a balanced ballot either
@@ -326,7 +344,7 @@ class BallotManager:
             for i in range(0,len(p4b)):
                 pm = p4b[i]._photometa
                 if pm is not None:
-                    if pm.orientation in ('1','2','3','4'):
+                    if self.is_portrait(pm):
                         insert_p = True
                         for p in pl:
                             if p._photometa.thumb_hash == pm.thumb_hash: # image already in list?
@@ -335,8 +353,7 @@ class BallotManager:
 
                         if insert_p:
                             pl.append(p4b[i])
-
-                    if pm.orientation in ('5','6','7','8'):
+                    else:
                         insert_l = True
                         for p in ll:
                             if p._photometa.thumb_hash == pm.thumb_hash:
@@ -518,8 +535,7 @@ class TallyMan():
         '''
         try:
             lb = self.get_leaderboard_by_category(session, c, check_exist=True)
-            if lb is not None:
-                lb.rank_member(p.user_id, p.score, str(p.id))
+            lb.rank_member(p.user_id, p.score, str(p.id))
         except Exception as e:
             logger.exception(msg="error updating the leaderboard")
             raise
@@ -535,10 +551,10 @@ class TallyMan():
         :param c: category we are checking for 
         :return: leaderboard object if leaderboard has been created
         '''
-        if check_exist and not self.leaderboard_exists(session, c):
-            return None
-
         try:
+            if check_exist and not self.leaderboard_exists(session, c):
+                return None
+
             lb = Leaderboard(self.leaderboard_name(c), host=self._redis_host, port=self._redis_port, page_size=10)
             return lb
         except Exception as e:
@@ -581,7 +597,11 @@ class TallyMan():
 
         try:
             lb = self.get_leaderboard_by_category(session, c, check_exist=True)
-            logger.info(msg="retrieving leader board for category {}, \'{}\'".format(c.id, c.get_description()))
+            if c is not None:
+                logger.info(msg="retrieving leader board for category {}, \'{}\'".format(c.id, c.get_description()))
+            else:
+                logger.info(msg="retrieving leader board for category")
+
     #        my_rank = lb.rank_for(uid)
 
             dl = lb.leaders(1, page_size=10, with_member_data=True)   # 1st page is top 25
