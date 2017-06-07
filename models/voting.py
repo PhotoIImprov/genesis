@@ -320,17 +320,33 @@ class BallotManager:
 
         # now create a list for Landscape and a separate list for Portrait
         # orientations
-        pl = []
-        ll = []
+        pl = [] # portrait list
+        ll = [] # landscape list
         try:
             for i in range(0,len(p4b)):
                 pm = p4b[i]._photometa
                 if pm is not None:
                     if pm.orientation in ('1','2','3','4'):
-                        pl.append(p4b[i])
+                        insert_p = True
+                        for p in pl:
+                            if p._photometa.thumb_hash == pm.thumb_hash: # image already in list?
+                                insert_p = False
+                                break
+
+                        if insert_p:
+                            pl.append(p4b[i])
+
                     if pm.orientation in ('5','6','7','8'):
-                        ll.append(p4b[i])
+                        insert_l = True
+                        for p in ll:
+                            if p._photometa.thumb_hash == pm.thumb_hash:
+                                insert_l = False
+                                break
+
+                        if insert_l:
+                            ll.append(p4b[i])
         except Exception as e:
+            logger.exception(msg="error balancing ballot for category {0}".format(c.id))
             raise
 
         # if 4 x portrait, 4 x landscape, or 2x2, then we are done

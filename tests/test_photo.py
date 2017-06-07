@@ -289,7 +289,7 @@ class TestPhoto(DatabaseTest):
         sf = p.compute_scalefactor(height*3, width*4)
         assert(sf == 0.25)
 
-    def test_bad_exif_data(self):
+    def test_bad_exif_orientation(self):
         ft = open('../photos/Galaxy Edge 7 Office Desk (full res, hdr).jpg', 'rb')
         pi = photo.PhotoImage()
         pi._extension = 'JPEG'
@@ -310,3 +310,23 @@ class TestPhoto(DatabaseTest):
         exif_data_orientation = exif_data['Orientation']
         exif_dict_orientation = exif_dict['1st'][0x112]
         assert(exif_data_orientation == exif_dict_orientation)
+
+    def test_exif_no_orientation(self):
+        ft = open('../photos/bad_exif.jpg', 'rb')
+        pi = photo.PhotoImage()
+        pi._extension = 'JPEG'
+        pi._binary_image = ft.read()
+
+        p = photo.Photo()
+        p._photoimage = pi
+        file_jpegdata = BytesIO(p._photoimage._binary_image)
+        pil_img = Image.open(file_jpegdata)
+        exif_dict = p.get_exif_dict(pil_img) # raw data from image
+        exif_data = p.get_exif_data(pil_img) # key/value pairs reconstituted
+
+        p.samsung_fix(exif_dict, exif_data)
+
+        assert(exif_dict is not None)
+        assert(exif_data is not None)
+        assert(not 'Orientation' in exif_data)
+

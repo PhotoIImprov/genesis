@@ -966,6 +966,9 @@ class TestLeaderBoard(iiBaseUnitTest):
                             headers=self.get_header_html())
 
         data = json.loads(rsp.data.decode("utf-8"))
+        if rsp.status_code != 200:
+            assert(rsp.status_code == 200)
+
         assert(rsp.status_code == 200)
         ballots = data['ballots']
         assert(len(ballots) < 5)

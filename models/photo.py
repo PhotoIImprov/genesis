@@ -182,6 +182,8 @@ class Photo(Base):
         try:
             if exif_data['Make'] != 'samsung':
                 return
+            if not 'Orientation' in exif_data:  # if orientation tags missing, pretty useless
+                return
 
             exif_data_orientation = exif_data['Orientation']
             exif_dict_orientation = exif_dict['1st'][0x112]
