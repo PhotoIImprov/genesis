@@ -1193,7 +1193,7 @@ def log_event():
     Log ClientEvent
     ---
     tags:
-      - image
+      - admin
     summary: "log an error condition from the client"
     operationId: log
     consumes:
@@ -1215,7 +1215,7 @@ def log_event():
     security:
       - JWT: []
     responses:
-      201:
+      200:
         description: "The data was logged"
       400:
         description: "missing required arguments"
