@@ -1,25 +1,21 @@
 ﻿#!/bin/bash
 #
-# iiServer creation script.
+# Redis server creation script.
 # -------------------------
 # Author: HjC
 #
-# This script will initialize a GCE instance to run the ImageImprov
-# Python application.
+# This script will initialize a GCE instance to run the Redis
 #
-# Apr-26-2017 HjC
-#   - install nginx as reverse proxy
-#   - configure gunicorn for 5 worker threads and access/error logging
+# 14-May-2017 HjC
+#  - add ii_deploy GCS mount point (/mnt/gcs-deploy)
+#  - add binding for local IP and 127.0.0.1
+#  - disable registration of REDIS to db for DEBUGGING
+#  - download /genesis project for sync_leaderboard daemon
 #
-# May-14-2017 HjC
-#   - setup ii_deploy GCS mount point
-#   - remove Google Endpoint code that was commented out
-#
-# Jun-08-2017 HjC
-#   - copy static files to /var/wwww
-#   - setup NGINX for moved files
-#
+# 15-May-2017 HjC
+#  - remove setup for ii_photos GCS mount point (/mnt/gcs-photos)
 
+# Check to see if this script has already been run
 file="/home/bp100a/gcs-serviceaccount.json"
 if [ -f "$file" ]
 then
@@ -28,9 +24,6 @@ then
 else
    echo "first time running script, proceeding"
 fi
-
-export $IMAGE=lsb_release -c -s
-export SQLINSTANCE=imageimprov:us-central1:ii-sql001
 
 # Step #1
 # update and get necessary tools installed
@@ -44,6 +37,8 @@ else
 	apt-get install -y git
 	echo "... git install complete"
 fi
+
+export SQLINSTANCE=imageimprov:us-central1:ii-sql001
 
 echo "...installing python3-pip"
 apt-get -y install python3-pip
@@ -71,11 +66,14 @@ git clone https://bp100aRO:Imag3Impr0v!@github.com/PhotoIImprov/genesis.git
 # install all the modules we are going to need
 pip3 install --upgrade pip
 
-# this needs to be part of the startup so it's always there
-/sbin/sysctl -w net.ipv4.tcp_keepalive_time=60 net.ipv4.tcp_keepalive_intvl=60 net.ipv4.tcp_keepalive_probes=5
+# finally install our requirements to run python
+cd /home/bp100a/genesis
+echo "...pip3 install requirements.txt"
+sudo -H pip3 install -r requirements.txt
 
 # now mount our photo bucket! Note we use "allow_other" so that even though the root is mounting it, it will be accessible by all
-echo "...create gcs-serviceaccount.json key token"
+
+cd /home/bp100a
 echo '{' >gcs-serviceaccount.json
 echo '  "type": "service_account",' >> gcs-serviceaccount.json
 echo '  "project_id": "imageimprov",' >> gcs-serviceaccount.json
@@ -90,16 +88,41 @@ echo '  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x5
 echo '}' >> gcs-serviceaccount.json
 
 
-echo "...create gcs-photos mount point"
 cd /mnt
-mkdir gcs-photos
-chmod +777 gcs-photos
-gcsfuse -o allow_other --key-file /home/bp100a/gcs-serviceaccount.json ii_photos /mnt/gcs-photos
 mkdir gcs-deploy
 gcsfuse -o allow_other --key-file /home/bp100a/gcs-serviceaccount.json ii_deploy /mnt/gcs-deploy
 
+# For now Redis is being built here and run locally, that'll change
+sudo apt-get --assume-yes install build-essential tcl
+
+cd /home/bp100a
+tar xvzf /mnt/gcs-deploy/redis-stable.tar.gz
+cd redis-stable
+make
+make test
+sudo make install
+
+# Redis is built, now we need to install it, this will re-start on boot as well
+PORT=6379
+CONFIG_FILE=/etc/redis/6379.conf
+LOG_FILE=/var/log/redis_6379.log
+DATA_DIR=/var/lib/redis/6379
+EXECUTABLE=/usr/local/bin/redis-server
+
+echo -e \
+"${PORT}\n${CONFIG_FILE}\n${LOG_FILE}\n${DATA_DIR}\n${EXECUTABLE}\n" | \
+sudo utils/install_server.sh
+
+# Now allow Redis to take connections on the intranet address for this server
+# Note: This may change on reboot, might need to be part of startup
+cd /etc/redis
+sed -i "s/bind 127.0.0.1/bind `hostname -I` 127.0.0.1/g" 6379.conf
+sed -i "s/protected-mode yes/protected-mode no/g" 6379.conf
+
+# restart redis to pickup our config changes
+sudo /etc/init.d/redis_6379 restart
+
 # we connect to cloud SQL via a proxy
-echo "...setup up Cloud SQL proxy"
 cd /home/bp100a
 wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64
 mv cloud_sql_proxy.linux.amd64 cloud_sql_proxy
@@ -108,64 +131,39 @@ chmod +x cloud_sql_proxy
 # Start Cloud SQL proxy
 ./cloud_sql_proxy -instances=$SQLINSTANCE=tcp:3306 &
 
-# get our intranet IP address
-export IPADDR=`hostname -I`
-
-echo "...install mysql client"
-# get the mysql client
-if [$IMAGE = 'jessie']
-then
-	sudo apt-get --assume-yes install mysql-client
-else
-	sudo apt-get install -y mysql-client
-fi
-
-echo "...log server name & ip to database"
-echo -e "insert into serverlist (type, ipaddress, hostname) VALUES('iiServer','"$IPADDR"', '`hostname`')" > active_server.sql
-# now connect to our SQL server
-mysql --host=127.0.0.1 --user=python --password=python imageimprov < active_server.sql
+# install Redis client tools
+echo 'installing redis client tools'
+apt-get install -y redis-tools
 
 # now modify the rc.local file to start required services
 echo "...modify rc.local for startup"
 cd /etc
 sed -i "s/exit 0//g" rc.local
-echo -e "cd /home/bp100a\n" >> rc.local
-echo -e "./cloud_sql_proxy -instances=$SQLINSTANCE=tcp:3306 &\n" >> rc.local
-echo -e "cd /mnt\n" >> rc.local
-echo -e "gcsfuse -o allow_other --key-file /home/bp100a/gcs-serviceaccount.json ii_photos /mnt/gcs-photos\n" >> rc.local
+echo -e "cd /home/bp100a" >> rc.local
+echo -e "./cloud_sql_proxy -instances=$SQLINSTANCE=tcp:3306 &" >> rc.local
+echo -e "cd /mnt" >> rc.local
+echo -e "gcsfuse -o allow_other --key-file /home/bp100a/gcs-serviceaccount.json ii_deploy /mnt/gcs-deploy" >> rc.local
 echo -e "\n" >> rc.local
-echo -e "cd /home/bp100a/genesis\n" >> rc.local
-echo -e "gunicorn --bind 127.0.0.1:8081 --name iiServer --workers=5 --timeout 120 --log-file /var/log/iiServer/error.log --access-logfile /var/log/iiServer/access.log iiServer:app --pid /var/run/iiServer.pid &\n" >> rc.local
-echo -e "\nexit 0\n" >> rc.local
+echo -e "cd /home/bp100a/genesis/daemon" >> rc.local
+echo -e "sudo python3 sync_leaderboard.py ip=127.0.0.1 port=$PORT &"
+echo -e "\nexit 0" >> rc.local
 
-# finally install our requirements to run python
-cd /home/bp100a/genesis
-echo "...pip3 install requirements.txt"
-sudo -H pip3 install -r requirements.txt
+# get our intranet IP address
+export IPADDR=`hostname -I`
 
-# startup the Gunicorn server (bound to local IP so not internet accessible)
-cd /home/bp100a/genesis
-sudo mkdir /var/log/iiServer
-echo "gunicorn --bind 127.0.0.1:8081 --name iiServer --workers=5 --timeout 120 --log-file /var/log/iiServer/error.log --access-logfile /var/log/iiServer/access.log iiServer:app --pid /var/run/iiServer.pid &" > start_iiServer.sh
-chmod a+x start_iiServer.sh
-./start_iiServer.sh
-echo "...started gunicorn on 127.0.0.1:8081"
+# log the server into the database so the iiServers can find it
+# get the mysql client
+sudo apt-get --assume-yes install mysql-client
 
-cp /mnt/gcs-deploy/update_iiServer.sh .
+echo -e "insert into serverlist (type, ipaddress, hostname) VALUES('Redis','"$IPADDR"', '`hostname`')" > active_server.sql
 
-sudo apt-get install -y nginx
-sudo service nginx stop
-# copy our configuration file
-sudo cp /mnt/gcs-deploy/nginx.conf /etc/nginx
-# copy Swagger-UI content
-cp -r /home/bp100a/genesis/swagger-ui /var/www
-cp -r /home/bp100a/genesis/static /var/www
-echo "... copied static content to /var/www"
-sudo service nginx start
-echo "...started nginx on "
+# now connect to our SQL server and let iiServers know we are here
+echo "logging server in database"
+mysql --host=127.0.0.1 --user=python --password=python imageimprov < active_server.sql
 
-# to keep Cloud SQL connection from timing out when idle for more than 15 minutes
-sudo /sbin/sysctl -w net.ipv4.tcp_keepalive_time=60 net.ipv4.tcp_keepalive_intvl=60 net.ipv4.tcp_keepalive_probes=5
-echo -e "net.ipv4.tcp_keepalive_time=60\nnet.ipv4.tcp_keepalive_intvl=60\nnet.ipv4.tcp_keepalive_probes=5" >> /etc/sysctl.conf
+# launch the leaderboard synchronization script
+cd /home/bp100a/genesis/daemon
+echo "launching sync_leaderboard"
+python3 sync_leaderboard.py ip=127.0.0.1 port=$PORT &
 
-echo "...DONE startup script"
+echo 'startup script DONE'
