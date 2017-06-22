@@ -1342,6 +1342,22 @@ def register():
         session.close()
         return rsp
 
+@app.route('/preview/<int:pid>')
+def download_photo(pid):
+    p = photo.Photo()
+    session = dbsetup.Session()
+    rsp = None
+    try:
+        image_binary = p.read_thumbnail_by_id_with_watermark(session, pid)
+        rsp = make_response(image_binary, status.HTTP_200_OK)
+        rsp.headers['Content-Type'] = 'image/jpeg'
+        rsp.headers['Content-Disposition'] = 'attachment; filename=img.jpg'
+    except Exception as e:
+        rsp = make_response('image not found', status.HTTP_404_NOT_FOUND)
+    finally:
+        session.close()
+
+    return rsp
 
 if __name__ == '__main__':
     dbsetup.metadata.create_all(bind=dbsetup.engine, checkfirst=True)

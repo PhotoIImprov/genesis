@@ -14,7 +14,8 @@ import piexif
 from sqlalchemy import func
 import base64
 import dbsetup
-
+import iiServer
+from flask import Flask
 
 class TestPhoto(DatabaseTest):
 
@@ -410,22 +411,32 @@ class TestPhoto(DatabaseTest):
     def test_read_thumbnail_by_id_with_watermark_invalid_pid(self):
         p = photo.Photo()
         self.setup()
-        b64 = p.read_thumbnail_by_id_with_watermark(self.session, 0)
+        binary_img = p.read_thumbnail_by_id_with_watermark(self.session, 0)
         self.teardown()
-        assert(b64 is None)
+        assert(binary_img is None)
 
     def test_read_thumbnail_by_id_with_watermark(self):
         self.setup()
         p = photo.Photo()
         pid = self.session.query(func.max(photo.Photo.id)).first()
 
-        b64 = p.read_thumbnail_by_id_with_watermark(self.session, pid[0])
+        binary_img = p.read_thumbnail_by_id_with_watermark(self.session, pid[0])
 
         self.teardown()
-        assert(b64 is not None)
-
-        raw = base64.b64decode(b64)
+        assert(binary_img is not None)
 
         path = dbsetup.image_store(dbsetup.determine_environment(None))
         fn = open(path + "/test_read_thumbnail.jpeg", "wb")
-        fn.write(raw)
+        fn.write(binary_img)
+
+    def test_iiServer_preview(self):
+        self.setup()
+        p = photo.Photo()
+        pid = self.session.query(func.max(photo.Photo.id)).first()
+
+        app = Flask(__name__)
+        with app.app_context():
+            rsp = iiServer.download_photo(pid[0])
+            assert(rsp.status_code == 200)
+
+        self.teardown()

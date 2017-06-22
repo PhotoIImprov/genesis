@@ -475,11 +475,8 @@ class Photo(Base):
 
     def get_watermark_file(self):
         watermark_file = "ii_mainLogo_72.png"
-        cwd = os.getcwd()
-        if 'tests' in cwd:
-            path = '../photos/'
-        else:
-            path = cwd + '/photos/'
+        path = dbsetup.resource_files(dbsetup.determine_environment(None))
+        path += '/'
         im = Image.open(path + watermark_file)
         im = im.convert("L")
         return im
@@ -538,9 +535,7 @@ class Photo(Base):
             main = self.apply_watermark(main)
 
             img = self.read_thumbnail_image(image=main)
-            b64str = base64.standard_b64encode(img)
-
-            return b64str
+            return img
         except Exception as e:
             logger.exception(msg='error generating watermarked thumbnail!')
             return None

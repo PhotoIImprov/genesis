@@ -51,6 +51,15 @@ def connection_string(environment):
 
     return None
 
+def resource_files(environment):
+    if environment == EnvironmentType.DEV:
+        return '/home/hcollins/dev/genesis/photos'
+
+    if environment == EnvironmentType.PROD:
+        return '/home/bp100a/genesis/photos'
+
+    return None
+
 def image_store(environment):
     if environment == EnvironmentType.DEV:
         return '/mnt/image_files'
