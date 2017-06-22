@@ -51,6 +51,15 @@ def connection_string(environment):
 
     return None
 
+def get_fontname(environment):
+    if environment == EnvironmentType.DEV:
+        return '/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-B.ttf'
+
+    if environment == EnvironmentType.PROD:
+        return '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
+
+    return None
+
 def resource_files(environment):
     if environment == EnvironmentType.DEV:
         return '/home/hcollins/dev/genesis/photos'

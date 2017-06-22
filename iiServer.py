@@ -34,7 +34,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '0.9.5' #our version string PEP 440
+__version__ = '0.9.6' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -213,7 +213,7 @@ def hello():
         htmlbody += "<h1>ImageImprov Hello World from Flask!</h1> last called {}".format(dtNow)
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
-    htmlbody += "(Redis initialization daemon, ballot shuffling, logging to db, Samsung orientation fix, prevent duplicate photos in ballot, square pictures)"
+    htmlbody += "(Redis initialization daemon, ballot shuffling, logging to db, Samsung orientation fix, prevent duplicate photos in ballot, square pictures, watermark images)"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
     img_folder = dbsetup.image_store(dbsetup.determine_environment(None))
@@ -1344,6 +1344,37 @@ def register():
 
 @app.route('/preview/<int:pid>')
 def download_photo(pid):
+    """
+    Preview Photo
+    ---
+    tags:
+      - image
+    summary: "download a watermarked thumbnail of a photo on the site"
+    operationId: preview-image
+    consumes:
+      - text/html
+    produces:
+      - image/jpeg
+    parameters:
+      - in: path
+        name: pid
+        description: "The id of the photo to be downloaded"
+        required: true
+        type: integer
+    responses:
+      200:
+        description: "image found"
+        schema:
+          id: download_image
+          properties:
+            image:
+              type: string
+              description: "base64 encoded image file"
+      404:
+        description: "image not found"
+        schema:
+          $ref: '#/definitions/Error'
+    """
     p = photo.Photo()
     session = dbsetup.Session()
     rsp = None

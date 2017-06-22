@@ -469,7 +469,7 @@ class Photo(Base):
 
     def get_watermark_font(self):
         # Place the text at (10, 10) in the upper left corner. Text will be white.
-        font_path = "/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-B.ttf"
+        font_path = dbsetup.get_fontname(dbsetup.determine_environment(None))
         font = ImageFont.truetype(font=font_path, size=20)
         return font
 
