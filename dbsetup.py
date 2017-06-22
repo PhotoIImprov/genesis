@@ -44,7 +44,7 @@ def connection_string(environment):
     if environment is None:
         environment = determine_environment(None)
     if environment == EnvironmentType.DEV:
-        return 'mysql+pymysql://python:python@192.168.1.149:3306/imageimprov'
+        return 'mysql+pymysql://python:python@192.168.1.16:3306/imageimprov'
 
     if environment == EnvironmentType.PROD:
         return 'mysql+pymysql://python:python@127.0.0.1:3306/imageimprov'

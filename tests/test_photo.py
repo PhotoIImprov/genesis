@@ -7,10 +7,14 @@ from models import resources
 from models import category, photo, usermgr, voting
 from tests import DatabaseTest
 from random import randint
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from PIL.ExifTags import TAGS, GPSTAGS
 from io import BytesIO
 import piexif
+from sqlalchemy import func
+import base64
+import dbsetup
+
 
 class TestPhoto(DatabaseTest):
 
@@ -271,23 +275,31 @@ class TestPhoto(DatabaseTest):
     def test_compute_scale_factor(self):
         p = photo.Photo()
 
-        # 1280 x 360 -> 640 x 180
+        # 1280 x 720 -> 720 x 720
         height = 1280
         width = 720
-        sf = p.compute_scalefactor(height*2, width*1)
-        assert(sf == 0.5)
+        sf = p.compute_scalefactor(height*1, width*1)
+        assert(sf == 1.0)
 
-        # 360 x 1280 -> 180 x 640
-        sf = p.compute_scalefactor(width*1, height*2)
-        assert(sf == 0.5)
+        # 720 x 1280 -> 720 x 1280
+        sf = p.compute_scalefactor(width*1, height*1)
+        assert(sf == 1.0)
 
-        # 1280 x 540 -> 640 x 270
-        sf = p.compute_scalefactor(height*2, width*1.5)
-        assert(sf == 0.5)
+        # 1440 x 1280 -> 810 x 720
+        sf = p.compute_scalefactor(1440, 1280)
+        assert(sf == 0.5625)
 
-        # 1920 x 1440 -> 480 x 360
-        sf = p.compute_scalefactor(height*3, width*4)
-        assert(sf == 0.25)
+        # 1280 x 1440 -> 720 x 810
+        sf = p.compute_scalefactor(1280, 1440)
+        assert(sf == 0.5625)
+
+        # 640 x 720 -> 640 x 720
+        sf = p.compute_scalefactor(640, 720)
+        assert(sf == 1.125)
+
+        # 640 x 480 -> 640 x 480
+        sf = p.compute_scalefactor(640, 480)
+        assert(sf == 1.5)
 
     def test_bad_exif_orientation(self):
         ft = open('../photos/Galaxy Edge 7 Office Desk (full res, hdr).jpg', 'rb')
@@ -330,3 +342,90 @@ class TestPhoto(DatabaseTest):
         assert(exif_data is not None)
         assert(not 'Orientation' in exif_data)
 
+    def test_watermark_application(self):
+        # Open the original image
+        # read our test file
+
+        file_to_watermark = "no_watermark.jpeg"
+        watermark_file = "ii_mainLogo_72.png"
+
+        cwd = os.getcwd()
+        if 'tests' in cwd:
+            path = '../photos/'
+        else:
+            path = cwd + '/photos/'
+
+        main = Image.open(path + file_to_watermark)
+        info = main._getexif()
+        exif_dict = piexif.load(main.info["exif"])
+        exif_bytes = piexif.dump(exif_dict)
+        orientation = exif_dict['0th'][0x112]
+
+        rotate = 0
+        if orientation in (5,6,7,8):
+            rotate = 90
+
+        # Create a new image for the watermark with an alpha layer (RGBA)
+        #  the same size as the original image
+        watermark = Image.new("RGBA", main.size)
+
+        # Get an ImageDraw object so we can draw on the image
+        waterdraw = ImageDraw.ImageDraw(watermark, "RGBA")
+
+        # Place the text at (10, 10) in the upper left corner. Text will be white.
+        font_path = "/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-B.ttf"
+        font = ImageFont.truetype(font=font_path, size=20)
+
+        im = Image.open(path + watermark_file)
+        im = im.convert("L")
+        width, height = main.size
+        im_width, im_height = im.size
+        waterdraw.text((im_height + 10, height-20), "imageimprov", fill=(255,255,255, 128), font=font)
+        if rotate == 90:
+            watermark = watermark.rotate(90)
+            im = im.rotate(90)
+
+        # Get the watermark image as grayscale and fade the image
+        # See <http://www.pythonware.com/library/pil/handbook/image.htm#Image.point>
+        #  for information on the point() function
+        # Note that the second parameter we give to the min function determines
+        #  how faded the image will be. That number is in the range [0, 256],
+        #  where 0 is black and 256 is white. A good value for fading our white
+        #  text is in the range [100, 200].
+        watermask = watermark.convert("L").point(lambda x: min(x, 100))
+        im_mask = im.convert("L").point(lambda x: min(x, 100))
+
+        # Apply this mask to the watermark image, using the alpha filter to
+        #  make it transparent
+        watermark.putalpha(watermask)
+        im.putalpha(im_mask)
+        im_x = width - im_width
+        im_y = height - im_height
+
+        # Paste the watermark (with alpha layer) onto the original image and save it
+        main.paste(im=watermark, box=None, mask=watermark)
+        main.paste(im=im, box=(im_x, im_y), mask=im_mask)
+        main.save("/mnt/image_files/" + "with_watermark", format="JPEG", exif=exif_bytes)
+
+    def test_read_thumbnail_by_id_with_watermark_invalid_pid(self):
+        p = photo.Photo()
+        self.setup()
+        b64 = p.read_thumbnail_by_id_with_watermark(self.session, 0)
+        self.teardown()
+        assert(b64 is None)
+
+    def test_read_thumbnail_by_id_with_watermark(self):
+        self.setup()
+        p = photo.Photo()
+        pid = self.session.query(func.max(photo.Photo.id)).first()
+
+        b64 = p.read_thumbnail_by_id_with_watermark(self.session, pid[0])
+
+        self.teardown()
+        assert(b64 is not None)
+
+        raw = base64.b64decode(b64)
+
+        path = dbsetup.image_store(dbsetup.determine_environment(None))
+        fn = open(path + "/test_read_thumbnail.jpeg", "wb")
+        fn.write(raw)

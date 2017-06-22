@@ -11,7 +11,7 @@ import pymysql
 import base64
 import sys
 from models import error
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from PIL.ExifTags import TAGS, GPSTAGS
 from io import BytesIO
 import piexif
@@ -195,15 +195,18 @@ class Photo(Base):
         except Exception as e:
             logger.exception(msg="Error with EXIF data parsing for file {0}/{1}".format(self.filepath, self.filename))
 
+
     # read_thumbnail_image()
     # ======================
     # returns the binary value of the thumbnail
     # associated with the photo record
     #
-    def read_thumbnail_image(self):
+    def read_thumbnail_image(self, image=None):
         try:
-            t_fn = self.create_thumb_filename()
-            pil_img = Image.open(t_fn)
+            pil_img = image
+            if pil_img is None:
+                t_fn = self.create_thumb_filename()
+                pil_img = Image.open(t_fn)
 
             exif_dict = self.get_exif_dict(pil_img)
             exif_bytes = piexif.dump(exif_dict)
@@ -266,10 +269,10 @@ class Photo(Base):
         
         :param height: 
         :param width: 
-        :return: a scaling factor such that the result is no dimension larger than _MAX_HEIGHT and _MAX_WIDTH
+        :return: a scaling factor such that the result is no dimension smaller than _MAX_HEIGHT and _MAX_WIDTH
          yet retain aspect ratio
         '''
-        _MAX_HEIGHT = 1280
+        _MAX_HEIGHT = 720
         _MAX_WIDTH = 720
         if height > width:
             sfh = _MAX_HEIGHT / height
@@ -278,7 +281,7 @@ class Photo(Base):
             sfh = _MAX_HEIGHT / width
             sfw = _MAX_WIDTH / height
 
-        if sfh < sfw:
+        if sfh > sfw:
             return sfh
 
         return sfw
@@ -332,17 +335,25 @@ class Photo(Base):
         scaling_factor = self.compute_scalefactor(pil_img.height, pil_img.width)
         new_width = int(pil_img.width * scaling_factor)
         new_height = int(pil_img.height * scaling_factor)
+        _THUMB_WIDTH = 720
+        _THUMB_HEIGHT = 720
         new_size = new_width, new_height
         exif_bytes = piexif.dump(exif_dict)
 
         th_img = pil_img.resize(new_size)
+        # crop the image to the new height/width requirements
+        center_width = new_width / 2
+        center_height = new_height / 2
+        box = (center_width - _THUMB_WIDTH/2, center_height - _THUMB_HEIGHT/2,
+               center_width + _THUMB_WIDTH/2, center_height + _THUMB_HEIGHT/2)
+        cropped_img = th_img.crop(box)
 
         # from the supplied image, create a thumbnail
         # the original file has already been saved to the
         # filesystem, so we are just adding this file
         thumb_fn = self.create_thumb_filename()
 
-        self.gcs_save_image(th_img, thumb_fn, exif_bytes)
+        self.gcs_save_image(cropped_img, thumb_fn, exif_bytes)
         return
 
     # since Google Cloud storage can be flakey, we need to retry a couple of times. Between each
@@ -414,6 +425,126 @@ class Photo(Base):
         p = q.all()
 
         return p
+
+    def read_thumbnail_by_id(self, session, pid):
+        '''
+        Reads a thumbnail image back in b64 to the caller.
+
+        :param session:
+        :param pid:
+        :return:base64 encoded image data
+        '''
+        try:
+            p = session.query(photo.Photo).get(pid)
+            t_fn = self.create_thumb_filename()
+            pil_img = Image.open(t_fn)
+            width, height = pil_img.size
+            draw = ImageDraw.Draw(pil_img)
+            text = "ii"
+            font = ImageFont.truetype('arial.ttf', 10)
+            textwdith, textheight = draw.textsize(text, font)
+
+            # calculate x/y coordinates of the text
+            margin = 5
+            x = width - textwidth - margin
+            y = height - textheight - margin
+            draw.text((x,y), text, font=font)
+
+            b64img = self.read_thumbnail_image(image=pil_img)
+            return b64img
+        except Exception as e:
+            logger.exception(msg='error reading thumbnail!')
+            return None
+
+
+    def get_rotation(self, img):
+#        info = img._getexif()
+        exif_dict = piexif.load(img.info["exif"])
+        orientation = exif_dict['0th'][0x112]
+
+        rotate = 0
+        if orientation in (5, 6, 7, 8):
+            rotate = 90
+        return rotate
+
+    def get_watermark_font(self):
+        # Place the text at (10, 10) in the upper left corner. Text will be white.
+        font_path = "/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-B.ttf"
+        font = ImageFont.truetype(font=font_path, size=20)
+        return font
+
+    def get_watermark_file(self):
+        watermark_file = "ii_mainLogo_72.png"
+        cwd = os.getcwd()
+        if 'tests' in cwd:
+            path = '../photos/'
+        else:
+            path = cwd + '/photos/'
+        im = Image.open(path + watermark_file)
+        im = im.convert("L")
+        return im
+
+    def apply_watermark(self, img):
+        rotate = self.get_rotation(img)
+
+        # Create a new image for the watermark with an alpha layer (RGBA)
+        #  the same size as the original image
+        watermark = Image.new("RGBA", img.size)
+
+        # Get an ImageDraw object so we can draw on the image
+        waterdraw = ImageDraw.ImageDraw(watermark, "RGBA")
+
+        font = self.get_watermark_font()
+        im = self.get_watermark_file()
+
+        width, height = img.size
+        im_width, im_height = im.size
+        waterdraw.text((im_height + 10, height - 20), "imageimprov", fill=(255, 255, 255, 128), font=font)
+        if rotate == 90:
+            watermark = watermark.rotate(90)
+            im = im.rotate(90)
+
+        # Get the watermark image as grayscale and fade the image
+        # See <http://www.pythonware.com/library/pil/handbook/image.htm#Image.point>
+        #  for information on the point() function
+        # Note that the second parameter we give to the min function determines
+        #  how faded the image will be. That number is in the range [0, 256],
+        #  where 0 is black and 256 is white. A good value for fading our white
+        #  text is in the range [100, 200].
+        watermask = watermark.convert("L").point(lambda x: min(x, 100))
+        im_mask = im.convert("L").point(lambda x: min(x, 100))
+
+        # Apply this mask to the watermark image, using the alpha filter to
+        #  make it transparent
+        watermark.putalpha(watermask)
+        im.putalpha(im_mask)
+        im_x = width - im_width
+        im_y = height - im_height
+
+        # Paste the watermark (with alpha layer) onto the original image and save it
+        img.paste(im=watermark, box=None, mask=watermark)
+        img.paste(im=im, box=(im_x, im_y), mask=im_mask)
+        return img
+
+
+    def read_thumbnail_by_id_with_watermark(self, session, pid):
+        # Open the original image
+        # read our test file
+
+        try:
+            p = session.query(Photo).get(pid)
+            t_fn = p.create_thumb_filename()
+            main = Image.open(t_fn)
+            main = self.apply_watermark(main)
+
+            img = self.read_thumbnail_image(image=main)
+            b64str = base64.standard_b64encode(img)
+
+            return b64str
+        except Exception as e:
+            logger.exception(msg='error generating watermarked thumbnail!')
+            return None
+
 
     def set_metadata(self, d_exif, height, width, th_hash):
         self._photometa = PhotoMeta(height, width, th_hash)

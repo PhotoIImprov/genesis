@@ -5,7 +5,7 @@ from dbsetup import EnvironmentType
 class TestDBsetup(TestCase):
     def test_connection_string(self):
         cs = dbsetup.connection_string(EnvironmentType.DEV)
-        assert(cs == "mysql+pymysql://python:python@192.168.1.149:3306/imageimprov")
+        assert(cs == "mysql+pymysql://python:python@192.168.1.16:3306/imageimprov")
         cs = dbsetup.connection_string(EnvironmentType.PROD)
         assert(cs == "mysql+pymysql://python:python@127.0.0.1:3306/imageimprov")
         cs = dbsetup.connection_string(EnvironmentType.UNKNOWN)

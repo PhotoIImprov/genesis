@@ -100,19 +100,15 @@ class Category(Base):
     @staticmethod
 #    @memoize_with_expiry(_memoize_cache, 300, 0)
     def active_categories(session, uid):
-        if session is None or uid is None:
-            return None
-
-        # see if the user id exists
-        au = usermgr.AnonUser.get_anon_user_by_id(session,uid)
-        if au is None:
-            return None
-
         # display all categories that are in any of the three "Category States"
         # - UPLOAD - category can accept photos to be uploaded
         # - VOTING - category photos are ready for voting
         # - COUNTING - past voting, available to see status of winners
         try:
+            au = usermgr.AnonUser.get_anon_user_by_id(session, uid) # ensure we have a valid user context
+            if au is None:
+                return None
+
             q = session.query(Category).filter(Category.state.in_([CategoryState.UPLOAD.value, CategoryState.VOTING.value, CategoryState.COUNTING.value]))
             cl = q.all()
             return cl

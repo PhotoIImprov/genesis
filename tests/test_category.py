@@ -9,6 +9,10 @@ from tests import DatabaseTest
 import os
 import json
 import errno
+import logsetup
+import logging
+from handlers import dbg_handler
+from logsetup import logger
 
 
 class TestCategory(DatabaseTest):
@@ -46,6 +50,30 @@ class TestCategory(DatabaseTest):
 
         c.state = category.CategoryState.VOTING.value
         assert(not c.is_upload())
+
+    def test_is_voting(self):
+        c = category.Category()
+        c.state = category.CategoryState.VOTING.value
+        assert(c.is_voting())
+
+        c.state = category.CategoryState.VOTING.value
+        assert(not c.is_upload())
+
+    def test_to_json_exception(self):
+
+        c = category.Category()
+        hndlr = dbg_handler.DebugHandler()
+        logger.addHandler(hndlr)
+        hndlr._dbg_log = None
+        logsetup.logger.setLevel(logging.INFO)
+        logsetup.hndlr.setLevel(logging.INFO)
+        try:
+            c.to_json()
+            assert (False)
+        except Exception as e:
+            log = hndlr._dbg_log
+            assert(log is not None)
+            assert(log['msg'] == 'error json category values')
 
     def test_category_states(self):
 
