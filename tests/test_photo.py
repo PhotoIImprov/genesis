@@ -434,9 +434,7 @@ class TestPhoto(DatabaseTest):
         p = photo.Photo()
         pid = self.session.query(func.max(photo.Photo.id)).first()
 
-        app = Flask(__name__)
-        with app.app_context():
-            rsp = iiServer.download_photo(pid[0])
-            assert(rsp.status_code == 200)
+        binary_image = p.read_thumbnail_by_id_with_watermark(self.session, pid[0])
+        assert(binary_image is not None)
 
         self.teardown()

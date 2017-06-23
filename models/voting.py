@@ -123,7 +123,7 @@ class BallotEntry(Base):
 
         orientation = self._photo.get_orientation()
         if orientation is None:
-            orientation = 0
+            orientation = 1
         d = dict({'bid':self.id, 'image':self._b64image.decode('utf-8'), 'orientation': orientation})
         return d
 
@@ -303,94 +303,7 @@ class BallotManager:
                 if len(photos_for_ballot) >= count:
                     break
 
-        return self.balance_ballot(photos_for_ballot, count, c)
-#        return photos_for_ballot[:count]
-
-    def is_portrait(self, pm):
-        """
-        From the orientation and height/width, determine if the
-        image is portrait (taller than wide) or landscape (wider than tall)
-        for grouping
-
-        :param pm:
-        :return:
-        """
-        isPortrait = pm.height > pm.width
-        if pm.orientation in ('6','8', '7', '5'):
-            isPortrait = isPortrait ^ True
-
-        return isPortrait
-
-    def balance_ballot(self, p4b, ballot_size, c):
-        """
-        Let's make sure we have a balanced ballot either
-        4 x landscape, 4 x portrait, or 2 x landscape & 2 x portrait
-        :param photos_for_ballot: a list of more than "ballot_size" photos
-        :param ballot_size: # of images in a ballot to vote on
-        :return: 
-        """
-        if len(p4b) < ballot_size:
-            logger.info(msg="only {} photos in ballot for category {}".format(len(p4b), c.id))
-            if len(p4b) == 0: # nothing to do here!
-                return p4b
-
-        shuffle(p4b)
-
-        # now create a list for Landscape and a separate list for Portrait
-        # orientations
-        pl = [] # portrait list
-        ll = [] # landscape list
-        try:
-            for i in range(0,len(p4b)):
-                pm = p4b[i]._photometa
-                if pm is not None:
-                    if self.is_portrait(pm):
-                        insert_p = True
-                        for p in pl:
-                            if p._photometa.thumb_hash == pm.thumb_hash: # image already in list?
-                                insert_p = False
-                                break
-
-                        if insert_p:
-                            pl.append(p4b[i])
-                    else:
-                        insert_l = True
-                        for p in ll:
-                            if p._photometa.thumb_hash == pm.thumb_hash:
-                                insert_l = False
-                                break
-
-                        if insert_l:
-                            ll.append(p4b[i])
-        except Exception as e:
-            logger.exception(msg="error balancing ballot for category {0}".format(c.id))
-            raise
-
-        # if 4 x portrait, 4 x landscape, or 2x2, then we are done
-        # Note: We don't want to always pick landscape or portrait first, so mix it up
-        #       using a "random" value, in this case the photo.id of the first record
-        if (p4b[0].id % 2 == 0):
-            if len(ll) >= ballot_size:
-                return ll[:ballot_size]
-            if len(pl)  >= ballot_size:
-                return pl[:ballot_size]
-        else:
-            if len(pl) >= ballot_size:
-                return pl[:ballot_size]
-            if len(ll) >= ballot_size:
-                return ll[:ballot_size]
-
-        # if we don't have "ballot_size" of landscape or portrait (how can that be???)
-        # then send a split value with 2 of each
-        if (len(pl) >= ballot_size/2 and len(ll) >= ballot_size/2):
-            half_ballot = int(ballot_size/2)
-            p4b = pl[:half_ballot]
-            p4b.extend(ll[:half_ballot])
-            return p4b
-
-        # this should never happen! but just in case, send back the first 4
-        # (this could happen if photometa data is messing so we can't determine orientation)
-        return p4b[:ballot_size]
+        return photos_for_ballot[:count]
 
     def read_photos_by_ballots_round1(self, session, uid, c, num_votes, count):
         '''

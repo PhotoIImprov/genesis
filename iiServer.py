@@ -34,7 +34,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '0.9.6' #our version string PEP 440
+__version__ = '0.9.7' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -213,7 +213,7 @@ def hello():
         htmlbody += "<h1>ImageImprov Hello World from Flask!</h1> last called {}".format(dtNow)
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
-    htmlbody += "(Redis initialization daemon, ballot shuffling, logging to db, Samsung orientation fix, prevent duplicate photos in ballot, square pictures, watermark images)"
+    htmlbody += "(logging to db, Samsung orientation fix, prevent duplicate photos in ballot, square pictures, watermark images, normalized thumbnails)"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
     img_folder = dbsetup.image_store(dbsetup.determine_environment(None))
@@ -1185,6 +1185,67 @@ def photo_upload():
             rsp = make_response(jsonify({'msg': error.error_string('UPLOAD_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return rsp
+
+@app.route("/file/<int:cid>", methods=['POST'])
+@jwt_required()
+def upload_file():
+    """
+    Upload file
+    ---
+    tags:
+      - image
+    summary: "upload a binary image to the site"
+    operationId: upload-image
+    consumes:
+      - image/jpeg
+    produces:
+      - text/html
+    parameters:
+      - in: path
+        name: cid
+        description: "The id of the category to upload the file to"
+        required: true
+        type: integer
+    security:
+      - JWT: []
+    responses:
+      201:
+        description: "The image was properly uploaded!"
+        schema:
+          id: filename
+          properties:
+            filename:
+              type: string
+      404:
+        description: "image not found"
+        schema:
+          $ref: '#/definitions/Error'
+    """
+    rsp = None
+    session = dbsetup.Session()
+    try:
+        uid = current_identity
+        if 'file' not in request.files:
+            rsp = make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
+        else:
+            file = request.files['file']
+            pi = photo.PhotoImage()
+            pi._binary_image = file
+            pi._extension = file.filename.rsplit('.',1)[1].upper() # extract extension
+            p = photo.Photo()
+            d = p.save_user_image(session, pi, uid, cid)
+            if d['error'] is not None:
+                rsp = make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
+            else:
+                session.commit()
+                rsp = make_response(jsonify({'msg': error.error_string('PHOTO_UPLOADED'), 'filename': d['arg']}), status.HTTP_201_CREATED)
+    except Exception as e:
+        logger.exception(msg=str(e))
+        rsp = make_response(jsonify({'msg': error.error_string('UPLOAD_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        session.close()
+
+    return rsp
 
 @app.route("/log", methods=['POST'])
 @jwt_required()

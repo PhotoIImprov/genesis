@@ -86,6 +86,7 @@ class TestVoting(DatabaseTest):
         rid = max_resource_id[0] + 1
         r = resources.Resource.create_resource(rid, 'EN', 'round 2 testing')
         resources.Resource.write_resource(self.session, r)
+        self.session.commit()
 
         # now create our category & the image indexer
         s_date = datetime.datetime.now()
@@ -207,71 +208,6 @@ class TestVoting(DatabaseTest):
 
  #       self.teardown()
 
-    def test_ballot_size(self):
-        BALLOT_SIZE  = 4
-        bm = voting.BallotManager()
-        c = category.Category()
-        c.id = 1
-
-        pl = [] # list of photo candidates
-
-        for i in range(0,40):
-            p = photo.Photo(pid=i+1)
-            pl.append(p)
-            p._photometa = photo.PhotoMeta(1280,720, 'hash substitute')
-
-        # set them all to landscape
-        for p in pl:
-            p._photometa.orientation = '5'
-
-        pb = bm.balance_ballot(pl, BALLOT_SIZE, c)
-        assert(len(pb) == BALLOT_SIZE)
-
-        # set them all to portrait
-        for p in pl:
-            p._photometa.orientation = '1'
-
-        pb = bm.balance_ballot(pl, BALLOT_SIZE, c)
-        assert(len(pb) == BALLOT_SIZE)
-
-        # make a copy of our list
-        new_p = []
-        for p in pl:
-            new_p.append(p)
-
-        # Now set 2 to landscape, 2 to portrait, the rest to "no meta"
-        for i in range(0,len(new_p)):
-            if i == 0 or i == 1:
-                new_p[i]._photometa.orientation = '6'
-            if i == 2 or i == 3:
-                new_p[i]._photometa.orientation = '2'
-            if i > 3:
-                new_p[i]._photometa = None
-
-        pb = bm.balance_ballot(new_p, BALLOT_SIZE, c)
-        assert(len(pb) == BALLOT_SIZE)
-
-        # now set 3 landscape, no portrait
-        del new_p[:]
-        for p in pl:    # reset the list
-            new_p.append(p)
-        for i in range(0,len(new_p)):
-            if i < 3:
-                new_p[i]._photometa.orientation = '6'
-            if i >= 3:
-                new_p[i]._photometa = None
-
-        pb = bm.balance_ballot(new_p, BALLOT_SIZE, c)
-        assert(len(pb) == BALLOT_SIZE)
-
-        # finally let's send too few
-        pb = bm.balance_ballot(new_p[:BALLOT_SIZE-2], BALLOT_SIZE, c)
-        assert(len(pb) == BALLOT_SIZE-2)
-
-        empty_p = []
-        pb = bm.balance_ballot(empty_p, BALLOT_SIZE, c)
-        assert(len(empty_p) == 0)
-
     def test_get_leaderboard_by_category_no_session(self):
         tm = voting.TallyMan()
 
@@ -296,58 +232,3 @@ class TestVoting(DatabaseTest):
             log = hndlr._dbg_log
             assert(log is not None)
             assert(log['msg'] == "error updating the leaderboard")
-
-    def test_is_portait(self):
-        bm = voting.BallotManager()
-        pm = photo.PhotoMeta(1280, 720, 'fake hash')
-
-        pm.orientation = '1'
-        assert(bm.is_portrait(pm))
-
-        pm.orientation = '3'
-        assert(bm.is_portrait(pm))
-
-        pm.orientation = '2'
-        assert(bm.is_portrait(pm))
-
-        pm.orientation = '4'
-        assert(bm.is_portrait(pm))
-
-        pm.orientation = '6'
-        assert (not bm.is_portrait(pm))
-
-        pm.orientation = '8'
-        assert (not bm.is_portrait(pm))
-
-        pm.orientation = '5'
-        assert (not bm.is_portrait(pm))
-
-        pm.orientation = '7'
-        assert (not bm.is_portrait(pm))
-
-        pm.height = 720
-        pm.width = 1280
-
-        pm.orientation = '1'
-        assert (not bm.is_portrait(pm))
-
-        pm.orientation = '3'
-        assert (not bm.is_portrait(pm))
-
-        pm.orientation = '2'
-        assert (not bm.is_portrait(pm))
-
-        pm.orientation = '4'
-        assert (not bm.is_portrait(pm))
-
-        pm.orientation = '6'
-        assert (bm.is_portrait(pm))
-
-        pm.orientation = '8'
-        assert (bm.is_portrait(pm))
-
-        pm.orientation = '5'
-        assert (bm.is_portrait(pm))
-
-        pm.orientation = '7'
-        assert (bm.is_portrait(pm))

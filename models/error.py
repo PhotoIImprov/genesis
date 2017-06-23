@@ -78,6 +78,7 @@ d_ERROR_STRINGS = {'NO_JSON': "missing JSON data",
                    'TABULATE_ERROR': "error tabulating ballot",
                    'UPLOAD_ERROR': "error uploading photo",
                    'NO_SUCH_FRIEND': "friend request not found or error",
+                   'NOT_IMPLEMENTED': "service has not been implemented yet.",
 
                    # this is if we don't map to anything
                    'UNKNOWN_ERROR': "unknown error ??"}

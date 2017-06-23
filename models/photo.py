@@ -203,15 +203,14 @@ class Photo(Base):
     #
     def read_thumbnail_image(self, image=None):
         try:
-            pil_img = image
-            if pil_img is None:
+            if image is None:
                 t_fn = self.create_thumb_filename()
-                pil_img = Image.open(t_fn)
+                image = Image.open(t_fn)
 
-            exif_dict = self.get_exif_dict(pil_img)
+            exif_dict = self.get_exif_dict(image)
             exif_bytes = piexif.dump(exif_dict)
             b = BytesIO()
-            pil_img.save(b, 'JPEG', exif=exif_bytes)
+            image.save(b, 'JPEG', exif=exif_bytes)
             thumb = b.getvalue()
 
             # make sure the orientation is set. If there is no photometa
@@ -290,7 +289,7 @@ class Photo(Base):
     def get_exif_dict(self, pil_img):
         info = pil_img._getexif()
         if info is None:
-            logger.warn(msg='no EXIF data in file, making dummy data file for {0}/{1}'.format(self.filepath, self.filename))
+            logger.warning(msg='no EXIF data in file, making dummy data file for {0}/{1}'.format(self.filepath, self.filename))
             return self.make_dummy_exif()
 
         return piexif.load(pil_img.info["exif"])
@@ -317,6 +316,13 @@ class Photo(Base):
         return exif_data
 
     def create_thumb(self):
+        '''
+        We will "normalize" the thumbnail to an orientation of '1' to
+        simplify any downstream processing. The orientation & exif data in
+        photometa are for the hi-res image, which we don't mess with.
+
+        :return: nothing
+        '''
         if self._photoimage is None or self._photoimage._binary_image is None:
             raise BaseException(errno.EINVAL, "no raw image")
 
@@ -329,15 +335,18 @@ class Photo(Base):
         exif_dict = self.get_exif_dict(pil_img) # raw data from image
         exif_data = self.get_exif_data(pil_img) # key/value pairs reconstituted
         self.samsung_fix(exif_dict, exif_data)
-        self.set_metadata(exif_data, pil_img.height, pil_img.width, digest) # set metadata about Photo
+        self.set_metadata(exif_data, pil_img.height, pil_img.width, digest) # set metadata about the hi-res Photo
 
-        # scale the image
+        # Our thumbnail will be scaled down and normalized to an orientation of '1'
+        rotate, flip = self.get_rotation_and_flip(exif_dict) # make sure we use Samsung fixed data!
+
         scaling_factor = self.compute_scalefactor(pil_img.height, pil_img.width)
         new_width = int(pil_img.width * scaling_factor)
         new_height = int(pil_img.height * scaling_factor)
         _THUMB_WIDTH = 720
         _THUMB_HEIGHT = 720
         new_size = new_width, new_height
+        exif_dict['0th'][0x112] = 1  # we are normalizing to '1' for all thumbnails
         exif_bytes = piexif.dump(exif_dict)
 
         th_img = pil_img.resize(new_size)
@@ -348,12 +357,16 @@ class Photo(Base):
                center_width + _THUMB_WIDTH/2, center_height + _THUMB_HEIGHT/2)
         cropped_img = th_img.crop(box)
 
+        rotated_img = cropped_img.rotate(rotate)
+        if flip:
+            rotated_img = rotated_img.transpose(Image.FLIP_LEFT_RIGHT)
+
         # from the supplied image, create a thumbnail
         # the original file has already been saved to the
         # filesystem, so we are just adding this file
         thumb_fn = self.create_thumb_filename()
 
-        self.gcs_save_image(cropped_img, thumb_fn, exif_bytes)
+        self.gcs_save_image(rotated_img, thumb_fn, exif_bytes)
         return
 
     # since Google Cloud storage can be flakey, we need to retry a couple of times. Between each
@@ -365,6 +378,7 @@ class Photo(Base):
 
     def make_dummy_exif(self):
         zeroth_ifd = {piexif.ImageIFD.Make: u"Unknown",
+                      piexif.ImageIFD.Orientation: 1,
                       piexif.ImageIFD.XResolution: (96, 1),
                       piexif.ImageIFD.YResolution: (96, 1),
                       piexif.ImageIFD.Software: u"piexif"
@@ -456,16 +470,51 @@ class Photo(Base):
             logger.exception(msg='error reading thumbnail!')
             return None
 
+    def get_rotation_and_flip(self, exif_dict):
+        """
+        :param exif_dict: extracted EXIF dict from image
+        :return: tuple of rotation (degrees) and flip x/y axis true/false
 
-    def get_rotation(self, img):
-#        info = img._getexif()
-        exif_dict = piexif.load(img.info["exif"])
-        orientation = exif_dict['0th'][0x112]
+           1        2       3      4         5            6           7          8
 
+        888888  888888      88  88      8888888888  88                  88  8888888888
+        88          88      88  88      88  88      88  88          88  88      88  88
+        8888      8888    8888  8888    88          8888888888  8888888888          88
+        88          88      88  88
+        88          88  888888  888888
+
+        Value	0th Row	    0th Column
+        1	    top	        left side
+        2	    top	        right side
+        3	    bottom	    right side
+        4   	bottom	    left side
+        5	    left side	top
+        6   	right side	top
+        7	    right side	bottom
+        8	    left side	bottom
+        """
         rotate = 0
-        if orientation in (5, 6, 7, 8):
-            rotate = 90
-        return rotate
+        flip = False
+        try:
+            orientation = exif_dict['0th'][0x112]
+
+            rotate = 0
+            if orientation in (7,8):
+                rotate = 90
+            if orientation in (5,6):
+                rotate = 270
+            if orientation in (3,4):
+                rotate = 180
+
+            # determine X axis flip
+            flip = False
+            if orientation in (2, 4, 5, 7):
+                flip = True
+
+        except Exception as e:
+            logger.exception(msg="error with EXIF/Orientation data")
+
+        return rotate, flip
 
     def get_watermark_font(self):
         # Place the text at (10, 10) in the upper left corner. Text will be white.
@@ -482,8 +531,6 @@ class Photo(Base):
         return im
 
     def apply_watermark(self, img):
-        rotate = self.get_rotation(img)
-
         # Create a new image for the watermark with an alpha layer (RGBA)
         #  the same size as the original image
         watermark = Image.new("RGBA", img.size)
@@ -496,10 +543,7 @@ class Photo(Base):
 
         width, height = img.size
         im_width, im_height = im.size
-        waterdraw.text((im_height + 10, height - 20), "imageimprov", fill=(255, 255, 255, 128), font=font)
-        if rotate == 90:
-            watermark = watermark.rotate(90)
-            im = im.rotate(90)
+        waterdraw.text((im_width + 5, height - 20), "imageimprov", fill=(255, 255, 255, 128), font=font)
 
         # Get the watermark image as grayscale and fade the image
         # See <http://www.pythonware.com/library/pil/handbook/image.htm#Image.point>
@@ -515,14 +559,13 @@ class Photo(Base):
         #  make it transparent
         watermark.putalpha(watermask)
         im.putalpha(im_mask)
-        im_x = width - im_width
+        im_x = 0
         im_y = height - im_height
 
         # Paste the watermark (with alpha layer) onto the original image and save it
         img.paste(im=watermark, box=None, mask=watermark)
         img.paste(im=im, box=(im_x, im_y), mask=im_mask)
         return img
-
 
     def read_thumbnail_by_id_with_watermark(self, session, pid):
         # Open the original image
@@ -533,9 +576,10 @@ class Photo(Base):
             t_fn = p.create_thumb_filename()
             main = Image.open(t_fn)
             main = self.apply_watermark(main)
-
-            img = self.read_thumbnail_image(image=main)
-            return img
+            b = BytesIO()
+            main.save(b, 'JPEG')
+            thumb = b.getvalue()
+            return thumb
         except Exception as e:
             logger.exception(msg='error generating watermarked thumbnail!')
             return None
