@@ -13,6 +13,7 @@ import logsetup
 import logging
 from handlers import dbg_handler
 from logsetup import logger
+from sqlalchemy import func
 
 
 class TestCategory(DatabaseTest):
@@ -88,3 +89,43 @@ class TestCategory(DatabaseTest):
 
         str = category.CategoryState.to_str(5555)
         assert(str == 'INVALID')
+
+    def test_empty_category_tag_list(self):
+        self.setup()
+        ctags = category.CategoryTagList()
+        tag_list = ctags.read_category_tags(0, self.session)
+        assert(len(tag_list) == 0)
+        self.teardown()
+
+    def get_active_user(self):
+        max_uid = self.session.query(func.max(usermgr.AnonUser.id)).one()
+        return max_uid
+
+    def test_category_tag_list(self):
+        self.setup()
+        uid = self.get_active_user()
+        clist = category.Category.active_categories(self.session, uid[0])
+        assert(len(clist) != 0)
+
+        ctags = category.CategoryTagList()
+        for c in clist:
+            tag_list = ctags.read_category_tags(c.id, self.session)
+            if (len(tag_list) == 0):
+                # we found a category with no tags, let's create some
+                max_resource_id = self.session.query(func.max(resources.Resource.resource_id)).one()
+                rid = max_resource_id[0]
+                tag_list = category.CategoryTagList()
+                for i in range(1,5):
+                    r = resources.Resource.create_resource(rid+i, 'EN', 'tag{0}'.format(i))
+                    resources.Resource.write_resource(self.session, r)
+                    ctag = category.CategoryTag(category_id=c.id, resource_id = rid+i)
+                    tag_list._categorytags.append(ctag)
+                    self.session.add(ctag)
+
+                self.session.commit()
+                break
+
+        new_tag_list = ctags.read_category_tags(c.id, self.session)
+        assert(len(new_tag_list) == len(tag_list._categorytags))
+
+        self.teardown()

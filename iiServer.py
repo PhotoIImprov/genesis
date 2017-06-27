@@ -34,7 +34,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '0.9.7' #our version string PEP 440
+__version__ = '0.9.8' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -213,7 +213,7 @@ def hello():
         htmlbody += "<h1>ImageImprov Hello World from Flask!</h1> last called {}".format(dtNow)
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
-    htmlbody += "(logging to db, Samsung orientation fix, prevent duplicate photos in ballot, square pictures, watermark images, normalized thumbnails)"
+    htmlbody += "<ul><li>logging to db</li><li>Samsung orientation fix</li><li>prevent duplicate photos in ballot</li><li>square pictures</li><li>watermark images</li><li>normalized thumbnails</li><li>metadata tagging</li><li>Active Photos</li></ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
     img_folder = dbsetup.image_store(dbsetup.determine_environment(None))
@@ -635,7 +635,7 @@ def get_ballot():
       - JWT: []
     responses:
       200:
-         description: list of images to vote on with their originating category
+         description: 'list of images to vote on with their originating category'
          properties:
            ballots:
              type: array
@@ -644,19 +644,19 @@ def get_ballot():
            category:
              $ref: '#/definitions/Category'
       400:
-        description: "missing required arguments"
+        description: 'missing required arguments'
         schema:
           $ref: '#/definitions/Error'
       403:
-        description: "no such user"
+        description: 'no such user'
         schema:
           $ref: '#/definitions/Error'
       500:
-        description: "no ballot"
+        description: 'no ballot'
         schema:
           $ref: '#/definitions/Error'
       default:
-        description: "unexpected error"
+        description: 'unexpected error'
         schema:
           $ref: '#/definitions/Error'
     definitions:
@@ -672,6 +672,11 @@ def get_ballot():
                 - 8
                 - 3
                 - 6
+            iitags:
+              type: array
+              description: "list of pre-defined tags user can select from"
+              items:
+                type: string
             image:
               type: string
     """
@@ -856,7 +861,7 @@ def cast_vote():
        - JWT: []
      responses:
        200:
-         description: ballot of images to vote on with originating category information
+         description: ballot of images user has voted on with originating category information
          properties:
            ballots:
              type: array
@@ -895,6 +900,15 @@ def cast_vote():
             like:
               type: string
               description: "if present, indicates user liked the image"
+            offensive:
+              type: string
+              description: "If present, indicates user has found the image offensive"
+            iitags:
+              type: array
+              description: "array of tags user has selected for the image"
+              items:
+                type: string
+
      """
     if not request.json:
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)

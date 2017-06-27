@@ -158,6 +158,7 @@ class sync_daemon(Daemon):
         while more_photos:
             q = session.query(photo.Photo).filter(photo.Photo.category_id == c.id).\
                 filter(photo.Photo.score > 0).\
+                filter(photo.Photo.active == 1).\
                 filter(photo.Photo.id > max_pid).order_by(photo.Photo.id.asc()).limit(_PAGE_SIZE_PHOTOS)
             pl = q.all()
             more_photos = (len(pl) == _PAGE_SIZE_PHOTOS)

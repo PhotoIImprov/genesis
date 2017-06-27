@@ -40,6 +40,8 @@ class Photo(Base):
     times_voted  = Column(Integer, nullable=False, default=0)           # number of votes on this photo
     score        = Column(Integer, nullable=False, default=0)           # calculated score based on ballot returns
     likes        = Column(Integer, nullable=False, default=0)           # number of "likes" given this photo
+    active       = Column(Integer, nullable=False, default=1)           # if =0, then ignore the photo as if it didn't exist
+
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 

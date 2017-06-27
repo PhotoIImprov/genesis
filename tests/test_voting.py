@@ -11,6 +11,8 @@ from models import error
 from sqlalchemy import func
 from handlers import dbg_handler
 from logsetup import logger
+from flask import Flask, jsonify
+import json
 
 class TestVoting(DatabaseTest):
 
@@ -206,7 +208,7 @@ class TestVoting(DatabaseTest):
         # clear out Photo
         # clear out Category & Resource
 
- #       self.teardown()
+        self.teardown()
 
     def test_get_leaderboard_by_category_no_session(self):
         tm = voting.TallyMan()
@@ -232,3 +234,99 @@ class TestVoting(DatabaseTest):
             log = hndlr._dbg_log
             assert(log is not None)
             assert(log['msg'] == "error updating the leaderboard")
+
+    def get_active_user(self):
+        max_uid = self.session.query(func.max(usermgr.AnonUser.id)).one()
+        return max_uid[0]
+
+    def get_active_photo(self):
+        max_pid = self.session.query(func.max(photo.Photo.id)).one()
+        return max_pid[0]
+
+    def test_ballotentry_with_tags(self):
+        self.setup()
+
+        uid = self.get_active_user()
+        clist = category.Category.active_categories(self.session, uid)
+        assert(len(clist) != 0)
+
+        # grab a category and add some tags
+        ctags = category.CategoryTagList()
+        for c in clist:
+            tag_list = ctags.read_category_tags(c.id, self.session)
+            if (len(tag_list) == 0):
+                # we found a category with no tags, let's create some
+                max_resource_id = self.session.query(func.max(resources.Resource.resource_id)).one()
+                rid = max_resource_id[0]
+                tag_list = category.CategoryTagList()
+                for i in range(1,5):
+                    r = resources.Resource.create_resource(rid+i, 'EN', 'tag{0}'.format(i))
+                    resources.Resource.write_resource(self.session, r)
+                    ctag = category.CategoryTag(category_id=c.id, resource_id = rid+i)
+                    tag_list._categorytags.append(ctag)
+                    self.session.add(ctag)
+
+                self.session.commit()
+                break
+
+        # Now create a ballot entry for this category
+        pid = self.get_active_photo()
+        be = voting.BallotEntry(user_id=uid, category_id=c.id, photo_id=pid)
+        be.bid = 1
+        be.orientation = 6
+        be.image = b'\x00\x00\0x1'
+        be._tags = tag_list
+        be._photo = self.session.query(photo.Photo).get(be.photo_id)
+
+        d = be.to_json()
+        assert (d is not None)
+
+        j = json.dumps(d)
+        assert(j is not None)
+        self.teardown()
+
+
+    def test_voting_with_tags(self):
+        # need to test we can submit a ballotentry (vote) with tags
+        self.setup()
+        tm = voting.TallyMan()
+
+        # 1) create a category
+        # 2) upload 4 images
+        # 3) Vote on them with 'iitags' specified
+
+        c = self.create_category()
+
+        # upload images
+        u = self.create_user()
+        # read our test file
+        ft = open('../photos/IMG_0243.JPG', 'rb')
+        pi = photo.PhotoImage()
+        pi._binary_image = ft.read()
+        pi._extension = 'JPEG'
+
+        _NUM_PHOTOS_UPLOADED = 4
+        for i in range(0,_NUM_PHOTOS_UPLOADED):
+            self.upload_image(pi, c, u)
+
+        # switch category to voting state
+        c.state = category.CategoryState.VOTING.value
+        self.session.flush()
+
+        # now create a new user
+        nu = self.create_user()
+
+        bm = voting.BallotManager()
+        for i in range(0,_NUM_PHOTOS_UPLOADED+1): # need to ask for enough ballots to test all cases
+            b = bm.create_ballot(self.session, nu.id, c)
+            self.session.flush() # write ballot/ballotentries to DB
+            j_votes = []
+            idx = 1
+            for be in b._ballotentries:
+                j_votes.append({'bid': be.id, 'vote': idx, 'iitags':['tag1', 'tag2', 'tag3']})
+                idx += 1
+
+            bm.tabulate_votes(self.session, nu.id, j_votes)
+
+        self.teardown()
+

@@ -62,6 +62,13 @@ class Ballot(Base):
         for be in self._ballotentries:
             be._photo = session.query(photo.Photo).get(be.photo_id)
 
+    def append_tags_to_entires(self, c):
+        if len(c._categorytags) == 0:
+            return
+
+        for be in self._ballotentries:
+            be._tags = c._categorytags
+
     def to_log(self):
         """
         Dump out the list of ballot entries as a string for the log
@@ -95,6 +102,7 @@ class BallotEntry(Base):
     photo_id     = Column(Integer, ForeignKey("photo.id", name="fk_ballotentry_photo_id"), nullable=False, index=True)
     vote         = Column(Integer, nullable=True) # ranking in the ballot
     like         = Column(Integer, nullable=False, default=0) # if this photo was "liked"
+    offensive    = Column(Integer, nullable=False, default=0) # indicates user found the image objectionable
 
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
@@ -103,11 +111,13 @@ class BallotEntry(Base):
 
     _b64image = None
     _binary_image = None
+    _tags = None
 
     def __init__(self, **kwargs):
         self.id = kwargs.get('ballotentry_id', None)
         self.vote = kwargs.get('vote', 0)
         self.like = kwargs.get('like', 0)
+        self.offensive = kwargs.get('offensive', 0)
         self.user_id = kwargs.get('user_id', None)
         self.photo_id = kwargs.get('photo_id', None)
         self.category_id = kwargs.get('category_id', None)
@@ -115,16 +125,23 @@ class BallotEntry(Base):
         self._b64image = None
         self._binary_image = None
 
+
     def to_json(self):
         if self._photo is None:
             return None
+
         self._binary_image = self._photo.read_thumbnail_image()
         self._b64image = base64.standard_b64encode(self._binary_image)
 
         orientation = self._photo.get_orientation()
         if orientation is None:
             orientation = 1
-        d = dict({'bid':self.id, 'image':self._b64image.decode('utf-8'), 'orientation': orientation})
+
+        if self._tags is None:
+            d = dict({'bid': self.id, 'orientation': orientation, 'image': self._b64image.decode('utf-8')})
+        else:
+            d = dict({'bid':self.id, 'orientation': orientation, 'tags': self._tags.to_str(), 'image':self._b64image.decode('utf-8')})
+
         return d
 
 
@@ -137,6 +154,21 @@ class VotingRound(Base):
     # ======================================================================================================
     def __init__(self, **kwargs):
         self.photo_id = kwargs.get('photo_id', None)
+
+
+class BallotEntryTag(Base):
+    __tablename__ = 'ballotentrytag'
+    bid          = Column(Integer, ForeignKey('ballotentry.id', name='fk_ballotentrytag_bid'), primary_key=True)
+    tags         = Column(String(1000), nullable=False)
+
+    created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
+    last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+
+    def __init__(self, **kwargs):
+        self.bid = kwargs.get('bid', None)
+        tag_list = kwargs.get('tags', None) # the tags dictionary
+        self.tags = json.dumps(tag_list)
+
 
 
 class BallotManager:
@@ -166,18 +198,36 @@ class BallotManager:
 
         for j_be in json_ballots:
             bid = j_be['bid']
+            like = 0
+            offensive = 0
             if 'like' in j_be.keys():
                 like = 1
-            else:
-                like = 0
+            if 'offensive' in j_be.keys():
+                offensive = 1
 
-            be = session.query(BallotEntry).get(bid)
-            be.like = like
-            be.vote = j_be['vote']
-            score = self.calculate_score(j_be['vote'], c.round, section)
-            p = session.query(photo.Photo).get(be.photo_id)
-            p.score += score
-            p.times_voted += 1
+            # if there is an 'iitag' specified, then create a BallotEntryTag
+            # record and save it
+            try:
+                if 'iitags' in j_be.keys():
+                    tags = j_be['iitags']
+                    be_tags = BallotEntryTag(bid=bid, tags=tags)
+                    session.add(be_tags)
+            except Exception as e:
+                logger.exception(msg = "error while writing ballotentrytag")
+                raise
+
+            try:
+                be = session.query(BallotEntry).get(bid)
+                be.like = like
+                be.offensive = offensive
+                be.vote = j_be['vote']
+                score = self.calculate_score(j_be['vote'], c.round, section)
+                p = session.query(photo.Photo).get(be.photo_id)
+                p.score += score
+                p.times_voted += 1
+            except Exception as e:
+                logger.exception(msg="error while updating photo with score")
+                raise
 
             tm = TallyMan()
             try:
@@ -247,6 +297,7 @@ class BallotManager:
         for s in sl:
             q = session.query(photo.Photo).filter(photo.Photo.user_id != uid). \
                 filter(photo.Photo.category_id == c.id).\
+                filter(photo.Photo.active == 1). \
                 join(VotingRound, VotingRound.photo_id == photo.Photo.id) . \
                 filter(VotingRound.section == s). \
                 filter(VotingRound.times_voted == num_votes).limit(oversize)
@@ -261,6 +312,7 @@ class BallotManager:
             for s in sl:
                 q = session.query(photo.Photo).filter(photo.Photo.user_id != uid). \
                     filter(photo.Photo.category_id == c.id). \
+                    filter(photo.Photo.active == 1). \
                     join(VotingRound, VotingRound.photo_id == photo.Photo.id). \
                     filter(VotingRound.section == s).limit(oversize)
                 pl = q.all()
@@ -329,11 +381,13 @@ class BallotManager:
                 q = session.query(photo.Photo).filter(photo.Photo.category_id == c.id). \
                     join(BallotEntry, photo.Photo.id == BallotEntry.photo_id). \
                     filter(photo.Photo.user_id != uid). \
+                    filter(photo.Photo.active == 1). \
                     group_by(photo.Photo.id).limit(over_size)
             else:
                 q = session.query(photo.Photo).filter(photo.Photo.category_id == c.id).\
                     join(BallotEntry, photo.Photo.id == BallotEntry.photo_id).\
                     filter(photo.Photo.user_id != uid).\
+                    filter(photo.Photo.active == 1). \
                     group_by(photo.Photo.id).\
                     having(func.count(BallotEntry.photo_id) == num_votes).limit(over_size)
 
@@ -350,6 +404,7 @@ class BallotManager:
         q = session.query(category.Category).filter(category.Category.state == category.CategoryState.VOTING.value).\
             join(photo.Photo, photo.Photo.category_id == category.Category.id).\
             filter(photo.Photo.user_id != uid).\
+            filter(photo.Photo.active == 1). \
             group_by(category.Category.id).having(func.count(photo.Photo.id) > 4)
         cl = q.all()
         return cl
@@ -489,6 +544,8 @@ class TallyMan():
     def read_thumbnail(self, session, pid):
         try:
             p = session.query(photo.Photo).get(pid)
+            if p.active == 0: # this photo has been de-activated, it might be offensive
+                return None
             bimg = p.read_thumbnail_image()
             b64 = base64.standard_b64encode(bimg)
             b64_utf8 = b64.decode('utf-8')
@@ -533,13 +590,14 @@ class TallyMan():
 
                 lb_name = self.create_displayname(session, lb_uid)
                 b64_utf8 = self.read_thumbnail(session, lb_pid) # thumbnail image as utf-8 base64
-                if lb_uid == uid:
-                    lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'you':True, 'orientation': self._orientation, 'image' : b64_utf8})
-                else:
-                    if usermgr.Friend.is_friend(session, uid, lb_uid):
-                        lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'isfriend':True, 'orientation': self._orientation, 'image' : b64_utf8})
+                if b64_utf8 is not None: # problem with photo (such as it's offensive!)
+                    if lb_uid == uid:
+                        lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'you':True, 'orientation': self._orientation, 'image' : b64_utf8})
                     else:
-                        lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'orientation': self._orientation, 'image' : b64_utf8})
+                        if usermgr.Friend.is_friend(session, uid, lb_uid):
+                            lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'isfriend':True, 'orientation': self._orientation, 'image' : b64_utf8})
+                        else:
+                            lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'orientation': self._orientation, 'image' : b64_utf8})
 
             return lb_list
         except:

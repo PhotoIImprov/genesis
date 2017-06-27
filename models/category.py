@@ -50,6 +50,7 @@ class Category(Base):
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
     _category_description = None
+    _categorytags = []
     # ======================================================================================================
 
     def __init__(self, **kwargs):
@@ -132,8 +133,15 @@ class Category(Base):
 
     @staticmethod
     def read_category_by_id(session, cid):
-        c = session.query(Category).get(cid)
-        return c
+        try:
+            c = session.query(Category).get(cid)
+            if c is not None:
+                c._categorytags = CategoryTagList().read_category_tags(cid, session)
+            return c
+        except Exception as e:
+            logger.exception(msg="error reading category")
+            session.rollback()
+            return None
 
     def is_upload(self):
         return self.state == CategoryState.UPLOAD.value
@@ -147,3 +155,32 @@ class Category(Base):
             raise Exception(errno.EINVAL, 'No Category found for cid={}'.format(cid))
 
         return c.state == CategoryState.UPLOAD.value
+
+class CategoryTag(Base):
+    __tablename__ = 'categorytag'
+
+    cid             = Column(Integer, ForeignKey("category.id", name="fk_categorytag_category_id"), primary_key=True)
+    resource_id     = Column(Integer, ForeignKey("resource.resource_id", name="fk_categorytag_resource_id"), primary_key=True)
+
+    created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
+    last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+     # ======================================================================================================
+
+    def __init__(self, **kwargs):
+        self.cid = kwargs.get('category_id', None)
+        self.resource_id = kwargs.get('resource_id', None)
+
+class CategoryTagList():
+    _categorytags = []
+
+    def read_category_tags(self, cid, session):
+        q = session.query(CategoryTag).filter_by(cid = cid)
+        self._categorytags = q.all()
+        return self._categorytags
+
+    def to_str(self):
+        str_list = []
+        for ct in self._categorytags:
+            str_list.append(str(ct.resource_id))
+
+        return str_list
