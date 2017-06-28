@@ -179,6 +179,20 @@ class BallotManager:
 
     _ballot = None
 
+    def string_key_to_boolean(self, dict, keyname):
+        '''
+        if key is not present, return a '0'
+        if key is any value other than '0', return '1'
+        :param dict:
+        :param keyname:
+        :return: 0/1
+        '''
+        if keyname in dict.keys():
+            str_val = dict[keyname]
+            if str_val != '0':
+                return 1
+        return 0
+
     def tabulate_votes(self, session, uid, json_ballots):
         # we have a list of ballots, we need to determine the scoring.
         # we'll need category information:
@@ -196,14 +210,11 @@ class BallotManager:
 
         c = session.query(category.Category).get(be.category_id)
 
+        bel = []
         for j_be in json_ballots:
             bid = j_be['bid']
-            like = 0
-            offensive = 0
-            if 'like' in j_be.keys():
-                like = 1
-            if 'offensive' in j_be.keys():
-                offensive = 1
+            like = self.string_key_to_boolean(j_be, 'like')
+            offensive = self.string_key_to_boolean(j_be, 'offensive')
 
             # if there is an 'iitag' specified, then create a BallotEntryTag
             # record and save it
@@ -225,6 +236,7 @@ class BallotManager:
                 p = session.query(photo.Photo).get(be.photo_id)
                 p.score += score
                 p.times_voted += 1
+                bel.append(be)
             except Exception as e:
                 logger.exception(msg="error while updating photo with score")
                 raise
@@ -234,6 +246,8 @@ class BallotManager:
                 tm.update_leaderboard(session, c, p) # leaderboard may not be defined yet!
             except:
                 pass
+
+        return bel  # this is for testing only, no one else cares!
 
     def calculate_score(self, vote, round, section):
         if round == 0:

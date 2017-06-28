@@ -171,6 +171,7 @@ class TestVoting(DatabaseTest):
         ft = open('../photos/Cute_Puppy.jpg', 'rb')
         pi = photo.PhotoImage()
         pi._binary_image = ft.read()
+        ft.close()
         pi._extension = 'JPEG'
 
         _NUM_PHOTOS_UPLOADED = 40
@@ -321,6 +322,7 @@ class TestVoting(DatabaseTest):
         ft = open('../photos/IMG_0243.JPG', 'rb')
         pi = photo.PhotoImage()
         pi._binary_image = ft.read()
+        ft.close()
         pi._extension = 'JPEG'
 
         _NUM_PHOTOS_UPLOADED = 4
@@ -344,7 +346,67 @@ class TestVoting(DatabaseTest):
                 j_votes.append({'bid': be.id, 'vote': idx, 'iitags':['tag1', 'tag2', 'tag3']})
                 idx += 1
 
-            bm.tabulate_votes(self.session, nu.id, j_votes)
+            bel = bm.tabulate_votes(self.session, nu.id, j_votes)
+
+            assert(bel is not None)
+
+        self.teardown()
+
+    def test_voting_offensive(self):
+        # need to test we can submit a ballotentry (vote) with offensive flag
+        self.setup()
+        tm = voting.TallyMan()
+
+        # 1) create a category
+        # 2) upload 4 images
+        # 3) Vote on them with 'iitags' specified
+
+        c = self.create_category()
+
+        # upload images
+        u = self.create_user()
+        # read our test file
+        ft = open('../photos/IMG_0243.JPG', 'rb')
+        pi = photo.PhotoImage()
+        pi._binary_image = ft.read()
+        pi._extension = 'JPEG'
+        ft.close()
+
+        _NUM_PHOTOS_UPLOADED = 4
+        for i in range(0, _NUM_PHOTOS_UPLOADED):
+            self.upload_image(pi, c, u)
+
+        # switch category to voting state
+        c.state = category.CategoryState.VOTING.value
+        self.session.flush()
+
+        # now create a new user
+        nu = self.create_user()
+
+        bm = voting.BallotManager()
+        for i in range(0, _NUM_PHOTOS_UPLOADED + 1):  # need to ask for enough ballots to test all cases
+            b = bm.create_ballot(self.session, nu.id, c)
+            self.session.flush()  # write ballot/ballotentries to DB
+            j_votes = []
+            idx = 1
+            for be in b._ballotentries:
+                if idx == 2:
+                    j_votes.append({'bid': be.id, 'vote': idx}) # same as 0
+                else:
+                    j_votes.append({'bid': be.id, 'vote': idx, 'offensive': str(idx%2), 'like': str(idx%2)})
+                idx += 1
+
+            bel = bm.tabulate_votes(self.session, nu.id, j_votes)
+            assert(bel is not None)
+            assert(len(bel) == 4)
+
+            #make sure offensive/like flags were parsed properly
+            idx = 1
+            for be in bel:
+                offensive = be.offensive
+                like = be.like
+                assert(offensive == idx%2 and like == idx%2)
+                idx += 1
 
         self.teardown()
 
