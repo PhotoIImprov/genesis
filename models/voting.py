@@ -517,11 +517,12 @@ class TallyMan():
         via Redis directly.
         :param session: 
         :param c: category we are checking for 
-        :return: leaderboard object if leaderboard has been created
+        :return: leaderboard object, empty if leaderboard hasn't been created
         '''
         try:
             if check_exist and not self.leaderboard_exists(session, c):
-                return None
+                lb = []
+                return lb # need an empty list
 
             lb = Leaderboard(self.leaderboard_name(c), host=self._redis_host, port=self._redis_port, page_size=10)
             return lb
@@ -571,8 +572,6 @@ class TallyMan():
                 logger.info(msg="retrieving leader board for category {}, \'{}\'".format(c.id, c.get_description()))
             else:
                 logger.info(msg="retrieving leader board for category")
-
-    #        my_rank = lb.rank_for(uid)
 
             dl = lb.leaders(1, page_size=10, with_member_data=True)   # 1st page is top 25
             lb_list = []

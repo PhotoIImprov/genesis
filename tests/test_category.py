@@ -114,18 +114,15 @@ class TestCategory(DatabaseTest):
                 # we found a category with no tags, let's create some
                 max_resource_id = self.session.query(func.max(resources.Resource.resource_id)).one()
                 rid = max_resource_id[0]
-                tag_list = category.CategoryTagList()
                 for i in range(1,5):
                     r = resources.Resource.create_resource(rid+i, 'EN', 'tag{0}'.format(i))
                     resources.Resource.write_resource(self.session, r)
                     ctag = category.CategoryTag(category_id=c.id, resource_id = rid+i)
-                    tag_list._categorytags.append(ctag)
                     self.session.add(ctag)
-
                 self.session.commit()
                 break
 
         new_tag_list = ctags.read_category_tags(c.id, self.session)
-        assert(len(new_tag_list) == len(tag_list._categorytags))
+        assert(len(new_tag_list) == 4)
 
         self.teardown()

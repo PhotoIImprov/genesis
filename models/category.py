@@ -133,15 +133,16 @@ class Category(Base):
 
     @staticmethod
     def read_category_by_id(session, cid):
+        c = None
         try:
             c = session.query(Category).get(cid)
             if c is not None:
                 c._categorytags = CategoryTagList().read_category_tags(cid, session)
-            return c
         except Exception as e:
             logger.exception(msg="error reading category")
             session.rollback()
-            return None
+        finally:
+            return c
 
     def is_upload(self):
         return self.state == CategoryState.UPLOAD.value
@@ -171,16 +172,29 @@ class CategoryTag(Base):
         self.resource_id = kwargs.get('resource_id', None)
 
 class CategoryTagList():
-    _categorytags = []
+    _tags = None
 
     def read_category_tags(self, cid, session):
-        q = session.query(CategoryTag).filter_by(cid = cid)
-        self._categorytags = q.all()
-        return self._categorytags
+        '''
+        read the tags from the resource table
+        :param cid:
+        :param session:
+        :return:
+        '''
+        try:
+            q = session.query(resources.Resource).\
+                join(CategoryTag, CategoryTag.resource_id == resources.Resource.resource_id).\
+                filter(CategoryTag.cid == cid).\
+                filter(resources.Resource.iso639_1 == 'EN')
+            res = q.all()
+            self._tags = []
+            for r in res:
+                self._tags.append(r.resource_string)
+            return self._tags
+
+        except Exception as e:
+            logger.exception(msg='error reading category tags!')
+            return None
 
     def to_str(self):
-        str_list = []
-        for ct in self._categorytags:
-            str_list.append(str(ct.resource_id))
-
-        return str_list
+        return self._tags

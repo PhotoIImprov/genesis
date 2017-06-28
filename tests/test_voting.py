@@ -56,7 +56,7 @@ class TestVoting(DatabaseTest):
         c = category.Category()
         c.id = 87654321
 
-        if not tm.leaderboard_exists(self.session, c):
+        if tm.leaderboard_exists(self.session, c):
             lb = tm.get_leaderboard_by_category(self.session, c, check_exist=True)
             lb.delete_leaderboard()
 
@@ -68,9 +68,28 @@ class TestVoting(DatabaseTest):
         try:
             d = tm.fetch_leaderboard(self.session, 1, c)
             assert(d is not None)
+            assert(len(d) == 0)
         except Exception as e:
             assert(False)
+        self.teardown()
 
+    def test_leaderboard_invalid_category(self):
+        self.setup()
+        tm = voting.TallyMan()
+        c = category.Category()
+        c.id = 0
+
+        lb = tm.get_leaderboard_by_category(self.session, c, check_exist=True)
+        assert(lb is not None)
+        assert(len(lb) == 0)
+        self.teardown()
+
+    def test_leaderboard_invalid_category_nocheck(self):
+        self.setup()
+        tm = voting.TallyMan()
+        lb = tm.get_leaderboard_by_category(self.session, None, check_exist=False)
+        assert(lb is None)
+        self.teardown()
 
     def test_create_displayname_anonymous(self):
         tm = voting.TallyMan()
@@ -263,7 +282,6 @@ class TestVoting(DatabaseTest):
                     r = resources.Resource.create_resource(rid+i, 'EN', 'tag{0}'.format(i))
                     resources.Resource.write_resource(self.session, r)
                     ctag = category.CategoryTag(category_id=c.id, resource_id = rid+i)
-                    tag_list._categorytags.append(ctag)
                     self.session.add(ctag)
 
                 self.session.commit()

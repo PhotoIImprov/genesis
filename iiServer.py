@@ -34,7 +34,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '0.9.8' #our version string PEP 440
+__version__ = '0.9.9' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -593,6 +593,7 @@ def get_leaderboard():
     if not request.args:
         return make_response(jsonify({'msg': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
 
+    rsp = None
     try:
         session = dbsetup.Session()
         cid = request.args.get('category_id')
@@ -603,9 +604,9 @@ def get_leaderboard():
         else:
             tm = voting.TallyMan()
             c = category.Category.read_category_by_id(session, cid)
-            d = tm.fetch_leaderboard(session, uid, c)
-            if d is not None:
-                rsp = make_response(jsonify(d), 200)
+            lb_list = tm.fetch_leaderboard(session, uid, c)
+            if lb_list is not None:
+                rsp = make_response(jsonify(lb_list), 200)
             else:
                 rsp = make_response(jsonify({'msg': error.error_string('NO_LEADERBOARD')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     except Exception as e:
