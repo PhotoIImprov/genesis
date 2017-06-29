@@ -212,17 +212,15 @@ class Photo(Base):
             exif_dict = self.get_exif_dict(image)
             exif_bytes = piexif.dump(exif_dict)
             b = BytesIO()
-            image.save(b, 'JPEG', exif=exif_bytes)
+            image.save(b, format='JPEG', exif=exif_bytes)
             thumb = b.getvalue()
 
-            # make sure the orientation is set. If there is no photometa
-            # data record, pull directly from the image
-            if self.get_orientation() is None:
-                exif_data = self.get_exif_data(pil_img)
-                if 'Orientation' in exif_data:
-                    self.set_orientation(exif_data['Orientation'])
-                else:
-                    logger.info(msg='no orientation data in file \'{}\''.format(t_fn))
+            self.set_orientation(1) # default is '1 as we normalize thumbnails
+            if '0th' in exif_dict:
+                self.set_orientation(exif_dict['0th'][0x112]) # use thumbnail's
+            else:
+                logger.info(msg='no orientation data in file \'{}\''.format(t_fn))
+
             return thumb
 
         except Exception as e:
