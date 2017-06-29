@@ -369,7 +369,35 @@ class BallotManager:
                 if len(photos_for_ballot) >= count:
                     break
 
-        return photos_for_ballot[:count]
+        return self.cleanup_list(photos_for_ballot, count) # remove dupes, shuffle list
+#        return photos_for_ballot[:count]
+
+    def cleanup_list(self, p4b, ballot_size):
+        """
+        We get a list of photos that are a straight pull from the
+        database. We're going to shuffle it and not allow any
+        duplicates based on 'thumb_hash'
+        :param p4b:
+        :param ballot_size:
+        :return: list of ballots of 'ballot_size', randomized & scrubbed of duplicates (if possible)
+        """
+
+        shuffle(p4b)
+        pretty_list = []
+        for p in p4b:
+            # we have a candidate photo, see if a copy is already in the list
+            insert_p = True
+            for dupe_check in pretty_list:
+                if dupe_check._photometa.thumb_hash == p._photometa.thumb_hash:
+                    insert_p = False
+                    break
+            if insert_p:
+                pretty_list.append(p)
+                if len(pretty_list) == ballot_size:
+                    return pretty_list
+
+        # worst cases just return a random list
+        return p4b[:ballot_size]
 
     def read_photos_by_ballots_round1(self, session, uid, c, num_votes, count):
         '''

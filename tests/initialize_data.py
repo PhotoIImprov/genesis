@@ -317,13 +317,7 @@ class InitEnvironment(unittest.TestCase):
 
         _thread.exit()
 
-    def test_initialize_server(self):
-        # okay, we're going to create users & upload photos
-#        self._base_url = 'http://104.198.176.198:8080'
-        self._base_url = "https://api.imageimprov.com"
-
-        return self.massive_photo_upload()
-
+    def register_test_users(self):
         user_list = []
         for uname in self._users:
             tu = test_REST_login.TestUser()
@@ -332,8 +326,17 @@ class InitEnvironment(unittest.TestCase):
             if rsp is not None:
                 user_list.append(tu)
 
-        if len(user_list) == 0:
-            return
+        return user_list
+
+
+    def test_initialize_server(self):
+        # okay, we're going to create users & upload photos
+#        self._base_url = 'http://104.198.176.198:8080'
+        self._base_url = "https://api.imageimprov.com"
+
+        return self.massive_photo_upload()
+
+        user_list = self.register_test_users()
 
         # get the uploading category
         cid = self.get_category_by_state(category.CategoryState.UPLOAD, tu.get_token())
