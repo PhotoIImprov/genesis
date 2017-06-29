@@ -209,20 +209,11 @@ class Photo(Base):
                 t_fn = self.create_thumb_filename()
                 image = Image.open(t_fn)
 
-            exif_dict = self.get_exif_dict(image)
-            exif_bytes = piexif.dump(exif_dict)
             b = BytesIO()
-            image.save(b, format='JPEG', exif=exif_bytes)
+            image.save(b, format='JPEG') #, exif=exif_bytes)
             thumb = b.getvalue()
-
-            self.set_orientation(1) # default is '1 as we normalize thumbnails
-            if '0th' in exif_dict:
-                self.set_orientation(exif_dict['0th'][0x112]) # use thumbnail's
-            else:
-                logger.info(msg='no orientation data in file \'{}\''.format(t_fn))
-
+            self.set_orientation(1) # should always be '1'
             return thumb
-
         except Exception as e:
             str_e = str(e)
             logger.exception(msg='error reading thumbnail image')
@@ -268,7 +259,7 @@ class Photo(Base):
         
         :param height: 
         :param width: 
-        :return: a scaling factor such that the result is no dimension smaller than _MAX_HEIGHT and _MAX_WIDTH
+        :return: a scaling factor such that the result is no dimension larger than _MAX_HEIGHT and _MAX_WIDTH
          yet retain aspect ratio
         '''
         _MAX_HEIGHT = 720
@@ -280,10 +271,16 @@ class Photo(Base):
             sfh = _MAX_HEIGHT / width
             sfw = _MAX_WIDTH / height
 
-        if sfh > sfw:
-            return sfh
+        sf = 1.0
+        if sfh < sfw:
+            sf = sfh
+        else:
+            sf = sfw
 
-        return sfw
+        if sf > 1.0:
+            sf = 1.0
+
+        return sf
 
     # get the raw exif data, not decoding
     def get_exif_dict(self, pil_img):

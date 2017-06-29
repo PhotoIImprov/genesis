@@ -28,6 +28,7 @@ class TestPhoto(DatabaseTest):
         pi = photo.PhotoImage()
         pi._extension = 'JPEG'
         pi._binary_image = ft.read()
+        ft.close()
 
         for i in range(1, 50):
             email = 'bp100a_' + str(i) + '@gmail.com'
@@ -136,6 +137,7 @@ class TestPhoto(DatabaseTest):
             path = cwd + '/photos/Galaxy Edge 7 Office Desk (full res, hdr).jpg' #'/photos/Cute_Puppy.jpg'
         ft = open(path, 'rb')
         pi._binary_image = ft.read()
+        ft.close()
 
         # first we need a resource
         r = resources.Resource.create_resource(5555, 'EN', 'Kittens')
@@ -182,6 +184,7 @@ class TestPhoto(DatabaseTest):
 
         pi = photo.PhotoImage()
         pi._binary_image = ft.read()
+        ft.close()
         pi._extension = 'JPEG'
 
         # first we need a resource
@@ -215,6 +218,7 @@ class TestPhoto(DatabaseTest):
         # read our test file
         ft = open('../photos/Cute_Puppy.jpg', 'rb')
         pi._binary_image = ft.read()
+        ft.close()
         pi._extension = 'JPEG'
 
         # create a user
@@ -280,33 +284,38 @@ class TestPhoto(DatabaseTest):
         height = 1280
         width = 720
         sf = p.compute_scalefactor(height*1, width*1)
-        assert(sf == 1.0)
+        assert(sf == 0.5625)
 
         # 720 x 1280 -> 720 x 1280
         sf = p.compute_scalefactor(width*1, height*1)
-        assert(sf == 1.0)
+        assert(sf == 0.5625)
 
-        # 1440 x 1280 -> 810 x 720
+        # 1440 x 1280 -> 720 x 640
         sf = p.compute_scalefactor(1440, 1280)
-        assert(sf == 0.5625)
+        assert(sf == 0.5)
 
-        # 1280 x 1440 -> 720 x 810
+        # 1280 x 1440 -> 640 x 720
         sf = p.compute_scalefactor(1280, 1440)
-        assert(sf == 0.5625)
+        assert(sf == 0.5)
 
         # 640 x 720 -> 640 x 720
         sf = p.compute_scalefactor(640, 720)
-        assert(sf == 1.125)
+        assert(sf == 1.0)
 
         # 640 x 480 -> 640 x 480
         sf = p.compute_scalefactor(640, 480)
-        assert(sf == 1.5)
+        assert(sf == 1.0)
+
+        # 480 x 480 -> 720 x 720
+        sf = p.compute_scalefactor(480, 480)
+        assert(sf == 1.0)
 
     def test_bad_exif_orientation(self):
         ft = open('../photos/Galaxy Edge 7 Office Desk (full res, hdr).jpg', 'rb')
         pi = photo.PhotoImage()
         pi._extension = 'JPEG'
         pi._binary_image = ft.read()
+        ft.close()
 
         p = photo.Photo()
         p._photoimage = pi
@@ -329,6 +338,7 @@ class TestPhoto(DatabaseTest):
         pi = photo.PhotoImage()
         pi._extension = 'JPEG'
         pi._binary_image = ft.read()
+        ft.close()
 
         p = photo.Photo()
         p._photoimage = pi
@@ -428,6 +438,7 @@ class TestPhoto(DatabaseTest):
         path = dbsetup.image_store(dbsetup.determine_environment(None))
         fn = open(path + "/test_read_thumbnail.jpeg", "wb")
         fn.write(binary_img)
+        fn.close()
 
     def test_iiServer_preview(self):
         self.setup()
