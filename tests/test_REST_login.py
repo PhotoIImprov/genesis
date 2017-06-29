@@ -388,6 +388,7 @@ class TestPhotoUpload(iiBaseUnitTest):
         ft = open('../photos/Suki.JPG', 'rb')
         assert (ft is not None)
         ph = ft.read()
+        ft.close()
         assert (ph is not None)
 
         cid = TestCategory().get_category_by_state(category.CategoryState.UPLOAD, token=self.get_token())
@@ -1108,3 +1109,18 @@ class TestLastSubmission(iiBaseUnitTest):
         self.tearDown()
 
 
+class TestTraction(iiBaseUnitTest):
+
+    def get_headers(self):
+        headers = Headers()
+        headers.add('content-type', 'text/html')
+        headers.add('User-Agent', 'Python Tests')
+        return headers
+
+    def test_landing_page(self):
+        rsp = self.app.get(path='/play/harry', headers=self.get_headers())
+        assert(rsp.status_code == 302)
+
+    def test_landing_page_nocampaign(self):
+        rsp = self.app.get(path='/play', headers=self.get_headers())
+        assert(rsp.status_code == 302)

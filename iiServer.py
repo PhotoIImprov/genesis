@@ -2,7 +2,7 @@ import datetime
 import base64
 
 from flask import Flask, jsonify
-from flask     import request, make_response, current_app
+from flask     import request, redirect, make_response, current_app
 from flask_jwt import JWT, jwt_required, current_identity
 import jwt
 from flask_api import status
@@ -15,6 +15,7 @@ from models import photo
 from models import voting
 from models import category
 from models import error
+from models import traction
 import json
 from flask_swagger import swagger
 from leaderboard.leaderboard import Leaderboard
@@ -34,7 +35,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '0.9.9.2' #our version string PEP 440
+__version__ = '0.9.9.3' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -224,6 +225,7 @@ def hello():
                 "<li>Active Photos</li>" \
                 "<li>cleaned ballot list</li>" \
                 "<li>no upscale</li>" \
+                "<li>traction log</li>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
@@ -1428,6 +1430,24 @@ def register():
     finally:
         session.close()
         return rsp
+
+@app.route('/play/<string:campaign>')
+@app.route('/play')
+def landingpage(campaign=None):
+    session = dbsetup.Session()
+    target_url = 'https://play.google.com/store/apps/details?id=com.imageimprov&hl=en'
+    try:
+        str_header = str(request.headers)
+        str_referer = request.referrer
+        tl = traction.TractionLog(campaign=campaign, header=str_header, referer=str_referer)
+        session.add(tl)
+        session.commit()
+    except Exception as e:
+        logger.exception(msg='error in traction logging')
+        pass    # swallow up errors and redirect
+    finally:
+        session.close()
+        return redirect(target_url, code=302)
 
 @app.route('/preview/<int:pid>')
 def download_photo(pid):
