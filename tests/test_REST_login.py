@@ -399,19 +399,25 @@ class TestPhotoUpload(iiBaseUnitTest):
         rsp = self.app.post(path='/photo', data=json.dumps(dict(category_id=cid, extension=ext, image=b64img)),
                             headers=self.get_header_json())
 
-        assert(rsp.status_code == 201)
+        assert(rsp.status_code == 201 or rsp.status_code == 200)
         data = json.loads(rsp.data.decode("utf-8"))
-        filename = data['filename']
-        assert(filename is not None)
+        if rsp.status_code == 201:
+            filename = data['filename']
+            assert(filename is not None)
+            # let's read back the filename while we are here
+            rsp = self.app.get(path='/image', query_string=urlencode({'filename': filename}),
+                               headers=self.get_header_html())
 
-        # let's read back the filename while we are here
-        rsp = self.app.get(path='/image', query_string=urlencode({'filename':filename}),
-                           headers=self.get_header_html())
+            assert (rsp.status_code == 200)
+            data = json.loads(rsp.data.decode("utf-8"))
+            b64_photo = data['image']
+            assert (len(b64_photo) == len(b64img))
+        else:
+            ballots = data['ballots']
+            if len(ballots) != 4:
+                assert (False)
+            assert (len(ballots) == 4)
 
-        assert(rsp.status_code == 200)
-        data = json.loads(rsp.data.decode("utf-8"))
-        b64_photo = data['image']
-        assert(len(b64_photo) == len(b64img))
 
         self._cid = cid
         return
@@ -969,11 +975,11 @@ class TestLeaderBoard(iiBaseUnitTest):
         b64img = img.decode("utf-8")
         rsp = self.app.post(path='/photo', data=json.dumps(dict(category_id=cid, extension=ext, image=b64img)),
                             headers=self.get_header_json())
-        if rsp.status_code != 201:
+        if rsp.status_code != 201 and rsp.status_code != 200:
             rsp = self.app.post(path='/photo', data=json.dumps(dict(category_id=cid, extension=ext, image=b64img)),
                                 headers=self.get_header_json())
 
-        assert (rsp.status_code == 201)
+        assert (rsp.status_code == 201 or rsp.status_code == 200)
         return
 
     def get_ballot_by_user(self, tu):

@@ -268,7 +268,7 @@ class BallotManager:
         '''
 
         # Voting Rounds are stored in the category, 0= Round #1, 1= Round #2
-        pl = self.create_ballot_list(session, uid, c)
+        pl = self.create_ballot_list(session, uid, c, allow_upload)
         self.update_votinground(session, c, pl)
         return self.add_photos_to_ballot(session, uid, c, pl)
 
@@ -343,7 +343,7 @@ class BallotManager:
     #
     # if we can't get 'count' photos, then we are done
     # Round #1...
-    def create_ballot_list(self, session, uid, c, allow_upload=False):
+    def create_ballot_list(self, session, uid, c, allow_upload):
         '''
         
         :param session: 
