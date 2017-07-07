@@ -1232,13 +1232,13 @@ def photo_upload():
         if rsp is None:
             rsp = make_response(jsonify({'msg': error.error_string('UPLOAD_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        # if the user has successfully uploaded a picture, and there are
-        # at least 50 images in this category, then let's send back
-        # a ballot for that category
-        if rsp.status_code == status.HTTP_201_CREATED and num_photos_in_category > dbsetup.Configuration.UPLOAD_CATEGORY_PICS:
-            return return_ballot(dbsetup.Session(), uid, cid)
+    # if the user has successfully uploaded a picture, and there are
+    # at least 50 images in this category, then let's send back
+    # a ballot for that category
+    if rsp.status_code == status.HTTP_201_CREATED and num_photos_in_category > dbsetup.Configuration.UPLOAD_CATEGORY_PICS:
+        return return_ballot(dbsetup.Session(), uid, cid)
 
-        return rsp
+    return rsp
 
 @app.route("/file/<int:cid>", methods=['POST'])
 @jwt_required()
