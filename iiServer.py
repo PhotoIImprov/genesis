@@ -35,7 +35,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '0.9.9.5' #our version string PEP 440
+__version__ = '0.9.9.6' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -963,14 +963,17 @@ def return_ballot(session, uid, cid):
     rsp = None
     try:
         bm = voting.BallotManager()
+        allow_upload = False
         if cid is None:
             cl = bm.active_voting_categories(session, uid)
             shuffle(cl)
             c = cl[0]
         else:
             c = category.Category.read_category_by_id(session, cid)
+            if c.state == category.CategoryState.UPLOAD.value:
+                allow_upload = True
 
-        ballots = bm.create_ballot(session, uid, c)
+        ballots = bm.create_ballot(session, uid, c, allow_upload)
         if ballots is None:
             rsp =  make_response(jsonify({'msg': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:

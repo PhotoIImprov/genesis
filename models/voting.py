@@ -256,7 +256,7 @@ class BallotManager:
             score = _ROUND2_SCORING[section][vote-1]
         return score
 
-    def create_ballot(self, session, uid, c):
+    def create_ballot(self, session, uid, c, allow_upload=False):
         '''
         Returns a ballot list containing the photos to be voted on.
         
@@ -343,7 +343,7 @@ class BallotManager:
     #
     # if we can't get 'count' photos, then we are done
     # Round #1...
-    def create_ballot_list(self, session, uid, c):
+    def create_ballot_list(self, session, uid, c, allow_upload=False):
         '''
         
         :param session: 
@@ -352,7 +352,7 @@ class BallotManager:
         :return: a list of '_NUM_BALLOT_ENTRIES'. We ask for more than this,
                 shuffle the result and trim the list lenght, so we get some randomness
         '''
-        if c.state != category.CategoryState.VOTING.value:
+        if c.state != category.CategoryState.VOTING.value and not allow_upload:
             raise Exception(errno.EINVAL, 'category not in VOTING state')
 
         # we need "count"

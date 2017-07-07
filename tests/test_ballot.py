@@ -44,6 +44,7 @@ class TestBallot(DatabaseTest):
         pi = photo.PhotoImage()
         pi._binary_image = ft.read()
         pi._extension = 'JPEG'
+        ft.close()
 
         # first we need a resource
         r = resources.Resource.create_resource(5555, 'EN', 'Kittens')

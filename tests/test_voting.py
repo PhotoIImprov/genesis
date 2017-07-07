@@ -149,7 +149,7 @@ class TestVoting(DatabaseTest):
             c = self.create_category('round 2 testing')
             u = self.create_user()
             bm = voting.BallotManager()
-            b = bm.create_ballot(self.session, u.id, c)
+            b = bm.create_ballot(self.session, u.id, c, allow_upload=False)
             assert(False)
         except Exception as e:
             assert(e.args[0] == errno.EINVAL and e.args[1] == 'category not in VOTING state')
