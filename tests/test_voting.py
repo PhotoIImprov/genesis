@@ -79,9 +79,10 @@ class TestVoting(DatabaseTest):
         c = category.Category()
         c.id = 0
 
-        lb = tm.get_leaderboard_by_category(self.session, c, check_exist=True)
-        assert(lb is not None)
-        assert(len(lb) == 0)
+        dl = tm.fetch_leaderboard(self.session, 0, c)
+        assert(dl is not None)
+        assert(len(dl) == 0)
+
         self.teardown()
 
     def test_leaderboard_invalid_category_nocheck(self):

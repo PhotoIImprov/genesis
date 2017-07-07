@@ -35,7 +35,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '0.9.9.3' #our version string PEP 440
+__version__ = '0.9.9.4' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -226,6 +226,7 @@ def hello():
                 "<li>cleaned ballot list</li>" \
                 "<li>no upscale</li>" \
                 "<li>traction log</li>" \
+                "<li>Ballot in upload response</li>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
@@ -311,6 +312,7 @@ def hello():
             num_photos = photo.Photo.count_by_category(session, c.get_id())
             htmlbody += "\n<br>number photos uploaded = <b>{}</b>".format(num_photos)
             if c.state == category.CategoryState.VOTING.value:
+                lb = tm.fetch_leaderboard(session, 0, c) # dummy user id
                 htmlbody += "\n<br>round={0} (Voting Round #{1})".format(c.round, c.round+1)
                 num_voters = voting.Ballot.num_voters_by_category(session, c.get_id())
                 htmlbody += "\n<br>number users voting = <b>{}</b>".format(num_voters)
@@ -327,6 +329,10 @@ def hello():
                     photo_cnt = session.query(photo.Photo).filter(photo.Photo.category_id == c.id).\
                                 join(voting.VotingRound, voting.VotingRound.photo_id == photo.Photo.id).count()
                     htmlbody += "\n<br>{} photos in voting_round table<br>".format(photo_cnt)
+                if lb is None:
+                    htmlbody += "\n<br>no leaderboard!"
+                else:
+                    htmlbody += "\n<br>found leaderboard"
 
             if c.state == category.CategoryState.UPLOAD.value:
                 q = session.query(photo.Photo.user_id).distinct().filter(photo.Photo.category_id == c.get_id())
@@ -1153,6 +1159,15 @@ def photo_upload():
     security:
       - JWT: []
     responses:
+      200:
+         description: 'list of images to vote on for the category just uploaded to (if at least 50 images in category)'
+         properties:
+           ballots:
+             type: array
+             items:
+               $ref: '#/definitions/Ballot'
+           category:
+             $ref: '#/definitions/Category'
       201:
         description: "The image was properly uploaded!"
         schema:
@@ -1196,12 +1211,14 @@ def photo_upload():
 
     rsp = None
     session = dbsetup.Session()
+    num_photos_in_category = 0
     try:
         p = photo.Photo()
         d = p.save_user_image(session, pi, uid, cid)
         session.commit()
         if d['error'] is not None:
             rsp = make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
+            num_photos_in_category = photo.Photo.count_by_category(session, cid)
         else:
             rsp = make_response(jsonify({'msg': error.error_string('PHOTO_UPLOADED'), 'filename': d['arg']}), status.HTTP_201_CREATED)
     except Exception as e:
@@ -1211,6 +1228,12 @@ def photo_upload():
         session.close()
         if rsp is None:
             rsp = make_response(jsonify({'msg': error.error_string('UPLOAD_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # if the user has successfully uploaded a picture, and there are
+        # at least 50 images in this category, then let's send back
+        # a ballot for that category
+        if rsp.status_code == status.HTTP_201_CREATED and num_photos_in_category > dbsetup.Configuration.UPLOAD_CATEGORY_PICS:
+            return return_ballot(dbsetup.Session(), uid, cid)
 
         return rsp
 

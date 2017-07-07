@@ -449,6 +449,30 @@ class BallotManager:
             filter(photo.Photo.active == 1). \
             group_by(category.Category.id).having(func.count(photo.Photo.id) > 4)
         cl = q.all()
+
+        # see if the user has uploaded to the current UPLOAD category, and if they have check to see
+        # if there are enough photos include it in the vote-able category list
+        q = session.query(category.Category).filter(category.Category.state == category.CategoryState.UPLOAD.value).\
+            join(photo.Photo, photo.Photo.category_id == category.Category.id).\
+            filter(photo.Photo.user_id == uid).\
+            filter(photo.Photo.active == 1). \
+            group_by(category.Category.id).having(func.count(photo.Photo.id) > 0)
+        c_can_vote_on = q.all()
+
+        if len(c_can_vote_on) > 0:
+            q = session.query(category.Category).filter(category.Category.state == category.CategoryState.UPLOAD.value).\
+                join(photo.Photo, photo.Photo.category_id == category.Category.id).\
+                filter(photo.Photo.user_id != uid).\
+                filter(photo.Photo.active == 1). \
+                group_by(category.Category.id).having(func.count(photo.Photo.id) > dbsetup.Configuration.UPLOAD_CATEGORY_PICS)
+            c_upload = q.all()
+
+            # only items in c_can_vote_on and also in c_upload can be voted on
+            # so "AND" the lists
+            c_voteable = set(c_can_vote_on).intersection(c_upload)
+            if len(c_voteable) > 0:
+                cl.append(c_voteable)
+
         return cl
 
 
@@ -563,8 +587,7 @@ class TallyMan():
         '''
         try:
             if check_exist and not self.leaderboard_exists(session, c):
-                lb = []
-                return lb # need an empty list
+                None
 
             lb = Leaderboard(self.leaderboard_name(c), host=self._redis_host, port=self._redis_port, page_size=10)
             return lb
@@ -641,7 +664,7 @@ class TallyMan():
                             lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'orientation': self._orientation, 'image' : b64_utf8})
 
             return lb_list
-        except:
+        except Exception as e:
             logger.exception(msg="error fetching leaderboard")
             if c is not None:
                 logger.info(msg="leaderboard error for category id ={}".format(c.id))

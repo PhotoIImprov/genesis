@@ -23,6 +23,9 @@ class EnvironmentType(Enum):
     STAGE   = 3
     PROD    = 4
 
+class Configuration():
+    UPLOAD_CATEGORY_PICS = 50
+
 def determine_environment(hostname):
     if hostname is None:
         hostname = str.upper(os.uname()[1])
