@@ -13,6 +13,7 @@ from handlers import dbg_handler
 from logsetup import logger
 from flask import Flask, jsonify
 import json
+import dbsetup
 
 class TestVoting(DatabaseTest):
 
@@ -102,11 +103,11 @@ class TestVoting(DatabaseTest):
 
         assert(name == 'anonymous{}'.format(au.id))
 
-    def create_category(self):
+    def create_category(self, category_name):
         # first we need a resource
         max_resource_id = self.session.query(func.max(resources.Resource.resource_id)).one()
         rid = max_resource_id[0] + 1
-        r = resources.Resource.create_resource(rid, 'EN', 'round 2 testing')
+        r = resources.Resource.create_resource(rid, 'EN', category_name)
         resources.Resource.write_resource(self.session, r)
         self.session.commit()
 
@@ -145,7 +146,7 @@ class TestVoting(DatabaseTest):
         self.setup()
 
         try:
-            c = self.create_category()
+            c = self.create_category('round 2 testing')
             u = self.create_user()
             bm = voting.BallotManager()
             b = bm.create_ballot(self.session, u.id, c)
@@ -164,7 +165,7 @@ class TestVoting(DatabaseTest):
         # 2) upload 4 images
         # 3) Vote on them multiple times
 
-        c = self.create_category()
+        c = self.create_category('test_voting_max')
 
         # upload images
         u = self.create_user()
@@ -315,7 +316,7 @@ class TestVoting(DatabaseTest):
         # 2) upload 4 images
         # 3) Vote on them with 'iitags' specified
 
-        c = self.create_category()
+        c = self.create_category('test_voting_with_tags')
 
         # upload images
         u = self.create_user()
@@ -362,7 +363,7 @@ class TestVoting(DatabaseTest):
         # 2) upload 4 images
         # 3) Vote on them with 'iitags' specified
 
-        c = self.create_category()
+        c = self.create_category('test_voting_offensive')
 
         # upload images
         u = self.create_user()
@@ -460,3 +461,69 @@ class TestVoting(DatabaseTest):
             if clean_list[i] != photo_list[i]:
                 is_shuffled = True
         assert(is_shuffled)
+
+    def upload_images(self, num_images, u, c):
+        ft = open('../photos/Cute_Puppy.jpg', 'rb')
+        pi = photo.PhotoImage()
+        pi._binary_image = ft.read()
+        ft.close()
+        pi._extension = 'JPEG'
+
+        for i in range(0, num_images):
+            self.upload_image(pi, c, u)
+
+    def test_upload_ballot_return(self):
+        '''
+        Test that a ballot is return from an Upload category
+        :return:
+        '''
+
+        # First, create UPLOAD category
+        # Have user 'a' upload 40 images
+        # Have user 'b' upload an image
+        #     -> no ballot returned
+        # have user 'a' upload 10 more images
+        # have user 'c' request category list
+        #     -> upload category NOT in list
+        # have user 'c' upload 1 image
+        #    -> ballot for upload category returned
+        # have user 'c' request active category list
+        #    -> upload category in ballot list
+        #
+
+        self.setup()
+
+        bm = voting.BallotManager()
+
+        c = self.create_category('upload ballot test')
+        assert(c is not None)
+
+        user_a = self.create_user()
+        assert(user_a is not None)
+        user_b = self.create_user()
+        assert(user_b is not None)
+        user_c = self.create_user()
+        assert(user_b is not None)
+
+        # upload 40 images for user a
+        self.upload_images(dbsetup.Configuration.UPLOAD_CATEGORY_PICS - 5, user_a, c)
+
+        self.upload_images(1, user_b, c)
+        cl = bm.active_voting_categories(self.session, user_b.id)
+        assert(cl is not None)
+        for cat in cl:
+            assert(cat.id != c.id)
+
+        # okay, good, the Upload category isn't in the list. Now upload 10 more items for user 'A'
+
+        self.upload_images(6, user_a, c)
+        cl = bm.active_voting_categories(self.session, user_b.id)
+        assert(cl is not None)
+        found = False
+        for cat in cl:
+            if cat.id == c.id:
+                found = True
+                break
+        assert(found) # we should find something
+
+        self.teardown()

@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session
 from sqlalchemy import exists, and_
 import errno
-from dbsetup           import Base, Session
+from dbsetup           import Base, Session, Configuration
 from models import photo, category, usermgr
 import sys
 import json
@@ -464,14 +464,15 @@ class BallotManager:
                 join(photo.Photo, photo.Photo.category_id == category.Category.id).\
                 filter(photo.Photo.user_id != uid).\
                 filter(photo.Photo.active == 1). \
-                group_by(category.Category.id).having(func.count(photo.Photo.id) > dbsetup.Configuration.UPLOAD_CATEGORY_PICS)
+                group_by(category.Category.id).having(func.count(photo.Photo.id) > Configuration.UPLOAD_CATEGORY_PICS)
             c_upload = q.all()
 
             # only items in c_can_vote_on and also in c_upload can be voted on
             # so "AND" the lists
             c_voteable = set(c_can_vote_on).intersection(c_upload)
             if len(c_voteable) > 0:
-                cl.append(c_voteable)
+                set_list = list(c_voteable)
+                cl.extend(set_list)
 
         return cl
 
