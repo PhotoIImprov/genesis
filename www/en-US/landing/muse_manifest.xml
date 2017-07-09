@@ -1,0 +1,45 @@
+<manifest alg="2" build="2017.0.3.363" opt="true" iceEnabled="true" iceMarkupVersion="2" iceEnabledOptions="link,responsive,cachebuster,textStyling" exportTarget="other" domain="www.imageimprov.com" resolutions="1x" timestamp="1499562687737">
+  <folder name="css">
+    <file name="site_global.css" crc="238246755"/>
+    <file name="master_a-master.css" crc="331195825" ref="index"/>
+    <file name="nomq_preview_master_a-master.css" crc="261058338" ref="index"/>
+    <file name="index.css" crc="344357416" ref="index"/>
+    <file name="nomq_index.css" crc="3846292247" ref="index"/>
+  </folder>
+  <folder name="assets">
+    <file name="google-play-badge.eps" crc="4121298535" seo="true" mt="1499545681000"/>
+  </folder>
+  <folder name="scripts">
+    <file name="jquery-1.8.3.min.js" crc="209076791" ref="index"/>
+    <file name="museutils.js" crc="46400467" ref="index"/>
+    <file name="whatinput.js" crc="86476730" ref="index"/>
+    <file name="museconfig.js" crc="4273287925" ref="index"/>
+    <file name="jquery.watch.js" crc="4178585335" ref="index"/>
+    <file name="jquery.museresponsive.js" crc="52098982" ref="index"/>
+    <file name="require.js" crc="85721165" ref="index"/>
+  </folder>
+  <folder name="images">
+    <file name="ii_appicon_ii_icon.svg" crc="501930126" seo="true" ref="index">
+      <caption webpage="index" alt=""/>
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="ii_appicon_ii_icon_poster_.png" crc="4276015540" ref="index"/>
+    <file name="google-play-badge.svg" crc="385143708" seo="true" ref="index">
+      <caption webpage="index" alt=""/>
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="google-play-badge_poster_.png" crc="3823035430" ref="index"/>
+    <file name="download_on_the_app_store_badge_us-uk_135x40.svg" crc="205710994" seo="true" ref="index">
+      <caption webpage="index" alt=""/>
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="download_on_the_app_store_badge_us-uk_135x40_poster_.png" crc="450387487" ref="index"/>
+    <file name="pattern.png" crc="3813375867" ref="index">
+      <caption webpage="index" alt=""/>
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="blank.gif" crc="4208392903" ref="index"/>
+    <file name="favicon.ico" crc="4169450446" ref="index"/>
+  </folder>
+  <file name="index.html" crc="3882200712" seo="true" mt="1499562650804" redirect="true"/>
+</manifest>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>http://www.imageimprov.com/index.html</loc>
+    <lastmod>2017-07-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+    <image:image>
+      <image:loc>http://www.imageimprov.com/images/ii_appicon_ii_icon.svg</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>http://www.imageimprov.com/images/google-play-badge.svg</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>http://www.imageimprov.com/images/download_on_the_app_store_badge_us-uk_135x40.svg</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>http://www.imageimprov.com/assets/google-play-badge.eps</loc>
+    <lastmod>2017-07-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>
