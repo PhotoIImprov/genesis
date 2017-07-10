@@ -1465,7 +1465,7 @@ def landingpage(campaign=None):
     if campaign is None:
         campaign = 'none'
 
-    target_url = 'https://www.imageimprov.com/fun/index.html?campaign=' + campaign
+    target_url = url_for('/fun/index.html?campaign=' + campaign)
     try:
         str_header = str(request.headers)
         str_referer = request.referrer
