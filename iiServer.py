@@ -1,7 +1,7 @@
 import datetime
 import base64
 
-from flask import Flask, jsonify, url_for
+from flask import Flask, jsonify
 from flask     import request, redirect, make_response, current_app
 from flask_jwt import JWT, jwt_required, current_identity
 import jwt
@@ -28,6 +28,7 @@ from random import shuffle
 from datetime import timedelta
 
 from logsetup import logger, client_logger
+from urllib.parse import urlparse
 
 app = Flask(__name__)
 app.debug = True
@@ -1465,7 +1466,8 @@ def landingpage(campaign=None):
     if campaign is None:
         campaign = 'none'
 
-    target_url = url_for('/fun/index.html?campaign=' + campaign)
+    o = urlparse(request.base_url)
+    target_url = o.scheme + '://' + o.netloc + '/fun/index.html?campaign=' + campaign
     try:
         str_header = str(request.headers)
         str_referer = request.referrer
