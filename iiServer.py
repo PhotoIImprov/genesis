@@ -1462,7 +1462,10 @@ def register():
 @app.route('/play')
 def landingpage(campaign=None):
     session = dbsetup.Session()
-    target_url = 'https://play.google.com/store/apps/details?id=com.imageimprov&hl=en'
+    if campaign is None:
+        campaign = 'none'
+
+    target_url = 'https://www.imageimprov.com/fun/index.html?campaign=' + campaign
     try:
         str_header = str(request.headers)
         str_referer = request.referrer
