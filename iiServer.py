@@ -1457,6 +1457,16 @@ def register():
         session.close()
         return rsp
 
+@app.route('/beta1')
+def beta1():
+    landingpage('beta1')
+@app.route('/beta2')
+def beta2():
+    landingpage('beta2')
+@app.route('/beta3')
+def beta3():
+    landingpage('beta3')
+
 @app.route('/play/<string:campaign>')
 @app.route('/play')
 def landingpage(campaign=None):

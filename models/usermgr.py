@@ -4,6 +4,11 @@ from dbsetup           import Session, Base
 import hashlib
 import pymysql
 from logsetup import logger
+from oauth2client import client
+import oauth2client
+import httplib2
+import json
+import uuid
 
 class AnonUser(Base):
     __tablename__ = "anonuser"
@@ -164,6 +169,100 @@ def identity(payload):
     au = AnonUser.get_anon_user_by_id(session, user_id)
     session.close()
     return au
+
+#================================= o A u t h 2  =================================================
+class UserAuth(Base):
+    '''
+    A UserAuth record is tied to the AnonUser. There can be multiple UserAuth records, but only
+    one per service provider. The presence of this record indicates that the service provider's
+    associating to this user record has been validated.
+    '''
+    __tablename__ = 'userauth'
+
+    id = Column(Integer, ForeignKey("anonuser.id", name="fk_userauth_id"), primary_key = True)  # ties us back to our anon_user record
+    serviceprovider = Column(String(100), nullable=False, primary_key = True)
+    sid = Column(String(100), nullable=True) # if the service provider provides a unique identifier, we can track it here
+    token = Column(String(500), nullable=False, unique=True)
+    version = Column(String(16), nullable=True, unique=True)
+
+    created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
+    last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
+
+    _valid_serviceproviders = ('Google', 'Facebook')
+
+    def authenticate_user(self, session, oauth2_accesstoken, serviceprovider):
+        """
+
+        :param session:
+        :param oauth2_accesstoken: string containing the oAuth2 token from the client
+        :param serviceprovider: string of the service provider (i.e. "Facebook", "Google", "Twitter", etc.)
+        :return:
+        """
+        if oauth2_accesstoken is None:
+            logger.error(msg='access token is None!!')
+            return None
+
+        if not serviceprovider in self._valid_serviceproviders:
+            if serviceprovider is None:
+                serviceprovider = None
+            logger.error(msg='Invalid service provider = {0}'.format(serviceprovider))
+            return None
+
+        credentials = client.AccessTokenCredentials(oauth2_accesstoken, 'my-user-agent/1.0')
+        http = httplib2.Http()
+        http = credentials.authorize(http)
+        serviceprovider_email = None
+        serviceprovider_uid = None
+
+        if serviceprovider == 'Facebook':
+            try:
+                response, content = http.request('https://graph.facebook.com/v2.9/me', 'GET')
+                if response.status != 200:
+                    return False
+
+                d = json.loads(content)
+                serviceprovider_uid = d['id']
+                serviceprovider_email = d['email']
+            except Exception as e:
+                logger.info(msg="Facebook token failed {0}".format(oauth2_accesstoken))
+                return None
+
+        if serviceprovider == "Google":
+            try:
+                response, content = http.request('https://www.googleapis.com/plus/v1/people/me', 'GET')
+                if response.status != 200:
+                    return False
+
+                d = json.loads(content)
+                serviceprovider_uid = d['id']
+                g_email_list = d['emails']
+                for e in g_email_list:
+                    if e.type == 'account':
+                        serviceprovider_email = e.value
+                        break
+
+            except Exception as e:
+                msg = e.args[0]
+                if msg == 'The access_token is expired or invalid and can\'t be refreshed.':
+                    logger.info(msg=msg)
+                    return None
+
+                logger.info(msg="Google token failed {0}".format(oauth2_accesstoken))
+                return None
+
+        if service_provider_email is None:
+            return None
+
+        # See if this user is already registered
+        au = User.find_user_by_email(session, serviceprovider_email)
+        if au is not None:
+            return au
+
+        # This is the first time we have seen this user, so create an account for them
+        guid = str(uuid.uuid1())
+        guid = guid.upper().translate({ord(c): None for c in '-'})
+        au = User.create_user(session, guid, account_email, oauth2_accesstoken)
+        return au
 
 #================================= F R I E N D - L I S T ========================================
 class Friend(Base):
