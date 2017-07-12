@@ -1130,3 +1130,21 @@ class TestTraction(iiBaseUnitTest):
     def test_landing_page_nocampaign(self):
         rsp = self.app.get(path='/play', headers=self.get_headers())
         assert(rsp.status_code == 302)
+
+    def test_beta1_landing_page_nocampaign(self):
+        rsp = self.app.get(path='/beta1', headers=self.get_headers())
+        assert(rsp.status_code == 302)
+        c = rsp.data.decode("utf-8")
+        assert(c.find('campaign=beta1') != -1)
+
+    def test_beta2_landing_page_nocampaign(self):
+        rsp = self.app.get(path='/beta2', headers=self.get_headers())
+        assert(rsp.status_code == 302)
+        c = rsp.data.decode("utf-8")
+        assert(c.find('campaign=beta2') != -1)
+
+    def test_beta3_landing_page_nocampaign(self):
+        rsp = self.app.get(path='/beta3', headers=self.get_headers())
+        assert(rsp.status_code == 302)
+        c = rsp.data.decode("utf-8")
+        assert(c.find('campaign=beta3') != -1)
