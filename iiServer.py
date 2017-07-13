@@ -363,7 +363,8 @@ def hello():
                     lb_count = lb.total_members_in(lbname)
                     htmlbody += "<br>{} entries in the leaderboard".format(lb_count)
                 except Exception as e:
-                    htmlbody += "<br><i>failure getting leaderboard count for category</i>"
+                    logger.exception(msg='/config failed to get leaderboard count')
+                    htmlbody += "<br><i>failure getting leaderboard count for category ({0})</i>".format(str(e))
 
             htmlbody += "\n<br><br>"
         htmlbody += "\n</blockquote>"
