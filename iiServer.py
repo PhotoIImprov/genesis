@@ -318,7 +318,7 @@ def hello():
             num_photos = photo.Photo.count_by_category(session, c.get_id())
             htmlbody += "\n<br>number photos uploaded = <b>{}</b>".format(num_photos)
             if c.state == category.CategoryState.VOTING.value:
-                lb = tm.fetch_leaderboard(session, 0, c) # dummy user id
+                lb_list = tm.fetch_leaderboard(session, 0, c) # dummy user id
                 htmlbody += "\n<br>round={0} (Voting Round #{1})".format(c.round, c.round+1)
                 num_voters = voting.Ballot.num_voters_by_category(session, c.get_id())
                 htmlbody += "\n<br>number users voting = <b>{}</b>".format(num_voters)
@@ -335,7 +335,7 @@ def hello():
                     photo_cnt = session.query(photo.Photo).filter(photo.Photo.category_id == c.id).\
                                 join(voting.VotingRound, voting.VotingRound.photo_id == photo.Photo.id).count()
                     htmlbody += "\n<br>{} photos in voting_round table<br>".format(photo_cnt)
-                if lb is None:
+                if lb_list is None:
                     htmlbody += "\n<br>no leaderboard!"
                 else:
                     htmlbody += "\n<br>found leaderboard"
@@ -359,7 +359,7 @@ def hello():
                     htmlbody += "<b><i>undefined</b></i>"
 
                 try:
-                    lbname = tm.leaderboard_name(c)
+                    lb = tm.get_leaderboard_by_category(session, c, check_exist=True)
                     lb_count = lb.total_members_in(lbname)
                     htmlbody += "<br>{} entries in the leaderboard".format(lb_count)
                 except Exception as e:
