@@ -360,6 +360,7 @@ def hello():
 
                 try:
                     lb = tm.get_leaderboard_by_category(session, c, check_exist=True)
+                    lbname = tm.leaderboard_name(c)
                     lb_count = lb.total_members_in(lbname)
                     htmlbody += "<br>{} entries in the leaderboard".format(lb_count)
                 except Exception as e:
