@@ -162,7 +162,6 @@ class iiBaseUnitTest(unittest.TestCase):
 
         return tu
 
-
 class TestLogin(iiBaseUnitTest):
 
     _test_users = []
@@ -363,6 +362,14 @@ class TestLogin(iiBaseUnitTest):
         assert(emsg == error.error_string('MISSING_ARGS') and rsp.status_code == 400)
 
         return rsp
+
+    def test_oAuth2_FAKESERVICEPROVIDER(self):
+        rsp = self.app.post(path='/auth', data=json.dumps(dict(username='FAKESERVICEPROVIDER', password='token')),
+                            headers={'content-type': 'application/json'})
+
+        assert(rsp.status_code == 200)
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(data['email'] == 'fakeuser@fakeserviceprovider.com')
 
 class TestPhotoUpload(iiBaseUnitTest):
 

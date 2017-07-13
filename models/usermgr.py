@@ -9,6 +9,7 @@ import oauth2client
 import httplib2
 import json
 import uuid
+from flask import jsonify
 
 class AnonUser(Base):
     __tablename__ = "anonuser"
@@ -174,6 +175,12 @@ def identity(payload):
     session.close()
     return au
 
+def auth_response_handler(access_token, identity):
+    if isinstance(identity, User):
+        return jsonify({'access_token': access_token.decode('utf-8'), 'email': identity.emailaddress})
+    else:
+        return jsonify({'access_token': access_token.decode('utf-8')})
+
 #================================= o A u t h 2  =================================================
 class UserAuth(Base):
     '''
@@ -192,7 +199,7 @@ class UserAuth(Base):
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 
-    _valid_serviceproviders = ('GOOGLE', 'FACEBOOK')
+    _valid_serviceproviders = ('GOOGLE', 'FACEBOOK', 'FAKESERVICEPROVIDER')
 
     @staticmethod
     def is_oAuth2(username, password):
@@ -244,6 +251,13 @@ class UserAuth(Base):
         http = credentials.authorize(http)
         serviceprovider_email = None
         serviceprovider_uid = None
+
+        if serviceprovider == 'FAKESERVICEPROVIDER':
+            try:
+                serviceprovider_email = 'fakeuser@fakeserviceprovider.com'
+                serviceprovider_uid = 1
+            except Exception as e:
+                return None
 
         if serviceprovider == 'FACEBOOK':
             try:

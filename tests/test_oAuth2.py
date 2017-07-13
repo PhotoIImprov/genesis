@@ -15,6 +15,17 @@ from logsetup import logger
 
 class Test_oAuth2(DatabaseTest):
 
+    def test_FAKESERVICEPROVIDER_always_works(self):
+        self.setup()
+
+        token = 'DUMMY TOKEN FOR FAKE SERVICE PROVIDER'
+        o = usermgr.UserAuth()
+
+        u = o.authenticate_user(self.session, token, 'FAKESERVICEPROVIDER')
+        assert (u is not None)
+        self.teardown()
+
+
     def test_is_oAuth2(self):
         assert(usermgr.UserAuth.is_oAuth2('Google', 'token') )
         assert(usermgr.UserAuth.is_oAuth2('Facebook', 'token') )

@@ -36,7 +36,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.0.0' #our version string PEP 440
+__version__ = '1.0.1' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -67,7 +67,7 @@ app.config['JWT_VERIFY_CLAIMS'] = ['signature', 'exp'] # keep getting iat "in th
 
 _jwt = JWT(app, usermgr.authenticate, usermgr.identity)
 _jwt.jwt_decode_handler(fix_jwt_decode_handler)
-
+_jwt.auth_response_callback = usermgr.auth_response_handler # so we can add to the response going back
 
 @app.route("/spec/swagger.json")
 def spec():
@@ -122,8 +122,14 @@ def spec():
                                                            'schema':
                                                                {'properties':
                                                                     {'access_token':
-                                                                         {'type':'string'} } } },
-                                                    '401':{'description': 'user authentication failed'}},
+                                                                         {'type':'string'},
+                                                                     'email':
+                                                                         {'type':'string'}
+                                                                     }
+                                                                }
+                                                           },
+                                                    '401':{'description': 'user authentication failed'}
+                                                    },
 #                                      'security': [{'api_key':[]}],
                                       'summary' : "JWT authentication",
                                       'tags':['user']}
