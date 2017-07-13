@@ -36,7 +36,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '0.9.10' #our version string PEP 440
+__version__ = '1.0.0' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -226,6 +226,7 @@ def hello():
                 "<li>traction log</li>" \
                 "<li><s>Ballot in upload response</s></li>" \
                 "<li>Landing page redirect to HTML</li>" \
+                "<li>oAuth2 support Facebook & Google</li>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 

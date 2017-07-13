@@ -134,7 +134,7 @@ class User(Base):
 
         # Now write the new users to the database
         session.add(new_user)
-        return new_user
+        return au # return the "root" user, which is the anon users for this account
 
 #
 # JWT Callbacks
@@ -144,6 +144,10 @@ def authenticate(username, password):
     # use the username (email) to lookup the passowrd and compare
     # after we hash the one we were sent
     session = Session()
+    if UserAuth.is_oAuth2(username, password):
+        o = UserAuth()
+        return o.authenticate_user(session, password, username)
+
     if AnonUser.is_guid(username, password):
         # this is a guid, see if it's in our database after we normalize it
         guid = username.upper().translate({ord(c): None for c in '-'})
@@ -188,7 +192,32 @@ class UserAuth(Base):
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 
-    _valid_serviceproviders = ('Google', 'Facebook')
+    _valid_serviceproviders = ('GOOGLE', 'FACEBOOK')
+
+    @staticmethod
+    def is_oAuth2(username, password):
+        """
+        determine if the username/password is really a serviceprovider/token
+        :param username:
+        :param password:
+        :return:
+        """
+        serviceprovider = username.upper()
+        if not serviceprovider in UserAuth._valid_serviceproviders:
+            return False
+
+        # okay, the username is a serviceprovider name, let's do a check on the token...
+        token = password
+        return token is not None
+
+    def __init__(self, *args, **kwargs):
+        self.id = kwargs.get('uid')
+        self.serviceprovider = kwargs.get('serviceprovider')
+        if self.serviceprovider is not None:
+            self.serviceprovider = self.serviceprovider.upper()
+        self.token = kwargs.get('token')
+        self.version = kwargs.get('version')
+        self.sid = kwargs.get('serviceprovider_id')
 
     def authenticate_user(self, session, oauth2_accesstoken, serviceprovider):
         """
@@ -201,10 +230,12 @@ class UserAuth(Base):
         if oauth2_accesstoken is None:
             logger.error(msg='access token is None!!')
             return None
+        if serviceprovider is None:
+            logger.error(msg='Invalid service provider = None')
+            return None
 
+        serviceprovider = serviceprovider.upper()
         if not serviceprovider in self._valid_serviceproviders:
-            if serviceprovider is None:
-                serviceprovider = None
             logger.error(msg='Invalid service provider = {0}'.format(serviceprovider))
             return None
 
@@ -214,31 +245,34 @@ class UserAuth(Base):
         serviceprovider_email = None
         serviceprovider_uid = None
 
-        if serviceprovider == 'Facebook':
+        if serviceprovider == 'FACEBOOK':
             try:
-                response, content = http.request('https://graph.facebook.com/v2.9/me', 'GET')
+                response, content = http.request('https://graph.facebook.com/v2.9/me?fields=id,name,email', 'GET')
                 if response.status != 200:
-                    return False
+                    return None
 
-                d = json.loads(content)
+                d = json.loads(content.decode("utf-8"))
                 serviceprovider_uid = d['id']
                 serviceprovider_email = d['email']
+            except KeyError as ke:
+                logger.info(msg="Facebook response missing key {0}".format(ke.args[0]))
+                return None
             except Exception as e:
                 logger.info(msg="Facebook token failed {0}".format(oauth2_accesstoken))
                 return None
 
-        if serviceprovider == "Google":
+        if serviceprovider == 'GOOGLE':
             try:
                 response, content = http.request('https://www.googleapis.com/plus/v1/people/me', 'GET')
                 if response.status != 200:
-                    return False
+                    return None
 
-                d = json.loads(content)
+                d = json.loads(content.decode("utf-8"))
                 serviceprovider_uid = d['id']
                 g_email_list = d['emails']
                 for e in g_email_list:
-                    if e.type == 'account':
-                        serviceprovider_email = e.value
+                    if e['type'] == 'account':
+                        serviceprovider_email = e['value']
                         break
 
             except Exception as e:
@@ -250,7 +284,7 @@ class UserAuth(Base):
                 logger.info(msg="Google token failed {0}".format(oauth2_accesstoken))
                 return None
 
-        if service_provider_email is None:
+        if serviceprovider_email is None:
             return None
 
         # See if this user is already registered
@@ -261,7 +295,7 @@ class UserAuth(Base):
         # This is the first time we have seen this user, so create an account for them
         guid = str(uuid.uuid1())
         guid = guid.upper().translate({ord(c): None for c in '-'})
-        au = User.create_user(session, guid, account_email, oauth2_accesstoken)
+        au = User.create_user(session, guid, serviceprovider_email, oauth2_accesstoken)
         return au
 
 #================================= F R I E N D - L I S T ========================================
