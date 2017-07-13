@@ -134,7 +134,7 @@ class User(Base):
 
         # Now write the new users to the database
         session.add(new_user)
-        return au # return the "root" user, which is the anon users for this account
+        return new_user # return the "root" user, which is the anon users for this account
 
 #
 # JWT Callbacks
@@ -293,10 +293,16 @@ class UserAuth(Base):
             return au
 
         # This is the first time we have seen this user, so create an account for them
-        guid = str(uuid.uuid1())
-        guid = guid.upper().translate({ord(c): None for c in '-'})
-        au = User.create_user(session, guid, serviceprovider_email, oauth2_accesstoken)
-        return au
+        try:
+            guid = str(uuid.uuid1())
+            guid = guid.upper().translate({ord(c): None for c in '-'})
+            u = User.create_user(session, guid, serviceprovider_email, oauth2_accesstoken)
+            session.commit()
+            return u
+        except Exception as e:
+            logger.exception(msg="error oAuth2 user creation")
+            session.rollback()
+            return None
 
 #================================= F R I E N D - L I S T ========================================
 class Friend(Base):
