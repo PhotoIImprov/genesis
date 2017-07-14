@@ -162,7 +162,7 @@ def authenticate(username, password):
             if pbkdf2_sha256.verify(password, foundUser.hashedPWD):
                 return foundUser
 
-    logger.debug(msg="login failed for u:{0}, p:{1}".format(username, password))
+    logger.debug(msg="[/auth] login failed for u:{0}, p:{1}".format(username, password))
     return None
 
 # subsequent calls with JWT payload call here to confirm identity
@@ -312,6 +312,10 @@ class UserAuth(Base):
             guid = guid.upper().translate({ord(c): None for c in '-'})
             u = User.create_user(session, guid, serviceprovider_email, oauth2_accesstoken)
             session.commit()
+            if u is not None:
+                logger.info(msg='Created account for serviceprovider {0}, email {1}'.format(serviceprovider, serviceprovider_email))
+            else:
+                logger.error(msg='Error creating account for serviceprovider {0}, email {1}'.format(serviceprovider, serviceprovider_email))
             return u
         except Exception as e:
             logger.exception(msg="error oAuth2 user creation")

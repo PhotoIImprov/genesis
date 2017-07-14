@@ -36,7 +36,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.1.0' #our version string PEP 440
+__version__ = '1.1.1' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -222,8 +222,6 @@ def hello():
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
     htmlbody += "<ul>" \
-                "<li>logging to db</li>" \
-                "<li>prevent duplicate photos in ballot</li>" \
                 "<li>square pictures</li>" \
                 "<li>watermark images</li>" \
                 "<li>normalized thumbnails</li>" \
@@ -233,6 +231,7 @@ def hello():
                 "<li>Ballot in upload response</li>" \
                 "<li>Landing page redirect to HTML</li>" \
                 "<li>oAuth2 support Facebook & Google</li>" \
+                "<li>Extensive register/login logging</li>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
@@ -1420,17 +1419,20 @@ def register():
     # an email address and password has been posted
     # let's create a user for this
     if not request.json:
+        logger.error(msg='[/register] Error reading json')
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
     try:
         emailaddress = request.json['username']
         password     = request.json['password']
         guid         = request.json['guid']
+        logger.info(msg='[/register] registering username {0}, password {1}'.format(emailaddress, password))
     except KeyError:
         emailaddress = None
         password = None
 
     if emailaddress is None or password is None:
+        logger.error(msg='[/register] missing arguments')
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     try:
@@ -1439,20 +1441,24 @@ def register():
         if usermgr.AnonUser.is_guid(emailaddress, password):
             foundAnonUser = usermgr.AnonUser.find_anon_user(session, emailaddress)
             if foundAnonUser is not None:
+                logger.info(msg="[/register] anonymous user already exists for {0}".format(emailaddress))
                 rsp = make_response(jsonify({'msg': error.error_string('ANON_ALREADY_EXISTS')}), status.HTTP_400_BAD_REQUEST)
             else:
                 newAnonUser = usermgr.AnonUser.create_anon_user(session, emailaddress)
                 if newAnonUser is None:
+                    logger.error(msg='[/register] error creating anonymous user, emailaddress = {0}'.format(emailaddress))
                     rsp = make_response(jsonify({'msg': error.error_string('ANON_USER_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             foundUser = usermgr.User.find_user_by_email(session, emailaddress)
             if foundUser is not None:
                 rsp = make_response(jsonify({'msg':error.error_string('USER_ALREADY_EXISTS')}), status.HTTP_400_BAD_REQUEST)
+                logger.info(msg='[/register] User already exists {0}'.format(emailaddress))
             else:
                 # okay the request is valid and the user was not found, so we can
                 # create their account
                 newUser = usermgr.User.create_user(session, guid, emailaddress, password)
                 if newUser is None:
+                    logger.error(msg="[/register] error creating user, emailaddress = {0}".format(emailaddress))
                     rsp =  make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         if rsp is None:
@@ -1460,7 +1466,7 @@ def register():
         session.commit()
     except:
         session.rollback()
-        logger.exception(msg=str(e))
+        logger.exception(msg='[/register]' + str(e))
         rsp = make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         session.close()
