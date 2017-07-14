@@ -36,7 +36,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.1.1' #our version string PEP 440
+__version__ = '1.1.2' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -1462,8 +1462,8 @@ def register():
                     rsp =  make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         if rsp is None:
-            rsp = make_response(jsonify({'msg': error.error_string('ACCOUNT_CREATED')}), 201)
             session.commit()
+            rsp = make_response(jsonify({'msg': error.error_string('ACCOUNT_CREATED')}), 201)
     except:
         session.rollback()
         logger.exception(msg='[/register]' + str(e))

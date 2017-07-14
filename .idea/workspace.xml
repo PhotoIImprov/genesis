@@ -168,11 +168,11 @@
       <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/iiServer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="377">
-              <caret line="1466" column="0" lean-forward="false" selection-start-line="1466" selection-start-column="0" selection-end-line="1466" selection-end-column="0" />
+            <state relative-caret-position="126">
+              <caret line="38" column="21" lean-forward="false" selection-start-line="38" selection-start-column="21" selection-end-line="38" selection-end-column="21" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
-                <marker date="1500075378921" expanded="true" signature="10182:10207" ph="select * fro... event" />
+                <marker date="1500076450366" expanded="true" signature="10182:10207" ph="select * fro... event" />
               </folding>
             </state>
           </provider>
@@ -226,7 +226,7 @@
         <entry file="file://$PROJECT_DIR$/models/usermgr.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="401">
-              <caret line="162" column="32" lean-forward="true" selection-start-line="162" selection-start-column="32" selection-end-line="162" selection-end-column="32" />
+              <caret line="133" column="33" lean-forward="true" selection-start-line="133" selection-start-column="33" selection-end-line="133" selection-end-column="33" />
               <folding>
                 <element signature="e#0#43#0" expanded="true" />
               </folding>
@@ -318,8 +318,8 @@
       <find>/login</find>
       <find>authenticate</find>
       <find>&lt;li</find>
-      <find>/authenticate</find>
       <find>[/register</find>
+      <find>/authenticate</find>
     </findStrings>
     <replaceStrings>
       <replace>Photo</replace>
@@ -1115,9 +1115,6 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Unittests_for_test_REST_login_TestLogin_test_root_page - 2017.07.13 at 11h 19m 34s.xml">
-      <configuration name="Unittests for test_REST_login.TestLogin.test_root_page" configurationId="tests" />
-    </history-entry>
     <history-entry file="Unittests_in_tests - 2017.07.12 at 21h 26m 06s.xml">
       <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
@@ -1145,6 +1142,9 @@
     <history-entry file="Unittests_in_tests - 2017.07.14 at 19h 24m 33s.xml">
       <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
+    <history-entry file="Unittests_in_tests - 2017.07.14 at 19h 45m 17s.xml">
+      <configuration name="Unittests in tests" configurationId="tests" />
+    </history-entry>
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="27" width="1920" height="1053" extended-state="6" />
@@ -1156,7 +1156,7 @@
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32941177" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3090909" sideWeight="0.4953125" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3090909" sideWeight="0.4953125" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -1794,7 +1794,7 @@
     <entry file="file://$PROJECT_DIR$/models/usermgr.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="401">
-          <caret line="162" column="32" lean-forward="true" selection-start-line="162" selection-start-column="32" selection-end-line="162" selection-end-column="32" />
+          <caret line="133" column="33" lean-forward="true" selection-start-line="133" selection-start-column="33" selection-end-line="133" selection-end-column="33" />
           <folding>
             <element signature="e#0#43#0" expanded="true" />
           </folding>
@@ -1803,11 +1803,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/iiServer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="377">
-          <caret line="1466" column="0" lean-forward="false" selection-start-line="1466" selection-start-column="0" selection-end-line="1466" selection-end-column="0" />
+        <state relative-caret-position="126">
+          <caret line="38" column="21" lean-forward="false" selection-start-line="38" selection-start-column="21" selection-end-line="38" selection-end-column="21" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
-            <marker date="1500075378921" expanded="true" signature="10182:10207" ph="select * fro... event" />
+            <marker date="1500076450366" expanded="true" signature="10182:10207" ph="select * fro... event" />
           </folding>
         </state>
       </provider>
