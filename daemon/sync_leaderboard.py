@@ -7,7 +7,7 @@ import os
 lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
 
-from python_daemon import Daemon
+from python_daemon import myDaemon
 import redis
 from models import category, usermgr, photo, voting
 import dbsetup
@@ -16,12 +16,14 @@ from datetime import timedelta, datetime
 from logsetup import logger
 from models import sql_logging
 
+import daemon
+
 _SCHEDULED_TIME_SECONDS_DEV = 5
 _SCHEDULED_TIME_SECONDS_PROD = 60 * 5 # 5 minutes for testing
 _PAGE_SIZE_PHOTOS = 1000
 _THROTTLE_UPDATES_SECONDS = 0.010 # 10 milliseconds between '_PAGE_SIZE_PHOTOS' record updates
 
-class sync_daemon(Daemon):
+class sync_daemon(myDaemon):
 
     _pidf = None
     _logf = None
@@ -177,8 +179,8 @@ class sync_daemon(Daemon):
 
 _PIDFILE = '/var/run/synchronize_iiDaemon.pid'
 _LOGFILE = '/var/log/synchronize_iiDaemon.log'
-if __name__ == "__main__":
-    # build tables if required
+
+def start_daemon():
     dbsetup.metadata.create_all(bind=dbsetup.engine, checkfirst=True)
 
     redis_host_ip = None
@@ -213,3 +215,8 @@ if __name__ == "__main__":
     else:
         print("usage: %s start|stop|restart" & sys.argv[0])
         sys.exit(2)
+
+if __name__ == "__main__":
+    # build tables if required
+    with daemon.DaemonContext():
+        start_daemon()

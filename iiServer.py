@@ -36,7 +36,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.0.1' #our version string PEP 440
+__version__ = '1.1.0' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -230,7 +230,7 @@ def hello():
                 "<li>metadata tagging</li>" \
                 "<li>Active Photos</li>" \
                 "<li>traction log</li>" \
-                "<li><s>Ballot in upload response</s></li>" \
+                "<li>Ballot in upload response</li>" \
                 "<li>Landing page redirect to HTML</li>" \
                 "<li>oAuth2 support Facebook & Google</li>" \
                 "</ul>"
@@ -1244,8 +1244,8 @@ def photo_upload():
     # if the user has successfully uploaded a picture, and there are
     # at least 50 images in this category, then let's send back
     # a ballot for that category
-#    if rsp.status_code == status.HTTP_201_CREATED and num_photos_in_category > dbsetup.Configuration.UPLOAD_CATEGORY_PICS:
-#        return return_ballot(dbsetup.Session(), uid, cid)
+    if rsp.status_code == status.HTTP_201_CREATED and num_photos_in_category > dbsetup.Configuration.UPLOAD_CATEGORY_PICS:
+        return return_ballot(dbsetup.Session(), uid, cid)
 
     return rsp
 

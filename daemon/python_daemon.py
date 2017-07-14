@@ -3,7 +3,7 @@
 import sys, os, time, atexit
 from signal import SIGTERM 
 
-class Daemon:
+class myDaemon:
 	"""
 	A generic daemon class.
 	
