@@ -2,7 +2,7 @@
 Description=Image Improv Leaderboard generator
 
 [Service]
-WorkingDirectory=/home/hcollins/dev/genesis/daemon
+WorkingDirectory=/home/bp100a/genesis/daemon
 ExecStart=/usr/bin/python3 sync_leaderboard.py
 Restart=always
 
