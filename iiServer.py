@@ -1463,7 +1463,7 @@ def register():
 
         if rsp is None:
             rsp = make_response(jsonify({'msg': error.error_string('ACCOUNT_CREATED')}), 201)
-        session.commit()
+            session.commit()
     except:
         session.rollback()
         logger.exception(msg='[/register]' + str(e))
