@@ -1,0 +1,10 @@
+[Unit]
+Description=Image Improv Leaderboard generator
+
+[Service]
+WorkingDirectory=/home/hcollins/dev/genesis/daemon
+ExecStart=/usr/bin/python3 sync_leaderboard.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

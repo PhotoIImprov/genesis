@@ -53,7 +53,6 @@ class sync_daemon(myDaemon):
 
         m = "Leaderboard synchronization started, sleep time {} seconds".format(schedule_time)
         logger.info(msg=m)
-        print(m)
         pass_number = 1
         while True:
             session = dbsetup.Session()
@@ -132,6 +131,7 @@ class sync_daemon(myDaemon):
             tm._redis_host = self._redis_host
             tm._redis_port = self._redis_port
             tm._redis_conn = self._redis_conn
+            logger.info("Connected to Redis server {0}:{1}".format(tm._redis_host, tm._redis_port))
 
         self._current_lbname = tm.leaderboard_name(c)
         lb_exists = self._redis_conn.exists(self._current_lbname) == 1
@@ -194,9 +194,9 @@ def start_daemon():
                 redis_host_port = kwarg[1]
 
     if redis_host_ip is not None:
-        print ("redis_host_ip = %s"% redis_host_ip)
+        logger.info("Redis host IP specified ({0})".format(redis_host_ip))
     if redis_host_port is not None:
-        print ("redis_host_port = %s" % redis_host_port)
+        logger.info("Redis host port specified ({0})".format(redis_host_port))
 
     daemon = sync_daemon(pidf=_PIDFILE, logf=_LOGFILE)
     daemon.run(ip=redis_host_ip, port=redis_host_port)
@@ -217,6 +217,5 @@ def start_daemon():
         sys.exit(2)
 
 if __name__ == "__main__":
-    # build tables if required
-    with daemon.DaemonContext():
-        start_daemon()
+   # with daemon.DaemonContext(pidfile=_PIDFILE, stderr=_LOGFILE, detach_process=True):
+    start_daemon()
