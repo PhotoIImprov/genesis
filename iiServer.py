@@ -1466,7 +1466,7 @@ def register():
             rsp = make_response(jsonify({'msg': error.error_string('ACCOUNT_CREATED')}), 201)
     except Exception as e:
         session.rollback()
-        logger.exception(msg='[/register]' + str(e))
+        logger.exception(msg='[/register] registering user')
         rsp = make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         if rsp is None:

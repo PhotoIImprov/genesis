@@ -168,11 +168,11 @@
       <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/iiServer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="407">
-              <caret line="1467" column="0" lean-forward="false" selection-start-line="1467" selection-start-column="0" selection-end-line="1467" selection-end-column="0" />
+            <state relative-caret-position="306">
+              <caret line="1468" column="58" lean-forward="false" selection-start-line="1468" selection-start-column="58" selection-end-line="1468" selection-end-column="58" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
-                <marker date="1500077316551" expanded="true" signature="10182:10207" ph="select * fro... event" />
+                <marker date="1500077496358" expanded="true" signature="10182:10207" ph="select * fro... event" />
               </folding>
             </state>
           </provider>
@@ -290,7 +290,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>identity</find>
       <find>authentic</find>
       <find>Invalid JWT</find>
       <find>url</find>
@@ -319,6 +318,7 @@
       <find>&lt;li</find>
       <find>/authenticate</find>
       <find>[/register</find>
+      <find>Exception as e:</find>
       <find>/register</find>
     </findStrings>
     <replaceStrings>
@@ -1115,9 +1115,6 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Unittests_in_tests - 2017.07.12 at 21h 26m 06s.xml">
-      <configuration name="Unittests in tests" configurationId="tests" />
-    </history-entry>
     <history-entry file="Unittests_in_tests - 2017.07.13 at 11h 19m 01s.xml">
       <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
@@ -1143,6 +1140,9 @@
       <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
     <history-entry file="Unittests_in_tests - 2017.07.14 at 19h 45m 17s.xml">
+      <configuration name="Unittests in tests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_tests - 2017.07.14 at 20h 11m 02s.xml">
       <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
   </component>
@@ -1803,11 +1803,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/iiServer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="407">
-          <caret line="1467" column="0" lean-forward="false" selection-start-line="1467" selection-start-column="0" selection-end-line="1467" selection-end-column="0" />
+        <state relative-caret-position="306">
+          <caret line="1468" column="58" lean-forward="false" selection-start-line="1468" selection-start-column="58" selection-end-line="1468" selection-end-column="58" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
-            <marker date="1500077316551" expanded="true" signature="10182:10207" ph="select * fro... event" />
+            <marker date="1500077496358" expanded="true" signature="10182:10207" ph="select * fro... event" />
           </folding>
         </state>
       </provider>
