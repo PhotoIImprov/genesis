@@ -1365,6 +1365,60 @@ def log_event():
 
     return make_response(jsonify({'msg': 'OK'}), status.HTTP_200_OK)
 
+def register_anonuser(session, guid):
+    '''
+    See if the specified anonymous user is in the system,
+    if not create the acount.
+    :param session:
+    :param guid:
+    :return:
+    '''
+    foundAnonUser = usermgr.AnonUser.find_anon_user(session, guid)
+    if foundAnonUser is not None:
+        logger.info(msg="[/register] anonymous user already exists for {0}".format(guid))
+        return make_response(jsonify({'msg': error.error_string('ANON_ALREADY_EXISTS')}), status.HTTP_400_BAD_REQUEST)
+    else:
+        newAnonUser = usermgr.AnonUser.create_anon_user(session, guid)
+        if newAnonUser is None:
+            logger.error(msg='[/register] error creating anonymous user, guid = {0}'.format(guid))
+            return make_response(jsonify({'msg': error.error_string('ANON_USER_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            session.commit()
+            logger.info(msg="[/register] created anonymous user, guid = {0}".format(guid))
+            return make_response(jsonify({'msg': error.error_string('ACCOUNT_CREATED')}), 201)
+
+    return None
+
+def register_legituser(session, emailaddress, password, guid):
+    '''
+    See if the specified user is in the system, if not then create
+    a new account.
+    :param session:
+    :param emailaddress:
+    :param password:
+    :param guid:
+    :return:
+    '''
+    foundUser = usermgr.User.find_user_by_email(session, emailaddress)
+    if foundUser is not None:
+        logger.info(msg='[/register] User already exists {0}'.format(emailaddress))
+        return make_response(jsonify({'msg': error.error_string('USER_ALREADY_EXISTS')}), status.HTTP_400_BAD_REQUEST)
+
+    newUser = usermgr.User.create_user(session, guid, emailaddress, password)
+    if newUser is None:
+        logger.error(msg="[/register] error creating user, emailaddress = {0}".format(emailaddress))
+        return make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}),
+                            status.HTTP_500_INTERNAL_SERVER_ERROR)
+    logger.info(msg="[/register] created user, before commit")
+    try:
+        session.commit()
+    except:
+        logger.exception(msg='[/register] error committing')
+
+    logger.info(msg="[/register] created user, after commit")
+    logger.info(msg="[/register] created user, emailaddress = {0}".format(emailaddress))
+    return make_response(jsonify({'msg': error.error_string('ACCOUNT_CREATED')}), 201)
+
 @app.route("/register", methods=['POST'])
 def register():
     """
@@ -1439,41 +1493,9 @@ def register():
     rsp = None
     try:
         if usermgr.AnonUser.is_guid(emailaddress, password):
-            foundAnonUser = usermgr.AnonUser.find_anon_user(session, emailaddress)
-            if foundAnonUser is not None:
-                logger.info(msg="[/register] anonymous user already exists for {0}".format(emailaddress))
-                rsp = make_response(jsonify({'msg': error.error_string('ANON_ALREADY_EXISTS')}), status.HTTP_400_BAD_REQUEST)
-            else:
-                newAnonUser = usermgr.AnonUser.create_anon_user(session, emailaddress)
-                if newAnonUser is None:
-                    logger.error(msg='[/register] error creating anonymous user, emailaddress = {0}'.format(emailaddress))
-                    rsp = make_response(jsonify({'msg': error.error_string('ANON_USER_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
-                else:
-                    session.commit()
-                    logger.info(msg="[/register] created anonymous user, guid = {0}".format(emailaddress))
-                    rsp = make_response(jsonify({'msg': error.error_string('ACCOUNT_CREATED')}), 201)
+            rsp = register_anonuser(session, emailaddress)
         else:
-            foundUser = usermgr.User.find_user_by_email(session, emailaddress)
-            if foundUser is not None:
-                rsp = make_response(jsonify({'msg':error.error_string('USER_ALREADY_EXISTS')}), status.HTTP_400_BAD_REQUEST)
-                logger.info(msg='[/register] User already exists {0}'.format(emailaddress))
-            else:
-                # okay the request is valid and the user was not found, so we can
-                # create their account
-                newUser = usermgr.User.create_user(session, guid, emailaddress, password)
-                if newUser is None:
-                    logger.error(msg="[/register] error creating user, emailaddress = {0}".format(emailaddress))
-                    rsp = make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
-                else:
-                    logger.info(msg="[/register] created user, before commit")
-                    try:
-                        session.commit()
-                    except:
-                        logger.exception(msg='[/register] error committing')
-
-                    logger.info(msg="[/register] created user, after commit")
-                    rsp = make_response(jsonify({'msg': error.error_string('ACCOUNT_CREATED')}), 201)
-                    logger.info(msg="[/register] created user, emailaddress = {0}".format(emailaddress))
+            rsp = register_legituser(session, emailaddress, password, guid)
 
     except Exception as e:
         session.rollback()
