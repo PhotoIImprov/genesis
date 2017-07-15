@@ -1467,7 +1467,7 @@ def register():
                     logger.info(msg="[/register] created user, before commit")
                     try:
                         session.commit()
-                    except Exception as e:
+                    except:
                         logger.exception(msg='[/register] error committing')
 
                     logger.info(msg="[/register] created user, after commit")
