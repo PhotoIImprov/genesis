@@ -1435,9 +1435,9 @@ def register():
         logger.error(msg='[/register] missing arguments')
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
+    session = dbsetup.Session()
+    rsp = None
     try:
-        rsp = None
-        session = dbsetup.Session()
         if usermgr.AnonUser.is_guid(emailaddress, password):
             foundAnonUser = usermgr.AnonUser.find_anon_user(session, emailaddress)
             if foundAnonUser is not None:
