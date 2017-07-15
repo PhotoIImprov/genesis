@@ -36,7 +36,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.1.2' #our version string PEP 440
+__version__ = '1.1.3' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -1497,7 +1497,7 @@ def register():
         else:
             rsp = register_legituser(session, emailaddress, password, guid)
 
-    except Exception as e:
+    except:
         session.rollback()
         logger.exception(msg='[/register] registering user')
         rsp = make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
