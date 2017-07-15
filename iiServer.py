@@ -1451,6 +1451,7 @@ def register():
                 else:
                     session.commit()
                     logger.info(msg="[/register] created anonymous user, guid = {0}".format(emailaddress))
+                    rsp = make_response(jsonify({'msg': error.error_string('ACCOUNT_CREATED')}), 201)
         else:
             foundUser = usermgr.User.find_user_by_email(session, emailaddress)
             if foundUser is not None:
