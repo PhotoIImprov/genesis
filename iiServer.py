@@ -1411,7 +1411,7 @@ def register_legituser(session, emailaddress, password, guid):
                             status.HTTP_500_INTERNAL_SERVER_ERROR)
     logger.info(msg="[/register] created user, before commit")
     try:
-        session.commit()
+        session.flush()
     except:
         logger.exception(msg='[/register] error committing')
 
@@ -1496,7 +1496,6 @@ def register():
             rsp = register_anonuser(session, emailaddress)
         else:
             rsp = register_legituser(session, emailaddress, password, guid)
-
     except:
         session.rollback()
         logger.exception(msg='[/register] registering user')
