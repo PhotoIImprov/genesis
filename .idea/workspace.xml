@@ -170,11 +170,11 @@
       <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/iiServer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
-              <caret line="1506" column="0" lean-forward="false" selection-start-line="1506" selection-start-column="0" selection-end-line="1506" selection-end-column="0" />
+            <state relative-caret-position="270">
+              <caret line="1484" column="38" lean-forward="true" selection-start-line="1484" selection-start-column="38" selection-end-line="1484" selection-end-column="38" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
-                <marker date="1500082298220" expanded="true" signature="10182:10207" ph="select * fro... event" />
+                <marker date="1500082752233" expanded="true" signature="10194:10219" ph="select * fro... event" />
               </folding>
             </state>
           </provider>
@@ -237,22 +237,10 @@
       <file leaf-file-name="usermgr.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models/usermgr.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="185">
-              <caret line="45" column="8" lean-forward="false" selection-start-line="45" selection-start-column="8" selection-end-line="45" selection-end-column="8" />
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding>
                 <element signature="e#0#43#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="voting.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/voting.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="9504">
-              <caret line="544" column="8" lean-forward="false" selection-start-line="544" selection-start-column="8" selection-end-line="544" selection-end-column="8" />
-              <folding>
-                <element signature="e#0#92#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -261,11 +249,21 @@
       <file leaf-file-name="test_oAuth2.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tests/test_oAuth2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
-              <caret line="26" column="0" lean-forward="false" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
+            <state relative-caret-position="342">
+              <caret line="29" column="62" lean-forward="true" selection-start-line="29" selection-start-column="62" selection-end-line="29" selection-end-column="62" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test_user.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/test_user.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="223">
+              <caret line="62" column="0" lean-forward="false" selection-start-line="60" selection-start-column="0" selection-end-line="62" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -292,8 +290,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>url</find>
-      <find>jwt_auth_</find>
       <find>authentication_handler</find>
       <find>auth_res</find>
       <find>autheitc</find>
@@ -321,6 +317,8 @@
       <find>/photo</find>
       <find>request.data</find>
       <find>utf-8</find>
+      <find>-c</find>
+      <find>uuid</find>
       <find>/register</find>
     </findStrings>
     <replaceStrings>
@@ -1259,12 +1257,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>1125</line>
+          <line>1126</line>
           <option name="timeStamp" value="850" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>1129</line>
+          <line>1130</line>
           <option name="timeStamp" value="855" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1274,12 +1272,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>636</line>
+          <line>637</line>
           <option name="timeStamp" value="949" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>639</line>
+          <line>640</line>
           <option name="timeStamp" value="950" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1294,12 +1292,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>1305</line>
+          <line>1306</line>
           <option name="timeStamp" value="1124" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>1579</line>
+          <line>1584</line>
           <option name="timeStamp" value="1125" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1334,7 +1332,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>993</line>
+          <line>994</line>
           <option name="timeStamp" value="1239" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1394,12 +1392,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>1474</line>
+          <line>1475</line>
           <option name="timeStamp" value="1275" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>1499</line>
+          <line>1504</line>
           <option name="timeStamp" value="1276" />
         </line-breakpoint>
       </breakpoints>
@@ -1696,13 +1694,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="385">
           <caret line="52" column="0" lean-forward="false" selection-start-line="52" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_user.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="213">
-          <caret line="26" column="23" lean-forward="true" selection-start-line="26" selection-start-column="23" selection-end-line="26" selection-end-column="23" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1738,16 +1730,6 @@
           <caret line="544" column="8" lean-forward="false" selection-start-line="544" selection-start-column="8" selection-end-line="544" selection-end-column="8" />
           <folding>
             <element signature="e#0#92#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_oAuth2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="26" column="0" lean-forward="false" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#29#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1804,16 +1786,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/models/usermgr.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="185">
-          <caret line="45" column="8" lean-forward="false" selection-start-line="45" selection-start-column="8" selection-end-line="45" selection-end-column="8" />
-          <folding>
-            <element signature="e#0#43#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tests/test_REST_login.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
@@ -1822,13 +1794,41 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_oAuth2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="29" column="62" lean-forward="true" selection-start-line="29" selection-start-column="62" selection-end-line="29" selection-end-column="62" />
+          <folding>
+            <element signature="e#0#29#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_user.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="223">
+          <caret line="62" column="0" lean-forward="false" selection-start-line="60" selection-start-column="0" selection-end-line="62" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/usermgr.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#43#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/iiServer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="1506" column="0" lean-forward="false" selection-start-line="1506" selection-start-column="0" selection-end-line="1506" selection-end-column="0" />
+        <state relative-caret-position="270">
+          <caret line="1484" column="38" lean-forward="true" selection-start-line="1484" selection-start-column="38" selection-end-line="1484" selection-end-column="38" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
-            <marker date="1500082298220" expanded="true" signature="10182:10207" ph="select * fro... event" />
+            <marker date="1500082752233" expanded="true" signature="10194:10219" ph="select * fro... event" />
           </folding>
         </state>
       </provider>

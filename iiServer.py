@@ -29,6 +29,7 @@ from datetime import timedelta
 
 from logsetup import logger, client_logger
 from urllib.parse import urlparse
+import uuid
 
 app = Flask(__name__)
 app.debug = True
@@ -1481,6 +1482,10 @@ def register():
         password     = request.json['password']
         guid         = request.json['guid']
         logger.info(msg='[/register] registering username {0}, password {1}'.format(emailaddress, password))
+        if guid is None or guid == "":
+            guid = str(uuid.uuid1())
+            guid = guid.upper().translate({ord(c): None for c in '-'})
+
     except KeyError:
         emailaddress = None
         password = None
