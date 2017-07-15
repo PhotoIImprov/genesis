@@ -1503,6 +1503,7 @@ def register():
     finally:
         if rsp is None:
             logger.error(msg='[/register] response is empty!!')
+            logger.error(msg="[/register] content ={0}".format(request.data.decode('utf-8')))
             rsp = make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
         session.close()
         return rsp
