@@ -1465,7 +1465,11 @@ def register():
                     rsp = make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
                 else:
                     logger.info(msg="[/register] created user, before commit")
-                    session.commit()
+                    try:
+                        session.commit()
+                    except Exception as e:
+                        logger.exception(msg='[/register] error committing')
+
                     logger.info(msg="[/register] created user, after commit")
                     rsp = make_response(jsonify({'msg': error.error_string('ACCOUNT_CREATED')}), 201)
                     logger.info(msg="[/register] created user, emailaddress = {0}".format(emailaddress))
