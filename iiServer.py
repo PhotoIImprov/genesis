@@ -1410,13 +1410,7 @@ def register_legituser(session, emailaddress, password, guid):
         logger.error(msg="[/register] error creating user, emailaddress = {0}".format(emailaddress))
         return make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}),
                             status.HTTP_500_INTERNAL_SERVER_ERROR)
-    logger.info(msg="[/register] created user, before commit")
-    try:
-        session.flush()
-    except:
-        logger.exception(msg='[/register] error committing')
-
-    logger.info(msg="[/register] created user, after commit")
+    session.commit()
     logger.info(msg="[/register] created user, emailaddress = {0}".format(emailaddress))
     return make_response(jsonify({'msg': error.error_string('ACCOUNT_CREATED')}), 201)
 
@@ -1486,7 +1480,6 @@ def register():
             guid = str(uuid.uuid1())
             guid = guid.upper().translate({ord(c): None for c in '-'})
             logger.info(msg='[/register] creating guid = {0}'.format(guid))
-
     except KeyError:
         emailaddress = None
         password = None

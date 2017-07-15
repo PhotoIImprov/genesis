@@ -170,11 +170,11 @@
       <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/iiServer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="324">
-              <caret line="1487" column="75" lean-forward="true" selection-start-line="1487" selection-start-column="75" selection-end-line="1487" selection-end-column="75" />
+            <state relative-caret-position="342">
+              <caret line="1413" column="0" lean-forward="false" selection-start-line="1413" selection-start-column="0" selection-end-line="1413" selection-end-column="0" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
-                <marker date="1500082919919" expanded="true" signature="10194:10219" ph="select * fro... event" />
+                <marker date="1500083464627" expanded="true" signature="10194:10219" ph="select * fro... event" />
               </folding>
             </state>
           </provider>
@@ -237,7 +237,7 @@
       <file leaf-file-name="usermgr.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models/usermgr.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
+            <state relative-caret-position="-1350">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding>
                 <element signature="e#0#43#0" expanded="true" />
@@ -1127,9 +1127,6 @@
     <history-entry file="Unittests_for_test_REST_login_TestLogin_test_login - 2017.07.14 at 21h 18m 44s.xml">
       <configuration name="Unittests for test_REST_login.TestLogin.test_login" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_tests - 2017.07.14 at 19h 45m 17s.xml">
-      <configuration name="Unittests in tests" configurationId="tests" />
-    </history-entry>
     <history-entry file="Unittests_in_tests - 2017.07.14 at 20h 11m 02s.xml">
       <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
@@ -1143,6 +1140,9 @@
       <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
     <history-entry file="Unittests_in_tests - 2017.07.14 at 21h 28m 10s.xml">
+      <configuration name="Unittests in tests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_tests - 2017.07.14 at 21h 51m 39s.xml">
       <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
   </component>
@@ -1297,7 +1297,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>1585</line>
+          <line>1578</line>
           <option name="timeStamp" value="1125" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1392,12 +1392,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>1475</line>
+          <line>1469</line>
           <option name="timeStamp" value="1275" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>1505</line>
+          <line>1498</line>
           <option name="timeStamp" value="1276" />
         </line-breakpoint>
       </breakpoints>
@@ -1814,7 +1814,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/models/usermgr.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
+        <state relative-caret-position="-1350">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#43#0" expanded="true" />
@@ -1824,11 +1824,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/iiServer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="324">
-          <caret line="1487" column="75" lean-forward="true" selection-start-line="1487" selection-start-column="75" selection-end-line="1487" selection-end-column="75" />
+        <state relative-caret-position="342">
+          <caret line="1413" column="0" lean-forward="false" selection-start-line="1413" selection-start-column="0" selection-end-line="1413" selection-end-column="0" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
-            <marker date="1500082919919" expanded="true" signature="10194:10219" ph="select * fro... event" />
+            <marker date="1500083464627" expanded="true" signature="10194:10219" ph="select * fro... event" />
           </folding>
         </state>
       </provider>
