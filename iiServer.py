@@ -1464,9 +1464,9 @@ def register():
                     logger.error(msg="[/register] error creating user, emailaddress = {0}".format(emailaddress))
                     rsp = make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
                 else:
-                    logger.info(msg="[/register] created user, emailaddress = {0}".format(emailaddress))
                     session.commit()
                     rsp = make_response(jsonify({'msg': error.error_string('ACCOUNT_CREATED')}), 201)
+                    logger.info(msg="[/register] created user, emailaddress = {0}".format(emailaddress))
 
     except Exception as e:
         session.rollback()
