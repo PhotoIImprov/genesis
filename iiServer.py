@@ -1448,6 +1448,9 @@ def register():
                 if newAnonUser is None:
                     logger.error(msg='[/register] error creating anonymous user, emailaddress = {0}'.format(emailaddress))
                     rsp = make_response(jsonify({'msg': error.error_string('ANON_USER_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+                else:
+                    session.commit()
+                    logger.info(msg="[/register] created anonymous user, guid = {0}".format(emailaddress))
         else:
             foundUser = usermgr.User.find_user_by_email(session, emailaddress)
             if foundUser is not None:
@@ -1459,11 +1462,12 @@ def register():
                 newUser = usermgr.User.create_user(session, guid, emailaddress, password)
                 if newUser is None:
                     logger.error(msg="[/register] error creating user, emailaddress = {0}".format(emailaddress))
-                    rsp =  make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    rsp = make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
+                else:
+                    logger.info(msg="[/register] created user, emailaddress = {0}".format(emailaddress))
+                    session.commit()
+                    rsp = make_response(jsonify({'msg': error.error_string('ACCOUNT_CREATED')}), 201)
 
-        if rsp is None:
-            session.commit()
-            rsp = make_response(jsonify({'msg': error.error_string('ACCOUNT_CREATED')}), 201)
     except Exception as e:
         session.rollback()
         logger.exception(msg='[/register] registering user')
