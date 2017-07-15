@@ -1485,6 +1485,7 @@ def register():
         if guid is None or guid == "":
             guid = str(uuid.uuid1())
             guid = guid.upper().translate({ord(c): None for c in '-'})
+            logger.info(msg='[/register] creating guid = {0}'.format(guid))
 
     except KeyError:
         emailaddress = None
