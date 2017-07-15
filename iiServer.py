@@ -1469,6 +1469,9 @@ def register():
         logger.exception(msg='[/register]' + str(e))
         rsp = make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
+        if rsp is None:
+            logger.error(msg='[/register] response is empty!!')
+            rsp = make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
         session.close()
         return rsp
 
