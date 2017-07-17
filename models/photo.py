@@ -277,8 +277,8 @@ class Photo(Base):
         else:
             sf = sfw
 
-        if sf > 1.0:
-            sf = 1.0
+#        if sf > 1.0:
+#            sf = 1.0
 
         return sf
 
@@ -436,36 +436,6 @@ class Photo(Base):
         p = q.all()
 
         return p
-
-    def read_thumbnail_by_id(self, session, pid):
-        '''
-        Reads a thumbnail image back in b64 to the caller.
-
-        :param session:
-        :param pid:
-        :return:base64 encoded image data
-        '''
-        try:
-            p = session.query(photo.Photo).get(pid)
-            t_fn = self.create_thumb_filename()
-            pil_img = Image.open(t_fn)
-            width, height = pil_img.size
-            draw = ImageDraw.Draw(pil_img)
-            text = "ii"
-            font = ImageFont.truetype('arial.ttf', 10)
-            textwdith, textheight = draw.textsize(text, font)
-
-            # calculate x/y coordinates of the text
-            margin = 5
-            x = width - textwidth - margin
-            y = height - textheight - margin
-            draw.text((x,y), text, font=font)
-
-            b64img = self.read_thumbnail_image(image=pil_img)
-            return b64img
-        except Exception as e:
-            logger.exception(msg='error reading thumbnail!')
-            return None
 
     def get_rotation_and_flip(self, exif_dict):
         """

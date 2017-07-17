@@ -82,6 +82,71 @@ class Test_oAuth2(DatabaseTest):
 
         self.teardown()
 
+    def test_google_inject_content(self):
+
+        self.setup()
+        token ='invalid token'
+        content = bytes('{"id": 12345678, "emails": [{"type": "account", "value": "testuser1@imageimprov.com"}] }', 'utf-8')
+
+        o = usermgr.UserAuth()
+
+        u = o.authenticate_user(self.session, token, 'Google', debug_json=content)
+        assert(u is not None)
+
+        self.teardown()
+
+    def test_google_inject_content_missing_emails(self):
+
+        self.setup()
+        token ='invalid token'
+        content = bytes('{"id": 12345678}', 'utf-8')
+
+        o = usermgr.UserAuth()
+
+        u = o.authenticate_user(self.session, token, 'Google', debug_json=content)
+        assert(u is None)
+
+        self.teardown()
+
+    def test_facebook_inject_content(self):
+
+        self.setup()
+        token ='invalid token'
+        content = bytes('{"id": 12345678, "email": "testuser-oauth@imageimprov.com"}', 'utf-8')
+
+        o = usermgr.UserAuth()
+
+        u = o.authenticate_user(self.session, token, 'Facebook', debug_json=content)
+        assert(u is not None)
+
+        self.teardown()
+
+    def test_facebook_inject_content_missing_email(self):
+
+        self.setup()
+        token ='invalid token'
+        content = bytes('{"id": 12345678}', 'utf-8')
+
+        o = usermgr.UserAuth()
+
+        u = o.authenticate_user(self.session, token, 'Facebook', debug_json=content)
+        assert(u is None)
+
+        self.teardown()
+
+    def test_facebook_inject_content_missing_id(self):
+
+        self.setup()
+        token ='invalid token'
+        content = bytes('{"NOT_id": 12345678, "email": "testuser1@imageimprov.com"}', 'utf-8')
+
+        o = usermgr.UserAuth()
+
+        u = o.authenticate_user(self.session, token, 'Facebook', debug_json=content)
+        assert(u is None)
+
+        self.teardown()
+
     def test_invalid_serviceprovider(self):
         self.setup()
         token ='invalid token'

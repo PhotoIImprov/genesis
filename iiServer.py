@@ -37,7 +37,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.1.3' #our version string PEP 440
+__version__ = '1.1.4' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -233,6 +233,7 @@ def hello():
                 "<li>Landing page redirect to HTML</li>" \
                 "<li>oAuth2 support Facebook & Google</li>" \
                 "<li>Extensive register/login logging</li>" \
+                "<li>Scale up thumbnails to 720x720</li>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 

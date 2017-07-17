@@ -302,13 +302,21 @@ class TestPhoto(DatabaseTest):
         sf = p.compute_scalefactor(640, 720)
         assert(sf == 1.0)
 
-        # 640 x 480 -> 640 x 480
-        sf = p.compute_scalefactor(640, 480)
+        # 720 x 640 -> 720 x 640
+        sf = p.compute_scalefactor(720, 640)
         assert(sf == 1.0)
+
+        # 640 x 480 -> 720 x 540
+        sf = p.compute_scalefactor(640, 480)
+        assert(sf == 1.125)
+
+        # 480 x 640 -> 540 x 720
+        sf = p.compute_scalefactor(480, 640)
+        assert(sf == 1.125)
 
         # 480 x 480 -> 720 x 720
         sf = p.compute_scalefactor(480, 480)
-        assert(sf == 1.0)
+        assert(sf == 1.5)
 
     def test_bad_exif_orientation(self):
         ft = open('../photos/Galaxy Edge 7 Office Desk (full res, hdr).jpg', 'rb')

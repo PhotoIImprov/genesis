@@ -226,7 +226,7 @@ class UserAuth(Base):
         self.version = kwargs.get('version')
         self.sid = kwargs.get('serviceprovider_id')
 
-    def authenticate_user(self, session, oauth2_accesstoken, serviceprovider):
+    def authenticate_user(self, session, oauth2_accesstoken, serviceprovider, debug_json=None):
         """
 
         :param session:
@@ -253,17 +253,17 @@ class UserAuth(Base):
         serviceprovider_uid = None
 
         if serviceprovider == 'FAKESERVICEPROVIDER':
-            try:
-                serviceprovider_email = 'fakeuser@fakeserviceprovider.com'
-                serviceprovider_uid = 1
-            except Exception as e:
-                return None
+            serviceprovider_email = 'fakeuser@fakeserviceprovider.com'
+            serviceprovider_uid = 1
 
         if serviceprovider == 'FACEBOOK':
             try:
-                response, content = http.request('https://graph.facebook.com/v2.9/me?fields=id,name,email', 'GET')
-                if response.status != 200:
-                    return None
+                if debug_json is None:
+                    response, content = http.request('https://graph.facebook.com/v2.9/me?fields=id,name,email', 'GET')
+                    if response.status != 200:
+                        return None
+                else:
+                    content = debug_json
 
                 d = json.loads(content.decode("utf-8"))
                 serviceprovider_uid = d['id']
@@ -277,16 +277,19 @@ class UserAuth(Base):
 
         if serviceprovider == 'GOOGLE':
             try:
-                response, content = http.request('https://www.googleapis.com/plus/v1/people/me', 'GET')
-                if response.status != 200:
-                    return None
+                if debug_json is None:
+                    response, content = http.request('https://www.googleapis.com/plus/v1/people/me', 'GET')
+                    if response.status != 200:
+                        return None
+                else:
+                    content = debug_json
 
                 d = json.loads(content.decode("utf-8"))
                 serviceprovider_uid = d['id']
                 g_email_list = d['emails']
-                for e in g_email_list:
-                    if e['type'] == 'account':
-                        serviceprovider_email = e['value']
+                for m in g_email_list:
+                    if m['type'] == 'account':
+                        serviceprovider_email = m['value']
                         break
 
             except Exception as e:
