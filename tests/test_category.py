@@ -36,12 +36,26 @@ class TestCategory(DatabaseTest):
         cl = category.Category.active_categories(self.session, 0)
         assert(cl is None)
 
+    def test_all_category_bad_user(self):
+        self.setup()
+
+        cl = category.Category.all_categories(self.session, 0)
+        assert(cl is None)
+
     def test_active_category_no_args(self):
         session = 1
         cl = category.Category.active_categories(session, None)
         assert(cl is None)
 
         cl = category.Category.active_categories(None, 3)
+        assert(cl is None)
+
+    def test_all_category_no_args(self):
+        session = 1
+        cl = category.Category.all_categories(session, None)
+        assert(cl is None)
+
+        cl = category.Category.all_categories(None, 3)
         assert(cl is None)
 
     def test_is_upload(self):
@@ -79,7 +93,7 @@ class TestCategory(DatabaseTest):
     def test_category_states(self):
 
         str = category.CategoryState.to_str(category.CategoryState.UNKNOWN.value)
-        assert(str == 'UNKNOWN')
+        assert(str == 'PENDING')
 
         str = category.CategoryState.to_str(category.CategoryState.CLOSED.value)
         assert(str == 'CLOSED')

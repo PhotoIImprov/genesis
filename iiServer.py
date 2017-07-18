@@ -37,7 +37,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.1.4' #our version string PEP 440
+__version__ = '1.1.5' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -234,6 +234,7 @@ def hello():
                 "<li>oAuth2 support Facebook & Google</li>" \
                 "<li>Extensive register/login logging</li>" \
                 "<li>Scale up thumbnails to 720x720</li>" \
+                "<li>Category list returns PENDING (100 limit!)</li>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
@@ -529,7 +530,7 @@ def get_category():
             state:
               type: string
               enum:
-                - UPLOAD, VOTING, COUNTING, CLOSED
+                - UPLOAD, VOTING, COUNTING, CLOSED, PENDING
               description: "The current state of the category (VOTING, UPLOADING, CLOSED, etc.)"
             round:
               type: integer
@@ -539,7 +540,7 @@ def get_category():
     try:
         uid = current_identity.id
         session = dbsetup.Session()
-        cl = category.Category.active_categories(session, uid)
+        cl = category.Category.all_categories(session, uid)
         session.close()
         if cl is None:
            rsp = make_response(jsonify({'msg': error.error_string('CATEGORY_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)

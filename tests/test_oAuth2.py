@@ -176,3 +176,16 @@ class Test_oAuth2(DatabaseTest):
         assert(u is None)
 
         self.teardown()
+
+    def test_oauth_instantiation(self):
+        self.setup()
+
+        o = usermgr.UserAuth(uid=1, serviceprovider='Google', serviceprovider_id=2, version=3, token='a token')
+
+        assert(o.id == 1)
+        assert(o.serviceprovider == 'GOOGLE')
+        assert(o.sid == 2)
+        assert(o.version == 3)
+        assert(o.token == 'a token')
+
+        self.teardown()

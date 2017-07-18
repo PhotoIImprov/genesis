@@ -13,6 +13,8 @@ from logsetup import logger
 
 # from iiMemoize import memoize_with_expiry, _memoize_cache
 
+_CATEGORYLIST_MAXSIZE = 100
+
 class CategoryState(Enum):
     UNKNOWN  = 0        # initial state
     UPLOAD   = 1        # category available for uploading photos, active
@@ -23,7 +25,7 @@ class CategoryState(Enum):
     @staticmethod
     def to_str(state):
         if state == CategoryState.UNKNOWN.value:
-            return "UNKNOWN"
+            return "PENDING"
         if state == CategoryState.UPLOAD.value:
             return "UPLOAD"
         if state == CategoryState.VOTING.value:
@@ -97,6 +99,25 @@ class Category(Base):
         for c in cl:
             categories.append(c.to_json())
         return categories
+
+    def all_categories(session, uid):
+        # display all categories that are in any of the three "Category States"
+        # - UPLOAD - category can accept photos to be uploaded
+        # - VOTING - category photos are ready for voting
+        # - COUNTING - past voting, available to see status of winners
+        try:
+            au = usermgr.AnonUser.get_anon_user_by_id(session, uid) # ensure we have a valid user context
+            if au is None:
+                return None
+
+            q = session.query(Category).filter(Category.state.in_([CategoryState.UPLOAD.value, CategoryState.VOTING.value, CategoryState.COUNTING.value, CategoryState.UNKNOWN.value]))
+            cl = q.all()
+            if cl is not None:
+                del cl[_CATEGORYLIST_MAXSIZE:]    # limit list to 100 elements
+            return cl
+        except Exception as e:
+            logger.exception(msg='error reading active categories')
+            raise
 
     @staticmethod
 #    @memoize_with_expiry(_memoize_cache, 300, 0)
