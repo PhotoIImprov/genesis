@@ -82,7 +82,7 @@ def upload_images(subdir_name, rootdir, cid):
     idx = 0
     for f in file_list:
         ext = f[-4:]
-        if ext == '.jpg':
+        if ext in ('.jpg', '.JPG'):
             # upload the photo
             # rename it so we won't upload it again
             full_name = dirpath + '/' + f

@@ -140,3 +140,13 @@ class TestCategory(DatabaseTest):
         assert(len(new_tag_list) == 4)
 
         self.teardown()
+
+    def test_read_all_categories(self):
+        self.setup()
+
+        uid = self.get_active_user()
+        clist = category.Category.all_categories(self.session, uid[0])
+        assert(len(clist) != 0)
+        assert(len(clist) <= category._CATEGORYLIST_MAXSIZE)
+
+        self.teardown()

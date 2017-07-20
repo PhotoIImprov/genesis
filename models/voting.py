@@ -353,6 +353,8 @@ class BallotManager:
                 shuffle the result and trim the list lenght, so we get some randomness
         '''
         if c.state != category.CategoryState.VOTING.value and not allow_upload:
+            if c is not None:
+                logger.error(msg='Category {0} for user {1} not in voting state'.format(json.dumps(c.to_json()), uid))
             raise Exception(errno.EINVAL, 'category not in VOTING state')
 
         # we need "count"
