@@ -27,7 +27,7 @@ from sqlalchemy.orm import Session
 from random import shuffle
 from datetime import timedelta
 
-from logsetup import logger, client_logger
+from logsetup import logger, client_logger, timeit
 from urllib.parse import urlparse
 import uuid
 
@@ -37,7 +37,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.1.5' #our version string PEP 440
+__version__ = '1.1.6' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -71,6 +71,7 @@ _jwt.jwt_decode_handler(fix_jwt_decode_handler)
 _jwt.auth_response_callback = usermgr.auth_response_handler # so we can add to the response going back
 
 @app.route("/spec/swagger.json")
+@timeit()
 def spec():
     """
     Specification
@@ -192,6 +193,7 @@ def healthcheck():
     return resp
 
 @app.route("/config")
+@timeit()
 def hello():
     """
     Configuration
@@ -223,9 +225,7 @@ def hello():
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
     htmlbody += "<ul>" \
-                "<li>square pictures</li>" \
                 "<li>watermark images</li>" \
-                "<li>normalized thumbnails</li>" \
                 "<li>metadata tagging</li>" \
                 "<li>Active Photos</li>" \
                 "<li>traction log</li>" \
@@ -235,6 +235,7 @@ def hello():
                 "<li>Extensive register/login logging</li>" \
                 "<li>Scale up thumbnails to 720x720</li>" \
                 "<li>Category list returns PENDING (100 limit!)</li>" \
+                "<li>Timing instrumentation for API</li>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
@@ -401,6 +402,7 @@ def hello():
 
 @app.route("/setcategorystate", methods=['POST'])
 @jwt_required()
+@timeit()
 def set_category_state():
     """
     Set Category State
@@ -481,6 +483,7 @@ def set_category_state():
 
 @app.route("/category", methods=['GET'])
 @jwt_required()
+@timeit()
 def get_category():
     """
     Fetch Category
@@ -556,6 +559,7 @@ def get_category():
 
 @app.route("/leaderboard", methods=['GET'])
 @jwt_required()
+@timeit()
 def get_leaderboard():
     """
     Get Leader Board
@@ -647,6 +651,7 @@ def get_leaderboard():
 
 @app.route("/ballot", methods=['GET'])
 @jwt_required()
+@timeit()
 def get_ballot():
     """
     Get Ballot()
@@ -863,6 +868,7 @@ def tell_a_friend():
 
 @app.route("/vote", methods=['POST'])
 @jwt_required()
+@timeit()
 def cast_vote():
     """
      Cast Vote
@@ -1005,6 +1011,7 @@ def return_ballot(session, uid, cid):
 
 @app.route("/image", methods=['GET'])
 @jwt_required()
+@timeit()
 def image_download():
     """
     Image Download
@@ -1073,6 +1080,7 @@ def image_download():
 
 @app.route("/lastsubmission", methods=['GET'])
 @jwt_required()
+@timeit()
 def last_submission():
     """
     Get Last Submission
@@ -1135,6 +1143,7 @@ def last_submission():
 
 @app.route("/photo", methods=['POST'])
 @jwt_required()
+@timeit()
 def photo_upload():
     """
     Upload Photo
@@ -1253,6 +1262,7 @@ def photo_upload():
 
 @app.route("/file/<int:cid>", methods=['POST'])
 @jwt_required()
+@timeit()
 def upload_file():
     """
     Upload file
@@ -1314,6 +1324,7 @@ def upload_file():
 
 @app.route("/log", methods=['POST'])
 @jwt_required()
+@timeit()
 def log_event():
     """
     Log ClientEvent
@@ -1417,6 +1428,7 @@ def register_legituser(session, emailaddress, password, guid):
     return make_response(jsonify({'msg': error.error_string('ACCOUNT_CREATED')}), 201)
 
 @app.route("/register", methods=['POST'])
+@timeit()
 def register():
     """
     Register (Create new account)
@@ -1521,6 +1533,7 @@ def beta3():
 
 @app.route('/play/<string:campaign>')
 @app.route('/play')
+@timeit()
 def landingpage(campaign=None):
     session = dbsetup.Session()
     if campaign is None:
@@ -1542,6 +1555,7 @@ def landingpage(campaign=None):
         return redirect(target_url, code=302)
 
 @app.route('/preview/<int:pid>')
+@timeit()
 def download_photo(pid):
     """
     Preview Photo
