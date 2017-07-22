@@ -536,7 +536,7 @@ class TallyMan():
             raise
 
     def change_category_state(self, session, cid, new_state):
-        c = category.Category.read_category_by_id(session, cid)
+        c = category.Category.read_category_by_id(cid, session)
         if c.state == new_state:
             return {'error':error.iiServerErrors.NO_STATE_CHANGE, 'arg':None}
 

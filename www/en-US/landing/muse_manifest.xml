@@ -1,23 +1,25 @@
-<manifest alg="2" build="2017.0.4.363" opt="true" iceEnabled="true" iceMarkupVersion="2" iceEnabledOptions="link,responsive,cachebuster,textStyling" exportTarget="other" domain="www.imageimprov.com" resolutions="1x" timestamp="1499890921024">
+<manifest alg="2" build="2017.0.4.363" opt="true" iceEnabled="true" iceMarkupVersion="2" iceEnabledOptions="link,responsive,cachebuster,textStyling" exportTarget="other" domain="www.imageimprov.com" resolutions="1x" timestamp="1500666272459">
   <folder name="css">
-    <file name="site_global.css" crc="238246755"/>
-    <file name="master_a-master.css" crc="4123883447" ref="index:privacy"/>
-    <file name="nomq_preview_master_a-master.css" crc="261058338" ref="index:privacy"/>
-    <file name="index.css" crc="114742244" ref="index"/>
-    <file name="nomq_index.css" crc="4041969784" ref="index"/>
-    <file name="privacy.css" crc="3999045205" ref="privacy"/>
+    <file name="site_global.css" crc="35567816"/>
+    <file name="master_a-master.css" crc="4160394066" ref="index:terms-of-service:community-guidlines:privacy-policy"/>
+    <file name="nomq_preview_master_a-master.css" crc="261058338" ref="index:terms-of-service:privacy-policy:community-guidlines"/>
+    <file name="index.css" crc="359474621" ref="index"/>
+    <file name="nomq_index.css" crc="478548572" ref="index"/>
+    <file name="terms-of-service.css" crc="4283001806" ref="terms-of-service"/>
+    <file name="community-guidlines.css" crc="162295757" ref="community-guidlines"/>
+    <file name="privacy-policy.css" crc="370407254" ref="privacy-policy"/>
   </folder>
   <folder name="assets">
     <file name="google-play-badge.eps" crc="4121298535" seo="true" mt="1499545681000"/>
   </folder>
   <folder name="scripts">
-    <file name="jquery-1.8.3.min.js" crc="209076791" ref="index:privacy"/>
-    <file name="museutils.js" crc="4216313831" ref="index:privacy"/>
-    <file name="whatinput.js" crc="86476730" ref="index:privacy"/>
-    <file name="museconfig.js" crc="4177022356" ref="index:privacy"/>
-    <file name="jquery.watch.js" crc="460461809" ref="index:privacy"/>
+    <file name="jquery-1.8.3.min.js" crc="209076791" ref="index:community-guidlines:terms-of-service:privacy-policy"/>
+    <file name="museutils.js" crc="4216313831" ref="index:community-guidlines:terms-of-service:privacy-policy"/>
+    <file name="whatinput.js" crc="86476730" ref="index:community-guidlines:terms-of-service:privacy-policy"/>
+    <file name="museconfig.js" crc="4177022356" ref="index:community-guidlines:terms-of-service:privacy-policy"/>
+    <file name="jquery.watch.js" crc="460461809" ref="index:community-guidlines:terms-of-service:privacy-policy"/>
     <file name="jquery.museresponsive.js" crc="4055310269" ref="index"/>
-    <file name="require.js" crc="3951022091" ref="index:privacy"/>
+    <file name="require.js" crc="3951022091" ref="index:community-guidlines:terms-of-service:privacy-policy"/>
   </folder>
   <folder name="images">
     <file name="favicon.ico" crc="4169450446" ref="index"/>
@@ -42,6 +44,8 @@
     </file>
     <file name="blank.gif" crc="4208392903" ref="index"/>
   </folder>
-  <file name="index.html" crc="3789966256" seo="true" mt="1499890889630" redirect="true"/>
-  <file name="privacy.html" crc="220300611" seo="true" mt="1499890889630" redirect="true"/>
+  <file name="index.html" crc="162544292" seo="true" mt="1500666249869" redirect="true"/>
+  <file name="community-guidlines.html" crc="4102783156" seo="true" mt="1500666249869" redirect="true"/>
+  <file name="terms-of-service.html" crc="4168960016" seo="true" mt="1500666249869" redirect="true"/>
+  <file name="privacy-policy.html" crc="4136289779" seo="true" mt="1500666249869" redirect="true"/>
 </manifest>

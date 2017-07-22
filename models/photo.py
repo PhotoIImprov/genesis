@@ -417,7 +417,7 @@ class Photo(Base):
         q = session.query(Photo).filter(Photo.user_id == uid).order_by(Photo.created_date.desc())
         p = q.first() # top entry
         if p is not None:
-            c = category.Category.read_category_by_id(session, p.category_id)
+            c = category.Category.read_category_by_id(p.category_id, session)
             b64img = p.read_photo_to_b64()
             return {'error':None, 'arg':{'image':b64img, 'category':c}}
 

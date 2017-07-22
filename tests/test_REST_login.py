@@ -1071,7 +1071,7 @@ class TestLeaderBoard(iiBaseUnitTest):
         # we need to create the leaderboard
         tm = voting.TallyMan()
         session = dbsetup.Session()
-        c = category.Category().read_category_by_id(session, tu.get_cid())
+        c = category.Category().read_category_by_id(tu.get_cid(), session)
         tm.leaderboard_exists(session, c) # this forms connections to Redis
         lb = tm.get_leaderboard_by_category(session, c, check_exist=False)
         lb.rank_member(0, 0, 0) # create dummy entry to spur leaderboard creation

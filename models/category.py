@@ -1,17 +1,15 @@
-from sqlalchemy        import Column, Integer, DateTime, text, ForeignKey
-from dbsetup           import Base
 import errno
-from datetime import datetime, timedelta
+from datetime import timedelta
+from enum import Enum
+
+from sqlalchemy import Column, Integer, DateTime, text, ForeignKey
+
 import dbsetup
+from cache.iiMemoize import memoize_with_expiry, _memoize_cache
+from dbsetup import Base
+from logsetup import logger
 from models import resources
 from models import usermgr
-from enum import Enum
-from models import error
-from leaderboard.leaderboard import Leaderboard # how we track high scores
-
-from logsetup import logger
-
-# from iiMemoize import memoize_with_expiry, _memoize_cache
 
 _CATEGORYLIST_MAXSIZE = 100
 
@@ -100,6 +98,8 @@ class Category(Base):
             categories.append(c.to_json())
         return categories
 
+    @staticmethod
+#    @memoize_with_expiry(_memoize_cache, 300, 0)
     def all_categories(session, uid):
         # display all categories that are in any of the three "Category States"
         # - UPLOAD - category can accept photos to be uploaded
@@ -153,7 +153,8 @@ class Category(Base):
         return c
 
     @staticmethod
-    def read_category_by_id(session, cid):
+#    @memoize_with_expiry(_memoize_cache, 300, 1)
+    def read_category_by_id(cid, session):
         c = None
         try:
             c = session.query(Category).get(cid)
@@ -172,7 +173,7 @@ class Category(Base):
 
     @staticmethod
     def is_upload_by_id(session, cid):
-        c = Category.read_category_by_id(session, cid)
+        c = Category.read_category_by_id(cid, session)
         if c is None:
             raise Exception(errno.EINVAL, 'No Category found for cid={}'.format(cid))
 
@@ -195,6 +196,7 @@ class CategoryTag(Base):
 class CategoryTagList():
     _tags = None
 
+#    @memoize_with_expiry(_memoize_cache, 3600, 1)
     def read_category_tags(self, cid, session):
         '''
         read the tags from the resource table

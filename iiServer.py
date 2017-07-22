@@ -636,7 +636,7 @@ def get_leaderboard():
             rsp = make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
         else:
             tm = voting.TallyMan()
-            c = category.Category.read_category_by_id(session, cid)
+            c = category.Category.read_category_by_id(cid, session)
             lb_list = tm.fetch_leaderboard(session, uid, c)
             if lb_list is not None:
                 rsp = make_response(jsonify(lb_list), 200)
@@ -985,7 +985,7 @@ def return_ballot(session, uid, cid):
             shuffle(cl)
             c = cl[0]
         else:
-            c = category.Category.read_category_by_id(session, cid)
+            c = category.Category.read_category_by_id(cid, session)
             if c.state == category.CategoryState.UPLOAD.value:
                 allow_upload = True
 
