@@ -108,8 +108,8 @@ class TestPhoto(DatabaseTest):
         p.filepath = "/mnt/image_files"
         p.filename = "foobar.gif"
 
-        f = p.read_thumbnail_image()
-        assert(f == None)
+        b64_utf8 = p.read_thumbnail_b64_utf8()
+        assert(b64_utf8 == None)
 
     def test_set_exif_data(self):
         pm = photo.PhotoMeta(640, 480, 'hashstring substitute')

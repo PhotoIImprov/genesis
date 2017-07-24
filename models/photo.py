@@ -20,6 +20,7 @@ import json
 import hashlib
 
 from logsetup import logger
+from cache.ExpiryCache import ExpiryCache, _expiry_cache
 
 class PhotoImage():
     _binary_image = None
@@ -198,22 +199,23 @@ class Photo(Base):
             logger.exception(msg="Error with EXIF data parsing for file {0}/{1}".format(self.filepath, self.filename))
 
 
-    # read_thumbnail_image()
-    # ======================
-    # returns the binary value of the thumbnail
-    # associated with the photo record
-    #
-    def read_thumbnail_image(self, image=None):
+    def read_thumbnail_b64_utf8(self):
         try:
-            if image is None:
-                t_fn = self.create_thumb_filename()
-                image = Image.open(t_fn)
+            b64_utf8 = _expiry_cache.get(self.filename)
+            if b64_utf8 is not None:
+                return b64_utf8
+
+            t_fn = self.create_thumb_filename()
+            image = Image.open(t_fn)
 
             b = BytesIO()
-            image.save(b, format='JPEG') #, exif=exif_bytes)
+            image.save(b, format='JPEG')  # , exif=exif_bytes)
             thumb = b.getvalue()
-            self.set_orientation(1) # should always be '1'
-            return thumb
+            self.set_orientation(1)  # should always be '1'
+            b64_bytes = base64.standard_b64encode(thumb)
+            b64_utf8 = b64_bytes.decode('utf-8')
+            _expiry_cache.put(self.filename, b64_utf8, ttl=60*60*24*3) # keep for 3 days
+            return b64_utf8
         except Exception as e:
             str_e = str(e)
             logger.exception(msg='error reading thumbnail image')
@@ -398,7 +400,13 @@ class Photo(Base):
 
         return exif_dict
 
-    def read_photo_to_b64(self):
+    def read_photo_to_b64(self) -> bytes:
+        '''
+        read_photo_to_b64()
+        called infrequently when we need to return the full, hi-res image
+        :return:
+         bytes
+        '''
         b64_img = None
         f = None
         try:
@@ -412,8 +420,9 @@ class Photo(Base):
             f.close()
         return b64_img
 
+
     @staticmethod
-    def last_submitted_photo(session, uid):
+    def last_submitted_photo(session, uid: int) -> dict:
         q = session.query(Photo).filter(Photo.user_id == uid).order_by(Photo.created_date.desc())
         p = q.first() # top entry
         if p is not None:
@@ -424,20 +433,20 @@ class Photo(Base):
         return {'error':"Nothing found", 'arg':None}
 
     @staticmethod
-    def read_photo_by_filename(session, uid, fn):
+    def read_photo_by_filename(session, uid: int, fn: str) -> bytes:
         # okay the "filename" is the field stashed in the database
         q = session.query(Photo).filter_by(filename = fn)
         p = q.one()
         return p.read_photo_to_b64()
 
     @staticmethod
-    def read_photo(session, uid, cid):
+    def read_photo(session, uid: int, cid: int):
         q = session.query(Photo).filter_by(user_id = uid, category_id = cid)
         p = q.all()
 
         return p
 
-    def get_rotation_and_flip(self, exif_dict):
+    def get_rotation_and_flip(self, exif_dict: dict) -> tuple:
         """
         :param exif_dict: extracted EXIF dict from image
         :return: tuple of rotation (degrees) and flip x/y axis true/false
@@ -534,7 +543,7 @@ class Photo(Base):
         img.paste(im=im, box=(im_x, im_y), mask=im_mask)
         return img
 
-    def read_thumbnail_by_id_with_watermark(self, session, pid):
+    def read_thumbnail_by_id_with_watermark(self, session, pid: int) -> bytes:
         # Open the original image
         # read our test file
 
@@ -552,7 +561,7 @@ class Photo(Base):
             return None
 
 
-    def set_metadata(self, d_exif, height, width, th_hash):
+    def set_metadata(self, d_exif: dict, height: int, width: int, th_hash) -> None:
         self._photometa = PhotoMeta(height, width, th_hash)
         self._photometa.set_exif_data(d_exif)
         return
@@ -572,7 +581,7 @@ class PhotoMeta(Base):
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 
-    def __init__(self, height, width, th_hash):
+    def __init__(self, height: int, width: int, th_hash: str):
         self.height = height
         self.width = width
         if self.height > self.width:
@@ -581,7 +590,7 @@ class PhotoMeta(Base):
             self.orientation = 1    # landscape (wider than tall)
         self.thumb_hash = th_hash
 
-    def set_exif_data(self, d_exif):
+    def set_exif_data(self, d_exif: dict) -> None:
         if d_exif is None:
             return
 
@@ -613,7 +622,7 @@ class PhotoMeta(Base):
         self.set_metadata_from_exif(d)
         return
 
-    def set_metadata_from_exif(self, d):
+    def set_metadata_from_exif(self, d: dict) -> None:
         self.gps = self.get_exif_location(d)
         if 'ExifImageHeight' in d:
             self.height = d['ExifImageHeight']
@@ -642,16 +651,7 @@ class PhotoMeta(Base):
         s = '{}\xb0{}\x27{}"{}'.format(d, m, s, ref)
         return s
 
-    """
-    def _convert_to_degrees(self, value):
-       
-        d = float(value[0][0]) / float(value[0][1])
-        m = float(value[1][0]) / float(value[1][1])
-        s = float(value[2][0]) / float(value[2][1])
-
-        return d + (m / 60.0) + (s / 3600.0)
-    """
-    def get_exif_location(self, exif_data):
+    def get_exif_location(self, exif_data: dict):
         # Returns the latitude and longitude, if available, from the provided exif_data (obtained through get_exif_data above)
         if 'GPSInfo' in exif_data:
             gps_latitude = self._get_if_exist(exif_data['GPSInfo'], 'GPSLatitude')

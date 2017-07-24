@@ -63,10 +63,11 @@ class Ballot(Base):
         for be in self._ballotentries:
             be._photo = session.query(photo.Photo).get(be.photo_id)
 
-    def append_tags_to_entires(self, c):
+    def append_tags_to_entries(self, c):
         if len(c._categorytags) == 0:
             return
 
+        # c_categorytags is a list of tags whereas be._tags is a JSON encoded array of tags
         for be in self._ballotentries:
             be._tags = c._categorytags
 
@@ -127,21 +128,23 @@ class BallotEntry(Base):
         self._binary_image = None
 
 
-    def to_json(self):
+    def to_json(self) -> str:
         if self._photo is None:
             return None
 
-        self._binary_image = self._photo.read_thumbnail_image()
-        self._b64image = base64.standard_b64encode(self._binary_image)
+        self._b64image = self._photo.read_thumbnail_b64_utf8()
 
         orientation = self._photo.get_orientation()
         if orientation is None:
             orientation = 1
 
-        if self._tags is None:
-            d = dict({'bid': self.id, 'orientation': orientation, 'image': self._b64image.decode('utf-8')})
-        else:
-            d = dict({'bid':self.id, 'orientation': orientation, 'tags': self._tags.to_str(), 'image':self._b64image.decode('utf-8')})
+        try:
+            if self._tags is None:
+                d = dict({'bid': self.id, 'orientation': orientation, 'image': self._b64image})
+            else:
+                d = dict({'bid':self.id, 'orientation': orientation, 'tags': self._tags, 'image':self._b64image})
+        except Exception as e:
+            raise
 
         return d
 
@@ -194,7 +197,7 @@ class BallotManager:
                 return 1
         return 0
 
-    def tabulate_votes(self, session, uid, json_ballots):
+    def tabulate_votes(self, session, uid: int, json_ballots: str) -> list:
         # we have a list of ballots, we need to determine the scoring.
         # we'll need category information:
         # category.round - to determine what score table to use
@@ -250,14 +253,14 @@ class BallotManager:
 
         return bel  # this is for testing only, no one else cares!
 
-    def calculate_score(self, vote, round, section):
+    def calculate_score(self, vote: int, round: int, section: int ) -> int:
         if round == 0:
             score = _ROUND1_SCORING[0][vote-1]
         else:
             score = _ROUND2_SCORING[section][vote-1]
         return score
 
-    def create_ballot(self, session, uid, c, allow_upload=False):
+    def create_ballot(self, session, uid: int, c: category.Category, allow_upload=False) -> None:
         '''
         Returns a ballot list containing the photos to be voted on.
         
@@ -618,9 +621,8 @@ class TallyMan():
             p = session.query(photo.Photo).get(pid)
             if p.active == 0: # this photo has been de-activated, it might be offensive
                 return None
-            bimg = p.read_thumbnail_image()
-            b64 = base64.standard_b64encode(bimg)
-            b64_utf8 = b64.decode('utf-8')
+
+            b64_utf8 = p.read_thumbnail_b64_utf8()
             self._orientation = p.get_orientation()
             return b64_utf8
         except Exception as e:

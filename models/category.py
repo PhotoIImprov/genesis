@@ -176,7 +176,6 @@ class Category(Base):
         return c
 
     @staticmethod
-#    @memoize_with_expiry(_memoize_cache, 300, 1)
     def read_category_by_id(cid, session):
         c = None
         try:
@@ -219,8 +218,7 @@ class CategoryTag(Base):
 class CategoryTagList():
     _tags = None
 
-#    @memoize_with_expiry(_memoize_cache, 3600, 1)
-    def read_category_tags(self, cid, session):
+    def read_category_tags(self, cid: int, session) -> list:
         '''
         read the tags from the resource table
         :param cid:
