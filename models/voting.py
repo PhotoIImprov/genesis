@@ -13,6 +13,7 @@ from leaderboard.leaderboard import Leaderboard
 from models import error
 from random import randint, shuffle
 import redis
+from cache.ExpiryCache import ExpiryCache, _expiry_cache
 
 from logsetup import logger
 
@@ -542,6 +543,8 @@ class TallyMan():
 
         c.state = new_state
         session.add(c)
+
+        category._expiry_cache.expire_key('ALL_CATEGORIES')
         return {'error': None, 'arg': c}
 
     def leaderboard_name(self, c):
@@ -635,6 +638,11 @@ class TallyMan():
         '''
 
         try:
+            lb_list = _expiry_cache.get("LEADERBOARD{0}".format(c.id))
+            if lb_list is not None:
+                return lb_list
+
+            # Cache miss! got an make a leaderboard
             lb = self.get_leaderboard_by_category(session, c, check_exist=True)
             if c is not None:
                 logger.info(msg="retrieving leader board for category {}, \'{}\'".format(c.id, c.get_description()))
@@ -666,6 +674,8 @@ class TallyMan():
                         else:
                             lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'orientation': self._orientation, 'image' : b64_utf8})
 
+            # Wow! That was a lot of work, so let's stuff it in the cache and use it for 5 minutes
+            _expiry_cache.put("LEADERBOARD{0}".format(c.id), lb_list, ttl=300) # 5 minute expiration
             return lb_list
         except Exception as e:
             logger.exception(msg="error fetching leaderboard")

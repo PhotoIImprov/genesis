@@ -37,7 +37,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.1.6' #our version string PEP 440
+__version__ = '1.2.0' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -229,13 +229,12 @@ def hello():
                 "<li>metadata tagging</li>" \
                 "<li>Active Photos</li>" \
                 "<li>traction log</li>" \
-                "<li>Ballot in upload response</li>" \
-                "<li>Landing page redirect to HTML</li>" \
                 "<li>oAuth2 support Facebook & Google</li>" \
                 "<li>Extensive register/login logging</li>" \
                 "<li>Scale up thumbnails to 720x720</li>" \
                 "<li>Category list returns PENDING (100 limit!)</li>" \
                 "<li>Timing instrumentation for API</li>" \
+                "<li>Caching Category & Leaderboard with expiry</li>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 

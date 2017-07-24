@@ -1,5 +1,5 @@
 import errno
-from datetime import timedelta
+from datetime import timedelta, datetime
 from enum import Enum
 
 from sqlalchemy import Column, Integer, DateTime, text, ForeignKey
@@ -10,6 +10,7 @@ from dbsetup import Base
 from logsetup import logger
 from models import resources
 from models import usermgr
+from cache.ExpiryCache import ExpiryCache, _expiry_cache
 
 _CATEGORYLIST_MAXSIZE = 100
 
@@ -110,29 +111,51 @@ class Category(Base):
             if au is None:
                 return None
 
+            # first check the cache
+            cl = _expiry_cache.get("ALL_CATEGORIES")
+            if cl is not None:
+                return cl
+
             q = session.query(Category).filter(Category.state.in_([CategoryState.UPLOAD.value, CategoryState.VOTING.value, CategoryState.COUNTING.value, CategoryState.UNKNOWN.value]))
             cl = q.all()
             if cl is not None:
                 del cl[_CATEGORYLIST_MAXSIZE:]    # limit list to 100 elements
+
+            # if we are here then we had a cache miss, so let's stuff this in the cache
+            # but set it's expiry to the earliest state change of a category in the list
+            earliest = cl[0].start_date
+            for c in cl:
+                change_date = c.start_date # CategoryState.UNKNOWN
+                if c.state == CategoryState.VOTING.value:
+                    change_date = c.start_date + timedelta(hours=c.duration_upload + c.duration_vote)
+                if c.state == CategoryState.UPLOAD.value:
+                    change_date = c.start_date + timedelta(hours=c.duration_upload)
+
+                if earliest > change_date:
+                    earliest = change_date
+                session.expunge(c) # while here, make sure the object isn't tied to a Session after it's in the cache
+
+            expire_ttl = (earliest - datetime.now()).seconds
+            assert(expire_ttl >= 0)
+            if expire_ttl > 10: # just a sanity check in case ttl is negative
+                _expiry_cache.put("ALL_CATEGORIES", cl, ttl=expire_ttl)
             return cl
         except Exception as e:
             logger.exception(msg='error reading active categories')
             raise
 
     @staticmethod
-#    @memoize_with_expiry(_memoize_cache, 300, 0)
     def active_categories(session, uid):
         # display all categories that are in any of the three "Category States"
         # - UPLOAD - category can accept photos to be uploaded
         # - VOTING - category photos are ready for voting
         # - COUNTING - past voting, available to see status of winners
         try:
-            au = usermgr.AnonUser.get_anon_user_by_id(session, uid) # ensure we have a valid user context
-            if au is None:
-                return None
-
-            q = session.query(Category).filter(Category.state.in_([CategoryState.UPLOAD.value, CategoryState.VOTING.value, CategoryState.COUNTING.value]))
-            cl = q.all()
+            cl = Category.all_categories(session, uid) # cached, returns counting
+            if cl is not None:
+                for c in cl:
+                    if c.state == CategoryState.UNKNOWN.value:
+                        cl.remove(c) # remove counting
             return cl
         except Exception as e:
             logger.exception(msg='error reading active categories')

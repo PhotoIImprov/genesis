@@ -76,6 +76,10 @@ class ExpiryCache(object):
         t.setDaemon(True)
         t.start()
 
+    def expire_key(self, key):
+        with self.lock:
+            obj = self._cache.pop(key)
+
     def timely_cache_cleaner(self):
         """
         Timely checks for expired object in cache and
@@ -115,3 +119,7 @@ class ExpiryCache(object):
                 return None
 
             return obj.value
+
+# instantiate a "global" instance of our cache
+_expiry_cache = ExpiryCache()
+
