@@ -1,9 +1,9 @@
-from sqlalchemy        import Column, Integer, DateTime, text, ForeignKey, String, exc, func
+from sqlalchemy import Column, Integer, DateTime, text, ForeignKey, String, exc, func
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session
 from sqlalchemy import exists, and_
 import errno
-from dbsetup           import Base, Session, Configuration
+from dbsetup import Base, Session, Configuration
 from models import photo, category, usermgr
 import sys
 import json
@@ -13,8 +13,7 @@ from leaderboard.leaderboard import Leaderboard
 from models import error
 from random import randint, shuffle
 import redis
-from cache.ExpiryCache import ExpiryCache, _expiry_cache
-
+from cache.ExpiryCache import _expiry_cache
 from logsetup import logger
 
 # configuration values we can move to a better place
@@ -39,7 +38,7 @@ class Ballot(Base):
     _ballotentries = relationship("BallotEntry", backref="ballot", lazy='joined')
     # ======================================================================================================
 
-    def __init__(self, cid, uid):
+    def __init__(self, cid: int, uid: int):
         self.category_id    = cid
         self.user_id        = uid
         return
@@ -56,14 +55,14 @@ class Ballot(Base):
     # A user should never see the *same* ballot twice, but entries on the ballot could be
     # almost entirely the same, particularly as the set of remaining entries is narrowed
 
-    def append_ballotentry(self, be):
+    def append_ballotentry(self, be) -> None:
         self._ballotentries.append(be)
 
-    def read_photos_for_ballots(self, session):
+    def read_photos_for_ballots(self, session) -> None:
         for be in self._ballotentries:
             be._photo = session.query(photo.Photo).get(be.photo_id)
 
-    def append_tags_to_entries(self, c):
+    def append_tags_to_entries(self, c: category.Category) -> None:
         if len(c._categorytags) == 0:
             return
 
@@ -71,7 +70,7 @@ class Ballot(Base):
         for be in self._ballotentries:
             be._tags = c._categorytags
 
-    def to_log(self):
+    def to_log(self) -> str:
         """
         Dump out the list of ballot entries as a string for the log
         :return: 
@@ -82,7 +81,7 @@ class Ballot(Base):
 
         return str_ballots
 
-    def to_json(self):
+    def to_json(self) -> list:
 
         ballots = []
         for be in self._ballotentries:
@@ -90,7 +89,7 @@ class Ballot(Base):
         return ballots
 
     @staticmethod
-    def num_voters_by_category(session, cid):
+    def num_voters_by_category(session, cid: int) -> int:
         q = session.query(Ballot.user_id).distinct().filter(Ballot.category_id == cid)
         n = q.count()
         return n
@@ -183,7 +182,7 @@ class BallotManager:
 
     _ballot = None
 
-    def string_key_to_boolean(self, dict, keyname):
+    def string_key_to_boolean(self, d: dict, keyname: str) -> int:
         '''
         if key is not present, return a '0'
         if key is any value other than '0', return '1'
@@ -191,8 +190,8 @@ class BallotManager:
         :param keyname:
         :return: 0/1
         '''
-        if keyname in dict.keys():
-            str_val = dict[keyname]
+        if keyname in d.keys():
+            str_val = d[keyname]
             if str_val != '0':
                 return 1
         return 0
@@ -284,7 +283,7 @@ class BallotManager:
             session.query(VotingRound).filter(VotingRound.photo_id == p.id).update({"times_voted": VotingRound.times_voted + 1})
         return
 
-    def add_photos_to_ballot(self, session, uid, c, plist):
+    def add_photos_to_ballot(self, session, uid: int, c: category.Category, plist: list) -> Ballot:
 
         self._ballot = Ballot(c.id, uid)
         session.add(self._ballot)
@@ -296,7 +295,7 @@ class BallotManager:
             session.add(be)
         return self._ballot
 
-    def read_photos_by_ballots_round2(self, session, uid, c, num_votes, count):
+    def read_photos_by_ballots_round2(self, session, uid: int, c: category.Category, num_votes: int, count: int) -> list:
 
         # *****************************
         # **** CONFIGURATION ITEMS ****
@@ -347,7 +346,7 @@ class BallotManager:
     #
     # if we can't get 'count' photos, then we are done
     # Round #1...
-    def create_ballot_list(self, session, uid, c, allow_upload):
+    def create_ballot_list(self, session, uid: int, c: category.Category, allow_upload: bool) -> list:
         '''
         
         :param session: 
@@ -378,7 +377,7 @@ class BallotManager:
         return self.cleanup_list(photos_for_ballot, count) # remove dupes, shuffle list
 #        return photos_for_ballot[:count]
 
-    def cleanup_list(self, p4b, ballot_size):
+    def cleanup_list(self, p4b: list, ballot_size: int) -> list:
         """
         We get a list of photos that are a straight pull from the
         database. We're going to shuffle it and not allow any
@@ -405,7 +404,7 @@ class BallotManager:
         # worst cases just return a random list
         return p4b[:ballot_size]
 
-    def read_photos_by_ballots_round1(self, session, uid, c, num_votes, count):
+    def read_photos_by_ballots_round1(self, session, uid: int, c: category.Category, num_votes: int, count: int) -> list:
         '''
         read_photos_by_ballots_round1()
         read a list of photos to construct our return ballot. 
@@ -442,7 +441,7 @@ class BallotManager:
         pl = q.all()
         return pl
 
-    def active_voting_categories(self, session, uid):
+    def active_voting_categories(self, session, uid: int) -> list:
         '''
         Only return categories that have photos that can be voted on
         :param session: database connection
@@ -497,7 +496,7 @@ class ServerList(Base):
                           server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
     # ======================================================================================================
 
-    def get_redis_server(self, session):
+    def get_redis_server(self, session) -> dict:
         # read the database and find a redis server for us to use
         q = session.query(ServerList).filter_by(type = 'Redis').order_by(ServerList.created_date.desc())
         rs = q.first()
@@ -524,7 +523,7 @@ class TallyMan():
 
     _orientation = None
 
-    def leaderboard_exists(self, session, c):
+    def leaderboard_exists(self, session, c: category.Category) -> bool:
         try:
             if self._redis_conn is None:
                 sl = ServerList()
@@ -539,7 +538,7 @@ class TallyMan():
             logger.exception(msg='error checking if leaderboard exists')
             raise
 
-    def change_category_state(self, session, cid, new_state):
+    def change_category_state(self, session, cid: int, new_state: category.CategoryState) -> dict:
         c = category.Category.read_category_by_id(cid, session)
         if c.state == new_state:
             return {'error':error.iiServerErrors.NO_STATE_CHANGE, 'arg':None}
@@ -550,7 +549,7 @@ class TallyMan():
         category._expiry_cache.expire_key('ALL_CATEGORIES')
         return {'error': None, 'arg': c}
 
-    def leaderboard_name(self, c):
+    def leaderboard_name(self, c: category.Category) -> str:
         try:
             str_lb = "leaderboard_category{0}".format(c.id)
         except Exception as e:
@@ -559,7 +558,7 @@ class TallyMan():
 
         return str_lb
 
-    def update_leaderboard(self, session, c, p, check_exist=True):
+    def update_leaderboard(self, session, c: category.Category, p: photo.Photo, check_exist=True) -> None:
         '''
         update_leaderboard():
         Everytime a vote is cast, we'll update the leaderboard if it exists,
@@ -583,7 +582,7 @@ class TallyMan():
             logger.exception(msg="error updating the leaderboard")
             raise
 
-    def get_leaderboard_by_category(self, session, c, check_exist=True):
+    def get_leaderboard_by_category(self, session, c: category.Category, check_exist=True):
         '''
         this routine will return a leaderboard if it exists. Note, by
         instantiating the leaderboard object we will create a leaderboard
@@ -604,7 +603,7 @@ class TallyMan():
             logger.exception(msg="error getting leader board by category")
             return None
 
-    def create_displayname(self, session, uid):
+    def create_displayname(self, session, uid: int) -> str:
         u = usermgr.User.find_user_by_id(session, uid)
         if u is None:
             return "anonymous{}".format(uid)
@@ -616,7 +615,7 @@ class TallyMan():
         ep = u.emailaddress.split('@')
         return ep[0]
 
-    def read_thumbnail(self, session, pid):
+    def read_thumbnail(self, session, pid: int) -> str:
         try:
             p = session.query(photo.Photo).get(pid)
             if p.active == 0: # this photo has been de-activated, it might be offensive
@@ -629,7 +628,7 @@ class TallyMan():
             logger.exception(msg='error reading thumbnail!')
             return None
 
-    def fetch_leaderboard(self, session, uid, c):
+    def fetch_leaderboard(self, session, uid: int, c: category.Category) -> list:
         '''
         read the leaderboard object and construct a list of 
         leaderboard dictionary elements for later jsonification
@@ -642,6 +641,7 @@ class TallyMan():
         try:
             lb_list = _expiry_cache.get("LEADERBOARD{0}".format(c.id))
             if lb_list is not None:
+                logger.info(msg="cache hit for leaderboard{0}".format(c.id))
                 return lb_list
 
             # Cache miss! got an make a leaderboard

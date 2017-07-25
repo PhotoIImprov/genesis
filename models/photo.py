@@ -18,9 +18,8 @@ import piexif
 from retrying import retry
 import json
 import hashlib
-
 from logsetup import logger
-from cache.ExpiryCache import ExpiryCache, _expiry_cache
+from cache.ExpiryCache import _expiry_cache
 
 class PhotoImage():
     _binary_image = None
@@ -62,22 +61,22 @@ class Photo(Base):
         self.id = kwargs.get('pid')
 
     @staticmethod
-    def count_by_category(session, cid):
+    def count_by_category(session, cid: int) -> category.Category:
         # let's count how many photos are uploaded for this category
         c = session.query(Photo).filter_by(category_id = cid).count()
         return c
 
-    def get_orientation(self):
+    def get_orientation(self) -> int:
         if self._orientation is None and self._photometa is not None:
             self._orientation = self._photometa.orientation
         return self._orientation
 
-    def set_orientation(self, orientation):
+    def set_orientation(self, orientation: int) -> None:
         self._orientation = orientation
 
     # okay, if the directory hasn't been created this will fail!
     @staticmethod
-    def write_file(path_and_name, fdata):
+    def write_file(path_and_name: str, fdata) -> None:
         if fdata is None or path_and_name is None:
             raise Exception(errno.EINVAL)
 
@@ -91,7 +90,7 @@ class Photo(Base):
         return
 
     @staticmethod
-    def mkdir_p(path):
+    def mkdir_p(path: str) -> None:
         try:
             os.makedirs(path)
         except OSError as exc:
@@ -103,7 +102,7 @@ class Photo(Base):
 
     @staticmethod
     @retry(wait_exponential_multiplier=100, wait_exponential_max=1000, stop_max_attempt_number=10)
-    def safe_write_file(path_and_name, pi):
+    def safe_write_file(path_and_name: str, pi:PhotoImage) -> None:
         # the path may not be created, so we try to write the file
         # catch the exception and try again
 
@@ -127,13 +126,13 @@ class Photo(Base):
 
         return
 
-    def create_name(self):
+    def create_name(self) -> str:
         self._uuid = uuid.uuid1()
         self.filename = str(self._uuid)
         return self.filename
 
 
-    def create_sub_path(self):
+    def create_sub_path(self) -> None:
         # paths are generated from filenames
         # paths are designed to hold no more 1000 entries,
         # so must be 10 bits in length. Three levels should give us 1 billion!
@@ -163,7 +162,7 @@ class Photo(Base):
         # <configuration root path>/<generated path>/<uuid>.<filetype>
         #
 
-    def create_full_path(self, rpath):
+    def create_full_path(self, rpath: str) -> None:
         # we should have our sub_path calculated. Now we need to
         # append the root to fully specify where the file shall go
         if rpath is None:
@@ -173,15 +172,15 @@ class Photo(Base):
 
         return
 
-    def create_full_filename(self, extension):
+    def create_full_filename(self, extension: str) -> str:
         self._full_filename = self.filepath + "/" + self.filename + "." + extension
         return self._full_filename
 
-    def create_thumb_filename(self):
+    def create_thumb_filename(self) -> str:
         thumb_filename = self.filepath + "/th_" + self.filename + ".jpg"
         return thumb_filename
 
-    def samsung_fix(self, exif_dict, exif_data):
+    def samsung_fix(self, exif_dict: dict, exif_data: list) -> None:
         try:
             if exif_data['Make'] != 'samsung':
                 return
@@ -198,11 +197,11 @@ class Photo(Base):
         except Exception as e:
             logger.exception(msg="Error with EXIF data parsing for file {0}/{1}".format(self.filepath, self.filename))
 
-
-    def read_thumbnail_b64_utf8(self):
+    def read_thumbnail_b64_utf8(self) -> str:
         try:
             b64_utf8 = _expiry_cache.get(self.filename)
             if b64_utf8 is not None:
+                logger.info(msg="cache hit for thumb:{0}".format(self.filename))
                 return b64_utf8
 
             t_fn = self.create_thumb_filename()
@@ -216,6 +215,7 @@ class Photo(Base):
             b64_utf8 = b64_bytes.decode('utf-8')
             _expiry_cache.put(self.filename, b64_utf8, ttl=60*60*24*3) # keep for 3 days
             return b64_utf8
+
         except Exception as e:
             str_e = str(e)
             logger.exception(msg='error reading thumbnail image')
@@ -228,7 +228,7 @@ class Photo(Base):
     # database
     #
     # Note: We also create the thumbnail file as well
-    def save_user_image(self, session, pi, uid, cid):
+    def save_user_image(self, session, pi: PhotoImage, uid: int, cid: int) -> dict:
         err = None
         if pi._binary_image is None or uid is None or cid is None:
             return {'error': error.iiServerErrors.INVALID_ARGS, 'arg': None}
@@ -256,10 +256,9 @@ class Photo(Base):
         return {'error': None, 'arg': self.filename}
 
 
-    def compute_scalefactor(self, height, width):
+    def compute_scalefactor(self, height: int, width: int) -> float:
         '''
-        
-        :param height: 
+        :param height:
         :param width: 
         :return: a scaling factor such that the result is no dimension larger than _MAX_HEIGHT and _MAX_WIDTH
          yet retain aspect ratio
@@ -285,7 +284,7 @@ class Photo(Base):
         return sf
 
     # get the raw exif data, not decoding
-    def get_exif_dict(self, pil_img):
+    def get_exif_dict(self, pil_img: Image) -> dict:
         info = pil_img._getexif()
         if info is None:
             logger.warning(msg='no EXIF data in file, making dummy data file for {0}/{1}'.format(self.filepath, self.filename))
@@ -294,7 +293,7 @@ class Photo(Base):
         return piexif.load(pil_img.info["exif"])
 
     # get the decoded exif data so we can pull out values
-    def get_exif_data(self, pil_img):
+    def get_exif_data(self, pil_img: Image):
         exif_data = {}
         info = pil_img._getexif()
         if info is None:        # if image has not Exif data, make a dummy and return
@@ -314,7 +313,7 @@ class Photo(Base):
 
         return exif_data
 
-    def create_thumb(self):
+    def create_thumb(self) -> None:
         '''
         We will "normalize" the thumbnail to an orientation of '1' to
         simplify any downstream processing. The orientation & exif data in
@@ -372,10 +371,10 @@ class Photo(Base):
     # retry we need a random backup, with a maxium wait and # of times we'll retry.
     # so we are waiting for an exception to be thrown, then we go into our retrying...
     @retry(wait_exponential_multiplier=100, wait_exponential_max=1000, stop_max_attempt_number=10)
-    def gcs_save_image(self, pil_img, fn, exif_bytes):
+    def gcs_save_image(self, pil_img: Image, fn: str, exif_bytes: bytes) -> None:
         pil_img.save(fn, exif=exif_bytes)
 
-    def make_dummy_exif(self):
+    def make_dummy_exif(self) -> dict:
         zeroth_ifd = {piexif.ImageIFD.Make: u"Unknown",
                       piexif.ImageIFD.Orientation: 1,
                       piexif.ImageIFD.XResolution: (96, 1),
@@ -492,13 +491,13 @@ class Photo(Base):
 
         return rotate, flip
 
-    def get_watermark_font(self):
+    def get_watermark_font(self) -> ImageFont:
         # Place the text at (10, 10) in the upper left corner. Text will be white.
         font_path = dbsetup.get_fontname(dbsetup.determine_environment(None))
         font = ImageFont.truetype(font=font_path, size=20)
         return font
 
-    def get_watermark_file(self):
+    def get_watermark_file(self) -> Image:
         watermark_file = "ii_mainLogo_72.png"
         path = dbsetup.resource_files(dbsetup.determine_environment(None))
         path += '/'
@@ -506,7 +505,7 @@ class Photo(Base):
         im = im.convert("L")
         return im
 
-    def apply_watermark(self, img):
+    def apply_watermark(self, img: Image) -> Image:
         # Create a new image for the watermark with an alpha layer (RGBA)
         #  the same size as the original image
         watermark = Image.new("RGBA", img.size)
@@ -637,9 +636,9 @@ class PhotoMeta(Base):
 
         return None
 
-    def _convert_to_minutes(self, value, ref):
+    def _convert_to_minutes(self, value, ref) -> float:
         """
-        Helper function to convert the GPS coordinates stored in the EXIF to degress in float format
+        Helper function to convert the GPS coordinates stored in the EXIF to degrees in float format
         :param value:
         :type value: exifread.utils.Ratio
         :rtype: float

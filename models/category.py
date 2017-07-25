@@ -10,7 +10,7 @@ from dbsetup import Base
 from logsetup import logger
 from models import resources
 from models import usermgr
-from cache.ExpiryCache import ExpiryCache, _expiry_cache
+from cache.ExpiryCache import _expiry_cache
 
 _CATEGORYLIST_MAXSIZE = 100
 
@@ -22,7 +22,7 @@ class CategoryState(Enum):
     CLOSED   = 4        # category is complete, votes have been tabulated
 
     @staticmethod
-    def to_str(state):
+    def to_str(state: int) -> str:
         if state == CategoryState.UNKNOWN.value:
             return "PENDING"
         if state == CategoryState.UPLOAD.value:
@@ -58,7 +58,7 @@ class Category(Base):
         self.id = kwargs.get('category_id', None)
 
     @staticmethod
-    def get_description_by_resource(rid):
+    def get_description_by_resource(rid: int) -> str:
         session = dbsetup.Session()
         resource_string = None
         try:
@@ -70,13 +70,13 @@ class Category(Base):
             session.close()
             return resource_string
 
-    def get_description(self):
+    def get_description(self) -> str:
         if self._category_description is None:
             self._category_description = Category.get_description_by_resource(self.resource_id)
 
         return self._category_description
 
-    def to_json(self):
+    def to_json(self) -> dict:
         try:
             category_description = self.get_description()
             json_start_date = "{}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}Z".format(self.start_date.year, self.start_date.month, self.start_date.day, self.start_date.hour, self.start_date.minute, self.start_date.second)
@@ -89,19 +89,18 @@ class Category(Base):
             logger.exception(msg="error json category values")
             raise
 
-    def get_id(self):
+    def get_id(self) -> int:
         return self.id
 
     @staticmethod
-    def list_to_json(cl):
+    def list_to_json(cl: list) -> list:
         categories = []
         for c in cl:
             categories.append(c.to_json())
         return categories
 
     @staticmethod
-#    @memoize_with_expiry(_memoize_cache, 300, 0)
-    def all_categories(session, uid):
+    def all_categories(session, uid: int) -> list:
         # display all categories that are in any of the three "Category States"
         # - UPLOAD - category can accept photos to be uploaded
         # - VOTING - category photos are ready for voting
@@ -114,12 +113,13 @@ class Category(Base):
             # first check the cache
             cl = _expiry_cache.get("ALL_CATEGORIES")
             if cl is not None:
+                logger.info(msg="cache hit for Category list")
                 return cl
 
             q = session.query(Category).filter(Category.state.in_([CategoryState.UPLOAD.value, CategoryState.VOTING.value, CategoryState.COUNTING.value, CategoryState.UNKNOWN.value]))
             cl = q.all()
             if cl is not None:
-                del cl[_CATEGORYLIST_MAXSIZE:]    # limit list to 100 elements
+                del cl[_CATEGORYLIST_MAXSIZE:]    # limit list to 100 elements [Note: Since we're truncating, should we order it by start_date?
 
             # if we are here then we had a cache miss, so let's stuff this in the cache
             # but set it's expiry to the earliest state change of a category in the list
@@ -138,6 +138,7 @@ class Category(Base):
             expire_ttl = (earliest - datetime.now()).seconds
             assert(expire_ttl >= 0)
             if expire_ttl > 10: # just a sanity check in case ttl is negative
+                logger.info(msg='caching Categories for {0} seconds'.format(expire_ttl))
                 _expiry_cache.put("ALL_CATEGORIES", cl, ttl=expire_ttl)
             return cl
         except Exception as e:
@@ -145,7 +146,7 @@ class Category(Base):
             raise
 
     @staticmethod
-    def active_categories(session, uid):
+    def active_categories(session, uid: int) -> list:
         # display all categories that are in any of the three "Category States"
         # - UPLOAD - category can accept photos to be uploaded
         # - VOTING - category photos are ready for voting
@@ -162,11 +163,11 @@ class Category(Base):
             raise
 
     @staticmethod
-    def write_category(session, c):
+    def write_category(session, c) -> None:
         session.add(c)
 
     @staticmethod
-    def create_category(rid, sd, ed, st):
+    def create_category(rid: int, sd: datetime, ed: datetime, st: CategoryState):
         c = Category()
         c.resource_id = rid
         c.start_date = sd
@@ -176,7 +177,7 @@ class Category(Base):
         return c
 
     @staticmethod
-    def read_category_by_id(cid, session):
+    def read_category_by_id(cid: int, session):
         c = None
         try:
             c = session.query(Category).get(cid)
@@ -188,13 +189,13 @@ class Category(Base):
         finally:
             return c
 
-    def is_upload(self):
+    def is_upload(self) -> bool:
         return self.state == CategoryState.UPLOAD.value
-    def is_voting(self):
+    def is_voting(self) -> bool:
         return self.state == CategoryState.VOTING.value
 
     @staticmethod
-    def is_upload_by_id(session, cid):
+    def is_upload_by_id(session, cid: int) -> bool:
         c = Category.read_category_by_id(cid, session)
         if c is None:
             raise Exception(errno.EINVAL, 'No Category found for cid={}'.format(cid))
@@ -240,5 +241,5 @@ class CategoryTagList():
             logger.exception(msg='error reading category tags!')
             return None
 
-    def to_str(self):
+    def to_str(self) -> str:
         return self._tags

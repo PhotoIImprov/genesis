@@ -36,7 +36,7 @@ class ExpiryCacheObject(object):
     @ttl: Time to live in secs
     """
 
-    def __init__(self, key, value, ttl=None):
+    def __init__(self, key: str, value: object, ttl=None) -> None:
         self.key = key
         self.value = value
         self.ttl = ttl
@@ -56,7 +56,7 @@ class ExpiryCache(object):
         self.lock = threading.RLock()
         self.schedule_cleaner()
 
-    def is_expired(self, obj):
+    def is_expired(self, obj: object) -> bool:
         """
         Checks if cached object has expired.
         If yes, remove it from cache.
@@ -71,16 +71,16 @@ class ExpiryCache(object):
                 return True
             return False
 
-    def schedule_cleaner(self):
+    def schedule_cleaner(self) -> None:
         t = threading.Timer(SCHEDULE_TIMEOUT, self.timely_cache_cleaner)
         t.setDaemon(True)
         t.start()
 
-    def expire_key(self, key):
+    def expire_key(self, key: str) -> object:
         with self.lock:
             obj = self._cache.pop(key)
 
-    def timely_cache_cleaner(self):
+    def timely_cache_cleaner(self) -> None:
         """
         Timely checks for expired object in cache and
         clears object from cache.
@@ -93,7 +93,7 @@ class ExpiryCache(object):
                 self.is_expired(obj)
             self.schedule_cleaner()
 
-    def put(self, key, value, ttl=None):
+    def put(self, key: str, value: object, ttl=None) -> None:
         """
         Insert value in cache
         """
@@ -104,16 +104,15 @@ class ExpiryCache(object):
 
             self._cache[key] = ExpiryCacheObject(key, value, ttl)
 
-    def get(self, key):
+    def get(self, key: str) -> object:
         """
         Retrive value from cache.
         """
 
         with self.lock:
             obj = self._cache.get(key)
-
             if obj is None:
-                return obj
+                return None
 
             if self.is_expired(obj):
                 return None
