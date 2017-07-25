@@ -1603,6 +1603,12 @@ def download_photo(pid):
 
     return rsp
 
+@app.route('/')
+def root_path():
+    o = urlparse(request.base_url)
+    target_url = o.scheme + '://' + o.netloc + '/fun/index.html'
+    return redirect(target_url, code=302)
+
 if __name__ == '__main__':
     dbsetup.metadata.create_all(bind=dbsetup.engine, checkfirst=True)
     if not dbsetup.is_gunicorn():

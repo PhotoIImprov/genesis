@@ -76,7 +76,7 @@ class ExpiryCache(object):
         t.setDaemon(True)
         t.start()
 
-    def expire_key(self, key: str) -> object:
+    def expire_key(self, key: str) -> None:
         with self.lock:
             obj = self._cache.pop(key)
 
