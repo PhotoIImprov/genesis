@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cache/ExpiryCache.py" afterPath="$PROJECT_DIR$/cache/ExpiryCache.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/category.py" afterPath="$PROJECT_DIR$/models/category.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/photo.py" afterPath="$PROJECT_DIR$/models/photo.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/voting.py" afterPath="$PROJECT_DIR$/models/voting.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/en-US/landing/index.html" afterPath="$PROJECT_DIR$/www/en-US/landing/index.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/en-US/landing/privacy.html" afterPath="$PROJECT_DIR$/www/en-US/landing/privacy.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/en-US/landing/terms-of-service.html" afterPath="$PROJECT_DIR$/www/en-US/landing/terms-of-service.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/en-US/privacy/privacypolicy.html" afterPath="$PROJECT_DIR$/www/en-US/privacy/privacypolicy.html" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -179,79 +179,127 @@
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/iiServer.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="167">
-              <caret line="991" column="0" lean-forward="false" selection-start-line="991" selection-start-column="0" selection-end-line="991" selection-end-column="0" />
-              <folding>
-                <element signature="e#0#15#0" expanded="true" />
-                <marker date="1500922498413" expanded="true" signature="10348:10373" ph="select * fro... event" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="category.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/category.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="195">
-              <caret line="214" column="14" lean-forward="false" selection-start-line="214" selection-start-column="8" selection-end-line="214" selection-end-column="14" />
-              <folding>
-                <element signature="e#0#12#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="voting.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/models/voting.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="149">
-              <caret line="57" column="35" lean-forward="false" selection-start-line="57" selection-start-column="35" selection-end-line="57" selection-end-column="35" />
-              <folding>
-                <element signature="e#0#85#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="test_oAuth2.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_oAuth2.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding>
-                <element signature="e#0#29#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="test_REST_login.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_REST_login.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="408" column="0" lean-forward="false" selection-start-line="408" selection-start-column="0" selection-end-line="408" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="photo.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/photo.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding>
-                <element signature="e#0#17#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <splitter split-orientation="vertical" split-proportion="0.5">
+      <split-first>
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+          <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/iiServer.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="-9499">
+                  <caret line="991" column="0" lean-forward="false" selection-start-line="991" selection-start-column="0" selection-end-line="991" selection-end-column="0" />
+                  <folding>
+                    <element signature="e#0#15#0" expanded="true" />
+                    <marker date="1500922498413" expanded="true" signature="10348:10373" ph="select * fro... event" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="index.html" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/www/en-US/landing/index.html">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="216">
+                  <caret line="12" column="21" lean-forward="false" selection-start-line="12" selection-start-column="21" selection-end-line="12" selection-end-column="21" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="category.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/models/category.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="195">
+                  <caret line="214" column="14" lean-forward="false" selection-start-line="214" selection-start-column="8" selection-end-line="214" selection-end-column="14" />
+                  <folding>
+                    <element signature="e#0#12#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="voting.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/models/voting.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="113">
+                  <caret line="55" column="88" lean-forward="true" selection-start-line="55" selection-start-column="88" selection-end-line="55" selection-end-column="88" />
+                  <folding>
+                    <element signature="e#0#85#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="test_oAuth2.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/tests/test_oAuth2.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="0">
+                  <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+                  <folding>
+                    <element signature="e#0#29#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="test_REST_login.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/tests/test_REST_login.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="221">
+                  <caret line="408" column="0" lean-forward="false" selection-start-line="408" selection-start-column="0" selection-end-line="408" selection-end-column="0" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="photo.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/models/photo.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="0">
+                  <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+                  <folding>
+                    <element signature="e#0#17#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf>
+          <file leaf-file-name="privacy.html" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/www/en-US/landing/privacy.html">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="84">
+                  <caret line="7" column="5" lean-forward="false" selection-start-line="7" selection-start-column="5" selection-end-line="7" selection-end-column="5" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="privacypolicy.html" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/www/en-US/privacy/privacypolicy.html">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="102">
+                  <caret line="15" column="0" lean-forward="false" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="terms-of-service.html" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/www/en-US/landing/terms-of-service.html">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="360">
+                  <caret line="20" column="4" lean-forward="false" selection-start-line="20" selection-start-column="4" selection-end-line="20" selection-end-column="4" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -328,8 +376,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$USER_HOME$/Downloads/trigger_highscore.sql" />
-        <option value="$PROJECT_DIR$/models/test_ballot.py" />
         <option value="$PROJECT_DIR$/models/test_category.py" />
         <option value="$PROJECT_DIR$/tests/foo.txt" />
         <option value="$PROJECT_DIR$/leaderboard/run_tests" />
@@ -360,8 +406,6 @@
         <option value="$PROJECT_DIR$/dbsetup.py" />
         <option value="$PROJECT_DIR$/requirements.txt" />
         <option value="$PROJECT_DIR$/tests/test_REST_login.py" />
-        <option value="$PROJECT_DIR$/www/en-US/landing/index.html" />
-        <option value="$PROJECT_DIR$/www/en-US/landing/privacy.html" />
         <option value="$PROJECT_DIR$/daemon/python_daemon.py" />
         <option value="$PROJECT_DIR$/daemon/sync_leaderboard.conf" />
         <option value="$PROJECT_DIR$/daemon/sync_leaderboard.py" />
@@ -379,6 +423,10 @@
         <option value="$PROJECT_DIR$/models/photo.py" />
         <option value="$PROJECT_DIR$/models/category.py" />
         <option value="$PROJECT_DIR$/models/voting.py" />
+        <option value="$PROJECT_DIR$/www/en-US/landing/index.html" />
+        <option value="$PROJECT_DIR$/www/en-US/landing/privacy.html" />
+        <option value="$PROJECT_DIR$/www/en-US/privacy/privacypolicy.html" />
+        <option value="$PROJECT_DIR$/www/en-US/landing/terms-of-service.html" />
       </list>
     </option>
   </component>
@@ -432,7 +480,37 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="tests" />
+              <option name="myItemId" value="www" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="en-US" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="privacy" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="genesis" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="genesis" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="www" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="en-US" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="landing" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -1090,9 +1168,6 @@
     <history-entry file="Unittests_for_test_REST_login_TestPhotoUpload_test_anon_user_photo_upload - 2017.07.25 at 11h 23m 01s.xml">
       <configuration name="Unittests for test_REST_login.TestPhotoUpload.test_anon_user_photo_upload" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_oAuth2_py - 2017.07.25 at 11h 12m 50s.xml">
-      <configuration name="Unittests in test_oAuth2.py" configurationId="tests" />
-    </history-entry>
     <history-entry file="Unittests_in_test_oAuth2_py - 2017.07.25 at 11h 13m 21s.xml">
       <configuration name="Unittests in test_oAuth2.py" configurationId="tests" />
     </history-entry>
@@ -1100,6 +1175,9 @@
       <configuration name="Unittests in test_oAuth2.py" configurationId="tests" />
     </history-entry>
     <history-entry file="Unittests_in_tests - 2017.07.25 at 11h 17m 26s.xml">
+      <configuration name="Unittests in tests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_tests - 2017.07.25 at 11h 27m 58s.xml">
       <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
   </component>
@@ -1111,7 +1189,7 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5052083" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32941177" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3090909" sideWeight="0.4953125" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3090909" sideWeight="0.4953125" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18229167" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -1323,21 +1401,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/tests/test_REST_voting.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="284">
-          <caret line="126" column="28" lean-forward="false" selection-start-line="126" selection-start-column="28" selection-end-line="126" selection-end-column="28" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/local/lib/python3.5/dist-packages/sqlalchemy/orm/state.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="410" column="0" lean-forward="false" selection-start-line="410" selection-start-column="0" selection-end-line="410" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/models/traction.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="234">
@@ -1429,20 +1492,6 @@
         <state relative-caret-position="385">
           <caret line="52" column="0" lean-forward="false" selection-start-line="52" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/www/en-US/landing/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="12" column="12" lean-forward="false" selection-start-line="8" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/www/en-US/landing/privacy.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1746">
-          <caret line="97" column="7" lean-forward="false" selection-start-line="97" selection-start-column="7" selection-end-line="97" selection-end-column="7" />
         </state>
       </provider>
     </entry>
@@ -1729,7 +1778,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/iiServer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="167">
+        <state relative-caret-position="-9499">
           <caret line="991" column="0" lean-forward="false" selection-start-line="991" selection-start-column="0" selection-end-line="991" selection-end-column="0" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
@@ -1740,11 +1789,43 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/models/voting.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="149">
-          <caret line="57" column="35" lean-forward="false" selection-start-line="57" selection-start-column="35" selection-end-line="57" selection-end-column="35" />
+        <state relative-caret-position="113">
+          <caret line="55" column="88" lean-forward="true" selection-start-line="55" selection-start-column="88" selection-end-line="55" selection-end-column="88" />
           <folding>
             <element signature="e#0#85#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/www/en-US/landing/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="12" column="21" lean-forward="false" selection-start-line="12" selection-start-column="21" selection-end-line="12" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/www/en-US/landing/privacy.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="84">
+          <caret line="7" column="5" lean-forward="false" selection-start-line="7" selection-start-column="5" selection-end-line="7" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/www/en-US/privacy/privacypolicy.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="15" column="0" lean-forward="false" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/www/en-US/landing/terms-of-service.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="20" column="4" lean-forward="false" selection-start-line="20" selection-start-column="4" selection-end-line="20" selection-end-column="4" />
+          <folding />
         </state>
       </provider>
     </entry>
