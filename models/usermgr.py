@@ -10,6 +10,9 @@ import httplib2
 import json
 import uuid
 from flask import jsonify
+import string
+import random
+
 
 class AnonUser(Base):
     __tablename__ = "anonuser"
@@ -106,8 +109,27 @@ class User(Base):
 
         return u
 
-    def change_password(self, session, password):
+    def change_password(self, session, password: str) -> None:
         self.hashedPWD = pbkdf2_sha256.hash(password, rounds=1000, salt_size=16)
+
+    def random_password(self, size: int) -> str:
+        new_password = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(size))
+        return new_password
+
+    def send_password_email(self, new_password: str) -> None:
+        return
+
+    def forgot_password(self, session) -> None:
+        '''
+        User has forgotten their password, generate a new one
+        update their record and email it to them.
+        :param session:
+        :return:
+        '''
+        new_password = self.random_password()
+        self.change_password(session, new_password)
+        self.send_password_email(new_password)
+        return
 
     @staticmethod
     def create_user(session, guid, username, password):

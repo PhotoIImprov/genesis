@@ -1604,6 +1604,53 @@ def download_photo(pid):
 
     return rsp
 
+@app.route('/forgotpwd')
+def forgot_password():
+    """
+    Forgot Password
+    ---
+    tags:
+      - user
+    summary: "send a new password to a user's email address"
+    operationId: forgot-password
+    consumes:
+      - text/html
+    produces:
+      - json/application
+    parameters:
+      - in: query
+        name: email
+        description: "The email address that has forgotten their password"
+        required: true
+        type: string
+    responses:
+      200:
+        description: "password reset, sent to email address"
+      404:
+        description: "emailaddress not found!"
+        schema:
+          $ref: '#/definitions/Error'
+    """
+    session = dbsetup.Session()
+    rsp = None
+    try:
+        emailaddress = request.args.get('email')
+        logger.info(msg='[/forgotpwd] email = {}'.format(emailaddress))
+        u = usermgr.User.find_user_by_email(session, emailaddress)
+        if u is not None:
+            u.forgot_password(session)
+            session.commit()
+            rsp = make_response('new password sent via email', status.HTTP_200_OK)
+        else:
+            rsp = make_response(jsonify({'msg': error.error_string('EMAIL_NOT_FOUND')}), status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        session.rollback()
+        logger.exception(msg='[/forgotpwd] {0}'.format(str(e)))
+        rsp = make_response(jsonify({'msg': error.error_string('EMAIL_NOT_FOUND')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        session.close()
+        return rsp
+
 @app.route('/')
 def root_path():
     o = urlparse(request.base_url)

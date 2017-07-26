@@ -94,14 +94,19 @@ class TestVoting(DatabaseTest):
         self.teardown()
 
     def test_create_displayname_anonymous(self):
-        tm = voting.TallyMan()
         self.setup()
+        tm = voting.TallyMan()
+
         # create a user
-        au = usermgr.AnonUser.create_anon_user(self.session, '99275132efe811e6bc6492361f002672')
+        guid = str(uuid.uuid1())
+        guid = guid.upper().translate({ord(c): None for c in '-'})
+
+        au = usermgr.AnonUser.create_anon_user(self.session, guid)
         self.session.flush()
         name = tm.create_displayname(self.session, au.id)
 
         assert(name == 'anonymous{}'.format(au.id))
+        self.teardown()
 
     def create_category(self, category_name):
         # first we need a resource

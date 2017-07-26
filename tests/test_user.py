@@ -14,7 +14,33 @@ from handlers import dbg_handler
 from logsetup import logger
 
 class TestUserMgr(DatabaseTest):
+
     def test_change_password(self):
+        self.setup()
+        # create a user
+        au = usermgr.AnonUser.create_anon_user(self.session, '99275132efe811e6bc6492361f002672')
+        assert (au is not None)
+        uname = 'harry.collins@gmail.com'
+        u = usermgr.User.create_user(self.session, au.guid, uname, 'pa55w0rd')
+        assert(u is not None)
+        self.session.commit()
+
+        first_hashedPWD = u.hashedPWD
+
+        # read this password, it'll be hashed
+        u_pwd = self.session.query(usermgr.User).get(u.id)
+        assert(u_pwd is not None)
+
+        newpassword = "12345"
+        u.change_password(self.session, newpassword)
+        self.session.commit()
+        u2_pwd = self.session.query(usermgr.User).get(u.id)
+
+        assert(first_hashedPWD != u2_pwd.hashedPWD)
+
+        self.teardown()
+
+    def test_random_password(self):
         self.setup()
         # create a user
         au = usermgr.AnonUser.create_anon_user(self.session, '99275132efe811e6bc6492361f002672')
@@ -24,6 +50,13 @@ class TestUserMgr(DatabaseTest):
         assert (u is not None)
         newpassword = "12345"
         u.change_password(self.session, newpassword)
+
+        pwd = u.random_password(6)
+        assert(len(pwd) == 6)
+
+        pwd = u.random_password(10)
+        assert(len(pwd) == 10)
+
         self.teardown()
 
     def test_create_user(self):
