@@ -1,10 +1,10 @@
-<manifest alg="2" build="2017.0.4.363" opt="true" iceEnabled="true" iceMarkupVersion="2" iceEnabledOptions="link,responsive,cachebuster,textStyling" exportTarget="other" domain="www.imageimprov.com" resolutions="1x" timestamp="1500666272459">
+<manifest alg="2" build="2017.0.4.363" opt="true" iceEnabled="true" iceMarkupVersion="2" iceEnabledOptions="link,responsive,cachebuster,textStyling" exportTarget="other" domain="www.imageimprov.com" resolutions="1x" timestamp="1501105173391">
   <folder name="css">
     <file name="site_global.css" crc="35567816"/>
-    <file name="master_a-master.css" crc="4160394066" ref="index:terms-of-service:community-guidlines:privacy-policy"/>
+    <file name="master_a-master.css" crc="202379734" ref="index:terms-of-service:community-guidlines:privacy-policy"/>
     <file name="nomq_preview_master_a-master.css" crc="261058338" ref="index:terms-of-service:privacy-policy:community-guidlines"/>
-    <file name="index.css" crc="359474621" ref="index"/>
-    <file name="nomq_index.css" crc="478548572" ref="index"/>
+    <file name="index.css" crc="3021244" ref="index"/>
+    <file name="nomq_index.css" crc="502679784" ref="index"/>
     <file name="terms-of-service.css" crc="4283001806" ref="terms-of-service"/>
     <file name="community-guidlines.css" crc="162295757" ref="community-guidlines"/>
     <file name="privacy-policy.css" crc="370407254" ref="privacy-policy"/>
@@ -44,7 +44,7 @@
     </file>
     <file name="blank.gif" crc="4208392903" ref="index"/>
   </folder>
-  <file name="index.html" crc="162544292" seo="true" mt="1500666249869" redirect="true"/>
+  <file name="index.html" crc="3825202091" seo="true" mt="1501105167448" redirect="true"/>
   <file name="community-guidlines.html" crc="4102783156" seo="true" mt="1500666249869" redirect="true"/>
   <file name="terms-of-service.html" crc="4168960016" seo="true" mt="1500666249869" redirect="true"/>
   <file name="privacy-policy.html" crc="4136289779" seo="true" mt="1500666249869" redirect="true"/>
