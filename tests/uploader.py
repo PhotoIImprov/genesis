@@ -89,8 +89,8 @@ def upload_images(subdir_name, rootdir, cid):
             username = 'testuser{0}@imageimprov.com'.format(idx)
             idx += 1
             upload_image(username, full_name, cid)
-            newname = full_name + '.1'
-            os.rename(full_name, newname)
+#            newname = full_name + '.1'
+#            os.rename(full_name, newname)
 
     return
 

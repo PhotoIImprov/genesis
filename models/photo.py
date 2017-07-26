@@ -61,10 +61,10 @@ class Photo(Base):
         self.id = kwargs.get('pid')
 
     @staticmethod
-    def count_by_category(session, cid: int) -> category.Category:
+    def count_by_category(session, cid: int) -> int:
         # let's count how many photos are uploaded for this category
-        c = session.query(Photo).filter_by(category_id = cid).count()
-        return c
+        num_photos = session.query(Photo).filter_by(category_id = cid).count()
+        return num_photos
 
     def get_orientation(self) -> int:
         if self._orientation is None and self._photometa is not None:
@@ -176,6 +176,14 @@ class Photo(Base):
         self._full_filename = self.filepath + "/" + self.filename + "." + extension
         return self._full_filename
 
+    def create_storage_name(self, extension: str) -> str:
+        self.create_name()      # our globally unique filename
+        self.create_sub_path()  # a path to distribute the load
+        self._mnt_point = dbsetup.image_store(dbsetup.determine_environment(None)) # get the mount point
+        self.create_full_path(self._mnt_point) # put it all together
+        return self.create_full_filename(extension)
+
+
     def create_thumb_filename(self) -> str:
         thumb_filename = self.filepath + "/th_" + self.filename + ".jpg"
         return thumb_filename
@@ -239,14 +247,10 @@ class Photo(Base):
         self._photoimage = pi
 
         # okay we have arguments, lets create our file name
-        self.create_name()      # our globally unique filename
-        self.create_sub_path()  # a path to distribute the load
-        self._mnt_point = dbsetup.image_store(dbsetup.determine_environment(None)) # get the mount point
-        self.create_full_path(self._mnt_point) # put it all together
-        self.create_full_filename('JPEG')
+        fn = self.create_storage_name('JPEG')
 
         # write to the folder
-        Photo.safe_write_file(self._full_filename, pi)
+        Photo.safe_write_file(fn, pi)
         self.create_thumb()
 
         # okay, now we need to save all this information to the
@@ -278,9 +282,6 @@ class Photo(Base):
         else:
             sf = sfw
 
-#        if sf > 1.0:
-#            sf = 1.0
-
         return sf
 
     # get the raw exif data, not decoding
@@ -293,7 +294,7 @@ class Photo(Base):
         return piexif.load(pil_img.info["exif"])
 
     # get the decoded exif data so we can pull out values
-    def get_exif_data(self, pil_img: Image):
+    def get_exif_data(self, pil_img: Image) -> dict:
         exif_data = {}
         info = pil_img._getexif()
         if info is None:        # if image has not Exif data, make a dummy and return

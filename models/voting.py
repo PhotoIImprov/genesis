@@ -127,21 +127,17 @@ class BallotEntry(Base):
         self._binary_image = None
 
 
-    def to_json(self) -> str:
+    def to_json(self) -> dict:
         if self._photo is None:
             return None
 
         self._b64image = self._photo.read_thumbnail_b64_utf8()
 
-        orientation = self._photo.get_orientation()
-        if orientation is None:
-            orientation = 1
-
         try:
             if self._tags is None:
-                d = dict({'bid': self.id, 'orientation': orientation, 'image': self._b64image})
+                d = dict({'bid': self.id, 'orientation': 1, 'image': self._b64image})
             else:
-                d = dict({'bid':self.id, 'orientation': orientation, 'tags': self._tags, 'image':self._b64image})
+                d = dict({'bid':self.id, 'orientation': 1, 'tags': self._tags, 'image':self._b64image})
         except Exception as e:
             raise
 
@@ -259,7 +255,7 @@ class BallotManager:
             score = _ROUND2_SCORING[section][vote-1]
         return score
 
-    def create_ballot(self, session, uid: int, c: category.Category, allow_upload=False) -> None:
+    def create_ballot(self, session, uid: int, c: category.Category, allow_upload=False) -> list:
         '''
         Returns a ballot list containing the photos to be voted on.
         
@@ -622,7 +618,7 @@ class TallyMan():
                 return None
 
             b64_utf8 = p.read_thumbnail_b64_utf8()
-            self._orientation = p.get_orientation()
+            self._orientation = 1 # all thumbnails normalized to '1' orientation
             return b64_utf8
         except Exception as e:
             logger.exception(msg='error reading thumbnail!')
@@ -632,26 +628,50 @@ class TallyMan():
         '''
         read the leaderboard object and construct a list of 
         leaderboard dictionary elements for later jsonification
+
+        Make note of the caching strategy:
+
+            1) Cache the raw leaderboard list from the redis server for 'ttl_leaderboard' (~24 hours)
+            2) cache hits on this compare with the current redis server leaderboard, if same
+               then use the cached leaderboard with photos and return
+            3) If NOT same, invalidate the caches (list and list w/thumbnails) and reconstruct
+            4) cache all this stuff on exit
+
+        NOTE: Could this be further optimized by realizing that leaderboards for categories that are no
+              longer "voting" can be cached without all these checks as they won't change?
+
         :param session: database
         :param uid: user requesting leaderboard
         :param c: category for which leaderboard is request
         :return: list of of leaderboard dictionary elements or None if leaderboard doesn't exist
         '''
 
-        try:
-            lb_list = _expiry_cache.get("LEADERBOARD{0}".format(c.id))
-            if lb_list is not None:
-                logger.info(msg="cache hit for leaderboard{0}".format(c.id))
-                return lb_list
+        if c is not None:
+            logger.info(msg="retrieving leader board for category {}, \'{}\'".format(c.id, c.get_description()))
+        else:
+            logger.info(msg="retrieving leader board for category")
 
-            # Cache miss! got an make a leaderboard
+        try:
+            list_key = 'LEADERBOARD{0}'.format(c.id)
+            thumbnail_key = 'LEADERBOARD_THUMBNAILS{0}'.format(c.id)
+            ttl_leaderboard = 60 * 60 * 24 # 24 hours
+            cached_dl, cached_time = _expiry_cache.get_with_time(list_key)
+
             lb = self.get_leaderboard_by_category(session, c, check_exist=True)
-            if c is not None:
-                logger.info(msg="retrieving leader board for category {}, \'{}\'".format(c.id, c.get_description()))
-            else:
-                logger.info(msg="retrieving leader board for category")
 
             dl = lb.leaders(1, page_size=10, with_member_data=True)   # 1st page is top 25
+            # see if the current leaderboard matches the cached leaderboard
+
+            if cached_dl == dl and dl is not None:
+                lb_list = _expiry_cache.get(thumbnail_key)
+                if lb_list is not None:
+                    logger.info(msg="cache hit for leaderboard{0}".format(c.id))
+                    return lb_list
+
+            _expiry_cache.put(list_key, dl, ttl=ttl_leaderboard) # 1 hour expiration of the non-photo list
+            if cached_dl is not None:
+                _expiry_cache.expire_key(thumbnail_key)
+
             lb_list = []
             for d in dl:
                 lb_uid = int(str(d['member'], 'utf-8'))         # anonuser.id / userlogin.id
@@ -672,12 +692,12 @@ class TallyMan():
                         lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'you':True, 'orientation': self._orientation, 'image' : b64_utf8})
                     else:
                         if usermgr.Friend.is_friend(session, uid, lb_uid):
-                            lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'isfriend':True, 'orientation': self._orientation, 'image' : b64_utf8})
+                            lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'isfriend':True, 'orientation': 1, 'image' : b64_utf8})
                         else:
-                            lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'orientation': self._orientation, 'image' : b64_utf8})
+                            lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'orientation': 1, 'image' : b64_utf8})
 
             # Wow! That was a lot of work, so let's stuff it in the cache and use it for 5 minutes
-            _expiry_cache.put("LEADERBOARD{0}".format(c.id), lb_list, ttl=300) # 5 minute expiration
+            _expiry_cache.put(thumbnail_key, lb_list, ttl=ttl_leaderboard)
             return lb_list
         except Exception as e:
             logger.exception(msg="error fetching leaderboard")

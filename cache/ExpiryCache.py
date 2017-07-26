@@ -106,7 +106,7 @@ class ExpiryCache(object):
 
     def get(self, key: str) -> object:
         """
-        Retrive value from cache.
+        Retrieve value from cache.
         """
 
         with self.lock:
@@ -118,6 +118,23 @@ class ExpiryCache(object):
                 return None
 
             return obj.value
+
+
+    def get_with_time(self, key: str) -> tuple:
+        """
+        Retrieve value from cache and return expiration time.
+        """
+
+        with self.lock:
+            obj = self._cache.get(key)
+            if obj is None:
+                return None, None
+
+            if self.is_expired(obj):
+                return None, None
+
+        return obj.value, obj.timeout
+
 
 # instantiate a "global" instance of our cache
 _expiry_cache = ExpiryCache()
