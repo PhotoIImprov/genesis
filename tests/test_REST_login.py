@@ -1155,3 +1155,20 @@ class TestTraction(iiBaseUnitTest):
         assert(rsp.status_code == 302)
         c = rsp.data.decode("utf-8")
         assert(c.find('campaign=beta3') != -1)
+
+    def test_forgotpassword_noemail(self):
+        rsp = self.app.get(path='/forgotpwd', query_string=urlencode({'email':None}))
+        assert(rsp.status_code == 404)
+
+    def test_forgotpassword_bogusemail(self):
+        guid = str(uuid.uuid1())
+        guid = guid.upper().translate({ord(c): None for c in '-'})
+        bogusemail = guid + '@hotmail.com'
+        rsp = self.app.get(path='/forgotpwd', query_string=urlencode({'email':bogusemail}))
+        assert(rsp.status_code == 404)
+
+    def test_forgotpassword_legit_email(self):
+
+        tu = self.create_testuser_get_token()
+        rsp = self.app.get(path='/forgotpwd', query_string=urlencode({'email':tu.get_username()}))
+        assert(rsp.status_code == 200)

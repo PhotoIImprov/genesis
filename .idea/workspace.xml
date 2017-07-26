@@ -5,8 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/iiServer.py" afterPath="$PROJECT_DIR$/iiServer.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/usermgr.py" afterPath="$PROJECT_DIR$/models/usermgr.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/test_REST_login.py" afterPath="$PROJECT_DIR$/tests/test_REST_login.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -21,6 +20,7 @@
     <SUITE FILE_PATH="coverage/genesis$uploader.coverage" NAME="uploader Coverage Results" MODIFIED="1501099208952" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$loader.coverage" NAME="loader Coverage Results" MODIFIED="1500742999455" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/usr/lib/python3.5/unittest" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_resource.coverage" NAME="Unittests in test_resource Coverage Results" MODIFIED="1494102784149" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestTraction_test_forgotpassword_noemail.coverage" NAME="Unittests for test_REST_login.TestTraction.test_forgotpassword_noemail Coverage Results" MODIFIED="1501106637486" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_oAuth2_Test_oAuth2_test_serviceprovider_is_None.coverage" NAME="Unittests for test_oAuth2.Test_oAuth2.test_serviceprovider_is_None Coverage Results" MODIFIED="1499901548955" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittest_TestLogin_test_auth.coverage" NAME="Unittest TestLogin.test_auth Coverage Results" MODIFIED="1490642236096" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_photo_TestPhoto_test_generate_thumb_fail.coverage" NAME="Unittests for test_photo.TestPhoto.test_generate_thumb_fail Coverage Results" MODIFIED="1494615580224" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -112,6 +112,8 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_oAuth2_Test_oAuth2_test_google_with_good_token.coverage" NAME="Unittests for test_oAuth2.Test_oAuth2.test_google_with_good_token Coverage Results" MODIFIED="1499890826668" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestLogin_test_spec_page.coverage" NAME="Unittests for test_REST_login.TestLogin.test_spec_page Coverage Results" MODIFIED="1496688498244" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_voting_TestVoting_test_ballotentry_with_tags.coverage" NAME="Unittests for test_voting.TestVoting.test_ballotentry_with_tags Coverage Results" MODIFIED="1500929265274" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestTraction_test_forgotpassword_bogusemail.coverage" NAME="Unittests for test_REST_login.TestTraction.test_forgotpassword_bogusemail Coverage Results" MODIFIED="1501106645412" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestTraction_test_forgotpassword_legit_email.coverage" NAME="Unittests for test_REST_login.TestTraction.test_forgotpassword_legit_email Coverage Results" MODIFIED="1501106652086" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Cloud.coverage" NAME="Cloud Coverage Results" MODIFIED="1492981314343" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestLogin_test_login.coverage" NAME="Unittests for test_REST_login.TestLogin.test_login Coverage Results" MODIFIED="1500081476556" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestCategory_test_category_state.coverage" NAME="Unittests for test_REST_login.TestCategory.test_category_state Coverage Results" MODIFIED="1498563108767" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -144,7 +146,7 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestLeaderBoard_test_leaderboard.coverage" NAME="Unittests for test_REST_login.TestLeaderBoard.test_leaderboard Coverage Results" MODIFIED="1499460034794" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$run_tests.coverage" NAME="run_tests Coverage Results" MODIFIED="1489424405447" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/leaderboard" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_tests_test_REST_login_TesttVoting_test_anon_voting.coverage" NAME="Unittests for tests.test_REST_login.TesttVoting.test_anon_voting Coverage Results" MODIFIED="1492709779881" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/genesis$Unittests_in_tests.coverage" NAME="Unittests in tests Coverage Results" MODIFIED="1501105565901" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_in_tests.coverage" NAME="Unittests in tests Coverage Results" MODIFIED="1501106664766" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_voting_TestVoting_test_cleanup_list_allduplicates.coverage" NAME="Unittests for test_voting.TestVoting.test_cleanup_list_allduplicates Coverage Results" MODIFIED="1498743020092" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_photo.coverage" NAME="Unittests in test_photo Coverage Results" MODIFIED="1490029558190" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_oAuth2_Test_oAuth2_test_facebook_inject_content.coverage" NAME="Unittests for test_oAuth2.Test_oAuth2.test_facebook_inject_content Coverage Results" MODIFIED="1500319771718" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -183,11 +185,11 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/iiServer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="594">
-              <caret line="239" column="70" lean-forward="false" selection-start-line="239" selection-start-column="70" selection-end-line="239" selection-end-column="70" />
+            <state relative-caret-position="251">
+              <caret line="1497" column="0" lean-forward="false" selection-start-line="1495" selection-start-column="0" selection-end-line="1497" selection-end-column="0" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
                 <marker date="1501105565872" expanded="true" signature="10496:10521" ph="select * fro... event" />
@@ -276,11 +278,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="test_REST_login.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="test_REST_login.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/tests/test_REST_login.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="195">
-              <caret line="508" column="0" lean-forward="false" selection-start-line="508" selection-start-column="0" selection-end-line="508" selection-end-column="0" />
+            <state relative-caret-position="449">
+              <caret line="1174" column="0" lean-forward="true" selection-start-line="1174" selection-start-column="0" selection-end-line="1174" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -310,10 +312,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>.j</find>
-      <find>.</find>
-      <find>j</find>
-      <find>json</find>
       <find>json(</find>
       <find>c</find>
       <find>cou</find>
@@ -340,6 +338,10 @@
       <find>.choi</find>
       <find>play</find>
       <find>/register</find>
+      <find>guid</find>
+      <find>uuid1</find>
+      <find>create_user</find>
+      <find>create_testuser_get_token</find>
     </findStrings>
     <replaceStrings>
       <replace>Photo</replace>
@@ -401,7 +403,6 @@
         <option value="$PROJECT_DIR$/tests/test_ballot.py" />
         <option value="$PROJECT_DIR$/dbsetup.py" />
         <option value="$PROJECT_DIR$/requirements.txt" />
-        <option value="$PROJECT_DIR$/tests/test_REST_login.py" />
         <option value="$PROJECT_DIR$/daemon/python_daemon.py" />
         <option value="$PROJECT_DIR$/daemon/sync_leaderboard.conf" />
         <option value="$PROJECT_DIR$/daemon/sync_leaderboard.py" />
@@ -426,6 +427,7 @@
         <option value="$PROJECT_DIR$/tests/test_voting.py" />
         <option value="$PROJECT_DIR$/models/usermgr.py" />
         <option value="$PROJECT_DIR$/iiServer.py" />
+        <option value="$PROJECT_DIR$/tests/test_REST_login.py" />
       </list>
     </option>
   </component>
@@ -607,41 +609,6 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method />
     </configuration>
-    <configuration default="false" name="uploader" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="iiServer" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/uploader.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="Unittests for test_user.TestUserMgr.test_change_password" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="iiServer" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_user.TestUserMgr.test_change_password&quot;" />
-      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
-      <method />
-    </configuration>
     <configuration default="false" name="Unittests for test_user.TestUserMgr.test_random_password" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -658,7 +625,7 @@
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method />
     </configuration>
-    <configuration default="false" name="Unittests for test_voting.TestVoting.test_create_displayname_anonymous" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+    <configuration default="false" name="Unittests for test_REST_login.TestTraction.test_forgotpassword_noemail" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs />
@@ -670,7 +637,39 @@
       <module name="iiServer" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_voting.TestVoting.test_create_displayname_anonymous&quot;" />
+      <option name="_new_target" value="&quot;test_REST_login.TestTraction.test_forgotpassword_noemail&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method />
+    </configuration>
+    <configuration default="false" name="Unittests for test_REST_login.TestTraction.test_forgotpassword_bogusemail" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="iiServer" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_REST_login.TestTraction.test_forgotpassword_bogusemail&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method />
+    </configuration>
+    <configuration default="false" name="Unittests for test_REST_login.TestTraction.test_forgotpassword_legit_email" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="iiServer" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_REST_login.TestTraction.test_forgotpassword_legit_email&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method />
     </configuration>
@@ -966,18 +965,18 @@
       <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests in test_resource" />
       <item index="3" class="java.lang.String" itemvalue="Python.Cloud" />
       <item index="4" class="java.lang.String" itemvalue="Python tests.Unittests in tests" />
-      <item index="5" class="java.lang.String" itemvalue="Python.uploader" />
-      <item index="6" class="java.lang.String" itemvalue="Python tests.Unittests for test_user.TestUserMgr.test_change_password" />
-      <item index="7" class="java.lang.String" itemvalue="Python tests.Unittests for test_user.TestUserMgr.test_random_password" />
-      <item index="8" class="java.lang.String" itemvalue="Python tests.Unittests for test_voting.TestVoting.test_create_displayname_anonymous" />
+      <item index="5" class="java.lang.String" itemvalue="Python tests.Unittests for test_user.TestUserMgr.test_random_password" />
+      <item index="6" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TestTraction.test_forgotpassword_noemail" />
+      <item index="7" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TestTraction.test_forgotpassword_bogusemail" />
+      <item index="8" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TestTraction.test_forgotpassword_legit_email" />
     </list>
     <recent_temporary>
       <list size="5">
         <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in tests" />
-        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests for test_user.TestUserMgr.test_random_password" />
-        <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests for test_voting.TestVoting.test_create_displayname_anonymous" />
-        <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests for test_user.TestUserMgr.test_change_password" />
-        <item index="4" class="java.lang.String" itemvalue="Python.uploader" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TestTraction.test_forgotpassword_legit_email" />
+        <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TestTraction.test_forgotpassword_bogusemail" />
+        <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TestTraction.test_forgotpassword_noemail" />
+        <item index="4" class="java.lang.String" itemvalue="Python tests.Unittests for test_user.TestUserMgr.test_random_password" />
       </list>
     </recent_temporary>
     <configuration default="true" type="tests" factoryName="Attests">
@@ -1117,6 +1116,18 @@
     <servers />
   </component>
   <component name="TestHistory">
+    <history-entry file="Unittests_for_test_REST_login_TestTraction_test_forgotpassword_bogusemail - 2017.07.26 at 18h 04m 07s.xml">
+      <configuration name="Unittests for test_REST_login.TestTraction.test_forgotpassword_bogusemail" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_REST_login_TestTraction_test_forgotpassword_legit_email - 2017.07.26 at 18h 04m 13s.xml">
+      <configuration name="Unittests for test_REST_login.TestTraction.test_forgotpassword_legit_email" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_REST_login_TestTraction_test_forgotpassword_noemail - 2017.07.26 at 18h 03m 05s.xml">
+      <configuration name="Unittests for test_REST_login.TestTraction.test_forgotpassword_noemail" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_REST_login_TestTraction_test_forgotpassword_noemail - 2017.07.26 at 18h 03m 59s.xml">
+      <configuration name="Unittests for test_REST_login.TestTraction.test_forgotpassword_noemail" configurationId="tests" />
+    </history-entry>
     <history-entry file="Unittests_for_test_user_TestUserMgr_test_random_password - 2017.07.26 at 17h 40m 30s.xml">
       <configuration name="Unittests for test_user.TestUserMgr.test_random_password" configurationId="tests" />
     </history-entry>
@@ -1125,18 +1136,6 @@
     </history-entry>
     <history-entry file="Unittests_for_test_user_TestUserMgr_test_random_password - 2017.07.26 at 17h 45m 58s.xml">
       <configuration name="Unittests for test_user.TestUserMgr.test_random_password" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_test_voting_TestVoting_test_create_displayname_anonymous - 2017.07.26 at 17h 30m 54s.xml">
-      <configuration name="Unittests for test_voting.TestVoting.test_create_displayname_anonymous" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_test_voting_TestVoting_test_create_displayname_anonymous - 2017.07.26 at 17h 31m 41s.xml">
-      <configuration name="Unittests for test_voting.TestVoting.test_create_displayname_anonymous" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_test_voting_TestVoting_test_create_displayname_anonymous - 2017.07.26 at 17h 33m 17s.xml">
-      <configuration name="Unittests for test_voting.TestVoting.test_create_displayname_anonymous" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_in_tests - 2017.07.26 at 17h 28m 50s.xml">
-      <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
     <history-entry file="Unittests_in_tests - 2017.07.26 at 17h 38m 21s.xml">
       <configuration name="Unittests in tests" configurationId="tests" />
@@ -1687,14 +1686,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_REST_login.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="508" column="0" lean-forward="false" selection-start-line="508" selection-start-column="0" selection-end-line="508" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/models/photo.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="573">
@@ -1781,12 +1772,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/iiServer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="594">
-          <caret line="239" column="70" lean-forward="false" selection-start-line="239" selection-start-column="70" selection-end-line="239" selection-end-column="70" />
+        <state relative-caret-position="251">
+          <caret line="1497" column="0" lean-forward="false" selection-start-line="1495" selection-start-column="0" selection-end-line="1497" selection-end-column="0" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
             <marker date="1501105565872" expanded="true" signature="10496:10521" ph="select * fro... event" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_REST_login.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="449">
+          <caret line="1174" column="0" lean-forward="true" selection-start-line="1174" selection-start-column="0" selection-end-line="1174" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
