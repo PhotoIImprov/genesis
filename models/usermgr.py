@@ -113,7 +113,9 @@ class User(Base):
         self.hashedPWD = pbkdf2_sha256.hash(password, rounds=1000, salt_size=16)
 
     def random_password(self, size: int) -> str:
-        new_password = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(size))
+        # define our character pool for randomness to avoid confusion
+        char_pool = 'ABCDEFGHJKLMNPRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789+!'
+        new_password = ''.join(random.choice(char_pool) for _ in range(size))
         return new_password
 
     def send_password_email(self, new_password: str) -> None:
@@ -126,7 +128,7 @@ class User(Base):
         :param session:
         :return:
         '''
-        new_password = self.random_password()
+        new_password = self.random_password(8)
         self.change_password(session, new_password)
         self.send_password_email(new_password)
         return

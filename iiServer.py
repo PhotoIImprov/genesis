@@ -237,6 +237,7 @@ def hello():
                 "<li>Caching Category & Leaderboard with expiry</li>" \
                 "<li>Caching thumbnails as base64/utf-8 strings</li>" \
                 "<li>Advanced Leaderboard caching checks for changes</li>" \
+                "<li>/forgotpwd?email=xxx (doesn't email yet!)</li>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
