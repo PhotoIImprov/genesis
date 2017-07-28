@@ -18,7 +18,7 @@ import piexif
 from retrying import retry
 import json
 import hashlib
-from logsetup import logger
+from logsetup import logger, timeit
 from cache.ExpiryCache import _expiry_cache
 
 class PhotoImage():
@@ -76,7 +76,8 @@ class Photo(Base):
 
     # okay, if the directory hasn't been created this will fail!
     @staticmethod
-    def write_file(path_and_name: str, fdata) -> None:
+    @timeit()
+    def write_file(path_and_name: str, fdata: bytes) -> None:
         if fdata is None or path_and_name is None:
             raise Exception(errno.EINVAL)
 
@@ -105,21 +106,19 @@ class Photo(Base):
     def safe_write_file(path_and_name: str, pi:PhotoImage) -> None:
         # the path may not be created, so we try to write the file
         # catch the exception and try again
-
-        write_status = False
         try:
             Photo.write_file(path_and_name, pi._binary_image)
         except OSError as err:
-            # see if this is our "no such dir error
-            if err.errno == errno.EEXIST:
-                pass
-
-            # we need to try and make this directory
+            # see if this is our "no such dir error", if so we can try again, otherwise leave
+            if err.errno != errno.ENOENT:
+                raise
+            # okay, the directory doesn't exist, so make it
             try:
                 path_only = os.path.dirname(path_and_name)
                 Photo.mkdir_p(path_only)
             except OSError as err:
-                raise
+                if err.errno != errno.EEXIST:
+                    raise
 
             # try writing again
             Photo.write_file(path_and_name, pi._binary_image)
@@ -236,6 +235,7 @@ class Photo(Base):
     # database
     #
     # Note: We also create the thumbnail file as well
+    @timeit()
     def save_user_image(self, session, pi: PhotoImage, uid: int, cid: int) -> dict:
         err = None
         if pi._binary_image is None or uid is None or cid is None:
@@ -314,6 +314,7 @@ class Photo(Base):
 
         return exif_data
 
+    @timeit()
     def create_thumb(self) -> None:
         '''
         We will "normalize" the thumbnail to an orientation of '1' to

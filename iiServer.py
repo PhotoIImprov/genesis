@@ -37,7 +37,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.2.2' #our version string PEP 440
+__version__ = '1.2.3' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -1219,7 +1219,7 @@ def photo_upload():
     try:
         pi._binary_image = base64.b64decode(request.json['image'])
         pi._extension = request.json['extension']
-        cid    = request.json['category_id']
+        cid = request.json['category_id']
         u = current_identity
         uid = u.id
     except KeyError:
@@ -1639,7 +1639,7 @@ def forgot_password():
         logger.info(msg='[/forgotpwd] email = {}'.format(emailaddress))
         u = usermgr.User.find_user_by_email(session, emailaddress)
         if u is not None:
-            u.forgot_password(session)
+            http_status = u.forgot_password(session)
             session.commit()
             rsp = make_response('new password sent via email', status.HTTP_200_OK)
         else:

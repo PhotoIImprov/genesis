@@ -59,6 +59,19 @@ class TestUserMgr(DatabaseTest):
 
         self.teardown()
 
+    def test_forgot_password(self):
+        self.setup()
+        # create a user
+        au = usermgr.AnonUser.create_anon_user(self.session, '99275132efe811e6bc6492361f002672')
+        assert (au is not None)
+        uname = 'bp100a@gmail.com'
+        u = usermgr.User.create_user(self.session, au.guid, uname, 'pa55w0rd')
+        assert (u is not None)
+        http_status = u.forgot_password(self.session)
+        assert(http_status == 200)
+
+        self.teardown()
+
     def test_create_user(self):
         self.setup()
         # create a user

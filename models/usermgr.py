@@ -12,6 +12,7 @@ import uuid
 from flask import jsonify
 import string
 import random
+import requests
 
 
 class AnonUser(Base):
@@ -118,20 +119,50 @@ class User(Base):
         new_password = ''.join(random.choice(char_pool) for _ in range(size))
         return new_password
 
-    def send_password_email(self, new_password: str) -> None:
-        return
+    def send_password_email(self, new_password: str) -> int:
+        '''
+        Send a "forgot password" email to a user. Their password has
+        been re-generated and is totally random, it's "lost" after this email
+        and only exists as a hash in the DB
+        :param new_password: new password (already been set in DB!)
+        :return:
+        '''
+        mailgun_APIkey = 'key-6896c65db1a821c6e15ae34ae2ad94e9' # shh! this is a secret
+        mailgun_SMTPpwd = 'e2b0c198a98ebf1f1a338bb4046352a1'
+        mailgun_baseURL = 'https://api.mailgun.net/v3/api.imageimprov.com/messages'
+        mail_body = "new password = {0}".format(new_password)
 
-    def forgot_password(self, session) -> None:
+        res = requests.post(mailgun_baseURL,
+                            auth=("api", mailgun_APIkey),
+                            data={"from": "Forgot Password <noreply@imageimprov.com>",
+                                  "to": self.emailaddress,
+                                  "subject": "Password reset",
+                                  "text": mail_body})
+        '''
+            200 - Everything work as expected
+            400 - Bad Request - often missing required parameter
+            401 - Unauthorized - No valid API key provided
+            402 - Request failed - parameters were valid but request failed
+            404 - Not found - requested item doesn't exist
+            500, 502, 503, 504 - Server Errors - something wrong on Mailgun's end
+        '''
+        return res.status_code
+
+    def forgot_password(self, session) -> int:
         '''
         User has forgotten their password, generate a new one
         update their record and email it to them.
         :param session:
         :return:
         '''
-        new_password = self.random_password(8)
-        self.change_password(session, new_password)
-        self.send_password_email(new_password)
-        return
+        try:
+            new_password = self.random_password(8)
+            self.change_password(session, new_password)
+            http_status = self.send_password_email(new_password)
+        except Exception as e:
+            http_status = 500
+        finally:
+            return http_status
 
     @staticmethod
     def create_user(session, guid, username, password):
