@@ -392,7 +392,7 @@ class TestPhotoUpload(iiBaseUnitTest):
             self.set_token(token) # use token passed in
 
         # we have our user, now we need a photo to upload
-        ft = open('../photos/Suki.JPG', 'rb')
+        ft = open('../photos/TEST1.JPG', 'rb')
         assert (ft is not None)
         ph = ft.read()
         ft.close()
@@ -870,58 +870,7 @@ class TestCategory(iiBaseUnitTest):
 
 class TestLeaderBoard(iiBaseUnitTest):
 
-    _photos = ['Galaxy Edge 7 (full res)jpg.jpg',
-               'Galaxy Edge 7 Cat  (full res)jpg.jpg',
-               'Galaxy Edge 7 Office Desk (full res, hdr).jpg',
-               'Hawaii Palm Tree.JPG',
-               'iPhone 6 Spider web (full res).JPG',
-               'iPhone 7 statue and lake (full res).jpg',
-               'iPhone 7 Yellow Rose (full res).jpg',
-               'Netsoft USA Company Picture 1710.jpg',
-               'PrimRib.JPG',
-               'Suki.JPG',
-               'Turtle.JPG',
-               'Portrait.JPG',
-#               'Rotate90CW.JPG',
-#               'Rotate180CW.JPG',
-#               'Rotate270CW.JPG',
-#               '2012-05-23 19.45.55.jpg',
-#               '20130826_170610_A.jpg',
-               'img_0264_edited-100686951-orig.jpg',
-#               'img_0026.jpg',
-#               'img_0034.jpg',
-               'apple-iphone-7-camera-samples-27.jpg',
-               'Apple-iPhone-7-camera-photo-sample-2.jpg',
-#               'iphone-7-plus-camera-trout.jpg',
-#               'IMG_0307.JPG',
-#               'iPhone-7-Camera-AndyNicolaides.jpg',
-#               'img_0017.jpg',
-#               '9lqqdnm.jpg',
-#               '001-B-Moto-Z-Force-Droid-Samples.jpg',
-#               'moto-z-play-camera-sample.jpg',
-#               'moto_z_play_camera_samples_7.jpg',
-#               'sample1.jpg',
-#               'Moto-Z-Force-Droid.jpg',
-#               'tf2fzhr.jpg',
-#               'IMG_1218.JPG',
-#               'sam_4089.jpg',
-#               'vetndhl.jpg',
-               'Portrait_1.jpg',
-               'Portrait_2.jpg',
-               'Portrait_3.jpg',
-               'Portrait_4.jpg',
-               'Portrait_5.jpg',
-               'Portrait_6.jpg',
-               'Portrait_7.jpg',
-               'Portrait_8.jpg',
-               'Landscape_1.jpg',
-               'Landscape_2.jpg',
-               'Landscape_3.jpg',
-               'Landscape_4.jpg',
-               'Landscape_5.jpg',
-               'Landscape_6.jpg',
-               'Landscape_7.jpg',
-               'Landscape_8.jpg'
+    _photos = ['TEST1.JPG', 'TEST2.JPG', 'TEST3.JPG', 'TEST4.JPG', 'TEST5.JPG', 'TEST6.JPG', 'TEST7.JPG', 'TEST8.JPG', 'SAMSUNG_EXIF.JPG'
                ]
 
     _users = {'hcollins@gmail.com',
@@ -986,6 +935,8 @@ class TestLeaderBoard(iiBaseUnitTest):
             rsp = self.app.post(path='/photo', data=json.dumps(dict(category_id=cid, extension=ext, image=b64img)),
                                 headers=self.get_header_json())
 
+        if rsp.status_code != 201 and rsp.status_code != 200:
+            assert(False)
         assert (rsp.status_code == 201 or rsp.status_code == 200)
         return
 

@@ -7,6 +7,7 @@ import base64
 import requests
 import uuid
 from werkzeug.datastructures import Headers
+from models import category
 
 _rootdir = '/mnt/seed_data'
 _base_url = 'https://api.imageimprov.com'
@@ -94,6 +95,23 @@ def upload_images(subdir_name, rootdir, cid):
 
     return
 
+def setcategorystate(token: str, cid: int, category_state: int) -> bool:
+    '''
+    change the category state
+    :param token: JWT token needed to upload
+    :param cid:
+    :param category_state:
+    :return:
+    '''
+    h = Headers()
+    h.add('content-type', 'application/json')
+    h.add('Authorization', 'JWT ' + token)
+
+    url = _base_url + '/setcategorystate'
+    rsp = requests.post(url, data=json.dumps(dict(category_id=cid, state=category_state)), headers=h)
+    return rsp.status_code == 200
+
+
 def folder_exists(subdir_name, rootdir):
 
     # append this to the root dir and see
@@ -128,9 +146,17 @@ if __name__ == '__main__':
     cl = ie.read_category(token)
 
     for c in cl:
+        cid = c['id']
+        theme = c['description']
+        if c['state'] == 'VOTING':
+            if cid in (0):
+                status = setcategorystate(token, cid, category.CategoryState.UPLOAD.value)
+                # see if we have a folder with this name
+                if folder_exists(theme, _rootdir):
+                    upload_images(theme, _rootdir, cid)
+                status = setcategorystate(token, cid, category.CategoryState.VOTING.value)
+
         if c['state'] == 'UPLOAD':
-            theme = c['description']
-            cid = c['id']
             # see if we have a folder with this name
             if folder_exists(theme, _rootdir):
                 upload_images(theme, _rootdir, cid)

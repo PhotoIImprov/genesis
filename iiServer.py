@@ -37,7 +37,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.2.3' #our version string PEP 440
+__version__ = '1.3.0' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -238,6 +238,7 @@ def hello():
                 "<li>Caching thumbnails as base64/utf-8 strings</li>" \
                 "<li>Advanced Leaderboard caching checks for changes</li>" \
                 "<li>/forgotpwd?email=xxx (doesn't email yet!)</li>" \
+                "<li>OpenCV for thumbnail generation</li>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 

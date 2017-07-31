@@ -14,7 +14,7 @@ from models import error
 from random import randint, shuffle
 import redis
 from cache.ExpiryCache import _expiry_cache
-from logsetup import logger
+from logsetup import logger, timeit
 
 # configuration values we can move to a better place
 _NUM_BALLOT_ENTRIES = 4
@@ -373,6 +373,7 @@ class BallotManager:
         return self.cleanup_list(photos_for_ballot, count) # remove dupes, shuffle list
 #        return photos_for_ballot[:count]
 
+    @timeit()
     def cleanup_list(self, p4b: list, ballot_size: int) -> list:
         """
         We get a list of photos that are a straight pull from the
@@ -388,10 +389,11 @@ class BallotManager:
         for p in p4b:
             # we have a candidate photo, see if a copy is already in the list
             insert_p = True
-            for dupe_check in pretty_list:
-                if dupe_check._photometa.thumb_hash == p._photometa.thumb_hash:
-                    insert_p = False
-                    break
+            if p._photometa.thumb_hash != 0: # no hash computed, skip the check
+                for dupe_check in pretty_list:
+                    if dupe_check._photometa.thumb_hash == p._photometa.thumb_hash:
+                        insert_p = False
+                        break
             if insert_p:
                 pretty_list.append(p)
                 if len(pretty_list) == ballot_size:

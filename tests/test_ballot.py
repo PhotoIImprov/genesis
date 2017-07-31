@@ -40,7 +40,7 @@ class TestBallot(DatabaseTest):
 
         dir_path = os.path.dirname(os.path.realpath(__file__))
         cwd = os.getcwd()
-        ft = open('../photos/Cute_Puppy.jpg', 'rb')
+        ft = open('../photos/TEST7.JPG', 'rb')
         pi = photo.PhotoImage()
         pi._binary_image = ft.read()
         pi._extension = 'JPEG'

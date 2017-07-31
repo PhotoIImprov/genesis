@@ -175,7 +175,7 @@ class TestVoting(DatabaseTest):
         # upload images
         u = self.create_user()
         # read our test file
-        ft = open('../photos/Cute_Puppy.jpg', 'rb')
+        ft = open('../photos/TEST4.JPG', 'rb')
         pi = photo.PhotoImage()
         pi._binary_image = ft.read()
         ft.close()
@@ -326,7 +326,7 @@ class TestVoting(DatabaseTest):
         # upload images
         u = self.create_user()
         # read our test file
-        ft = open('../photos/IMG_0243.JPG', 'rb')
+        ft = open('../photos/TEST3.JPG', 'rb')
         pi = photo.PhotoImage()
         pi._binary_image = ft.read()
         ft.close()
@@ -373,7 +373,7 @@ class TestVoting(DatabaseTest):
         # upload images
         u = self.create_user()
         # read our test file
-        ft = open('../photos/IMG_0243.JPG', 'rb')
+        ft = open('../photos/TEST6.JPG', 'rb')
         pi = photo.PhotoImage()
         pi._binary_image = ft.read()
         pi._extension = 'JPEG'
@@ -437,8 +437,9 @@ class TestVoting(DatabaseTest):
         #scour the list for duplicates
         duplicate = False
         for p in clean_list:
+            hash = p._photometa.thumb_hash
             for q in clean_list:
-                if p !=q and p._photometa.thumb_hash == q._photometa.thumb_hash:
+                if p != q and hash != 0 and hash == q._photometa.thumb_hash:
                     assert(False) # duplicate found!
 
 
@@ -468,7 +469,7 @@ class TestVoting(DatabaseTest):
         assert(is_shuffled)
 
     def upload_images(self, num_images, u, c):
-        ft = open('../photos/Cute_Puppy.jpg', 'rb')
+        ft = open('../photos/TEST1.JPG', 'rb')
         pi = photo.PhotoImage()
         pi._binary_image = ft.read()
         ft.close()

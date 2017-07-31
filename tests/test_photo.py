@@ -16,6 +16,9 @@ import base64
 import dbsetup
 import iiServer
 from flask import Flask
+import cv2
+import numpy
+import subprocess
 
 class TestPhoto(DatabaseTest):
 
@@ -23,8 +26,8 @@ class TestPhoto(DatabaseTest):
         # create a bunch of test photos for the specified category
 
         # read our test file
-#        ft = open('../photos/Cute_Puppy.jpg', 'rb')
-        ft = open('../photos/Galaxy Edge 7 Office Desk (full res, hdr).jpg', 'rb')
+#        ft = open('../photos/TEST4.jpg', 'rb')
+        ft = open('../photos/SAMSUNG2.jpg', 'rb')
         pi = photo.PhotoImage()
         pi._extension = 'JPEG'
         pi._binary_image = ft.read()
@@ -132,9 +135,9 @@ class TestPhoto(DatabaseTest):
         # read our test file
         cwd = os.getcwd()
         if 'tests' in cwd:
-            path = '../photos/Galaxy Edge 7 Office Desk (full res, hdr).jpg' #'../photos/Cute_Puppy.jpg'
+            path = '../photos/SAMSUNG2.JPG' #'../photos/Cute_Puppy.jpg'
         else:
-            path = cwd + '/photos/Galaxy Edge 7 Office Desk (full res, hdr).jpg' #'/photos/Cute_Puppy.jpg'
+            path = cwd + '/photos/SAMSUNG2.JPG' #'/photos/Cute_Puppy.jpg'
         ft = open(path, 'rb')
         pi._binary_image = ft.read()
         ft.close()
@@ -179,7 +182,7 @@ class TestPhoto(DatabaseTest):
         assert (fo is not None)
 
         # read our test file
-        ft = open('../photos/Cute_Puppy.jpg', 'rb')
+        ft = open('../photos/TEST4.JPG', 'rb')
         assert (ft is not None)
 
         pi = photo.PhotoImage()
@@ -216,7 +219,7 @@ class TestPhoto(DatabaseTest):
         pi = photo.PhotoImage()
 
         # read our test file
-        ft = open('../photos/Cute_Puppy.jpg', 'rb')
+        ft = open('../photos/TEST1.JPG', 'rb')
         pi._binary_image = ft.read()
         ft.close()
         pi._extension = 'JPEG'
@@ -319,7 +322,7 @@ class TestPhoto(DatabaseTest):
         assert(sf == 1.5)
 
     def test_bad_exif_orientation(self):
-        ft = open('../photos/Galaxy Edge 7 Office Desk (full res, hdr).jpg', 'rb')
+        ft = open('../photos/SAMSUNG_EXIF.JPG', 'rb')
         pi = photo.PhotoImage()
         pi._extension = 'JPEG'
         pi._binary_image = ft.read()
@@ -330,7 +333,7 @@ class TestPhoto(DatabaseTest):
         file_jpegdata = BytesIO(p._photoimage._binary_image)
         pil_img = Image.open(file_jpegdata)
         exif_dict = p.get_exif_dict(pil_img) # raw data from image
-        exif_data = p.get_exif_data(pil_img) # key/value pairs reconstituted
+        exif_data = p.get_exif_data(exif_dict) # key/value pairs reconstituted
 
         p.samsung_fix(exif_dict, exif_data)
 
@@ -353,7 +356,7 @@ class TestPhoto(DatabaseTest):
         file_jpegdata = BytesIO(p._photoimage._binary_image)
         pil_img = Image.open(file_jpegdata)
         exif_dict = p.get_exif_dict(pil_img) # raw data from image
-        exif_data = p.get_exif_data(pil_img) # key/value pairs reconstituted
+        exif_data = p.get_exif_data(exif_dict) # key/value pairs reconstituted
 
         p.samsung_fix(exif_dict, exif_data)
 
@@ -365,7 +368,7 @@ class TestPhoto(DatabaseTest):
         # Open the original image
         # read our test file
 
-        file_to_watermark = "no_watermark.jpeg"
+        file_to_watermark = "no_watermark.jpg"
         watermark_file = "ii_mainLogo_72.png"
 
         cwd = os.getcwd()
@@ -455,5 +458,41 @@ class TestPhoto(DatabaseTest):
 
         binary_image = p.read_thumbnail_by_id_with_watermark(self.session, pid[0])
         assert(binary_image is not None)
+
+        self.teardown()
+
+    def test_thumbnail_rotation(self):
+        self.setup()
+        cwd = os.getcwd()
+        if 'tests' in cwd:
+            path = '../photos/'
+        else:
+            path = cwd + '/photos/'
+
+        mnt_point = dbsetup.image_store(dbsetup.determine_environment(None)) # get the mount point
+
+        exif_pictures = ['Portrait_1.jpg', 'Portrait_2.jpg', 'Portrait_3.jpg', 'Portrait_4.jpg', 'Portrait_5.jpg', 'Portrait_6.jpg', 'Portrait_6.jpg', 'Portrait_7.jpg', 'Portrait_8.jpg',
+                         'Landscape_1.jpg', 'Landscape_2.jpg','Landscape_3.jpg','Landscape_4.jpg','Landscape_5.jpg','Landscape_6.jpg','Landscape_7.jpg','Landscape_8.jpg',]
+
+        for pic in exif_pictures:
+            full_path = path + pic
+            fr = open(full_path, 'rb')
+            p = photo.Photo()
+            pi = photo.PhotoImage()
+            pi._binary_image = fr.read()
+            fr.close()
+            p._photoimage = pi
+
+            fn = mnt_point + "/th_" + pic
+            p.create_thumb_fast(fn)
+
+            # use shell command to compare binary files
+            r_path = '/home/hcollins/dev/genesis/photos/results/th_' + pic
+            try:
+                command = ['cmp', '--verbose', fn, r_path]
+                status = subprocess.call(command, shell=False)
+                assert(status == 0)
+            except Exception as e:
+                assert(False)
 
         self.teardown()
