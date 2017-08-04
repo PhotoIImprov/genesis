@@ -20,7 +20,7 @@ import json
 import hashlib
 from logsetup import logger, timeit
 from cache.ExpiryCache import _expiry_cache
-import cv2
+#import cv2
 import numpy
 
 class PhotoImage():
@@ -253,7 +253,7 @@ class Photo(Base):
 
         # write to the folder
         Photo.safe_write_file(fn, pi)
-        self.create_thumb_fast()
+        self.create_thumb_PIL(fn=None)
 
         # okay, now we need to save all this information to the
         self.user_id  = uid
@@ -325,7 +325,7 @@ class Photo(Base):
         return exif_data
 
     @timeit()
-    def create_thumb(self) -> None:
+    def create_thumb_PIL(self, fn: str) -> None:
         '''
         We will "normalize" the thumbnail to an orientation of '1' to
         simplify any downstream processing. The orientation & exif data in
@@ -353,51 +353,21 @@ class Photo(Base):
         self.set_metadata(exif_data, pil_img.height, pil_img.width, digest) # set metadata about the hi-res Photo
 
         # Our thumbnail will be scaled down and normalized to an orientation of '1'
-        rotate, flip = self.get_rotation_and_flip(exif_dict) # make sure we use Samsung fixed data!
-        new_size = 720, 720
+        rotate, flip = self.get_rotation_and_flip_PIL(exif_dict) # make sure we use Samsung fixed data!
+        scalefactor = self.compute_scalefactor(pil_img.height, pil_img.width)
+        new_size = (int(pil_img.width * scalefactor), int(pil_img.height*scalefactor))
         exif_dict['0th'][0x112] = 1  # we are normalizing to '1' for all thumbnails
-        exif_bytes = piexif.dump(exif_dict)
+        exif_bytes = None
+        try:
+            exif_bytes = piexif.dump(exif_dict)
+        except Exception as e:
+            logger.exception(msg='Error dumping EXIF bytes for file {}'.format(self._full_filename))
 
-        th_img = pil_img.resize(new_size)
-        rotated_img = th_img.rotate(rotate)
-        if flip:
-            rotated_img = rotated_img.transpose(Image.FLIP_LEFT_RIGHT)
-
-        # from the supplied image, create a thumbnail
-        # the original file has already been saved to the
-        # filesystem, so we are just adding this file
-        thumb_fn = self.create_thumb_filename()
-
-        self.gcs_save_image(rotated_img, thumb_fn, exif_bytes)
-        return
-
-    @timeit()
-    def create_thumb_fast(self, fn=None) -> None:
-        '''
-        We will "normalize" the thumbnail to an orientation of '1' to
-        simplify any downstream processing. The orientation & exif data in
-        photometa are for the hi-res image, which we don't mess with.
-
-        :return: nothing
-        '''
-        if self._photoimage is None or self._photoimage._binary_image is None:
-            raise BaseException(errno.EINVAL, "no raw image")
-
-        numpy_array = numpy.fromstring(self._photoimage._binary_image, dtype='uint8')
-        img = cv2.imdecode(numpy_array, flags=cv2.IMREAD_COLOR)
-        digest = 0
-        (height, width) = img.shape[:2]
-
-        exif_dict = piexif.load(self._photoimage._binary_image)
-        exif_data = self.get_exif_data(exif_dict) # key/value pairs reconstituted
-        self.samsung_fix(exif_dict, exif_data)
-        self.set_metadata(exif_data, height, width, digest)  # set metadata about the hi-res Photo
-
-        # Our thumbnail will be scaled down and normalized to an orientation of '1'
-        rotate, flip = self.get_rotation_and_flip(exif_dict) # make sure we use Samsung fixed data!
-        scalefactor = self.compute_scalefactor(height, width)
-
-        th_img = self.rotate_flip_scale(img, rotate, flip, scalefactor)
+        th_img = pil_img.resize(new_size, resample=Image.LANCZOS)
+        if rotate is not None:
+            th_img = th_img.transpose(rotate)
+        if flip is not None:
+            th_img = th_img.transpose(flip)
 
         # from the supplied image, create a thumbnail
         # the original file has already been saved to the
@@ -405,15 +375,52 @@ class Photo(Base):
         if fn is None:
             fn = self.create_thumb_filename()
 
-        exif_bytes = None
-        try:
-            exif_dict['0th'][0x112] = 1
-            exif_bytes = piexif.dump(exif_dict)
-        except Exception as e:
-            logger.exception(msg=str(e))
-
-        self.gcs_save_image_fast(th_img, fn, exif_bytes)
+        self.gcs_save_image(th_img, fn, exif_bytes)
         return
+
+    # @timeit()
+    # def create_thumb_OpenCV(self, fn=None) -> None:
+    #     '''
+    #     We will "normalize" the thumbnail to an orientation of '1' to
+    #     simplify any downstream processing. The orientation & exif data in
+    #     photometa are for the hi-res image, which we don't mess with.
+    #
+    #     :return: nothing
+    #     '''
+    #     if self._photoimage is None or self._photoimage._binary_image is None:
+    #         raise BaseException(errno.EINVAL, "no raw image")
+    #
+    #     numpy_array = numpy.fromstring(self._photoimage._binary_image, dtype='uint8')
+    #     img = cv2.imdecode(numpy_array, flags=cv2.IMREAD_COLOR)
+    #     digest = 0
+    #     (height, width) = img.shape[:2]
+    #
+    #     exif_dict = piexif.load(self._photoimage._binary_image)
+    #     exif_data = self.get_exif_data(exif_dict) # key/value pairs reconstituted
+    #     self.samsung_fix(exif_dict, exif_data)
+    #     self.set_metadata(exif_data, height, width, digest)  # set metadata about the hi-res Photo
+    #
+    #     # Our thumbnail will be scaled down and normalized to an orientation of '1'
+    #     rotate, flip = self.get_rotation_and_flip_OpenCV(exif_dict) # make sure we use Samsung fixed data!
+    #     scalefactor = self.compute_scalefactor(height, width)
+    #
+    #     th_img = self.rotate_flip_scale(img, rotate, flip, scalefactor)
+    #
+    #     # from the supplied image, create a thumbnail
+    #     # the original file has already been saved to the
+    #     # filesystem, so we are just adding this file
+    #     if fn is None:
+    #         fn = self.create_thumb_filename()
+    #
+    #     exif_bytes = None
+    #     try:
+    #         exif_dict['0th'][0x112] = 1
+    #         exif_bytes = piexif.dump(exif_dict)
+    #     except Exception as e:
+    #         logger.exception(msg=str(e))
+    #
+    #     self.gcs_save_image_fast(th_img, fn, exif_bytes)
+    #     return
 
     def rotate_flip_scale(self, img, rotate_cw: int, flip: bool, scale: int):
         '''
@@ -440,7 +447,10 @@ class Photo(Base):
     # so we are waiting for an exception to be thrown, then we go into our retrying...
     @retry(wait_exponential_multiplier=100, wait_exponential_max=1000, stop_max_attempt_number=10)
     def gcs_save_image(self, pil_img: Image, fn: str, exif_bytes: bytes) -> None:
-        pil_img.save(fn, exif=exif_bytes)
+        if exif_bytes is None:
+            pil_img.save(fn)
+        else:
+            pil_img.save(fn, exif=exif_bytes)
 
     @retry(wait_exponential_multiplier=100, wait_exponential_max=1000, stop_max_attempt_number=10)
     def gcs_save_image_fast(self, img, fn: str, exif_bytes: bytes) -> bool:
@@ -518,7 +528,7 @@ class Photo(Base):
 
         return p
 
-    def get_rotation_and_flip(self, exif_dict: dict) -> tuple:
+    def get_rotation_and_flip_OpenCV(self, exif_dict: dict) -> tuple:
         """
         :param exif_dict: extracted EXIF dict from image
         :return: tuple of rotation (degrees) and axis flip (=0: vertical, =1: horizontal, -1: both)
@@ -554,6 +564,49 @@ class Photo(Base):
                 flip = 1
             if orientation in (3, 8):
                 flip = -1
+        except Exception as e:
+            logger.exception(msg="error with EXIF/Orientation data")
+
+        return rotate, flip
+
+    def get_rotation_and_flip_PIL(self, exif_dict: dict) -> tuple:
+        """
+        :param exif_dict: extracted EXIF dict from image
+        :return: tuple of rotation (degrees) and axis flip (=0: vertical, =1: horizontal, -1: both)
+
+           1        2       3      4         5            6           7          8
+
+        888888  888888      88  88      8888888888  88                  88  8888888888
+        88          88      88  88      88  88      88  88          88  88      88  88
+        8888      8888    8888  8888    88          8888888888  8888888888          88
+        88          88      88  88
+        88          88  888888  888888
+
+        Value	0th Row	    0th Column
+        1	    top	        left side
+        2	    top	        right side
+        3	    bottom	    right side
+        4   	bottom	    left side
+        5	    left side	top
+        6   	right side	top
+        7	    right side	bottom
+        8	    left side	bottom
+        """
+
+        rotate = None
+        flip = None
+        try:
+            orientation = exif_dict['0th'][0x112]
+            if orientation in (5,6):
+                rotate = Image.ROTATE_270
+            if orientation in (3, 4):
+                rotate = Image.ROTATE_180
+            if orientation in (7,8):
+                rotate = Image.ROTATE_90
+
+            if orientation in (2, 4, 5, 7):
+                flip = Image.FLIP_LEFT_RIGHT
+
         except Exception as e:
             logger.exception(msg="error with EXIF/Orientation data")
 

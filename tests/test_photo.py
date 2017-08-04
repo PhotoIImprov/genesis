@@ -143,8 +143,10 @@ class TestPhoto(DatabaseTest):
         ft.close()
 
         # first we need a resource
-        r = resources.Resource.create_resource(5555, 'EN', 'Kittens')
-        resources.Resource.write_resource(self.session, r)
+        r = resources.Resource.load_resource_by_id(self.session, rid=5555, lang='EN')
+        if r is None:
+            r = resources.Resource.create_resource(rid=5555, lang='EN', resource_str='Kittens')
+            resources.Resource.write_resource(self.session, r)
 
         # now create our category
         s_date = datetime.datetime.now()
@@ -154,15 +156,16 @@ class TestPhoto(DatabaseTest):
 
         # create a user
         au = usermgr.AnonUser.create_anon_user(self.session, '99275132efe811e6bc6492361f002673')
-        if au is not None:
-            u = usermgr.User.create_user(self.session, au.guid, 'harry.collins@gmail.com', 'pa55w0rd')
+        assert(au is not None)
+        self.session.commit()
 
         fo.category_id = c.id
-        fo.save_user_image(self.session, pi, u.id, c.id)
+        d = fo.save_user_image(self.session, pi, au.id, c.id)
+        assert(d['error'] is None)
         fn = fo.filename
-        fo.create_thumb()
+        fo.create_thumb_PIL(fn=None)
 
-        flist = photo.Photo.read_photo(self.session, u.id, c.id)
+        flist = photo.Photo.read_photo(self.session, au.id, c.id)
 
         assert (flist is not None)
         assert (len(flist) == 1)
@@ -191,8 +194,10 @@ class TestPhoto(DatabaseTest):
         pi._extension = 'JPEG'
 
         # first we need a resource
-        r = resources.Resource.create_resource(5555, 'EN', 'Kittens')
-        resources.Resource.write_resource(self.session, r)
+        r = resources.Resource.load_resource_by_id(self.session, rid=5555, lang='EN')
+        if r is None:
+            r = resources.Resource.create_resource(rid=5555, lang='EN', resource_str='Kittens')
+            resources.Resource.write_resource(self.session, r)
 
         # now create our category
         s_date = datetime.datetime.now()
@@ -266,7 +271,7 @@ class TestPhoto(DatabaseTest):
         fo = photo.Photo()
         assert (fo is not None)
         try:
-            fo.create_thumb()
+            fo.create_thumb_PIL(fn=None)
         except BaseException as e:
             assert(e.args[0] == errno.EINVAL)
 
@@ -276,7 +281,7 @@ class TestPhoto(DatabaseTest):
         pi = photo.PhotoImage()
         fo._photoimage = pi
         try:
-            fo.create_thumb()
+            fo.create_thumb_PIL(fn=None)
         except BaseException as e:
             assert(e.args[0] == errno.EINVAL)
 
@@ -461,7 +466,7 @@ class TestPhoto(DatabaseTest):
 
         self.teardown()
 
-    def test_thumbnail_rotation(self):
+    def test_thumbnail_rotation_pil(self):
         self.setup()
         cwd = os.getcwd()
         if 'tests' in cwd:
@@ -483,11 +488,12 @@ class TestPhoto(DatabaseTest):
             fr.close()
             p._photoimage = pi
 
-            fn = mnt_point + "/th_" + pic
-            p.create_thumb_fast(fn)
+            fn = mnt_point + "/pil_" + pic
+            # p.create_thumb_fast(fn)
+            p.create_thumb_PIL(fn)
 
             # use shell command to compare binary files
-            r_path = '/home/hcollins/dev/genesis/photos/results/th_' + pic
+            r_path = '/home/hcollins/dev/genesis/photos/results/pil_' + pic
             try:
                 command = ['cmp', '--verbose', fn, r_path]
                 status = subprocess.call(command, shell=False)
@@ -496,3 +502,31 @@ class TestPhoto(DatabaseTest):
                 assert(False)
 
         self.teardown()
+
+    # def test_thumbnail_quality(self):
+    #     self.setup()
+    #     cwd = os.getcwd()
+    #     if 'tests' in cwd:
+    #         path = '../photos/'
+    #     else:
+    #         path = cwd + '/photos/'
+    #
+    #     mnt_point = dbsetup.image_store(dbsetup.determine_environment(None)) # get the mount point
+    #
+    #     exif_pictures = ['TEST1.JPG','TEST2.JPG', 'TEST3.JPG', 'TEST4.JPG','TEST5.JPG', 'TEST6.JPG', 'TEST7.JPG', 'TEST8.JPG']
+    #
+    #     for pic in exif_pictures:
+    #         full_path = path + pic
+    #         fr = open(full_path, 'rb')
+    #         p = photo.Photo()
+    #         pi = photo.PhotoImage()
+    #         pi._binary_image = fr.read()
+    #         fr.close()
+    #         p._photoimage = pi
+    #
+    #         fn = mnt_point + "/cv_" + pic
+    #         p.create_thumb_OpenCV(fn)
+    #         fn = mnt_point + "/pil_old_" + pic
+    #         p.create_thumb_PIL(fn)
+    #
+    #     self.teardown()

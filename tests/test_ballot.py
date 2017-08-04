@@ -15,8 +15,10 @@ class TestBallot(DatabaseTest):
 
         self.setup()
         # first we need a resource
-        r = resources.Resource.create_resource(5555, 'EN', 'Kittens')
-        resources.Resource.write_resource(self.session, r)
+        r = resources.Resource.load_resource_by_id(self.session, rid=5555, lang='EN')
+        if r is None:
+            r = resources.Resource.create_resource(rid=5555, lang='EN', resource_str='Kittens')
+            resources.Resource.write_resource(self.session, r)
 
         # now create our category & the image indexer
         s_date = datetime.datetime.now()
@@ -47,8 +49,11 @@ class TestBallot(DatabaseTest):
         ft.close()
 
         # first we need a resource
-        r = resources.Resource.create_resource(5555, 'EN', 'Kittens')
-        resources.Resource.write_resource(self.session, r)
+        # first we need a resource
+        r = resources.Resource.load_resource_by_id(self.session, rid=5555, lang='EN')
+        if r is None:
+            r = resources.Resource.create_resource(rid=5555, lang='EN', resource_str='Kittens')
+            resources.Resource.write_resource(self.session, r)
 
         # now create our category & the image indexer
         s_date = datetime.datetime.now()

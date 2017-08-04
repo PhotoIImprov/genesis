@@ -37,7 +37,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.3.0' #our version string PEP 440
+__version__ = '1.3.2' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -228,17 +228,13 @@ def hello():
                 "<li>watermark images</li>" \
                 "<li>metadata tagging</li>" \
                 "<li>Active Photos</li>" \
-                "<li>traction log</li>" \
                 "<li>oAuth2 support Facebook & Google</li>" \
-                "<li>Extensive register/login logging</li>" \
-                "<li>Scale up thumbnails to 720x720</li>" \
                 "<li>Category list returns PENDING (100 limit!)</li>" \
-                "<li>Timing instrumentation for API</li>" \
                 "<li>Caching Category & Leaderboard with expiry</li>" \
-                "<li>Caching thumbnails as base64/utf-8 strings</li>" \
-                "<li>Advanced Leaderboard caching checks for changes</li>" \
-                "<li>/forgotpwd?email=xxx (doesn't email yet!)</li>" \
-                "<li>OpenCV for thumbnail generation</li>" \
+                "<li>/forgotpwd?email=xxx</li>" \
+                "<li>Optimized PIL thumbnail generation</li>" \
+                "<li>Base URL!</li>" \
+                "<li>Binary file upload</li>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
@@ -1234,6 +1230,9 @@ def photo_upload():
     if cid is None or uid is None:
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
+    return store_photo(pi, uid, cid)
+
+def store_photo(pi: photo.PhotoImage, uid: int, cid: int):
     rsp = None
     session = dbsetup.Session()
     num_photos_in_category = 0
@@ -1262,6 +1261,85 @@ def photo_upload():
         return return_ballot(dbsetup.Session(), uid, cid)
 
     return rsp
+
+@app.route("/jpeg/<int:cid>", methods=['POST'])
+@jwt_required()
+@timeit()
+def jpeg_photo_upload(cid: int):
+    """
+    Upload Raw JPEG
+    ---
+    tags:
+      - image
+    summary: "Upload a JPEG photo for the specified category"
+    operationId: jpeg
+    consumes:
+      - image/jpeg
+    produces:
+      - application/json
+    parameters:
+      - in: path
+        name: cid
+        description: "The category id to upload the photo to"
+        required: true
+        type: integer
+      - in: body
+        name: photo
+        type: string
+        format: binary
+        description: JPEG file being uploaded
+    security:
+      - JWT: []
+    responses:
+      200:
+         description: 'list of images to vote on for the category just uploaded to (if at least 50 images in category)'
+         properties:
+           ballots:
+             type: array
+             items:
+               $ref: '#/definitions/Ballot'
+           category:
+             $ref: '#/definitions/Category'
+      201:
+        description: "The image was properly uploaded!"
+        schema:
+          id: filename
+          properties:
+            filename:
+              type: string
+      400:
+        description: "missing required arguments"
+        schema:
+          $ref: '#/definitions/Error'
+      500:
+        description: "error uploading image"
+        schema:
+          $ref: '#/definitions/Error'
+      default:
+        description: "unexpected error"
+        schema:
+          $ref: '#/definitions/Error'
+    """
+#    if not request.json:
+#        return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
+
+    pi = photo.PhotoImage()
+    try:
+        pi._binary_image = request.data
+        pi._extension = 'JPEG'
+        u = current_identity
+        uid = u.id
+    except KeyError:
+        uid = None
+        pass
+    except BaseException as e:
+        logger.exception(msg=str(e))
+        return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
+
+    if cid is None or uid is None or request.content_length < 100:
+        return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
+
+    return store_photo(pi, uid, cid)
 
 @app.route("/file/<int:cid>", methods=['POST'])
 @jwt_required()
@@ -1605,6 +1683,42 @@ def download_photo(pid):
         session.close()
 
     return rsp
+
+@app.route('/base')
+@jwt_required()
+def base_url():
+    """
+    Base URL
+    ---
+    tags:
+      - admin
+    summary: "tell the app where the Base URL is located for this session e.g https://api.imageimprov.com or http:/104.38.47.3:8080"
+    operationId: base_url
+    consumes:
+      - text/html
+    produces:
+      - json/application
+    responses:
+      200:
+        description: "base URL returned"
+        schema:
+          id: base
+          properties:
+            baseurl:
+              type: string
+    """
+    uid = current_identity.id
+
+    session = dbsetup.Session()
+    try:
+        base_url = usermgr.AnonUser.get_baseurl(session, uid)
+        rsp = make_response(jsonify({'base': base_url}), status.HTTP_200_OK)
+    except Exception as e:
+        logger.exception(msg="[/base] error fetching base for user {0}".format(uid))
+        rsp = make_response(jsonify({'base': 'https://api.imageimprov.com'}), status.HTTP_200_OK)
+    finally:
+        session.close()
+        return rsp
 
 @app.route('/forgotpwd')
 def forgot_password():

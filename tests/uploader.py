@@ -149,7 +149,7 @@ if __name__ == '__main__':
         cid = c['id']
         theme = c['description']
         if c['state'] == 'VOTING':
-            if cid in (0):
+            if cid is None:
                 status = setcategorystate(token, cid, category.CategoryState.UPLOAD.value)
                 # see if we have a folder with this name
                 if folder_exists(theme, _rootdir):

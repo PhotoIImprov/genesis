@@ -13,12 +13,13 @@ from flask import jsonify
 import string
 import random
 import requests
-
+from models import admin
 
 class AnonUser(Base):
     __tablename__ = "anonuser"
     id            = Column(Integer, primary_key = True, autoincrement=True)
     guid          = Column(String(32), nullable=False, unique=True)
+    base_id       = Column(Integer, ForeignKey("baseurl.id", name="fk_anonuser_base_id"), nullable=True)
     usertype      = Column(Integer, default=0)
     created_date  = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
 
@@ -66,6 +67,17 @@ class AnonUser(Base):
 
         session.add(au)
         return au
+
+    @staticmethod
+    def get_baseurl(session, uid: int) -> str:
+        au = AnonUser.get_anon_user_by_id(session, uid)
+
+        if au is not None or au.base_id is not None:
+            b = session.query(admin.BaseURL).get(au.base_id)
+            if b is not None:
+                return b.url
+
+        return 'https://api.imageimprov.com'
 
     def get_id(self):
         return self.id

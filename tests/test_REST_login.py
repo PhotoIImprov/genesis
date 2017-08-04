@@ -11,8 +11,10 @@ from collections import namedtuple
 import requests
 from models import error
 from urllib.parse import urlencode
-from werkzeug.datastructures import Headers
+from werkzeug.datastructures import Headers, FileMultiDict
 import dbsetup
+from models import admin, usermgr
+
 
 class TestUser:
     _u = None   # username
@@ -88,6 +90,13 @@ class iiBaseUnitTest(unittest.TestCase):
         assert(self.get_token() is not None)
         headers = Headers()
         headers.add('content-type', 'text/html')
+        headers.add('Authorization', 'JWT ' + self.get_token())
+        return headers
+
+
+    def get_header_authorization(self):
+        assert(self.get_token() is not None)
+        headers = Headers()
         headers.add('Authorization', 'JWT ' + self.get_token())
         return headers
 
@@ -427,6 +436,70 @@ class TestPhotoUpload(iiBaseUnitTest):
 
 
         self._cid = cid
+        return
+
+    def test_binary_upload_no_image(self, token=None):
+        self.setUp()
+        if token is None:
+            self.create_testuser_get_token() # force token creation
+        else:
+            self.set_token(token) # use token passed in
+
+        cid = TestCategory().get_category_by_state(category.CategoryState.UPLOAD, token=self.get_token())
+        ext = 'JPEG'
+        rsp = self.app.post(path='/jpeg/{0}'.format(cid), headers=self.get_header_authorization(), content_type='image/jpeg', data=None)
+        assert(rsp.status_code == 400)
+        self.tearDown()
+
+    def test_binary_upload(self, token=None):
+        '''
+        upload a binary JPEG file to the server
+        :param token:
+        :return:
+        '''
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        cwd = os.getcwd()
+
+        self.setUp()
+        if token is None:
+            self.create_testuser_get_token() # force token creation
+        else:
+            self.set_token(token) # use token passed in
+
+        cid = TestCategory().get_category_by_state(category.CategoryState.UPLOAD, token=self.get_token())
+
+        # we have our user, now we need a photo to upload
+        ft = open('../photos/TEST1.JPG', mode='rb')
+        assert (ft is not None)
+        ph = ft.read()
+        ft.close()
+        assert (ph is not None)
+        files = {'photo': ph}
+
+#        rsp = self.app.request(method='POST', url='/jpeg/{0}'.format(cid), files=files, headers=self.get_header_authorization())
+        rsp = self.app.post(path='/jpeg/{0}'.format(cid), headers=self.get_header_authorization(), data=ph, content_type='image/jpeg')
+
+        assert(rsp.status_code == 201 or rsp.status_code == 200)
+        data = json.loads(rsp.data.decode("utf-8"))
+        if rsp.status_code == 201:
+            filename = data['filename']
+            assert(filename is not None)
+            # let's read back the filename while we are here
+            rsp = self.app.get(path='/image', query_string=urlencode({'filename': filename}),
+                               headers=self.get_header_html())
+
+            assert (rsp.status_code == 200)
+            data = json.loads(rsp.data.decode("utf-8"))
+            b64_photo = data['image']
+            assert (len(b64_photo) == len(b64img))
+        else:
+            ballots = data['ballots']
+            if len(ballots) != 4:
+                assert (False)
+            assert (len(ballots) == 4)
+
+        self._cid = cid
+        self.tearDown()
         return
 
     def test_healthcheck(self):
@@ -1072,6 +1145,51 @@ class TestLastSubmission(iiBaseUnitTest):
 
         self.tearDown()
 
+class TestBase(iiBaseUnitTest):
+    def test_default_base_url(self):
+        '''
+        we expect the standard URL base to be returned since
+        this is a new user with no mapping...
+        :return:
+        '''
+        self.create_testuser_get_token()
+        rsp = self.app.get(path='/base', headers=self.get_header_html())
+        assert (rsp.status_code == 200)
+        assert (rsp.content_type == 'application/json')
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(data['base'] == 'https://api.imageimprov.com')
+
+    def test_special_base_url(self):
+        '''
+        we will create a "base url" and map it to our created user
+        :return:
+        '''
+        self.setUp()
+
+        tu = self.create_testuser_get_token()
+        b = admin.BaseURL()
+        b.url = 'http://172.21.3.54:8080'
+        session = dbsetup.Session()
+        session.add(b)
+        session.commit()
+        base_id = b.id
+
+        # now update the AnonUser record
+        u = usermgr.User.find_user_by_email(session, tu.get_username())
+        assert(u is not None)
+        au = usermgr.AnonUser.get_anon_user_by_id(session, u.id)
+        assert(au is not None)
+        au.base_id = b.id
+        session.add(au)
+        session.commit()
+
+        rsp = self.app.get(path='/base', headers=self.get_header_html())
+        assert (rsp.status_code == 200)
+        assert (rsp.content_type == 'application/json')
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(data['base'] == b.url)
+
+        self.tearDown()
 
 class TestTraction(iiBaseUnitTest):
 
