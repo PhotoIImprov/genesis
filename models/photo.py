@@ -422,25 +422,25 @@ class Photo(Base):
     #     self.gcs_save_image_fast(th_img, fn, exif_bytes)
     #     return
 
-    def rotate_flip_scale(self, img, rotate_cw: int, flip: bool, scale: int):
-        '''
-        :param img: hi-res image
-        :param rotate_cw: 0 or 90 degrees CW
-        :param flip: 0 = flip X-axis, 1 = flip Y-axis, -1 = flip both axis
-        :param scale: scale factor to scale down by
-        :return: scaled, rotated & flipped image
-        '''
-        ret_img = cv2.resize(img, None,fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
-
-
-        if rotate_cw == 90:
-            ret_img = cv2.transpose(ret_img)
-            ret_img = cv2.flip(ret_img, 1)
-
-        if flip is not None:
-            ret_img = cv2.flip(ret_img, flip)
-
-        return ret_img
+    # def rotate_flip_scale(self, img, rotate_cw: int, flip: bool, scale: int):
+    #     '''
+    #     :param img: hi-res image
+    #     :param rotate_cw: 0 or 90 degrees CW
+    #     :param flip: 0 = flip X-axis, 1 = flip Y-axis, -1 = flip both axis
+    #     :param scale: scale factor to scale down by
+    #     :return: scaled, rotated & flipped image
+    #     '''
+    #     ret_img = cv2.resize(img, None,fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
+    #
+    #
+    #     if rotate_cw == 90:
+    #         ret_img = cv2.transpose(ret_img)
+    #         ret_img = cv2.flip(ret_img, 1)
+    #
+    #     if flip is not None:
+    #         ret_img = cv2.flip(ret_img, flip)
+    #
+    #     return ret_img
 
     # since Google Cloud storage can be flakey, we need to retry a couple of times. Between each
     # retry we need a random backup, with a maxium wait and # of times we'll retry.
@@ -451,36 +451,36 @@ class Photo(Base):
             pil_img.save(fn)
         else:
             pil_img.save(fn, exif=exif_bytes)
-
-    @retry(wait_exponential_multiplier=100, wait_exponential_max=1000, stop_max_attempt_number=10)
-    def gcs_save_image_fast(self, img, fn: str, exif_bytes: bytes) -> bool:
-        status = cv2.imwrite(fn, img)
-        return status
-
-    def make_dummy_exif(self) -> dict:
-        zeroth_ifd = {piexif.ImageIFD.Make: u"Unknown",
-                      piexif.ImageIFD.Orientation: 1,
-                      piexif.ImageIFD.XResolution: (96, 1),
-                      piexif.ImageIFD.YResolution: (96, 1),
-                      piexif.ImageIFD.Software: u"piexif"
-                      }
-        exif_ifd = {piexif.ExifIFD.DateTimeOriginal: u"2099:09:29 10:10:10",
-                    piexif.ExifIFD.LensMake: u"LensMake",
-                    piexif.ExifIFD.Sharpness: 65535,
-                    piexif.ExifIFD.LensSpecification: ((1, 1), (1, 1), (1, 1), (1, 1)),
-                    }
-        gps_ifd = {piexif.GPSIFD.GPSVersionID: (2, 0, 0, 0),
-                   piexif.GPSIFD.GPSAltitudeRef: 1,
-                   piexif.GPSIFD.GPSDateStamp: u"1999:99:99 99:99:99",
-                   }
-        first_ifd = {piexif.ImageIFD.Make: u"Unknown",
-                     piexif.ImageIFD.XResolution: (40, 1),
-                     piexif.ImageIFD.YResolution: (40, 1),
-                     piexif.ImageIFD.Software: u"piexif"
-                     }
-        exif_dict = {"0th": zeroth_ifd, "Exif": exif_ifd, "GPS": gps_ifd, "1st": first_ifd}
-
-        return exif_dict
+    #
+    # @retry(wait_exponential_multiplier=100, wait_exponential_max=1000, stop_max_attempt_number=10)
+    # def gcs_save_image_fast(self, img, fn: str, exif_bytes: bytes) -> bool:
+    #     status = cv2.imwrite(fn, img)
+    #     return status
+    #
+    # def make_dummy_exif(self) -> dict:
+    #     zeroth_ifd = {piexif.ImageIFD.Make: u"Unknown",
+    #                   piexif.ImageIFD.Orientation: 1,
+    #                   piexif.ImageIFD.XResolution: (96, 1),
+    #                   piexif.ImageIFD.YResolution: (96, 1),
+    #                   piexif.ImageIFD.Software: u"piexif"
+    #                   }
+    #     exif_ifd = {piexif.ExifIFD.DateTimeOriginal: u"2099:09:29 10:10:10",
+    #                 piexif.ExifIFD.LensMake: u"LensMake",
+    #                 piexif.ExifIFD.Sharpness: 65535,
+    #                 piexif.ExifIFD.LensSpecification: ((1, 1), (1, 1), (1, 1), (1, 1)),
+    #                 }
+    #     gps_ifd = {piexif.GPSIFD.GPSVersionID: (2, 0, 0, 0),
+    #                piexif.GPSIFD.GPSAltitudeRef: 1,
+    #                piexif.GPSIFD.GPSDateStamp: u"1999:99:99 99:99:99",
+    #                }
+    #     first_ifd = {piexif.ImageIFD.Make: u"Unknown",
+    #                  piexif.ImageIFD.XResolution: (40, 1),
+    #                  piexif.ImageIFD.YResolution: (40, 1),
+    #                  piexif.ImageIFD.Software: u"piexif"
+    #                  }
+    #     exif_dict = {"0th": zeroth_ifd, "Exif": exif_ifd, "GPS": gps_ifd, "1st": first_ifd}
+    #
+    #     return exif_dict
 
     def read_photo_to_b64(self) -> bytes:
         '''
