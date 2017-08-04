@@ -9,7 +9,6 @@ from cache.iiMemoize import memoize_with_expiry, _memoize_cache
 from dbsetup import Base
 from logsetup import logger
 from models import resources
-from models import usermgr
 from cache.ExpiryCache import _expiry_cache
 
 class BaseURL(Base):
@@ -27,8 +26,8 @@ class BaseURL(Base):
         return 'https://api.imageimprov.com'
 
     @staticmethod
-    def get_url(session, uid: int) -> str:
-        bu = session.query(BaseURL).get(uid)
+    def get_url(session, id: int) -> str:
+        bu = session.query(BaseURL).get(id)
         if bu is not None:
             return bu.url
 
