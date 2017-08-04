@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/admin.py" afterPath="$PROJECT_DIR$/models/admin.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/photo.py" afterPath="$PROJECT_DIR$/models/photo.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -22,7 +23,7 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_dbsetup_TestDBsetup_test_ping_connection.coverage" NAME="Unittests for test_dbsetup.TestDBsetup.test_ping_connection Coverage Results" MODIFIED="1494092357529" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_voting_TestVoting_test_ballot_size.coverage" NAME="Unittests for test_voting.TestVoting.test_ballot_size Coverage Results" MODIFIED="1495724739739" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_user_TestUserMgr_test_authenticate_not_exist_not_DEBUG.coverage" NAME="Unittests for test_user.TestUserMgr.test_authenticate_not_exist_not_DEBUG Coverage Results" MODIFIED="1496851987352" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/genesis$Unittests_in_tests.coverage" NAME="Unittests in tests Coverage Results" MODIFIED="1501871732266" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_in_tests.coverage" NAME="Unittests in tests Coverage Results" MODIFIED="1501871859059" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_REST_login.coverage" NAME="Unittests in test_REST_login Coverage Results" MODIFIED="1493750940525" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_tests_test_REST_login_TestLeaderBoard_test_leaderboard.coverage" NAME="Unittests for tests.test_REST_login.TestLeaderBoard.test_leaderboard Coverage Results" MODIFIED="1492870420268" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestCategory_test_category_state.coverage" NAME="Unittests for test_REST_login.TestCategory.test_category_state Coverage Results" MODIFIED="1498563108767" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -229,11 +230,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="photo.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="photo.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/models/photo.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1140">
-              <caret line="482" column="14" lean-forward="false" selection-start-line="482" selection-start-column="14" selection-end-line="482" selection-end-column="14" />
+            <state relative-caret-position="186">
+              <caret line="23" column="1" lean-forward="false" selection-start-line="23" selection-start-column="1" selection-end-line="23" selection-end-column="1" />
               <folding>
                 <element signature="e#0#17#0" expanded="true" />
               </folding>
@@ -271,7 +272,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="admin.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="admin.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models/admin.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="414">
@@ -306,7 +307,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>current_identity</find>
       <find>ServerList</find>
       <find>anon</find>
       <find>get_cat</find>
@@ -336,6 +336,7 @@
       <find>body</find>
       <find>/jpeg/&lt;</find>
       <find>cv2</find>
+      <find>numpy</find>
     </findStrings>
     <replaceStrings>
       <replace>Photo</replace>
@@ -420,9 +421,9 @@
         <option value="$PROJECT_DIR$/tests/test_ballot.py" />
         <option value="$PROJECT_DIR$/models/usermgr.py" />
         <option value="$PROJECT_DIR$/tests/test_REST_login.py" />
-        <option value="$PROJECT_DIR$/models/photo.py" />
         <option value="$PROJECT_DIR$/iiServer.py" />
         <option value="$PROJECT_DIR$/models/admin.py" />
+        <option value="$PROJECT_DIR$/models/photo.py" />
       </list>
     </option>
   </component>
@@ -1040,12 +1041,6 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Unittests_for_test_REST_login_TestPhotoUpload_test_binary_upload - 2017.08.04 at 13h 27m 48s.xml">
-      <configuration name="Unittests for test_REST_login.TestPhotoUpload.test_binary_upload" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_test_REST_login_TestPhotoUpload_test_binary_upload - 2017.08.04 at 13h 30m 17s.xml">
-      <configuration name="Unittests for test_REST_login.TestPhotoUpload.test_binary_upload" configurationId="tests" />
-    </history-entry>
     <history-entry file="Unittests_for_test_REST_login_TestPhotoUpload_test_binary_upload_no_image - 2017.08.04 at 13h 38m 04s.xml">
       <configuration name="Unittests for test_REST_login.TestPhotoUpload.test_binary_upload_no_image" configurationId="tests" />
     </history-entry>
@@ -1068,6 +1063,12 @@
       <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
     <history-entry file="Unittests_in_tests - 2017.08.04 at 13h 59m 37s.xml">
+      <configuration name="Unittests in tests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_tests - 2017.08.04 at 14h 37m 32s.xml">
+      <configuration name="Unittests in tests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_tests - 2017.08.04 at 14h 37m 35s.xml">
       <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
   </component>
@@ -1751,16 +1752,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/models/photo.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1140">
-          <caret line="482" column="14" lean-forward="false" selection-start-line="482" selection-start-column="14" selection-end-line="482" selection-end-column="14" />
-          <folding>
-            <element signature="e#0#17#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/iiServer.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="224">
@@ -1778,6 +1769,16 @@
           <caret line="31" column="25" lean-forward="false" selection-start-line="31" selection-start-column="25" selection-end-line="31" selection-end-column="25" />
           <folding>
             <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/photo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="186">
+          <caret line="23" column="1" lean-forward="false" selection-start-line="23" selection-start-column="1" selection-end-line="23" selection-end-column="1" />
+          <folding>
+            <element signature="e#0#17#0" expanded="true" />
           </folding>
         </state>
       </provider>

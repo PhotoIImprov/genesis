@@ -21,7 +21,7 @@ import hashlib
 from logsetup import logger, timeit
 from cache.ExpiryCache import _expiry_cache
 #import cv2
-import numpy
+#import numpy
 
 class PhotoImage():
     _binary_image = None
