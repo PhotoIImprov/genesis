@@ -37,12 +37,13 @@ class Photo(Base):
     id           = Column(Integer, primary_key = True, autoincrement=True)
     user_id      = Column(Integer, ForeignKey("anonuser.id", name="fk_photo_user_id"), nullable=False, index=True)
     category_id  = Column(Integer, ForeignKey("category.id",  name="fk_photo_category_id"), nullable=False, index=True)
-    filepath     = Column(String(500), nullable=False)                  # e.g. '/mnt/images/49269d/394f9/d431'
-    filename     = Column(String(100), nullable=False, unique=True)     # e.g. '970797dfd9f149269d394f9d43179d64.jpeg'
-    times_voted  = Column(Integer, nullable=False, default=0)           # number of votes on this photo
-    score        = Column(Integer, nullable=False, default=0)           # calculated score based on ballot returns
-    likes        = Column(Integer, nullable=False, default=0)           # number of "likes" given this photo
-    active       = Column(Integer, nullable=False, default=1)           # if =0, then ignore the photo as if it didn't exist
+    filepath     = Column(String(500), nullable=False)         # e.g. '/mnt/images/49269d/394f9/d431'
+    filename     = Column(String(100), nullable=False)         # e.g. '970797dfd9f149269d394f9d43179d64.jpeg'
+    times_voted  = Column(Integer, nullable=False, default=0)  # number of votes on this photo
+    score        = Column(Integer, nullable=False, default=0)  # calculated score based on ballot returns
+    likes        = Column(Integer, nullable=False, default=0)  # number of "likes" given this photo
+    active       = Column(Integer, nullable=False, default=1)  # if =0, then ignore the photo as if it didn't exist
+    sqlalchemy.UniqueConstraint('filename', 'category_id', name='uix_photo_filename_cid')
 
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
@@ -207,6 +208,12 @@ class Photo(Base):
             logger.exception(msg="Error with EXIF data parsing for file {0}/{1}".format(self.filepath, self.filename))
 
     def read_thumbnail_b64_utf8(self) -> str:
+        '''
+        Reads a thumbnail image, checking the cache first.
+        The cache expiration is pretty long, could be an issue
+        once we have lots & lots of users.
+        :return: base64 encoded thumbnail as a string
+        '''
         try:
             b64_utf8 = _expiry_cache.get(self.filename)
             if b64_utf8 is not None:

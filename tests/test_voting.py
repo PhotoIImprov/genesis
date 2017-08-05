@@ -37,8 +37,8 @@ class TestVoting(DatabaseTest):
         self.setup()
         tm = voting.TallyMan()
 
-        th = tm.read_thumbnail(self.session, 0)
-        assert(th == None)
+        th, p = tm.read_thumbnail(self.session, 0)
+        assert(th == None and p == None)
 
     def test_create_leaderboard_nocid(self):
         self.setup()

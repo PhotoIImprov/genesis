@@ -37,7 +37,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.3.2' #our version string PEP 440
+__version__ = '1.3.3' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -235,6 +235,7 @@ def hello():
                 "<li>Optimized PIL thumbnail generation</li>" \
                 "<li>Base URL!</li>" \
                 "<li>Binary file upload</li>" \
+                "<li>Image detail with all thumbnails</li>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
@@ -604,6 +605,12 @@ def get_leaderboard():
             score:
               type: integer
               description: "actual score for this rank"
+            votes:
+              type: integer
+              description: "how many times this photo has been voted on"
+            likes:
+              type: integer
+              description: "how many times this photo has been liked"
             you:
               type: string
               description: "if set, then this rank is yours"
@@ -706,6 +713,12 @@ def get_ballot():
                 - 8
                 - 3
                 - 6
+            votes:
+              type: integer
+            likes:
+              type: integer
+            score:
+              type: integer
             iitags:
               type: array
               description: "list of pre-defined tags user can select from"

@@ -133,11 +133,14 @@ class BallotEntry(Base):
 
         self._b64image = self._photo.read_thumbnail_b64_utf8()
 
+        votes = self._photo.times_voted
+        likes = self._photo.likes
+        score = self._photo.score
         try:
             if self._tags is None:
-                d = dict({'bid': self.id, 'orientation': 1, 'image': self._b64image})
+                d = dict({'bid': self.id, 'orientation': 1, 'votes': votes, 'likes': likes, 'score': score,'image': self._b64image})
             else:
-                d = dict({'bid':self.id, 'orientation': 1, 'tags': self._tags, 'image':self._b64image})
+                d = dict({'bid':self.id, 'orientation': 1, 'votes': votes, 'likes': likes, 'score': score, 'tags': self._tags, 'image':self._b64image})
         except Exception as e:
             raise
 
@@ -613,18 +616,18 @@ class TallyMan():
         ep = u.emailaddress.split('@')
         return ep[0]
 
-    def read_thumbnail(self, session, pid: int) -> str:
+    def read_thumbnail(self, session, pid: int) -> (str, photo.Photo):
         try:
             p = session.query(photo.Photo).get(pid)
             if p.active == 0: # this photo has been de-activated, it might be offensive
-                return None
+                return None, p
 
             b64_utf8 = p.read_thumbnail_b64_utf8()
             self._orientation = 1 # all thumbnails normalized to '1' orientation
-            return b64_utf8
+            return b64_utf8, p
         except Exception as e:
             logger.exception(msg='error reading thumbnail!')
-            return None
+            return None, None
 
     def fetch_leaderboard(self, session, uid: int, c: category.Category) -> list:
         '''
@@ -658,12 +661,10 @@ class TallyMan():
             thumbnail_key = 'LEADERBOARD_THUMBNAILS{0}'.format(c.id)
             ttl_leaderboard = 60 * 60 * 24 # 24 hours
             cached_dl, cached_time = _expiry_cache.get_with_time(list_key)
-
             lb = self.get_leaderboard_by_category(session, c, check_exist=True)
-
             dl = lb.leaders(1, page_size=10, with_member_data=True)   # 1st page is top 25
-            # see if the current leaderboard matches the cached leaderboard
 
+            # see if the current leaderboard matches the cached leaderboard
             if cached_dl == dl and dl is not None:
                 lb_list = _expiry_cache.get(thumbnail_key)
                 if lb_list is not None:
@@ -688,15 +689,23 @@ class TallyMan():
                     continue
 
                 lb_name = self.create_displayname(session, lb_uid)
-                b64_utf8 = self.read_thumbnail(session, lb_pid) # thumbnail image as utf-8 base64
-                if b64_utf8 is not None: # problem with photo (such as it's offensive!)
-                    if lb_uid == uid:
-                        lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'you':True, 'orientation': self._orientation, 'image' : b64_utf8})
+                b64_utf8, p = self.read_thumbnail(session, lb_pid) # thumbnail image as utf-8 base64
+                if b64_utf8 is None:
+                    continue
+
+                lb_dict = {'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'orientation': self._orientation}
+                lb_dict['votes'] = p.times_voted
+                lb_dict['likes'] = p.likes
+                if lb_uid == uid:
+                    lb_dict['you'] = True
+                else:
+                    if usermgr.Friend.is_friend(session, uid, lb_uid):
+                        lb_dict['isfriend'] = True
                     else:
-                        if usermgr.Friend.is_friend(session, uid, lb_uid):
-                            lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'isfriend':True, 'orientation': 1, 'image' : b64_utf8})
-                        else:
-                            lb_list.append({'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'orientation': 1, 'image' : b64_utf8})
+                        lb_dict['isfriend'] = False
+
+                lb_dict['image'] = b64_utf8
+                lb_list.append(lb_dict)
 
             # Wow! That was a lot of work, so let's stuff it in the cache and use it for 5 minutes
             _expiry_cache.put(thumbnail_key, lb_list, ttl=ttl_leaderboard)
