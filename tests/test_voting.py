@@ -319,7 +319,7 @@ class TestVoting(DatabaseTest):
 
         # 1) create a category
         # 2) upload 4 images
-        # 3) Vote on them with 'iitags' specified
+        # 3) Vote on them with 'tags' specified
 
         c = self.create_category('test_voting_with_tags')
 
@@ -350,7 +350,7 @@ class TestVoting(DatabaseTest):
             j_votes = []
             idx = 1
             for be in b._ballotentries:
-                j_votes.append({'bid': be.id, 'vote': idx, 'iitags':['tag1', 'tag2', 'tag3']})
+                j_votes.append({'bid': be.id, 'vote': idx, 'tags':['tag1', 'tag2', 'tag3']})
                 idx += 1
 
             bel = bm.tabulate_votes(self.session, nu.id, j_votes)
@@ -366,7 +366,7 @@ class TestVoting(DatabaseTest):
 
         # 1) create a category
         # 2) upload 4 images
-        # 3) Vote on them with 'iitags' specified
+        # 3) Vote on them with 'tags' specified
 
         c = self.create_category('test_voting_offensive')
 

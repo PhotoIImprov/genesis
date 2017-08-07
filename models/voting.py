@@ -218,11 +218,11 @@ class BallotManager:
             like = self.string_key_to_boolean(j_be, 'like')
             offensive = self.string_key_to_boolean(j_be, 'offensive')
 
-            # if there is an 'iitag' specified, then create a BallotEntryTag
+            # if there is an 'tag' specified, then create a BallotEntryTag
             # record and save it
             try:
-                if 'iitags' in j_be.keys():
-                    tags = j_be['iitags']
+                if 'tags' in j_be.keys():
+                    tags = j_be['tags']
                     be_tags = BallotEntryTag(bid=bid, tags=tags)
                     session.add(be_tags)
             except Exception as e:
@@ -388,19 +388,19 @@ class BallotManager:
         """
 
         shuffle(p4b)
-        pretty_list = []
-        for p in p4b:
-            # we have a candidate photo, see if a copy is already in the list
-            insert_p = True
-            if p._photometa.thumb_hash != 0: # no hash computed, skip the check
-                for dupe_check in pretty_list:
-                    if dupe_check._photometa.thumb_hash == p._photometa.thumb_hash:
-                        insert_p = False
-                        break
-            if insert_p:
-                pretty_list.append(p)
-                if len(pretty_list) == ballot_size:
-                    return pretty_list
+        # pretty_list = []
+        # for p in p4b:
+        #     # we have a candidate photo, see if a copy is already in the list
+        #     insert_p = True
+        #     if p._photometa.thumb_hash is not None: # no hash computed, skip the check
+        #         for dupe_check in pretty_list:
+        #             if dupe_check._photometa.thumb_hash == p._photometa.thumb_hash:
+        #                 insert_p = False
+        #                 break
+        #     if insert_p:
+        #         pretty_list.append(p)
+        #         if len(pretty_list) == ballot_size:
+        #             return pretty_list
 
         # worst cases just return a random list
         return p4b[:ballot_size]

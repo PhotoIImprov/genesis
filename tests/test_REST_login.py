@@ -1145,6 +1145,30 @@ class TestLastSubmission(iiBaseUnitTest):
 
         self.tearDown()
 
+class TestMySubmissions(iiBaseUnitTest):
+    def test_mysubmissions_bad_format(self):
+        self.create_testuser_get_token()
+        rsp = self.app.get(path='/submissions', headers=self.get_header_html())
+        assert (rsp.status_code == 404)
+
+        rsp = self.app.get(path='/submissions/bad1', headers=self.get_header_html())
+        assert (rsp.status_code == 404)
+
+        rsp = self.app.get(path='/submissions/bad2/0', headers=self.get_header_html())
+        assert (rsp.status_code == 400)
+
+
+    def test_mysubmissions_next(self):
+        self.create_testuser_get_token()
+        rsp = self.app.get(path='/submissions/next/0', headers=self.get_header_html())
+        assert (rsp.status_code == 200)
+
+    def test_mysubmissions_prev(self):
+        self.create_testuser_get_token()
+        rsp = self.app.get(path='/submissions/prev/0', headers=self.get_header_html())
+        assert (rsp.status_code == 200)
+
+
 class TestBase(iiBaseUnitTest):
     def test_default_base_url(self):
         '''

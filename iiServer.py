@@ -37,7 +37,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.3.3' #our version string PEP 440
+__version__ = '1.3.4' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -75,7 +75,7 @@ _jwt.auth_response_callback = usermgr.auth_response_handler # so we can add to t
 def spec():
     """
     Specification
-    ---
+    #-#
     tags:
       - admin
     summary: "A JSON formatted OpenAPI/Swagger document formatting the API"
@@ -529,7 +529,7 @@ def get_category():
               description: "When the category starts and uploading can begin"
             end:
               type: string
-              description: "When the category ends and voting can begin"
+              description: "When voting on this category ends"
             state:
               type: string
               enum:
@@ -719,7 +719,7 @@ def get_ballot():
               type: integer
             score:
               type: integer
-            iitags:
+            tags:
               type: array
               description: "list of pre-defined tags user can select from"
               items:
@@ -951,7 +951,7 @@ def cast_vote():
             offensive:
               type: string
               description: "If present, indicates user has found the image offensive"
-            iitags:
+            tags:
               type: array
               description: "array of tags user has selected for the image"
               items:
@@ -1779,6 +1779,90 @@ def forgot_password():
     finally:
         session.close()
         return rsp
+
+@app.route('/submissions/<string:direction>/<int:cid>')
+@jwt_required()
+def my_submissions(direction: str, cid: int):
+    """
+    My Submissions
+    ###
+    tags:
+      - user
+    summary: "retrieve a pageable list of photos the user has submitted"
+    operationId: submission
+    consumes:
+      - text/html
+    produces:
+      - application/json
+    parameters:
+      - in: path
+        name: dir
+        description: "next/prev direction from specified category id for next page"
+        required: true
+        type: string
+        enum:
+          - next
+          - prev
+      - in: path
+        name: cid
+        description: "category id to start fetch from, if 0 fetch around active categories"
+        required: true
+        type: int
+    security:
+      - JWT: []
+    responses:
+      200:
+        description: "page of submissions"
+        schema:
+          $ref: '#/definitions/SubmissionResp'
+      404:
+        description: "image not found"
+        schema:
+          $ref: '#/definitions/Error'
+    definitions:
+      PhotoDetail:
+        properties:
+          pid:
+            type: integer
+          url:
+            type: string
+          votes:
+            type: integer
+          likes:
+            type: integer
+          score:
+            type: integer
+          tags:
+            type: array
+            description: "List of tags associated with photo"
+      PhotoDetails:
+        type: array
+        items:
+          $ref: '#/definitions/PhotoDetail'
+      CategoryPhotos:
+        properties:
+          category:
+            $ref: '#/definitions/Category'
+          photos:
+            $ref: '#/definitions/PhotoDetails'
+      SubmissionResp:
+        properties:
+          id:
+            type: integer
+            description: "image improv user identifier"
+          created_date:
+            type: string
+            description: "date which this user account was created"
+          submissions:
+            type: array
+            items:
+              $ref: '#/definitions/CategoryPhotos'
+    """
+    if direction is None or cid is None or direction not in ('next', 'prev'):
+        return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
+
+    rsp = make_response('no submission data yet', status.HTTP_200_OK)
+    return rsp
 
 @app.route('/')
 def root_path():
