@@ -1181,7 +1181,7 @@ class TestBase(iiBaseUnitTest):
         assert (rsp.status_code == 200)
         assert (rsp.content_type == 'application/json')
         data = json.loads(rsp.data.decode("utf-8"))
-        assert(data['base'] == 'https://api.imageimprov.com')
+        assert(data['base'] == 'https://api.imageimprov.com/')
 
     def test_special_base_url(self):
         '''
@@ -1192,7 +1192,7 @@ class TestBase(iiBaseUnitTest):
 
         tu = self.create_testuser_get_token()
         b = admin.BaseURL()
-        b.url = 'http://172.21.3.54:8080'
+        b.url = 'http://172.21.3.54:8080/'
         session = dbsetup.Session()
         session.add(b)
         session.commit()

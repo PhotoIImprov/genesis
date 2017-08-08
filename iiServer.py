@@ -1728,15 +1728,18 @@ def base_url():
     uid = current_identity.id
 
     session = dbsetup.Session()
+    rsp = None
+    base_url = 'https://api.imageimprov.com/'
     try:
         base_url = usermgr.AnonUser.get_baseurl(session, uid)
-        rsp = make_response(jsonify({'base': base_url}), status.HTTP_200_OK)
     except Exception as e:
         logger.exception(msg="[/base] error fetching base for user {0}".format(uid))
-        rsp = make_response(jsonify({'base': 'https://api.imageimprov.com/'}), status.HTTP_200_OK)
+        base_url = 'https://api.imageimprov.com/'
     finally:
         session.close()
-        return rsp
+
+    logger.info(msg="[/base] url = {0}".format(base_url))
+    return make_response(jsonify({'base': base_url}), status.HTTP_200_OK)
 
 @app.route('/forgotpwd')
 def forgot_password():
