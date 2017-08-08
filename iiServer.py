@@ -30,6 +30,7 @@ from datetime import timedelta
 from logsetup import logger, client_logger, timeit
 from urllib.parse import urlparse
 import uuid
+from models import userprofile
 
 app = Flask(__name__)
 app.debug = True
@@ -37,7 +38,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.3.4' #our version string PEP 440
+__version__ = '1.3.5' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -229,13 +230,11 @@ def hello():
                 "<li>metadata tagging</li>" \
                 "<li>Active Photos</li>" \
                 "<li>oAuth2 support Facebook & Google</li>" \
-                "<li>Category list returns PENDING (100 limit!)</li>" \
-                "<li>Caching Category & Leaderboard with expiry</li>" \
-                "<li>/forgotpwd?email=xxx</li>" \
                 "<li>Optimized PIL thumbnail generation</li>" \
                 "<li>Base URL!</li>" \
                 "<li>Binary file upload</li>" \
                 "<li>Image detail with all thumbnails</li>" \
+                "<li>/submissions API</li>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
@@ -533,7 +532,11 @@ def get_category():
             state:
               type: string
               enum:
-                - UPLOAD, VOTING, COUNTING, CLOSED, PENDING
+                - UPLOAD
+                - VOTING
+                - COUNTING
+                - CLOSED
+                - PENDING
               description: "The current state of the category (VOTING, UPLOADING, CLOSED, etc.)"
             round:
               type: integer
@@ -677,13 +680,8 @@ def get_ballot():
     responses:
       200:
          description: 'list of images to vote on with their originating category'
-         properties:
-           ballots:
-             type: array
-             items:
-               $ref: '#/definitions/Ballot'
-           category:
-             $ref: '#/definitions/Category'
+         schema:
+           $ref: '#/definitions/CategoryBallots'
       400:
         description: 'missing required arguments'
         schema:
@@ -705,20 +703,22 @@ def get_ballot():
           id: Ballot
           properties:
             bid:
+              description: 'the ballot id, uniquely identifies the ballot this entry is associated with'
               type: integer
             orientation:
+              description: 'the EXIF orientation of photo (all should be 1!!)'
               type: integer
               enum:
                 - 1
-                - 8
-                - 3
-                - 6
             votes:
               type: integer
+              description: 'current number of votes for this photo'
             likes:
               type: integer
+              description: 'current number of likes for this photo'
             score:
               type: integer
+              description: 'current score for this photo'
             tags:
               type: array
               description: "list of pre-defined tags user can select from"
@@ -726,6 +726,19 @@ def get_ballot():
                 type: string
             image:
               type: string
+              description: 'base64 encoded string of JPEG image data'
+      - schema:
+          id: Ballots
+          type: array
+          items:
+            $ref: '#/definitions/Ballot'
+      - schema:
+          id: CategoryBallots
+          properties:
+            category:
+              $ref: '#/definitions/Category'
+            ballots:
+              $ref: '#/definitions/Ballots'
     """
     u = current_identity
     uid = u.id
@@ -910,13 +923,8 @@ def cast_vote():
      responses:
        200:
          description: ballot of images user has voted on with originating category information
-         properties:
-           ballots:
-             type: array
-             items:
-               $ref: '#/definitions/Ballot'
-           category:
-             $ref: '#/definitions/Category'
+         schema:
+           $ref: '#/definitions/CategoryBallots'
        400:
          description: "missing required arguments"
          schema:
@@ -988,18 +996,25 @@ def cast_vote():
     return return_ballot(session, uid, None)
 
 def return_ballot(session, uid, cid):
+    '''
+    If category passed in is in the UPLOAD state, then we'll
+    allow voting on it.
+    :param session:
+    :param uid:
+    :param cid:
+    :return:
+    '''
     rsp = None
     try:
         bm = voting.BallotManager()
-        allow_upload = False
         if cid is None:
             cl = bm.active_voting_categories(session, uid)
             shuffle(cl)
             c = cl[0]
         else:
             c = category.Category.read_category_by_id(cid, session)
-            if c.state == category.CategoryState.UPLOAD.value:
-                allow_upload = True
+
+        allow_upload = c.state == category.CategoryState.UPLOAD.value
 
         ballots = bm.create_ballot(session, uid, c, allow_upload)
         if ballots is None:
@@ -1185,7 +1200,8 @@ def photo_upload():
             extension:
               type: string
               enum:
-                - JPEG, JPG
+                - JPEG
+                - JPG
               description: "Extension/filetype of uploaded image"
             image:
               type: string
@@ -1195,13 +1211,8 @@ def photo_upload():
     responses:
       200:
          description: 'list of images to vote on for the category just uploaded to (if at least 50 images in category)'
-         properties:
-           ballots:
-             type: array
-             items:
-               $ref: '#/definitions/Ballot'
-           category:
-             $ref: '#/definitions/Category'
+         schema:
+           $ref: '#/definitions/CategoryBallots'
       201:
         description: "The image was properly uploaded!"
         schema:
@@ -1271,7 +1282,10 @@ def store_photo(pi: photo.PhotoImage, uid: int, cid: int):
     # at least 50 images in this category, then let's send back
     # a ballot for that category
     if rsp.status_code == status.HTTP_201_CREATED and num_photos_in_category > dbsetup.Configuration.UPLOAD_CATEGORY_PICS:
-        return return_ballot(dbsetup.Session(), uid, cid)
+        try:
+            return return_ballot(dbsetup.Session(), uid, cid)
+        except Exception as e:
+            pass     # Note: If anything goes wrong, forget the return ballot and just return success for the upload
 
     return rsp
 
@@ -1296,23 +1310,13 @@ def jpeg_photo_upload(cid: int):
         description: "The category id to upload the photo to"
         required: true
         type: integer
-      - in: body
-        name: photo
-        type: string
-        format: binary
-        description: JPEG file being uploaded
     security:
       - JWT: []
     responses:
       200:
          description: 'list of images to vote on for the category just uploaded to (if at least 50 images in category)'
-         properties:
-           ballots:
-             type: array
-             items:
-               $ref: '#/definitions/Ballot'
-           category:
-             $ref: '#/definitions/Category'
+         schema:
+           $ref: '#/definitions/CategoryBallots'
       201:
         description: "The image was properly uploaded!"
         schema:
@@ -1354,67 +1358,67 @@ def jpeg_photo_upload(cid: int):
 
     return store_photo(pi, uid, cid)
 
-@app.route("/file/<int:cid>", methods=['POST'])
-@jwt_required()
-@timeit()
-def upload_file():
-    """
-    Upload file
-    ---
-    tags:
-      - image
-    summary: "upload a binary image to the site"
-    operationId: upload-image
-    consumes:
-      - image/jpeg
-    produces:
-      - text/html
-    parameters:
-      - in: path
-        name: cid
-        description: "The id of the category to upload the file to"
-        required: true
-        type: integer
-    security:
-      - JWT: []
-    responses:
-      201:
-        description: "The image was properly uploaded!"
-        schema:
-          id: filename
-          properties:
-            filename:
-              type: string
-      404:
-        description: "image not found"
-        schema:
-          $ref: '#/definitions/Error'
-    """
-    rsp = None
-    session = dbsetup.Session()
-    try:
-        uid = current_identity
-        if 'file' not in request.files:
-            rsp = make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
-        else:
-            file = request.files['file']
-            pi = photo.PhotoImage()
-            pi._binary_image = file
-            pi._extension = file.filename.rsplit('.',1)[1].upper() # extract extension
-            p = photo.Photo()
-            d = p.save_user_image(session, pi, uid, cid)
-            if d['error'] is not None:
-                rsp = make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
-            else:
-                session.commit()
-                rsp = make_response(jsonify({'msg': error.error_string('PHOTO_UPLOADED'), 'filename': d['arg']}), status.HTTP_201_CREATED)
-    except Exception as e:
-        logger.exception(msg=str(e))
-        rsp = make_response(jsonify({'msg': error.error_string('UPLOAD_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
-    finally:
-        session.close()
-
-    return rsp
+# @app.route("/file/<int:cid>", methods=['POST'])
+# @jwt_required()
+# @timeit()
+# def upload_file():
+#     """
+#     Upload file
+#     ---
+#     tags:
+#       - image
+#     summary: "upload a binary image to the site"
+#     operationId: upload-image
+#     consumes:
+#       - image/jpeg
+#     produces:
+#       - text/html
+#     parameters:
+#       - in: path
+#         name: cid
+#         description: "The id of the category to upload the file to"
+#         required: true
+#         type: integer
+#     security:
+#       - JWT: []
+#     responses:
+#       201:
+#         description: "The image was properly uploaded!"
+#         schema:
+#           id: filename
+#           properties:
+#             filename:
+#               type: string
+#       404:
+#         description: "image not found"
+#         schema:
+#           $ref: '#/definitions/Error'
+#     """
+#     rsp = None
+#     session = dbsetup.Session()
+#     try:
+#         uid = current_identity
+#         if 'file' not in request.files:
+#             rsp = make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
+#         else:
+#             file = request.files['file']
+#             pi = photo.PhotoImage()
+#             pi._binary_image = file
+#             pi._extension = file.filename.rsplit('.',1)[1].upper() # extract extension
+#             p = photo.Photo()
+#             d = p.save_user_image(session, pi, uid, cid)
+#             if d['error'] is not None:
+#                 rsp = make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
+#             else:
+#                 session.commit()
+#                 rsp = make_response(jsonify({'msg': error.error_string('PHOTO_UPLOADED'), 'filename': d['arg']}), status.HTTP_201_CREATED)
+#     except Exception as e:
+#         logger.exception(msg=str(e))
+#         rsp = make_response(jsonify({'msg': error.error_string('UPLOAD_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+#     finally:
+#         session.close()
+#
+#     return rsp
 
 @app.route("/log", methods=['POST'])
 @jwt_required()
@@ -1780,12 +1784,13 @@ def forgot_password():
         session.close()
         return rsp
 
-@app.route('/submissions/<string:direction>/<int:cid>')
+@app.route('/submissions/<string:dir>/<int:cid>')
 @jwt_required()
-def my_submissions(direction: str, cid: int):
+@timeit()
+def my_submissions(dir: str, cid: int):
     """
     My Submissions
-    ###
+    ---
     tags:
       - user
     summary: "retrieve a pageable list of photos the user has submitted"
@@ -1820,48 +1825,66 @@ def my_submissions(direction: str, cid: int):
         schema:
           $ref: '#/definitions/Error'
     definitions:
-      PhotoDetail:
-        properties:
-          pid:
-            type: integer
-          url:
-            type: string
-          votes:
-            type: integer
-          likes:
-            type: integer
-          score:
-            type: integer
-          tags:
-            type: array
-            description: "List of tags associated with photo"
-      PhotoDetails:
-        type: array
-        items:
-          $ref: '#/definitions/PhotoDetail'
-      CategoryPhotos:
-        properties:
-          category:
-            $ref: '#/definitions/Category'
-          photos:
-            $ref: '#/definitions/PhotoDetails'
-      SubmissionResp:
-        properties:
-          id:
-            type: integer
-            description: "image improv user identifier"
-          created_date:
-            type: string
-            description: "date which this user account was created"
-          submissions:
-            type: array
-            items:
-              $ref: '#/definitions/CategoryPhotos'
+      - schema:
+          id: PhotoDetail
+          properties:
+            pid:
+              type: integer
+              description: "unique photo identifier"
+            url:
+              type: string
+              description: "URL to retrieve photo thumbnail .JPEG image, prefix baseURL and slash"
+            votes:
+              type: integer
+              description: "number of votes photo has received"
+            likes:
+              type: integer
+              description: "number of likes photo has received"
+            score:
+              type: integer
+            tags:
+              type: array
+              description: "List of tags associated with photo"
+      - schema:
+          id: PhotoDetails
+          type: array
+          items:
+            $ref: '#/definitions/PhotoDetail'
+      - schema:
+          id: CategoryPhotos
+          properties:
+            category:
+              $ref: '#/definitions/Category'
+            photos:
+              $ref: '#/definitions/PhotoDetails'
+      - schema:
+          id: SubmissionResp
+          properties:
+            id:
+              type: integer
+              description: "image improv user identifier"
+            created_date:
+              type: string
+              description: "date which this user account was created"
+            submissions:
+              type: array
+              items:
+                $ref: '#/definitions/CategoryPhotos'
     """
-    if direction is None or cid is None or direction not in ('next', 'prev'):
+    if dir is None or cid is None or dir not in ('next', 'prev'):
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
-    rsp = make_response('no submission data yet', status.HTTP_200_OK)
+    session = dbsetup.Session()
+    try:
+        profile = userprofile.Submissions(uid=current_identity.id)
+        d = profile.get_user_submissions(session, dir, cid)
+        rsp = make_response(jsonify(d), status.HTTP_200_OK)
+    except Exception as e:
+        logger.exception(msg='[/submissions] error fetching users profile')
+        rsp = make_response('really, really bad thing occured', status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        session.close()
+
     return rsp
 
 @app.route('/')

@@ -417,56 +417,57 @@ class TestVoting(DatabaseTest):
 
         self.teardown()
 
-    def test_cleanup_list_noduplicates(self):
-        bm = voting.BallotManager()
-
-        # create our synthetic list of photos
-        photo_list = []
-        for i in range(0,20):
-            thumb_hash = i & 0x3 # only 4 hashes
-            p = photo.Photo()
-            photo_list.append(p)
-            pm = photo.PhotoMeta(720, 720, thumb_hash)
-            p.id = i
-            pm.id = i
-            p._photometa = pm
-
-        clean_list = bm.cleanup_list(photo_list, 4)
-        assert(len(clean_list) == 4)
-
-        #scour the list for duplicates
-        duplicate = False
-        for p in clean_list:
-            hash = p._photometa.thumb_hash
-            for q in clean_list:
-                if p != q and hash != 0 and hash == q._photometa.thumb_hash:
-                    assert(False) # duplicate found!
-
-
-    def test_cleanup_list_allduplicates(self):
-        bm = voting.BallotManager()
-
-        # create our synthetic list of photos
-        photo_list = []
-        for i in range(0,20):
-            thumb_hash = 0x5555 # all hashes the same
-            p = photo.Photo()
-            photo_list.append(p)
-            pm = photo.PhotoMeta(720, 720, thumb_hash)
-            p.id = i
-            pm.id = i
-            p._photometa = pm
-
-        clean_list = bm.cleanup_list(photo_list[:], 4)
-        assert(len(clean_list) == 4)
-
-        assert(clean_list[0]._photometa.thumb_hash == clean_list[1]._photometa.thumb_hash)
-
-        is_shuffled = False
-        for i in range(0,4):
-            if clean_list[i] != photo_list[i]:
-                is_shuffled = True
-        assert(is_shuffled)
+    # NOTE: Hashing test for duplicates eliminated
+    # def test_cleanup_list_noduplicates(self):
+    #     bm = voting.BallotManager()
+    #
+    #     # create our synthetic list of photos
+    #     photo_list = []
+    #     for i in range(0,20):
+    #         thumb_hash = i & 0x3 # only 4 hashes
+    #         p = photo.Photo()
+    #         photo_list.append(p)
+    #         pm = photo.PhotoMeta(720, 720, thumb_hash)
+    #         p.id = i
+    #         pm.id = i
+    #         p._photometa = pm
+    #
+    #     clean_list = bm.cleanup_list(photo_list, 4)
+    #     assert(len(clean_list) == 4)
+    #
+    #     #scour the list for duplicates
+    #     duplicate = False
+    #     for p in clean_list:
+    #         hash = p._photometa.thumb_hash
+    #         for q in clean_list:
+    #             if p != q and hash != 0 and hash == q._photometa.thumb_hash:
+    #                 assert(False) # duplicate found!
+    #
+    #
+    # def test_cleanup_list_allduplicates(self):
+    #     bm = voting.BallotManager()
+    #
+    #     # create our synthetic list of photos
+    #     photo_list = []
+    #     for i in range(0,20):
+    #         thumb_hash = 0x5555 # all hashes the same
+    #         p = photo.Photo()
+    #         photo_list.append(p)
+    #         pm = photo.PhotoMeta(720, 720, thumb_hash)
+    #         p.id = i
+    #         pm.id = i
+    #         p._photometa = pm
+    #
+    #     clean_list = bm.cleanup_list(photo_list[:], 4)
+    #     assert(len(clean_list) == 4)
+    #
+    #     assert(clean_list[0]._photometa.thumb_hash == clean_list[1]._photometa.thumb_hash)
+    #
+    #     is_shuffled = False
+    #     for i in range(0,4):
+    #         if clean_list[i] != photo_list[i]:
+    #             is_shuffled = True
+    #     assert(is_shuffled)
 
     def upload_images(self, num_images, u, c):
         ft = open('../photos/TEST1.JPG', 'rb')
