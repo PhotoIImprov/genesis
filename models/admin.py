@@ -1,15 +1,6 @@
-import errno
-from datetime import timedelta, datetime
-from enum import Enum
-
 from sqlalchemy import Column, Integer, DateTime, text, ForeignKey, String
-
-import dbsetup
-from cache.iiMemoize import memoize_with_expiry, _memoize_cache
 from dbsetup import Base
 from logsetup import logger
-from models import resources
-from cache.ExpiryCache import _expiry_cache
 
 class BaseURL(Base):
     __tablename__ = 'baseurl'
@@ -23,7 +14,7 @@ class BaseURL(Base):
     # ======================================================================================================
     @staticmethod
     def default_url() -> str:
-        return 'https://api.imageimprov.com'
+        return 'https://api.imageimprov.com/'
 
     @staticmethod
     def get_url(session, id: int) -> str:
