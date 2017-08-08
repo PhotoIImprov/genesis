@@ -1703,6 +1703,7 @@ def download_photo(pid):
 
 @app.route('/base')
 @jwt_required()
+@timeit()
 def base_url():
     """
     Base URL
