@@ -16,6 +16,7 @@ from models import voting
 from models import category
 from models import error
 from models import traction
+from models import admin
 import json
 from flask_swagger import swagger
 from leaderboard.leaderboard import Leaderboard
