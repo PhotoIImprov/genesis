@@ -72,7 +72,7 @@ class AnonUser(Base):
     def get_baseurl(session, uid: int) -> str:
         au = AnonUser.get_anon_user_by_id(session, uid)
 
-        if au is not None or au.base_id is not None:
+        if au is not None and au.base_id is not None:
             b = session.query(admin.BaseURL).get(au.base_id)
             if b is not None:
                 return b.url
