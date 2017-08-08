@@ -77,7 +77,7 @@ class AnonUser(Base):
             if b is not None:
                 return b.url
 
-        return 'https://api.imageimprov.com'
+        return 'https://api.imageimprov.com/'
 
     def get_id(self):
         return self.id

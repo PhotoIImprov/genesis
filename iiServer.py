@@ -1733,7 +1733,7 @@ def base_url():
         rsp = make_response(jsonify({'base': base_url}), status.HTTP_200_OK)
     except Exception as e:
         logger.exception(msg="[/base] error fetching base for user {0}".format(uid))
-        rsp = make_response(jsonify({'base': 'https://api.imageimprov.com'}), status.HTTP_200_OK)
+        rsp = make_response(jsonify({'base': 'https://api.imageimprov.com/'}), status.HTTP_200_OK)
     finally:
         session.close()
         return rsp
