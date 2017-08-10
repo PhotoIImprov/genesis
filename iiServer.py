@@ -39,7 +39,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.3.5' #our version string PEP 440
+__version__ = '1.3.7' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -234,8 +234,18 @@ def hello():
                 "<li>Optimized PIL thumbnail generation</li>" \
                 "<li>Base URL!</li>" \
                 "<li>Binary file upload</li>" \
-                "<li>Image detail with all thumbnails</li>" \
-                "<li>/submissions API</li>" \
+                "<li>v1.3.5</li>" \
+                "  <ul>"\
+                "  <li>Image detail with all thumbnails</li>" \
+                "  </ul>" \
+                "<li>v1.3.6</li>" \
+                "  <ul>" \
+                "  <li>csrf token for forgot password</li>" \
+                "  </ul>" \
+                "<li>v1.3.7</li>" \
+                "  <ul>" \
+                "  <li>/submissions API</li>" \
+                "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
@@ -1723,24 +1733,22 @@ def base_url():
         schema:
           id: base
           properties:
-            baseurl:
+            base:
               type: string
     """
     uid = current_identity.id
-
     session = dbsetup.Session()
-    rsp = None
-    base_url = 'https://api.imageimprov.com/'
+    url = 'https://api.imageimprov.com/'
     try:
-        base_url = usermgr.AnonUser.get_baseurl(session, uid)
+        url = usermgr.AnonUser.get_baseurl(session, uid)
     except Exception as e:
         logger.exception(msg="[/base] error fetching base for user {0}".format(uid))
-        base_url = 'https://api.imageimprov.com/'
+        url = 'https://api.imageimprov.com/'
     finally:
         session.close()
 
-    logger.info(msg="[/base] url = {0}".format(base_url))
-    return make_response(jsonify({'base': base_url}), status.HTTP_200_OK)
+    logger.info(msg="[/base] url = {0}, for user {1}".format(url, uid) )
+    return make_response(jsonify({'base': url}), status.HTTP_200_OK)
 
 @app.route('/forgotpwd')
 def forgot_password():
@@ -1749,7 +1757,7 @@ def forgot_password():
     ---
     tags:
       - user
-    summary: "send a new password to a user's email address"
+    summary: "send a reset password link to a user's email address"
     operationId: forgot-password
     consumes:
       - text/html

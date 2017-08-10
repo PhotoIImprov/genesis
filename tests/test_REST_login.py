@@ -6,7 +6,7 @@ import iiServer
 import json
 import base64
 import datetime
-from models import category, resources, voting
+from models import category, resources, voting, photo
 from collections import namedtuple
 import requests
 from models import error
@@ -14,7 +14,7 @@ from urllib.parse import urlencode
 from werkzeug.datastructures import Headers, FileMultiDict
 import dbsetup
 from models import admin, usermgr
-
+from tests import DatabaseTest
 
 class TestUser:
     _u = None   # username
@@ -1146,6 +1146,7 @@ class TestLastSubmission(iiBaseUnitTest):
         self.tearDown()
 
 class TestMySubmissions(iiBaseUnitTest):
+
     def test_mysubmissions_bad_format(self):
         self.create_testuser_get_token()
         rsp = self.app.get(path='/submissions', headers=self.get_header_html())

@@ -74,7 +74,7 @@ class Submissions():
                     cpl.append(p_element)
 
             if cpl:
-                category_dict = {'description':c.description, 'end': str(c.end), 'start': str(c.start), 'state': category.CategoryState.to_str(c.state)}
+                category_dict = {'id':c.id, 'description':c.get_description(), 'end': str(c.end_date), 'start': str(c.start_date), 'state': category.CategoryState.to_str(c.state)}
                 category_submission = {'category': category_dict, 'photos': cpl}
                 return_dict.setdefault('submissions',[]).append(category_submission)
 
