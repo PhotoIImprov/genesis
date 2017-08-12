@@ -5,13 +5,40 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tests/test_admin.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/assets/google-play-badge.eps" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/community-guidlines.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/css/community-guidlines.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/css/index.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/css/master_a-master.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/css/nomq_index.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/css/nomq_preview_master_a-master.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/css/privacy-policy.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/css/site_global.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/css/terms-of-service.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/google_analytics.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/images/blank.gif" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/images/download_on_the_app_store_badge_us-uk_135x40.svg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/images/download_on_the_app_store_badge_us-uk_135x40_poster_.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/images/favicon.ico" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/images/google-play-badge.svg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/images/google-play-badge_poster_.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/images/ii_appicon_ii_icon.svg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/images/ii_appicon_ii_icon_poster_.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/images/pattern.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/muse_manifest.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/privacy-policy.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/scripts/jquery-1.8.3.min.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/scripts/jquery.museresponsive.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/scripts/jquery.watch.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/scripts/museconfig.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/scripts/museutils.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/scripts/require.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/scripts/whatinput.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/sitemap.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/terms-of-service.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/privacy/privacypolicy.html" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/iiServer.py" afterPath="$PROJECT_DIR$/iiServer.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/admin.py" afterPath="$PROJECT_DIR$/models/admin.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/test_submissions.py" afterPath="$PROJECT_DIR$/models/test_submissions.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/userprofile.py" afterPath="$PROJECT_DIR$/models/userprofile.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/test_REST_login.py" afterPath="$PROJECT_DIR$/tests/test_REST_login.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/en-US/landing/index.html" afterPath="$PROJECT_DIR$/www/en-US/landing/index.html" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -30,7 +57,7 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestMySubmissions.coverage" NAME="Unittests for test_REST_login.TestMySubmissions Coverage Results" MODIFIED="1502031162916" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_user_TestUserMgr_test_authenticate_not_exist_not_DEBUG.coverage" NAME="Unittests for test_user.TestUserMgr.test_authenticate_not_exist_not_DEBUG Coverage Results" MODIFIED="1496851987352" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_submissions_TestSubmissions_test_category_with_photos.coverage" NAME="Unittests for test_submissions.TestSubmissions.test_category_with_photos Coverage Results" MODIFIED="1502201256341" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/models" />
-    <SUITE FILE_PATH="coverage/genesis$Unittests_in_tests.coverage" NAME="Unittests in tests Coverage Results" MODIFIED="1502399317075" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_in_tests.coverage" NAME="Unittests in tests Coverage Results" MODIFIED="1502549890600" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_REST_login.coverage" NAME="Unittests in test_REST_login Coverage Results" MODIFIED="1493750940525" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_tests_test_REST_login_TestLeaderBoard_test_leaderboard.coverage" NAME="Unittests for tests.test_REST_login.TestLeaderBoard.test_leaderboard Coverage Results" MODIFIED="1492870420268" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestCategory_test_category_state.coverage" NAME="Unittests for test_REST_login.TestCategory.test_category_state Coverage Results" MODIFIED="1498563108767" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -217,11 +244,76 @@
       <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/iiServer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="206">
-              <caret line="240" column="27" lean-forward="false" selection-start-line="240" selection-start-column="27" selection-end-line="240" selection-end-column="27" />
+            <state relative-caret-position="108">
+              <caret line="234" column="0" lean-forward="false" selection-start-line="234" selection-start-column="0" selection-end-line="234" selection-end-column="0" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
-                <marker date="1502400622582" expanded="true" signature="10562:10587" ph="select * fro... event" />
+                <marker date="1502549890504" expanded="true" signature="10712:10737" ph="select * fro... event" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/www/en-US/landing/index.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="360">
+              <caret line="23" column="0" lean-forward="false" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+              <folding>
+                <element signature="e#4278#4284#0#HTML" expanded="true" />
+                <element signature="e#4286#4292#0#HTML" expanded="true" />
+                <element signature="e#4393#4399#0#HTML" expanded="true" />
+                <element signature="e#4401#4407#0#HTML" expanded="true" />
+                <element signature="e#4520#4526#0#HTML" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="community-guidelines.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/www/en-US/privacy/community-guidelines.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="342">
+              <caret line="158" column="0" lean-forward="false" selection-start-line="158" selection-start-column="0" selection-end-line="158" selection-end-column="0" />
+              <folding>
+                <element signature="e#7837#7843#0#HTML" expanded="true" />
+                <element signature="e#7845#7851#0#HTML" expanded="true" />
+                <element signature="e#7952#7958#0#HTML" expanded="true" />
+                <element signature="e#7960#7966#0#HTML" expanded="true" />
+                <element signature="e#8079#8085#0#HTML" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="privacy-policy.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/www/en-US/privacy/privacy-policy.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="522">
+              <caret line="41" column="61" lean-forward="true" selection-start-line="41" selection-start-column="61" selection-end-line="41" selection-end-column="61" />
+              <folding>
+                <element signature="e#17646#17652#0#HTML" expanded="true" />
+                <element signature="e#17654#17660#0#HTML" expanded="true" />
+                <element signature="e#17761#17767#0#HTML" expanded="true" />
+                <element signature="e#17769#17775#0#HTML" expanded="true" />
+                <element signature="e#17888#17894#0#HTML" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="terms-of-service.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/www/en-US/privacy/terms-of-service.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="400">
+              <caret line="246" column="0" lean-forward="false" selection-start-line="238" selection-start-column="0" selection-end-line="246" selection-end-column="0" />
+              <folding>
+                <element signature="n#style#0;n#ul#0;n#section#12;n#full#0;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="e#30030#30036#0#HTML" expanded="true" />
+                <element signature="e#30038#30044#0#HTML" expanded="true" />
+                <element signature="e#30145#30151#0#HTML" expanded="true" />
+                <element signature="e#30153#30159#0#HTML" expanded="true" />
+                <element signature="e#30272#30278#0#HTML" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -233,18 +325,6 @@
             <state relative-caret-position="342">
               <caret line="76" column="37" lean-forward="false" selection-start-line="76" selection-start-column="37" selection-end-line="76" selection-end-column="37" />
               <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="dbsetup.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/dbsetup.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="159">
-              <caret line="127" column="0" lean-forward="false" selection-start-line="127" selection-start-column="0" selection-end-line="127" selection-end-column="0" />
-              <folding>
-                <element signature="e#0#43#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -263,7 +343,7 @@
         <entry file="file://$PROJECT_DIR$/models/test_submissions.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
               </folding>
@@ -281,28 +361,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="photo.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/photo.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="206">
-              <caret line="301" column="24" lean-forward="false" selection-start-line="301" selection-start-column="23" selection-end-line="301" selection-end-column="24" />
-              <folding>
-                <element signature="e#0#17#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="test_photo.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_photo.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="252">
-              <caret line="14" column="0" lean-forward="false" selection-start-line="13" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="category.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models/category.py">
           <provider selected="true" editor-type-id="text-editor">
@@ -310,18 +368,6 @@
               <caret line="72" column="16" lean-forward="false" selection-start-line="72" selection-start-column="16" selection-end-line="72" selection-end-column="16" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="test_voting.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_voting.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="288">
-              <caret line="16" column="0" lean-forward="true" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
-              <folding>
-                <element signature="e#0#29#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -340,12 +386,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>CategoryBallot</find>
-      <find>/vote</find>
-      <find>/jpeg/</find>
-      <find>url:</find>
-      <find>/photo</find>
-      <find>import dbsetup</find>
       <find>json.</find>
       <find>[/base</find>
       <find>UPLOADING</find>
@@ -370,6 +410,12 @@
       <find>create_category</find>
       <find>.</find>
       <find>1.3.6</find>
+      <find>/forgot</find>
+      <find>imag</find>
+      <find>img</find>
+      <find>img/</find>
+      <find>css/</find>
+      <find>js/</find>
     </findStrings>
     <replaceStrings>
       <replace>Photo</replace>
@@ -387,6 +433,8 @@
       <replace>api_key: []</replace>
       <replace>SAMSUNG2</replace>
       <replace>#-#</replace>
+      <replace>../css/</replace>
+      <replace>../js/</replace>
     </replaceStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$/models</dir>
@@ -407,9 +455,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/tests/test_resource.py" />
-        <option value="$PROJECT_DIR$/swagger-ui/dist/index.html" />
-        <option value="$PROJECT_DIR$/iiMemoize.py" />
         <option value="$PROJECT_DIR$/tests/test_REST_voting.py" />
         <option value="$PROJECT_DIR$/models/resources.py" />
         <option value="$PROJECT_DIR$/tests/test_iiServerErrors.py" />
@@ -438,7 +483,6 @@
         <option value="$PROJECT_DIR$/cache/ExpiryCache.py" />
         <option value="$PROJECT_DIR$/models/error.py" />
         <option value="$PROJECT_DIR$/www/en-US/landing/google_analytics.js" />
-        <option value="$PROJECT_DIR$/www/en-US/landing/index.html" />
         <option value="$PROJECT_DIR$/www/en-US/landing/terms-of-service.html" />
         <option value="$PROJECT_DIR$/www/en-US/landing/privacy-policy.html" />
         <option value="$PROJECT_DIR$/tests/test_user.py" />
@@ -457,6 +501,10 @@
         <option value="$PROJECT_DIR$/tests/test_REST_login.py" />
         <option value="$PROJECT_DIR$/models/userprofile.py" />
         <option value="$PROJECT_DIR$/models/test_submissions.py" />
+        <option value="$PROJECT_DIR$/www/en-US/privacy/terms-of-service.html" />
+        <option value="$PROJECT_DIR$/www/en-US/privacy/community-guidelines.html" />
+        <option value="$PROJECT_DIR$/www/en-US/privacy/privacy-policy.html" />
+        <option value="$PROJECT_DIR$/www/en-US/landing/index.html" />
         <option value="$PROJECT_DIR$/iiServer.py" />
       </list>
     </option>
@@ -504,7 +552,27 @@
             <path>
               <item name="genesis" type="b2602c69:ProjectViewProjectNode" />
               <item name="genesis" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="www" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="genesis" type="b2602c69:ProjectViewProjectNode" />
+              <item name="genesis" type="462c0819:PsiDirectoryNode" />
+              <item name="www" type="462c0819:PsiDirectoryNode" />
+              <item name="en-US" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="genesis" type="b2602c69:ProjectViewProjectNode" />
+              <item name="genesis" type="462c0819:PsiDirectoryNode" />
+              <item name="www" type="462c0819:PsiDirectoryNode" />
+              <item name="en-US" type="462c0819:PsiDirectoryNode" />
+              <item name="landing" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="genesis" type="b2602c69:ProjectViewProjectNode" />
+              <item name="genesis" type="462c0819:PsiDirectoryNode" />
+              <item name="www" type="462c0819:PsiDirectoryNode" />
+              <item name="en-US" type="462c0819:PsiDirectoryNode" />
+              <item name="privacy" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -1075,9 +1143,6 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Unittests_for_test_submissions_TestSubmissions_test_submissions_with_data - 2017.08.10 at 16h 55m 29s.xml">
-      <configuration name="Unittests for test_submissions.TestSubmissions.test_submissions_with_data" configurationId="tests" />
-    </history-entry>
     <history-entry file="Unittests_for_test_submissions_TestSubmissions_test_submissions_with_data - 2017.08.10 at 16h 56m 44s.xml">
       <configuration name="Unittests for test_submissions.TestSubmissions.test_submissions_with_data" configurationId="tests" />
     </history-entry>
@@ -1105,6 +1170,9 @@
     <history-entry file="Unittests_in_tests - 2017.08.10 at 17h 14m 07s.xml">
       <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
+    <history-entry file="Unittests_in_tests - 2017.08.12 at 11h 07m 29s.xml">
+      <configuration name="Unittests in tests" configurationId="tests" />
+    </history-entry>
   </component>
   <component name="ToolWindowManager">
     <frame x="180" y="48" width="1581" height="1012" extended-state="0" />
@@ -1114,7 +1182,7 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5052083" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32941177" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.30907056" sideWeight="0.4953125" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.30907056" sideWeight="0.4953125" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17963314" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1217,12 +1285,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>1165</line>
+          <line>1169</line>
           <option name="timeStamp" value="850" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>1169</line>
+          <line>1173</line>
           <option name="timeStamp" value="855" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1242,7 +1310,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>1612</line>
+          <line>1616</line>
           <option name="timeStamp" value="1125" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1352,7 +1420,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>1233</line>
+          <line>1237</line>
           <option name="timeStamp" value="1409" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1376,7 +1444,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>1742</line>
+          <line>1746</line>
           <option name="timeStamp" value="1428" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1400,44 +1468,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/tests/opencv_tester.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="857">
-          <caret line="104" column="0" lean-forward="true" selection-start-line="70" selection-start-column="0" selection-end-line="112" selection-end-column="18" />
-          <folding>
-            <element signature="e#0#15#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.PyCharm2017.1/system/python_stubs/-1247971764/cv2/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="3404" column="4" lean-forward="false" selection-start-line="3404" selection-start-column="4" selection-end-line="3404" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/lib/python3/dist-packages/apport_python_hook.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="846">
-          <caret line="48" column="0" lean-forward="false" selection-start-line="48" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/install-opencv.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="558">
-          <caret line="31" column="11" lean-forward="false" selection-start-line="31" selection-start-column="11" selection-end-line="31" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/local/lib/python3.5/dist-packages/piexif/_dump.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="186">
-          <caret line="67" column="0" lean-forward="false" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.PyCharm2017.2/system/python_stubs/-1247971764/numpy/core/multiarray.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
@@ -1741,7 +1771,7 @@
     <entry file="file://$PROJECT_DIR$/tests/test_voting.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="288">
-          <caret line="16" column="0" lean-forward="true" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+          <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
           </folding>
@@ -1795,20 +1825,85 @@
     <entry file="file://$PROJECT_DIR$/models/test_submissions.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/www/en-US/landing/css/index.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="33" lean-forward="false" selection-start-line="0" selection-start-column="33" selection-end-line="0" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/www/en-US/privacy/terms-of-service.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="400">
+          <caret line="246" column="0" lean-forward="false" selection-start-line="238" selection-start-column="0" selection-end-line="246" selection-end-column="0" />
+          <folding>
+            <element signature="n#style#0;n#ul#0;n#section#12;n#full#0;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="e#30030#30036#0#HTML" expanded="true" />
+            <element signature="e#30038#30044#0#HTML" expanded="true" />
+            <element signature="e#30145#30151#0#HTML" expanded="true" />
+            <element signature="e#30153#30159#0#HTML" expanded="true" />
+            <element signature="e#30272#30278#0#HTML" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/www/en-US/privacy/community-guidelines.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="158" column="0" lean-forward="false" selection-start-line="158" selection-start-column="0" selection-end-line="158" selection-end-column="0" />
+          <folding>
+            <element signature="e#7837#7843#0#HTML" expanded="true" />
+            <element signature="e#7845#7851#0#HTML" expanded="true" />
+            <element signature="e#7952#7958#0#HTML" expanded="true" />
+            <element signature="e#7960#7966#0#HTML" expanded="true" />
+            <element signature="e#8079#8085#0#HTML" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/www/en-US/privacy/privacy-policy.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="522">
+          <caret line="41" column="61" lean-forward="true" selection-start-line="41" selection-start-column="61" selection-end-line="41" selection-end-column="61" />
+          <folding>
+            <element signature="e#17646#17652#0#HTML" expanded="true" />
+            <element signature="e#17654#17660#0#HTML" expanded="true" />
+            <element signature="e#17761#17767#0#HTML" expanded="true" />
+            <element signature="e#17769#17775#0#HTML" expanded="true" />
+            <element signature="e#17888#17894#0#HTML" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/www/en-US/landing/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="23" column="0" lean-forward="false" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+          <folding>
+            <element signature="e#4278#4284#0#HTML" expanded="true" />
+            <element signature="e#4286#4292#0#HTML" expanded="true" />
+            <element signature="e#4393#4399#0#HTML" expanded="true" />
+            <element signature="e#4401#4407#0#HTML" expanded="true" />
+            <element signature="e#4520#4526#0#HTML" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/iiServer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="206">
-          <caret line="240" column="27" lean-forward="false" selection-start-line="240" selection-start-column="27" selection-end-line="240" selection-end-column="27" />
+        <state relative-caret-position="108">
+          <caret line="234" column="0" lean-forward="false" selection-start-line="234" selection-start-column="0" selection-end-line="234" selection-end-column="0" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
-            <marker date="1502400622582" expanded="true" signature="10562:10587" ph="select * fro... event" />
+            <marker date="1502549890504" expanded="true" signature="10712:10737" ph="select * fro... event" />
           </folding>
         </state>
       </provider>
