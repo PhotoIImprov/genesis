@@ -6,7 +6,6 @@ import urllib.parse
 from datetime import datetime, timedelta
 import requests
 import sqlalchemy.orm
-from typing import Type
 
 class BaseURL(Base):
     __tablename__ = 'baseurl'
