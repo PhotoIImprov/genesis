@@ -8,12 +8,12 @@
             var ua = navigator.userAgent.toLowerCase();
             var isAndroid = ua.indexOf("android") > -1 && ua.indexOf("mobile") > -1;
             if (isAndroid) {
-                window.location("https://play.google.com/store/apps/details?id=com.imageimprov&amp;hl=en");
+                window.location.replace('https://play.google.com/store/apps/details?id=com.imageimprov&amp;hl=en');
             }
 
             var isApple = ua.indexOf("iphone") > -1 || ua.indexOf("ipod") > -1;
             if (isApple){
-                 window.location("https://itunes.apple.com/us/app/image-improv/id1254121461?mt=8");
+                 window.location.replace('https://itunes.apple.com/us/app/image-improv/id1254121461?mt=8');
             }
         </script>
         <meta charset="utf-8">
