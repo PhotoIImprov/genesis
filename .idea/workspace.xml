@@ -5,7 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/en-US/css/main.css" afterPath="$PROJECT_DIR$/www/en-US/css/main.css" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/en-US/policy/community-guidelines.html" afterPath="$PROJECT_DIR$/www/en-US/policy/community-guidelines.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/en-US/policy/terms-of-service.html" afterPath="$PROJECT_DIR$/www/en-US/policy/terms-of-service.html" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -237,11 +238,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="main.css" pinned="false" current-in-tab="true">
+      <file leaf-file-name="main.css" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/www/en-US/css/main.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="312">
-              <caret line="260" column="0" lean-forward="false" selection-start-line="260" selection-start-column="0" selection-end-line="260" selection-end-column="0" />
+            <state relative-caret-position="150">
+              <caret line="251" column="0" lean-forward="true" selection-start-line="251" selection-start-column="0" selection-end-line="251" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -250,14 +251,15 @@
       <file leaf-file-name="community-guidelines.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/www/en-US/policy/community-guidelines.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="175">
-              <caret line="16" column="31" lean-forward="false" selection-start-line="16" selection-start-column="28" selection-end-line="16" selection-end-column="31" />
+            <state relative-caret-position="-5">
+              <caret line="24" column="45" lean-forward="true" selection-start-line="24" selection-start-column="45" selection-end-line="24" selection-end-column="45" />
               <folding>
-                <element signature="e#7840#7846#0#HTML" expanded="true" />
-                <element signature="e#7848#7854#0#HTML" expanded="true" />
-                <element signature="e#7958#7964#0#HTML" expanded="true" />
-                <element signature="e#7966#7972#0#HTML" expanded="true" />
-                <element signature="e#8088#8094#0#HTML" expanded="true" />
+                <element signature="n#style#0;n#full#0;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="e#7869#7875#0#HTML" expanded="true" />
+                <element signature="e#7877#7883#0#HTML" expanded="true" />
+                <element signature="e#7987#7993#0#HTML" expanded="true" />
+                <element signature="e#7995#8001#0#HTML" expanded="true" />
+                <element signature="e#8117#8123#0#HTML" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -315,18 +317,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="terms-of-service.html" pinned="false" current-in-tab="false">
+      <file leaf-file-name="terms-of-service.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/www/en-US/policy/terms-of-service.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="175">
-              <caret line="253" column="31" lean-forward="false" selection-start-line="253" selection-start-column="28" selection-end-line="253" selection-end-column="31" />
+            <state relative-caret-position="432">
+              <caret line="39" column="48" lean-forward="false" selection-start-line="39" selection-start-column="48" selection-end-line="39" selection-end-column="48" />
               <folding>
+                <element signature="n#style#0;n#full#0;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#ul#0;n#section#12;n#full#0;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="e#30036#30042#0#HTML" expanded="true" />
-                <element signature="e#30044#30050#0#HTML" expanded="true" />
-                <element signature="e#30154#30160#0#HTML" expanded="true" />
-                <element signature="e#30162#30168#0#HTML" expanded="true" />
-                <element signature="e#30284#30290#0#HTML" expanded="true" />
+                <element signature="e#30064#30070#0#HTML" expanded="true" />
+                <element signature="e#30072#30078#0#HTML" expanded="true" />
+                <element signature="e#30182#30188#0#HTML" expanded="true" />
+                <element signature="e#30190#30196#0#HTML" expanded="true" />
+                <element signature="e#30312#30318#0#HTML" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -383,10 +386,10 @@
       <find>/js</find>
       <find>img/</find>
       <find>main.js</find>
-      <find>js/</find>
       <find>.white</find>
       <find>pattern</find>
       <find>aside</find>
+      <find>js/</find>
     </findStrings>
     <replaceStrings>
       <replace>Photo</replace>
@@ -404,8 +407,8 @@
       <replace>api_key: []</replace>
       <replace>SAMSUNG2</replace>
       <replace>#-#</replace>
-      <replace>../js/</replace>
       <replace>../css/</replace>
+      <replace>../js/</replace>
     </replaceStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$/models</dir>
@@ -472,11 +475,11 @@
         <option value="$PROJECT_DIR$/www/en-US/privacy/terms-of-service.html" />
         <option value="$PROJECT_DIR$/www/en-US/privacy/privacy-policy.html" />
         <option value="$PROJECT_DIR$/www/en-US/privacy/community-guidelines.html" />
-        <option value="$PROJECT_DIR$/www/en-US/policy/terms-of-service.html" />
         <option value="$PROJECT_DIR$/www/en-US/landing/index.html" />
-        <option value="$PROJECT_DIR$/www/en-US/policy/community-guidelines.html" />
         <option value="$PROJECT_DIR$/www/en-US/policy/privacy-policy.html" />
         <option value="$PROJECT_DIR$/www/en-US/css/main.css" />
+        <option value="$PROJECT_DIR$/www/en-US/policy/community-guidelines.html" />
+        <option value="$PROJECT_DIR$/www/en-US/policy/terms-of-service.html" />
       </list>
     </option>
   </component>
@@ -1829,35 +1832,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/www/en-US/policy/terms-of-service.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="175">
-          <caret line="253" column="31" lean-forward="false" selection-start-line="253" selection-start-column="28" selection-end-line="253" selection-end-column="31" />
-          <folding>
-            <element signature="n#style#0;n#ul#0;n#section#12;n#full#0;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="e#30036#30042#0#HTML" expanded="true" />
-            <element signature="e#30044#30050#0#HTML" expanded="true" />
-            <element signature="e#30154#30160#0#HTML" expanded="true" />
-            <element signature="e#30162#30168#0#HTML" expanded="true" />
-            <element signature="e#30284#30290#0#HTML" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/www/en-US/policy/community-guidelines.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="175">
-          <caret line="16" column="31" lean-forward="false" selection-start-line="16" selection-start-column="28" selection-end-line="16" selection-end-column="31" />
-          <folding>
-            <element signature="e#7840#7846#0#HTML" expanded="true" />
-            <element signature="e#7848#7854#0#HTML" expanded="true" />
-            <element signature="e#7958#7964#0#HTML" expanded="true" />
-            <element signature="e#7966#7972#0#HTML" expanded="true" />
-            <element signature="e#8088#8094#0#HTML" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/www/en-US/landing/index.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="288">
@@ -1888,9 +1862,40 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/www/en-US/css/main.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="312">
-          <caret line="260" column="0" lean-forward="false" selection-start-line="260" selection-start-column="0" selection-end-line="260" selection-end-column="0" />
+        <state relative-caret-position="150">
+          <caret line="251" column="0" lean-forward="true" selection-start-line="251" selection-start-column="0" selection-end-line="251" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/www/en-US/policy/community-guidelines.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-5">
+          <caret line="24" column="45" lean-forward="true" selection-start-line="24" selection-start-column="45" selection-end-line="24" selection-end-column="45" />
+          <folding>
+            <element signature="n#style#0;n#full#0;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="e#7869#7875#0#HTML" expanded="true" />
+            <element signature="e#7877#7883#0#HTML" expanded="true" />
+            <element signature="e#7987#7993#0#HTML" expanded="true" />
+            <element signature="e#7995#8001#0#HTML" expanded="true" />
+            <element signature="e#8117#8123#0#HTML" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/www/en-US/policy/terms-of-service.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="432">
+          <caret line="39" column="48" lean-forward="false" selection-start-line="39" selection-start-column="48" selection-end-line="39" selection-end-column="48" />
+          <folding>
+            <element signature="n#style#0;n#full#0;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#ul#0;n#section#12;n#full#0;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="e#30064#30070#0#HTML" expanded="true" />
+            <element signature="e#30072#30078#0#HTML" expanded="true" />
+            <element signature="e#30182#30188#0#HTML" expanded="true" />
+            <element signature="e#30190#30196#0#HTML" expanded="true" />
+            <element signature="e#30312#30318#0#HTML" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
