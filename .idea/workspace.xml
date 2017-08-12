@@ -5,7 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/en-US/landing/index.html" afterPath="$PROJECT_DIR$/www/en-US/landing/index.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/en-US/css/main.css" afterPath="$PROJECT_DIR$/www/en-US/css/main.css" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -221,11 +221,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="index.html" pinned="false" current-in-tab="true">
+      <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/www/en-US/landing/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="162">
-              <caret line="9" column="0" lean-forward="false" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+            <state relative-caret-position="206">
+              <caret line="19" column="37" lean-forward="false" selection-start-line="19" selection-start-column="37" selection-end-line="19" selection-end-column="37" />
               <folding>
                 <element signature="e#4321#4327#0#HTML" expanded="true" />
                 <element signature="e#4329#4335#0#HTML" expanded="true" />
@@ -237,11 +237,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="main.css" pinned="false" current-in-tab="false">
+      <file leaf-file-name="main.css" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/www/en-US/css/main.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="24">
-              <caret line="238" column="0" lean-forward="true" selection-start-line="238" selection-start-column="0" selection-end-line="238" selection-end-column="0" />
+            <state relative-caret-position="234">
+              <caret line="133" column="24" lean-forward="false" selection-start-line="133" selection-start-column="24" selection-end-line="133" selection-end-column="24" />
               <folding />
             </state>
           </provider>
@@ -359,7 +359,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>FACE</find>
       <find>valid_</find>
       <find>/base</find>
       <find>max</find>
@@ -389,6 +388,7 @@
       <find>aside</find>
       <find>js/</find>
       <find>pattern</find>
+      <find>pattern.png</find>
     </findStrings>
     <replaceStrings>
       <replace>Photo</replace>
@@ -474,11 +474,11 @@
         <option value="$PROJECT_DIR$/www/en-US/privacy/terms-of-service.html" />
         <option value="$PROJECT_DIR$/www/en-US/privacy/privacy-policy.html" />
         <option value="$PROJECT_DIR$/www/en-US/privacy/community-guidelines.html" />
-        <option value="$PROJECT_DIR$/www/en-US/css/main.css" />
         <option value="$PROJECT_DIR$/www/en-US/policy/community-guidelines.html" />
         <option value="$PROJECT_DIR$/www/en-US/policy/terms-of-service.html" />
         <option value="$PROJECT_DIR$/www/en-US/policy/privacy-policy.html" />
         <option value="$PROJECT_DIR$/www/en-US/landing/index.html" />
+        <option value="$PROJECT_DIR$/www/en-US/css/main.css" />
       </list>
     </option>
   </component>
@@ -1876,18 +1876,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/www/en-US/css/main.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="24">
-          <caret line="238" column="0" lean-forward="true" selection-start-line="238" selection-start-column="0" selection-end-line="238" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/www/en-US/landing/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="9" column="0" lean-forward="false" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+        <state relative-caret-position="206">
+          <caret line="19" column="37" lean-forward="false" selection-start-line="19" selection-start-column="37" selection-end-line="19" selection-end-column="37" />
           <folding>
             <element signature="e#4321#4327#0#HTML" expanded="true" />
             <element signature="e#4329#4335#0#HTML" expanded="true" />
@@ -1895,6 +1887,14 @@
             <element signature="e#4447#4453#0#HTML" expanded="true" />
             <element signature="e#4569#4575#0#HTML" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/www/en-US/css/main.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="133" column="24" lean-forward="false" selection-start-line="133" selection-start-column="24" selection-end-line="133" selection-end-column="24" />
+          <folding />
         </state>
       </provider>
     </entry>

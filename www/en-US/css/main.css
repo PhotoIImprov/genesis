@@ -131,6 +131,7 @@ nav a:hover {
 
 .main article h1 {
     font-size: 2em;
+    background: #FFFFFF;
 }
 
 .main aside {
@@ -161,7 +162,7 @@ nav a:hover {
 }
 
 .html {
-    background:#FFFFFF url("../img/pattern.png?crc=3813375867") repeat center center fixed;
+    background:#FFFFFF url("/en-US/img/pattern.png?crc=3813375867") repeat center center fixed;
 }
 
 .white {
