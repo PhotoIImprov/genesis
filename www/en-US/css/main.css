@@ -254,6 +254,7 @@ nav a:hover {
         align-self: center;
         align-content: center;
         width: 85%;
+        background: #FFFFFF;
     }
     .main article {
         float: left;
