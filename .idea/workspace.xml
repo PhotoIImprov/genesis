@@ -5,40 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/assets/google-play-badge.eps" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/community-guidlines.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/css/community-guidlines.css" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/css/index.css" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/css/master_a-master.css" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/css/nomq_index.css" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/css/nomq_preview_master_a-master.css" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/css/privacy-policy.css" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/css/site_global.css" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/css/terms-of-service.css" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/google_analytics.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/images/blank.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/images/download_on_the_app_store_badge_us-uk_135x40.svg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/images/download_on_the_app_store_badge_us-uk_135x40_poster_.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/images/favicon.ico" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/images/google-play-badge.svg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/images/google-play-badge_poster_.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/images/ii_appicon_ii_icon.svg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/images/ii_appicon_ii_icon_poster_.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/images/pattern.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/muse_manifest.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/privacy-policy.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/scripts/jquery-1.8.3.min.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/scripts/jquery.museresponsive.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/scripts/jquery.watch.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/scripts/museconfig.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/scripts/museutils.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/scripts/require.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/scripts/whatinput.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/sitemap.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/landing/terms-of-service.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/privacy/privacypolicy.html" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/iiServer.py" afterPath="$PROJECT_DIR$/iiServer.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/en-US/landing/index.html" afterPath="$PROJECT_DIR$/www/en-US/landing/index.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/admin.py" afterPath="$PROJECT_DIR$/models/admin.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/test_admin.py" afterPath="$PROJECT_DIR$/tests/test_admin.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -57,7 +25,7 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestMySubmissions.coverage" NAME="Unittests for test_REST_login.TestMySubmissions Coverage Results" MODIFIED="1502031162916" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_user_TestUserMgr_test_authenticate_not_exist_not_DEBUG.coverage" NAME="Unittests for test_user.TestUserMgr.test_authenticate_not_exist_not_DEBUG Coverage Results" MODIFIED="1496851987352" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_submissions_TestSubmissions_test_category_with_photos.coverage" NAME="Unittests for test_submissions.TestSubmissions.test_category_with_photos Coverage Results" MODIFIED="1502201256341" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/models" />
-    <SUITE FILE_PATH="coverage/genesis$Unittests_in_tests.coverage" NAME="Unittests in tests Coverage Results" MODIFIED="1502549890600" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_in_tests.coverage" NAME="Unittests in tests Coverage Results" MODIFIED="1502552846171" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_REST_login.coverage" NAME="Unittests in test_REST_login Coverage Results" MODIFIED="1493750940525" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_tests_test_REST_login_TestLeaderBoard_test_leaderboard.coverage" NAME="Unittests for tests.test_REST_login.TestLeaderBoard.test_leaderboard Coverage Results" MODIFIED="1492870420268" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestCategory_test_category_state.coverage" NAME="Unittests for test_REST_login.TestCategory.test_category_state Coverage Results" MODIFIED="1498563108767" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -241,7 +209,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/iiServer.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="108">
@@ -286,6 +254,40 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="admin.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/models/admin.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-918">
+              <caret line="6" column="0" lean-forward="false" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test_admin.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/tests/test_admin.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="342">
+              <caret line="19" column="0" lean-forward="false" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#29#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="usermgr.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/models/usermgr.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="206">
+              <caret line="75" column="36" lean-forward="false" selection-start-line="75" selection-start-column="36" selection-end-line="75" selection-end-column="36" />
+              <folding>
+                <element signature="e#0#43#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="privacy-policy.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/www/en-US/privacy/privacy-policy.html">
           <provider selected="true" editor-type-id="text-editor">
@@ -319,26 +321,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="userprofile.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/userprofile.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="342">
-              <caret line="76" column="37" lean-forward="false" selection-start-line="76" selection-start-column="37" selection-end-line="76" selection-end-column="37" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="attr.py" pinned="false" current-in-tab="false">
-        <entry file="file:///usr/local/lib/python3.5/dist-packages/sqlalchemy/event/attr.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="168">
-              <caret line="255" column="0" lean-forward="false" selection-start-line="255" selection-start-column="0" selection-end-line="255" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="test_submissions.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models/test_submissions.py">
           <provider selected="true" editor-type-id="text-editor">
@@ -361,18 +343,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="category.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/category.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="252">
-              <caret line="72" column="16" lean-forward="false" selection-start-line="72" selection-start-column="16" selection-end-line="72" selection-end-column="16" />
-              <folding>
-                <element signature="e#0#12#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
     </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
@@ -386,9 +356,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>json.</find>
-      <find>[/base</find>
-      <find>UPLOADING</find>
       <find>uuid1</find>
       <find>forgot</find>
       <find>encode</find>
@@ -416,6 +383,9 @@
       <find>img/</find>
       <find>css/</find>
       <find>js/</find>
+      <find>usermgr.</find>
+      <find>admin.</find>
+      <find>ForgotPassword</find>
     </findStrings>
     <replaceStrings>
       <replace>Photo</replace>
@@ -433,8 +403,8 @@
       <replace>api_key: []</replace>
       <replace>SAMSUNG2</replace>
       <replace>#-#</replace>
-      <replace>../css/</replace>
       <replace>../js/</replace>
+      <replace>../css/</replace>
     </replaceStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$/models</dir>
@@ -496,8 +466,6 @@
         <option value="$PROJECT_DIR$/tests/test_voting.py" />
         <option value="$PROJECT_DIR$/models/usermgr.py" />
         <option value="$PROJECT_DIR$/initschema.py" />
-        <option value="$PROJECT_DIR$/tests/test_admin.py" />
-        <option value="$PROJECT_DIR$/models/admin.py" />
         <option value="$PROJECT_DIR$/tests/test_REST_login.py" />
         <option value="$PROJECT_DIR$/models/userprofile.py" />
         <option value="$PROJECT_DIR$/models/test_submissions.py" />
@@ -506,6 +474,8 @@
         <option value="$PROJECT_DIR$/www/en-US/privacy/privacy-policy.html" />
         <option value="$PROJECT_DIR$/www/en-US/landing/index.html" />
         <option value="$PROJECT_DIR$/iiServer.py" />
+        <option value="$PROJECT_DIR$/models/admin.py" />
+        <option value="$PROJECT_DIR$/tests/test_admin.py" />
       </list>
     </option>
   </component>
@@ -1636,16 +1606,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_admin.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="324">
-          <caret line="18" column="0" lean-forward="false" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#29#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/local/lib/python3.5/dist-packages/sqlalchemy/engine/base.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="159">
@@ -1691,26 +1651,6 @@
         <state relative-caret-position="159">
           <caret line="236" column="0" lean-forward="false" selection-start-line="236" selection-start-column="0" selection-end-line="236" selection-end-column="0" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/models/admin.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="258">
-          <caret line="97" column="23" lean-forward="true" selection-start-line="97" selection-start-column="23" selection-end-line="97" selection-end-column="23" />
-          <folding>
-            <element signature="e#0#83#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/models/usermgr.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="79" column="0" lean-forward="false" selection-start-line="79" selection-start-column="0" selection-end-line="79" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#43#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1904,6 +1844,34 @@
           <folding>
             <element signature="e#0#15#0" expanded="true" />
             <marker date="1502549890504" expanded="true" signature="10712:10737" ph="select * fro... event" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/usermgr.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="206">
+          <caret line="75" column="36" lean-forward="false" selection-start-line="75" selection-start-column="36" selection-end-line="75" selection-end-column="36" />
+          <folding>
+            <element signature="e#0#43#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/admin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-918">
+          <caret line="6" column="0" lean-forward="false" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_admin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="19" column="0" lean-forward="false" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#29#0" expanded="true" />
           </folding>
         </state>
       </provider>

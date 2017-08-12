@@ -16,7 +16,7 @@ class TestCSRFevent(DatabaseTest):
         assert(u is not None)
 
         fpwd = admin.ForgotPassword()
-        http_status = fpwd.forgot_password(self.session, u)
+        http_status = fpwd.forgot_password(self.session, u.id, u.emailaddress)
         assert(http_status == 200)
 
         self.teardown()

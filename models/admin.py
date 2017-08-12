@@ -4,7 +4,6 @@ from logsetup import logger
 from uuid import uuid4
 import urllib.parse
 from datetime import datetime, timedelta
-from models import usermgr
 import requests
 import sqlalchemy.orm
 from typing import Type
@@ -91,7 +90,7 @@ class ForgotPassword():
         '''
         return res.status_code
 
-    def forgot_password(self, session: sqlalchemy.orm.session, u) -> int:
+    def forgot_password(self, session: sqlalchemy.orm.session, uid: int, emailaddress: str) -> int:
         '''
         User has forgotten their password, generate an email with a link so
         they can reset it.
@@ -100,10 +99,10 @@ class ForgotPassword():
         :return: HTTP status, =200 OK, all else is an error
         '''
         try:
-            csrf_event = CSRFevent(u.id, 24)
+            csrf_event = CSRFevent(uid, 24)
             session.add(csrf_event)
             session.commit()
-            http_status = self.send_password_email(u.emailaddress, csrf_event.csrf)
+            http_status = self.send_password_email(emailaddress, csrf_event.csrf)
         except Exception as e:
             http_status = 500
         finally:
