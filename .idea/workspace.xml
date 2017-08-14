@@ -5,18 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/www/en-US/user/passwordchanged.html" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/en-US/policy/resetpassword.html" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/iiServer.py" afterPath="$PROJECT_DIR$/iiServer.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/logsetup.py" afterPath="$PROJECT_DIR$/logsetup.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/admin.py" afterPath="$PROJECT_DIR$/models/admin.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/requirements.txt" afterPath="$PROJECT_DIR$/requirements.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/test_admin.py" afterPath="$PROJECT_DIR$/tests/test_admin.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/en-US/policy/community-guidelines.html" afterPath="$PROJECT_DIR$/www/en-US/policy/community-guidelines.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/en-US/policy/privacy-policy.html" afterPath="$PROJECT_DIR$/www/en-US/policy/privacy-policy.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/en-US/policy/terms-of-service.html" afterPath="$PROJECT_DIR$/www/en-US/policy/terms-of-service.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/en-US/user/resetpassword.html" afterPath="$PROJECT_DIR$/www/en-US/user/resetpassword.html" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -255,11 +244,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="resetpassword.html" pinned="false" current-in-tab="true">
+      <file leaf-file-name="resetpassword.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/www/en-US/user/resetpassword.html">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="108">
               <caret line="63" column="16" lean-forward="true" selection-start-line="63" selection-start-column="16" selection-end-line="63" selection-end-column="16" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="requirements.txt" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/requirements.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="72">
+              <caret line="4" column="12" lean-forward="false" selection-start-line="4" selection-start-column="12" selection-end-line="4" selection-end-column="12" />
               <folding />
             </state>
           </provider>
@@ -281,18 +280,6 @@
             <state relative-caret-position="90">
               <caret line="5" column="10" lean-forward="true" selection-start-line="5" selection-start-column="10" selection-end-line="5" selection-end-column="10" />
               <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="test_admin.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_admin.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="10" column="33" lean-forward="false" selection-start-line="10" selection-start-column="33" selection-end-line="10" selection-end-column="33" />
-              <folding>
-                <element signature="e#0#29#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -463,7 +450,6 @@
         <option value="$PROJECT_DIR$/www/en-US/user/passwordreset.html" />
         <option value="$PROJECT_DIR$/logsetup.py" />
         <option value="$PROJECT_DIR$/crossdomain.py" />
-        <option value="$PROJECT_DIR$/requirements.txt" />
         <option value="$PROJECT_DIR$/www/en-US/user/resetpassword.html" />
         <option value="$PROJECT_DIR$/www/en-US/policy/community-guidelines.html" />
         <option value="$PROJECT_DIR$/www/en-US/policy/privacy-policy.html" />
@@ -471,6 +457,7 @@
         <option value="$PROJECT_DIR$/www/en-US/policy/terms-of-service.html" />
         <option value="$PROJECT_DIR$/models/admin.py" />
         <option value="$PROJECT_DIR$/iiServer.py" />
+        <option value="$PROJECT_DIR$/requirements.txt" />
       </list>
     </option>
   </component>
@@ -1720,14 +1707,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/requirements.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="8" column="0" lean-forward="false" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tests/test_category.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-72">
@@ -1827,6 +1806,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="108">
           <caret line="63" column="16" lean-forward="true" selection-start-line="63" selection-start-column="16" selection-end-line="63" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/requirements.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="72">
+          <caret line="4" column="12" lean-forward="false" selection-start-line="4" selection-start-column="12" selection-end-line="4" selection-end-column="12" />
           <folding />
         </state>
       </provider>
