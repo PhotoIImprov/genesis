@@ -1794,12 +1794,15 @@ def forgot_password():
         logger.info(msg='[/forgotpwd] email = {}'.format(emailaddress))
         u = usermgr.User.find_user_by_email(session, emailaddress)
         if u is not None:
+            logger.info(msg='[/forgotpwd] found user {0}'.format(u.id))
             cev = admin.CSRFevent(u.id, expiration_hours=24)
             if cev is not None:
                 session.add(cev)
                 cev.generate_csrf_token()
+                logger.info(msg='[/forgotpwd] token generated')
                 http_status = admin.send_forgot_password_email(u.emailaddress, cev.csrf)
                 session.commit()
+                logger.info(msg='[/forgotpwd] csrf event writtent to db')
                 rsp = make_response('new password sent via email', status.HTTP_200_OK)
             else:
                 msg = "error creating csrf token"
