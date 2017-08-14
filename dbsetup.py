@@ -72,7 +72,7 @@ def resource_files(environment):
 
     return None
 
-def image_store(environment):
+def image_store(environment: EnvironmentType) -> str:
     if environment == EnvironmentType.DEV:
         return '/mnt/image_files'
 
@@ -80,6 +80,29 @@ def image_store(environment):
         return '/mnt/gcs-photos'
 
     return None
+
+def template_dir(environment: EnvironmentType) -> str:
+
+    if environment is None:
+        environment = determine_environment(None)
+
+    if environment == EnvironmentType.DEV:
+        return '/home/hcollins/dev/genesis/templates'
+
+    if environment == EnvironmentType.PROD:
+        return '/home/bp100a/genesis/templates'
+
+    return None
+
+def root_url(environment: EnvironmentType) -> str:
+    if environment is None:
+        environment = determine_environment(None)
+
+    if environment == EnvironmentType.DEV:
+        return 'http://localhost:8080'
+
+    if environment == EnvironmentType.PROD:
+        return 'https://api.imageimprov.com'
 
 def is_gunicorn():
     _is_gunicorn = "gunicorn" in os.environ.get("SERVER_SOFTWARE", "")

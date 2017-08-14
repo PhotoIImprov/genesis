@@ -41,3 +41,16 @@ class TestDBsetup(TestCase):
     def test_ping_connection(self):
         dbsetup.ping_connection(None, True)
 
+    def test_template_dir(self):
+        template_dir = dbsetup.template_dir(dbsetup.EnvironmentType.DEV)
+        assert(template_dir == '/home/hcollins/dev/genesis/templates')
+
+        template_dir = dbsetup.template_dir(dbsetup.EnvironmentType.PROD)
+        assert(template_dir == '/home/bp100a/genesis/templates')
+
+    def test_base_url(self):
+        base_url = dbsetup.root_url(dbsetup.EnvironmentType.DEV)
+        assert(base_url == 'http://localhost:8080')
+
+        base_url = dbsetup.root_url(dbsetup.EnvironmentType.PROD)
+        assert(base_url == 'https://api.imageimprov.com')

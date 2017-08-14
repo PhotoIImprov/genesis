@@ -1797,7 +1797,7 @@ def forgot_password():
             if cev is not None:
                 session.add(cev)
                 cev.generate_csrf_token()
-                admin.send_forgot_password_email(u.emailaddress, cev.csrf)
+                http_status = admin.send_forgot_password_email(u.emailaddress, cev.csrf)
                 session.commit()
                 rsp = make_response('new password sent via email', status.HTTP_200_OK)
             else:
