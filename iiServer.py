@@ -1760,6 +1760,7 @@ def base_url():
     return make_response(jsonify({'base': url}), status.HTTP_200_OK)
 
 @app.route('/forgotpwd')
+@timeit()
 def forgot_password():
     """
     Forgot Password
@@ -1809,8 +1810,8 @@ def forgot_password():
             rsp = make_response(jsonify({'msg': error.error_string('EMAIL_NOT_FOUND')}), status.HTTP_404_NOT_FOUND)
     except Exception as e:
         session.rollback()
-        logger.exception(msg='[/forgotpwd] {0}'.format(str(e)))
-        rsp = make_response(jsonify({'msg': error.error_string('EMAIL_NOT_FOUND')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+        logger.exception(msg='[/forgotpwd]')
+        rsp = make_response(jsonify({'msg': '[/forgotpwd] error'}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         session.close()
         if rsp is None:

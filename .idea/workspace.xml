@@ -212,11 +212,11 @@
       <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/iiServer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="1811" column="0" lean-forward="false" selection-start-line="1811" selection-start-column="0" selection-end-line="1811" selection-end-column="0" />
+            <state relative-caret-position="72">
+              <caret line="1794" column="1" lean-forward="false" selection-start-line="1794" selection-start-column="1" selection-end-line="1794" selection-end-column="1" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
-                <marker date="1502742356510" expanded="true" signature="10899:10924" ph="select * fro... event" />
+                <marker date="1502742602826" expanded="true" signature="10899:10924" ph="select * fro... event" />
               </folding>
             </state>
           </provider>
@@ -374,8 +374,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>aside</find>
-      <find>pattern</find>
       <find>pattern.png</find>
       <find>article</find>
       <find>js/</find>
@@ -404,6 +402,8 @@
       <find>did not</find>
       <find>feedback@</find>
       <find>support_url</find>
+      <find>logger.excep</find>
+      <find>weird</find>
     </findStrings>
     <replaceStrings>
       <replace>Photo</replace>
@@ -1403,7 +1403,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>1856</line>
+          <line>1857</line>
           <option name="timeStamp" value="1453" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1873,11 +1873,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/iiServer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="1811" column="0" lean-forward="false" selection-start-line="1811" selection-start-column="0" selection-end-line="1811" selection-end-column="0" />
+        <state relative-caret-position="72">
+          <caret line="1794" column="1" lean-forward="false" selection-start-line="1794" selection-start-column="1" selection-end-line="1794" selection-end-column="1" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
-            <marker date="1502742356510" expanded="true" signature="10899:10924" ph="select * fro... event" />
+            <marker date="1502742602826" expanded="true" signature="10899:10924" ph="select * fro... event" />
           </folding>
         </state>
       </provider>
