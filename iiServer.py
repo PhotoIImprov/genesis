@@ -1813,6 +1813,8 @@ def forgot_password():
         rsp = make_response(jsonify({'msg': error.error_string('EMAIL_NOT_FOUND')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         session.close()
+        if rsp is None:
+            rsp = make_response(jsonify({'msg': 'weird error'}), status.HTTP_503_SERVICE_UNAVAILABLE)
         return rsp
 
 @app.route('/resetpwd', methods=['POST'])
