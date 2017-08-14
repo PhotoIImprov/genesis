@@ -5,6 +5,7 @@ from dbsetup import _DEBUG
 import time
 from functools import wraps
 
+
 logger = logging.getLogger('SQL_log')
 client_logger = logging.getLogger('Client_log')
 

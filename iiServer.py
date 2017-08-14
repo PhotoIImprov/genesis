@@ -32,6 +32,7 @@ from logsetup import logger, client_logger, timeit
 from urllib.parse import urlparse
 import uuid
 from models import userprofile
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
 app.debug = True
@@ -39,7 +40,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.3.8' #our version string PEP 440
+__version__ = '1.3.10' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -249,6 +250,10 @@ def hello():
                 "<li>v1.3.8</li>" \
                 "  <ul>" \
                 "  <li>custom web pages (no Muse!)</li>" \
+                "  </ul>" \
+                "<li>v1.3.10</li>" \
+                "  <ul>" \
+                "  <li>/resetpwd API (CORS)</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -1761,7 +1766,7 @@ def forgot_password():
     ---
     tags:
       - user
-    summary: "send a reset password link to a user's email address"
+    summary: "send a reset password link to a user's email address, password is NOT changed"
     operationId: forgot-password
     consumes:
       - text/html
@@ -1775,7 +1780,7 @@ def forgot_password():
         type: string
     responses:
       200:
-        description: "password reset, sent to email address"
+        description: "password reset link sent to email address"
       404:
         description: "emailaddress not found!"
         schema:
@@ -1788,10 +1793,19 @@ def forgot_password():
         logger.info(msg='[/forgotpwd] email = {}'.format(emailaddress))
         u = usermgr.User.find_user_by_email(session, emailaddress)
         if u is not None:
-            http_status = u.forgot_password(session)
-            session.commit()
-            rsp = make_response('new password sent via email', status.HTTP_200_OK)
+            cev = admin.CSRFevent(u.id, expiration_hours=24)
+            if cev is not None:
+                session.add(cev)
+                cev.generate_csrf_token()
+                admin.send_forgot_password_email(u.emailaddress, cev.csrf)
+                session.commit()
+                rsp = make_response('new password sent via email', status.HTTP_200_OK)
+            else:
+                msg = "error creating csrf token"
+                logger.error(msg=msg)
+                rsp = make_response(jsonify({'msg': msg}),status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
+            logger.error(msg="email address not found")
             rsp = make_response(jsonify({'msg': error.error_string('EMAIL_NOT_FOUND')}), status.HTTP_404_NOT_FOUND)
     except Exception as e:
         session.rollback()
@@ -1800,6 +1814,81 @@ def forgot_password():
     finally:
         session.close()
         return rsp
+
+@app.route('/resetpwd', methods=['POST'])
+@cross_origin(origins='*')
+@timeit()
+def reset_password():
+    """
+    Reset Password
+    ---
+    tags:
+      - admin
+    summary: "reset a user's password"
+    operationId: reset-password
+    consumes:
+      - text/html
+    produces:
+      - text/html
+    parameters:
+      - in: query
+        name: token
+        description: "a csrf token that uniquely identifies this activity"
+        required: true
+        type: string
+      - in: query
+        name: pwd
+        description: "The updated password"
+        required: true
+        type: string
+    responses:
+      200:
+        description: "password reset, notification email set"
+      403:
+        description: "token is invalid"
+        schema:
+          $ref: '#/definitions/Error'
+    """
+    rsp = None
+    session = dbsetup.Session()
+    try:
+        csrf = request.args.get('token')
+        pwd = request.args.get('pwd')
+        logger.info(msg='[/resetpwd] csrf = {}'.format(csrf))
+        cev = admin.CSRFevent.get_csrfevent(session, csrf)
+        if cev is None:
+            logger.error(msg="csrf event not found!")
+            http_status = status.HTTP_403_FORBIDDEN
+        else:
+            if not cev.isvalid():
+                http_status = status.HTTP_403_FORBIDDEN
+                logger.error(msg="[/resetpwd] csrf event is invalid, used or expired")
+            else:
+                u = usermgr.User.find_user_by_id(session, cev.user_id)
+                # change the password
+                u.change_password(session, pwd)
+                http_status = status.HTTP_200_OK
+                admin.send_reset_password_notification_email(u.emailaddress)
+                cev.markused() # invalidate from future usage!
+                session.commit()
+                logger.info(msg="[/resetpwd] user password reset")
+
+        if http_status == status.HTTP_200_OK:
+            msg = 'password updated, notification sent'
+        elif http_status == status.HTTP_403_FORBIDDEN:
+            msg = 'csrf token expired or has been used'
+        else:
+            msg = 'something bad happened'
+
+        rsp = make_response(jsonify({'msg': msg}), http_status)
+    except Exception as e:
+        session.rollback()
+        logger.exception(msg="[/resetpwd] exception resetting user's password")
+        rsp = make_response(jsonify({'msg': 'bad request'}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        session.close()
+
+    return rsp
 
 @app.route('/submissions/<string:dir>/<int:cid>')
 @jwt_required()

@@ -58,53 +58,80 @@ class CSRFevent(Base):
         url_safe_csrf = urllib.parse.quote_plus(csrf)
         return url_safe_csrf
 
+    @staticmethod
+    def get_csrfevent(session, token: str):
+        q = session.query(CSRFevent).filter_by(csrf = token)
+        ev = q.one()
+        return ev
 
-class ForgotPassword():
-    def send_password_email(self, emailaddress: str, csrf: str) -> int:
-        """
-        Send a link to the user where they can reset their password. The token
-        ensures what account is being reset.
-        :param emailaddress:
-        :param csrf:
+    def marked_used(self):
+        self.been_used = True
+
+    def isvalid(self)-> bool:
+        '''
+        we have a CSRFevent object from the database, is it still valid?
+
         :return:
-        """
-        mailgun_APIkey = 'key-6896c65db1a821c6e15ae34ae2ad94e9'  # shh! this is a secret
-        mailgun_SMTPpwd = 'e2b0c198a98ebf1f1a338bb4046352a1'
-        mailgun_baseURL = 'https://api.mailgun.net/v3/api.imageimprov.com/messages'
-        mail_body = "click on this link to reset your password: https://www.imageimprov.com/forgotpassword?token={0}".format(csrf)
+        '''
+        if self.been_used or self.expiration_date < datetime.now():
+            return False
 
-        res = requests.post(mailgun_baseURL,
-                            auth=("api", mailgun_APIkey),
-                            data={"from": "Forgot Password <noreply@imageimprov.com>",
-                                  "to": emailaddress,
-                                  "subject": "Password reset",
-                                  "text": mail_body})
-        '''
-            200 - Everything work as expected
-            400 - Bad Request - often missing required parameter
-            401 - Unauthorized - No valid API key provided
-            402 - Request failed - parameters were valid but request failed
-            404 - Not found - requested item doesn't exist
-            500, 502, 503, 504 - Server Errors - something wrong on Mailgun's end
-        '''
-        return res.status_code
+        return True
 
-    def forgot_password(self, session: sqlalchemy.orm.session, uid: int, emailaddress: str) -> int:
-        '''
-        User has forgotten their password, generate an email with a link so
-        they can reset it.
-        :param session:
-        :param u: user object
-        :return: HTTP status, =200 OK, all else is an error
-        '''
-        try:
-            csrf_event = CSRFevent(uid, 24)
-            session.add(csrf_event)
-            session.commit()
-            http_status = self.send_password_email(emailaddress, csrf_event.csrf)
-        except Exception as e:
-            http_status = 500
-        finally:
-            session.close()
-            return http_status
+def send_forgot_password_email(emailaddress: str, csrf: str) -> int:
+    """
+    Send a link to the user where they can reset their password. The token
+    ensures what account is being reset.
+    :param emailaddress:
+    :param csrf:
+    :return:
+    """
+    mailgun_APIkey = 'key-6896c65db1a821c6e15ae34ae2ad94e9'  # shh! this is a secret
+#    mailgun_SMTPpwd = 'e2b0c198a98ebf1f1a338bb4046352a1'
+    mailgun_baseURL = 'https://api.mailgun.net/v3/api.imageimprov.com/messages'
+    mail_body = "click on this link to reset your password: https://www.imageimprov.com/forgotpassword?token={0}".format(csrf)
 
+    res = requests.post(mailgun_baseURL,
+                        auth=("api", mailgun_APIkey),
+                        data={"from": "Forgot Password <noreply@imageimprov.com>",
+                              "to": emailaddress,
+                              "subject": "Password reset",
+                              "text": mail_body})
+    '''
+        200 - Everything work as expected
+        400 - Bad Request - often missing required parameter
+        401 - Unauthorized - No valid API key provided
+        402 - Request failed - parameters were valid but request failed
+        404 - Not found - requested item doesn't exist
+        500, 502, 503, 504 - Server Errors - something wrong on Mailgun's end
+    '''
+    return res.status_code
+
+def send_reset_password_notification_email(emailaddress) -> int:
+    """
+    Send a link to the user where they can reset their password. The token
+    ensures what account is being reset.
+    :param emailaddress:
+    :param csrf:
+    :return:
+    """
+    mailgun_APIkey = 'key-6896c65db1a821c6e15ae34ae2ad94e9'  # shh! this is a secret
+#    mailgun_SMTPpwd = 'e2b0c198a98ebf1f1a338bb4046352a1'
+    mailgun_baseURL = 'https://api.mailgun.net/v3/api.imageimprov.com/messages'
+    mail_body = "You're password has been changed!"
+
+    res = requests.post(mailgun_baseURL,
+                        auth=("api", mailgun_APIkey),
+                        data={"from": "Password Change <noreply@imageimprov.com>",
+                              "to": emailaddress,
+                              "subject": "Password Change notification",
+                              "text": mail_body})
+    '''
+        200 - Everything work as expected
+        400 - Bad Request - often missing required parameter
+        401 - Unauthorized - No valid API key provided
+        402 - Request failed - parameters were valid but request failed
+        404 - Not found - requested item doesn't exist
+        500, 502, 503, 504 - Server Errors - something wrong on Mailgun's end
+    '''
+    return res.status_code
