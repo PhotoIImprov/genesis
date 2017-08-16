@@ -17,19 +17,25 @@ class Submissions():
 
     def __init__(self, **kwargs):
         self._uid = kwargs.get('uid', None)
+        # dependency injection...
         self._categories_with_user_photos = kwargs.get('f_cat', self.categories_with_user_photos)
         self._photos_for_categories = kwargs.get('p_cat', self.photos_for_categories)
 
-    def categories_with_user_photos(self, session, dir: str, cid: int) -> list:
+    def categories_with_user_photos(self, session, dir: str, cid: int, num_categories: int) -> list:
+
+        if num_categories is None:
+            num_categories = 10000 # something big until we figure out how to dynamically add filters
 
         if dir == 'next':
             q = session.query(category.Category).filter(category.Category.id > cid). \
                 join(photo.Photo, photo.Photo.category_id == category.Category.id). \
-                filter(photo.Photo.user_id == self._uid)
+                filter(photo.Photo.user_id == self._uid). \
+                limit(num_categories)
         else:
             q = session.query(category.Category).filter(category.Category.id < cid). \
                 join(photo.Photo, photo.Photo.category_id == category.Category.id). \
-                filter(photo.Photo.user_id == self._uid)
+                filter(photo.Photo.user_id == self._uid). \
+                limit(num_categories)
 
         cl = q.all()
         return cl
@@ -47,7 +53,7 @@ class Submissions():
         pl = q.all()
         return pl
 
-    def get_user_submissions(self, session, dir: str, cid: int) -> dict:
+    def get_user_submissions(self, session, dir: str, cid: int, num_categories: int) -> dict:
         if self._uid is None:
             raise
 
@@ -62,7 +68,10 @@ class Submissions():
         return_dict = {'user': user_info}
 
         # get all the categories we care about
-        cl = self._categories_with_user_photos(session, dir, cid)
+        cl = self._categories_with_user_photos(session, dir, cid, num_categories)
+        if num_categories is not None:
+           del cl[num_categories:]
+
         pl = self._photos_for_categories(session, dir, cid)
         for c in cl:
             # create category's photo list

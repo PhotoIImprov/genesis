@@ -320,8 +320,13 @@ class UserAuth(Base):
         serviceprovider_uid = None
 
         if serviceprovider == 'FAKESERVICEPROVIDER':
-            serviceprovider_email = 'fakeuser@fakeserviceprovider.com'
-            serviceprovider_uid = 1
+            if debug_json is not None:
+                d = json.loads(debug_json.decode("utf-8"))
+                serviceprovider_uid = d['id']
+                serviceprovider_email = d['email']
+            else:
+                serviceprovider_email = 'fakeuser@fakeserviceprovider.com'
+                serviceprovider_uid = 123456
 
         if serviceprovider == 'FACEBOOK':
             try:

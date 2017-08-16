@@ -43,7 +43,7 @@ class TestSubmissions(DatabaseTest):
         self.setup()
         prf = userprofile.Submissions(uid=1)
         try:
-            d = prf.categories_with_user_photos(self.session, 'next', 1)
+            d = prf.categories_with_user_photos(self.session, 'next', 1, None)
             assert (not d)
         except Exception as e:
             assert (False)
@@ -70,7 +70,7 @@ class TestSubmissions(DatabaseTest):
 
     _category_list = None
 
-    def categories_with_user_photos(self, session, dir: str, cid: int) -> list:
+    def categories_with_user_photos(self, session, dir: str, cid: int, num_categories: int) -> list:
         # let's create some categories
         cl = []
         for i in range(10, 15):
@@ -91,7 +91,7 @@ class TestSubmissions(DatabaseTest):
 
         try:
             self._photo_idx = 1
-            d = prf.get_user_submissions(self.session, 'next', 0)
+            d = prf.get_user_submissions(self.session, 'next', 0, None)
             assert (bool(d))
             j_d = json.dumps(d)
         except Exception as e:
@@ -167,7 +167,7 @@ class TestSubmissions(DatabaseTest):
         num_categories = 10
         uid = self.create_submissions_test_data(num_categories=num_categories)
         profile = userprofile.Submissions(uid=uid)
-        d = profile.get_user_submissions(self.session, 'next', 0)
+        d = profile.get_user_submissions(self.session, 'next', 0, None)
         assert(d is not None)
         assert(len(d) == 2)
         submissions = d['submissions']
@@ -179,7 +179,7 @@ class TestSubmissions(DatabaseTest):
             c = submission['category']
             cid = c['id']
             submission_length = submission_length - 1
-            d_next = profile.get_user_submissions(self.session, 'next', cid)
+            d_next = profile.get_user_submissions(self.session, 'next', cid, None)
             assert(d_next is not None)
             if submission_length > 0:
                 c_submissions = d_next['submissions']
@@ -192,7 +192,7 @@ class TestSubmissions(DatabaseTest):
         for submission in submissions:
             c = submission['category']
             cid = c['id']
-            d_next = profile.get_user_submissions(self.session, 'prev', cid)
+            d_next = profile.get_user_submissions(self.session, 'prev', cid, None)
             assert(d_next is not None)
             if submission_length > 0:
                 c_submissions = d_next['submissions']

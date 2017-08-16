@@ -31,7 +31,7 @@ class BaseURL(Base):
 
         # user doesn't have anything special mapped for them,
         # so return the default URL
-        return default_url()
+        return BaseURL.default_url()
 
 class CSRFevent(Base):
     __tablename__ = "csrftoken"

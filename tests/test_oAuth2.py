@@ -12,6 +12,7 @@ import logging
 from sqlalchemy.sql import func
 from handlers import dbg_handler
 from logsetup import logger
+import json
 
 class Test_oAuth2(DatabaseTest):
 
@@ -19,12 +20,32 @@ class Test_oAuth2(DatabaseTest):
         self.setup()
 
         token = 'DUMMY TOKEN FOR FAKE SERVICE PROVIDER'
+        content = bytes('{"id": 12345678, "email": "testuser-oauth@imageimprov.com"}', 'utf-8')
+
         o = usermgr.UserAuth()
 
-        u = o.authenticate_user(self.session, token, 'FAKESERVICEPROVIDER')
+        u = o.authenticate_user(self.session, token, 'FAKESERVICEPROVIDER', debug_json=content)
         assert (u is not None)
         self.teardown()
 
+
+    def test_FAKESERVICEPROVIDER_create_account(self):
+        self.setup()
+
+        token = 'DUMMY TOKEN FOR FAKE SERVICE PROVIDER'
+        guid = str(uuid.uuid1()).upper().translate({ord(c): None for c in '-'})
+        emailaddress = 'testuser{0}@test.com'.format(guid)
+        id = 123456
+        d = {'id': id, 'email': emailaddress}
+        json_d = json.dumps(d)
+
+        content = bytes(json_d, 'utf-8')
+
+        o = usermgr.UserAuth()
+
+        u = o.authenticate_user(self.session, token, 'FAKESERVICEPROVIDER', debug_json=content)
+        assert (u is not None)
+        self.teardown()
 
     def test_is_oAuth2(self):
         assert(usermgr.UserAuth.is_oAuth2('Google', 'token') )

@@ -40,7 +40,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.3.10' #our version string PEP 440
+__version__ = '1.4.0' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -78,10 +78,10 @@ _jwt.auth_response_callback = usermgr.auth_response_handler # so we can add to t
 def spec():
     """
     Specification
-    #-#
+    ---
     tags:
       - admin
-    summary: "A JSON formatted OpenAPI/Swagger document formatting the API"
+    description: "A JSON formatted OpenAPI/Swagger document formatting the API"
     operationId: get-specification
     consumes:
       - text/html
@@ -105,11 +105,10 @@ def spec():
                                  "in order to enjoy our service, we fully support anonymous registration & play"\
                                  "\n\n"\
                                  "## Limits\n"\
-                                 "We are currently only allowing a single photo upload per category per period the "\
-                                 "category is open for uploading\n"
+                                 "Currently there are no limits on how many photos a user can upload to a single category.\n"
 
     swag['info']['contact'] = {'name':'apimaster@imageimprov.com'}
-    swag['schemes'] = ['http', 'https']
+    swag['schemes'] = ['https']
     swag['host'] = "api.imageimprov.com"
 
     swag['paths']["/auth"] = {'post':{'consumes': ['application/json'],
@@ -203,7 +202,7 @@ def hello():
     ---
     tags:
       - admin
-    summary: "Simple page that checks some connections to make sure we are setup properly"
+    description: "Simple page that checks some connections to make sure we are setup properly"
     operationId: get-configuration
     consumes:
       - text/html
@@ -228,21 +227,6 @@ def hello():
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
     htmlbody += "<ul>" \
-                "<li>watermark images</li>" \
-                "<li>metadata tagging</li>" \
-                "<li>Active Photos</li>" \
-                "<li>oAuth2 support Facebook & Google</li>" \
-                "<li>Optimized PIL thumbnail generation</li>" \
-                "<li>Base URL!</li>" \
-                "<li>Binary file upload</li>" \
-                "<li>v1.3.5</li>" \
-                "  <ul>"\
-                "  <li>Image detail with all thumbnails</li>" \
-                "  </ul>" \
-                "<li>v1.3.6</li>" \
-                "  <ul>" \
-                "  <li>csrf token for forgot password</li>" \
-                "  </ul>" \
                 "<li>v1.3.7</li>" \
                 "  <ul>" \
                 "  <li>/submissions API</li>" \
@@ -254,6 +238,20 @@ def hello():
                 "<li>v1.3.10</li>" \
                 "  <ul>" \
                 "  <li>/resetpwd API (CORS)</li>" \
+                "  </ul>" \
+                "<li>v1.3.11</li>" \
+                "  <ul>" \
+                "  <li>/submissions takes # categories</li>" \
+                "  <li>Swagger spec summary -> description, remove http</li>" \
+                "  </ul>" \
+                "<li>v1.3.12</li>" \
+                "  <ul>" \
+                "  <li>/preview ii logo is color and less opaque</li>" \
+                "  </ul>" \
+                "<li>v1.4.0</li>" \
+                "  <ul>" \
+                "  <li>fix /preview schema definition</li>" \
+                "  <li>increase test coverage</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -428,7 +426,7 @@ def set_category_state():
     ---
     tags:
       - admin
-    summary: "Sets the category state to a specific value - testing only!"
+    description: "Sets the category state to a specific value - testing only!"
     operationId: set-category-state
     consumes:
       - application/json
@@ -509,7 +507,7 @@ def get_category():
     ---
     tags:
       - category
-    summary: Fetched specified category information
+    description: Fetched specified category information
     operationId: get-category
     consumes:
       - text/plain
@@ -589,7 +587,7 @@ def get_leaderboard():
     ---
     tags:
       - user
-    summary: "Returns a list of the top 10 photos as well as the caller's (so 11 in total)"
+    description: "Returns a list of the top 10 photos as well as the caller's (so 11 in total)"
     operationId: get-leaderboard
     parameters:
       - in: query
@@ -687,7 +685,7 @@ def get_ballot():
     ---
     tags:
       - voting
-    summary: "A list of photos to be voted on, currently no more than 4"
+    description: "A list of photos to be voted on, currently no more than 4"
     operationId: get-ballot
     parameters:
       - in: query
@@ -778,7 +776,7 @@ def accept_friendship():
         ---
         tags:
           - user
-        summary: "Called to indicate a user has accepted a friend request"
+        description: "Called to indicate a user has accepted a friend request"
         operationId: accept-friendship
         consumes:
           - application/json
@@ -843,7 +841,7 @@ def tell_a_friend():
     ---
     tags:
       - user
-    summary: "Issue a friendship request, server will notify person to become a friend and join site if necessary"
+    description: "Issue a friendship request, server will notify person to become a friend and join site if necessary"
     operationId: tell-a-friend
     consumes:
         - application/json
@@ -920,7 +918,7 @@ def cast_vote():
      ---
      tags:
        - voting
-     summary: "Cast votes for a ballot. Will return a ballot from a random category."
+     description: "Cast votes for a ballot. Will return a ballot from a random category."
      operationId: cast-vote
      consumes:
        - application/json
@@ -1065,7 +1063,7 @@ def image_download():
     ---
     tags:
       - image
-    summary: "Download an image. If we have a filename, we can download the full image"
+    description: "Download an image. If we have a filename, we can download the full image"
     operationId: image-download
     consumes:
       - text/html
@@ -1134,7 +1132,7 @@ def last_submission():
     ---
     tags:
       - user
-    summary: "returns the last submission for this user"
+    description: "returns the last submission for this user"
     operationId: last-submission
     consumes:
         - application/json
@@ -1197,7 +1195,7 @@ def photo_upload():
     ---
     tags:
       - image
-    summary: "Upload a photo for the specified category"
+    description: "Upload a photo for the specified category"
     operationId: photo
     consumes:
       - application/json
@@ -1318,7 +1316,7 @@ def jpeg_photo_upload(cid: int):
     ---
     tags:
       - image
-    summary: "Upload a JPEG photo for the specified category"
+    description: "Upload a JPEG photo for the specified category"
     operationId: jpeg
     consumes:
       - image/jpeg
@@ -1387,7 +1385,7 @@ def jpeg_photo_upload(cid: int):
 #     ---
 #     tags:
 #       - image
-#     summary: "upload a binary image to the site"
+#     description: "upload a binary image to the site"
 #     operationId: upload-image
 #     consumes:
 #       - image/jpeg
@@ -1449,7 +1447,7 @@ def log_event():
     ---
     tags:
       - admin
-    summary: "log an error condition from the client"
+    description: "log an error condition from the client"
     operationId: log
     consumes:
       - application/json
@@ -1553,7 +1551,7 @@ def register():
     ---
     tags:
       - user
-    summary: "register a user"
+    description: "register a user"
     operationId: register
     consumes:
       - application/json
@@ -1672,7 +1670,7 @@ def landingpage(campaign=None):
         session.close()
         return redirect(target_url, code=302)
 
-@app.route('/preview/<int:pid>')
+@app.route('/preview/<int:pid>', methods=['GET'])
 @timeit()
 def download_photo(pid):
     """
@@ -1680,7 +1678,7 @@ def download_photo(pid):
     ---
     tags:
       - image
-    summary: "download a watermarked thumbnail of a photo on the site"
+    description: "download a watermarked thumbnail of a photo on the site"
     operationId: preview-image
     consumes:
       - text/html
@@ -1695,12 +1693,6 @@ def download_photo(pid):
     responses:
       200:
         description: "image found"
-        schema:
-          id: download_image
-          properties:
-            image:
-              type: string
-              description: "base64 encoded image file"
       404:
         description: "image not found"
         schema:
@@ -1715,6 +1707,7 @@ def download_photo(pid):
         rsp.headers['Content-Type'] = 'image/jpeg'
         rsp.headers['Content-Disposition'] = 'attachment; filename=img.jpg'
     except Exception as e:
+        logger.exception(msg="[/preview] error reading thumbnail!")
         rsp = make_response('image not found', status.HTTP_404_NOT_FOUND)
     finally:
         session.close()
@@ -1730,12 +1723,14 @@ def base_url():
     ---
     tags:
       - admin
-    summary: "tell the app where the Base URL is located for this session e.g https://api.imageimprov.com or http:/104.38.47.3:8080"
+    description: "tell the app where the Base URL is located for this session e.g https://api.imageimprov.com or http:/104.38.47.3:8080"
     operationId: base_url
     consumes:
       - text/html
     produces:
       - json/application
+    security:
+      - JWT: []
     responses:
       200:
         description: "base URL returned"
@@ -1767,7 +1762,7 @@ def forgot_password():
     ---
     tags:
       - user
-    summary: "send a reset password link to a user's email address, password is NOT changed"
+    description: "send a reset password link to a user's email address, password is NOT changed"
     operationId: forgot-password
     consumes:
       - text/html
@@ -1826,8 +1821,8 @@ def reset_password():
     Reset Password
     ---
     tags:
-      - admin
-    summary: "reset a user's password"
+      - user
+    description: "reset a user's password"
     operationId: reset-password
     consumes:
       - text/html
@@ -1902,7 +1897,7 @@ def my_submissions(dir: str, cid: int):
     ---
     tags:
       - user
-    summary: "retrieve a pageable list of photos the user has submitted"
+    description: "retrieve a pageable list of photos the user has submitted"
     operationId: submission
     consumes:
       - text/html
@@ -1921,6 +1916,11 @@ def my_submissions(dir: str, cid: int):
         name: cid
         description: "category id to start fetch from, if 0 fetch around active categories"
         required: true
+        type: int
+      - in: query
+        name: num_categories
+        description: "The number of categories to fetch in a single call, if not specified all will be fetched"
+        required: false
         type: int
     security:
       - JWT: []
@@ -1983,10 +1983,12 @@ def my_submissions(dir: str, cid: int):
     if dir is None or cid is None or dir not in ('next', 'prev'):
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
+    num_categories = request.args.get('num_categories')
+
     session = dbsetup.Session()
     try:
         profile = userprofile.Submissions(uid=current_identity.id)
-        d = profile.get_user_submissions(session, dir, cid)
+        d = profile.get_user_submissions(session, dir, cid, num_categories)
         rsp = make_response(jsonify(d), status.HTTP_200_OK)
     except Exception as e:
         logger.exception(msg='[/submissions] error fetching users profile')

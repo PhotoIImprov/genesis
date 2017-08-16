@@ -1,8 +1,42 @@
+
 from unittest import TestCase
 from models import admin
 from models import usermgr
 from tests import DatabaseTest
 from datetime import datetime, timedelta
+from sqlalchemy import func
+
+class TestBaseURL(DatabaseTest):
+    def test_default_url(self):
+        self.setup()
+        url = admin.BaseURL.default_url()
+        assert(url == 'https://api.imageimprov.com/')
+
+    def test_nomapping_url(self):
+        self.setup()
+        url = admin.BaseURL.get_url(self.session, 0)
+        assert(url == 'https://api.imageimprov.com/')
+        self.teardown()
+
+    def test_mapped_url(self):
+        self.setup()
+
+        b = admin.BaseURL()
+        b.url = 'https://www.imageimprov.com:8080/'
+        self.session.add(b)
+        self.session.commit()
+
+        uids = self.session.query(func.max(usermgr.AnonUser.id)).first()
+        uid = uids[0]
+
+        au = self.session.query(usermgr.AnonUser).get(uid)
+        assert(au is not None)
+        au.base_id = b.id
+        self.session.commit()
+
+        url = admin.BaseURL.get_url(self.session, b.id)
+        assert(url == b.url)
+        self.teardown()
 
 class TestCSRFevent(DatabaseTest):
 
@@ -53,3 +87,16 @@ class TestCSRFevent(DatabaseTest):
             assert (template is not None)
         except Exception as e:
             assert (False)
+
+    def test_csrfevent_been_used(self):
+        ce = admin.CSRFevent(1, 24)
+        assert(not ce.been_used)
+        assert(ce.isvalid())
+
+        ce.marked_used()
+        assert(ce.been_used)
+        assert(not ce.isvalid())
+
+        ce.expiration_date = datetime.now() - timedelta(days=1)
+        ce.been_used = False
+        assert(not ce.isvalid())

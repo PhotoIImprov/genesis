@@ -164,7 +164,13 @@ class TestPhoto(DatabaseTest):
         assert(d['error'] is None)
         fn = fo.filename
         fo.create_thumb_PIL(fn=None)
+        self.session.commit() # Photo & PhotoMeta should be written out
 
+        pid = fo.id
+
+        # make sure the photometa record was written out as well!
+        pm = self.session.query(photo.PhotoMeta).get(pid)
+        assert(pm is not None)
         flist = photo.Photo.read_photo(self.session, au.id, c.id)
 
         assert (flist is not None)
@@ -502,6 +508,15 @@ class TestPhoto(DatabaseTest):
                 assert(False)
 
         self.teardown()
+
+    def test_gps_coordinates(self):
+        pm = photo.PhotoMeta(100,100, None)
+
+        latitude = [ [40, 1], [44,1], [453,100]]
+        latitude_ref = 'N'
+        s_latitude = pm._convert_to_minutes(latitude, latitude_ref)
+        expected_str = '40.0\xb044.0\'4.53\"N'
+        assert(s_latitude == expected_str)
 
     # def test_thumbnail_quality(self):
     #     self.setup()

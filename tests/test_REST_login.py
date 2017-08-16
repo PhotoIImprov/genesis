@@ -15,6 +15,9 @@ from werkzeug.datastructures import Headers, FileMultiDict
 import dbsetup
 from models import admin, usermgr
 from tests import DatabaseTest
+from models import photo
+from sqlalchemy import func
+
 
 class TestUser:
     _u = None   # username
@@ -540,6 +543,39 @@ class TestPhotoUpload(iiBaseUnitTest):
         msg = data['msg']
         assert (msg == error.error_string('NO_ARGS'))
         return
+
+class TestImages(iiBaseUnitTest):
+
+    def test_preview_bad_method(self):
+        headers = Headers()
+        headers.add('content-type', 'text/html')
+        headers.add('User-Agent', 'Python Tests')
+        rsp = self.app.post(path='/preview/0', headers=headers)
+        assert(rsp.status_code == 405)
+
+    def test_preview_bad_pid(self):
+        headers = Headers()
+        headers.add('content-type', 'text/html')
+        headers.add('User-Agent', 'Python Tests')
+        rsp = self.app.get(path='/preview/0', headers=headers)
+        assert(rsp.status_code == 404)
+
+    def test_preview_good_pid(self):
+        headers = Headers()
+        headers.add('content-type', 'text/html')
+        headers.add('User-Agent', 'Python Tests')
+
+        session = dbsetup.Session()
+        p = photo.Photo()
+        pids = session.query(func.max(photo.Photo.id)).first()
+        pid = pids[0]
+        session.close()
+        rsp = self.app.get(path='/preview/{0}'.format(pid), headers=headers)
+        if rsp.status_code != 200:
+            assert(False)
+        assert(rsp.status_code == 200)
+        assert(rsp.content_type == 'image/jpeg')
+        assert(rsp.content_length > 30000)
 
 
 class TestLogging(iiBaseUnitTest):

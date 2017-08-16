@@ -69,11 +69,6 @@ class Photo(Base):
         num_photos = session.query(Photo).filter_by(category_id = cid).count()
         return num_photos
 
-    def get_orientation(self) -> int:
-        if self._orientation is None and self._photometa is not None:
-            self._orientation = self._photometa.orientation
-        return self._orientation
-
     def set_orientation(self, orientation: int) -> None:
         self._orientation = orientation
 
@@ -535,46 +530,46 @@ class Photo(Base):
 
         return p
 
-    def get_rotation_and_flip_OpenCV(self, exif_dict: dict) -> tuple:
-        """
-        :param exif_dict: extracted EXIF dict from image
-        :return: tuple of rotation (degrees) and axis flip (=0: vertical, =1: horizontal, -1: both)
-
-           1        2       3      4         5            6           7          8
-
-        888888  888888      88  88      8888888888  88                  88  8888888888
-        88          88      88  88      88  88      88  88          88  88      88  88
-        8888      8888    8888  8888    88          8888888888  8888888888          88
-        88          88      88  88
-        88          88  888888  888888
-
-        Value	0th Row	    0th Column
-        1	    top	        left side
-        2	    top	        right side
-        3	    bottom	    right side
-        4   	bottom	    left side
-        5	    left side	top
-        6   	right side	top
-        7	    right side	bottom
-        8	    left side	bottom
-        """
-
-        rotate = 0
-        flip = None
-        try:
-            orientation = exif_dict['0th'][0x112]
-            if orientation in (5,6,7,8):
-                rotate = 90
-            if orientation in (4, 7):
-                flip = 0
-            if orientation in (2, 5):
-                flip = 1
-            if orientation in (3, 8):
-                flip = -1
-        except Exception as e:
-            logger.exception(msg="error with EXIF/Orientation data")
-
-        return rotate, flip
+    # def get_rotation_and_flip_OpenCV(self, exif_dict: dict) -> tuple:
+    #     """
+    #     :param exif_dict: extracted EXIF dict from image
+    #     :return: tuple of rotation (degrees) and axis flip (=0: vertical, =1: horizontal, -1: both)
+    #
+    #        1        2       3      4         5            6           7          8
+    #
+    #     888888  888888      88  88      8888888888  88                  88  8888888888
+    #     88          88      88  88      88  88      88  88          88  88      88  88
+    #     8888      8888    8888  8888    88          8888888888  8888888888          88
+    #     88          88      88  88
+    #     88          88  888888  888888
+    #
+    #     Value	0th Row	    0th Column
+    #     1	    top	        left side
+    #     2	    top	        right side
+    #     3	    bottom	    right side
+    #     4   	bottom	    left side
+    #     5	    left side	top
+    #     6   	right side	top
+    #     7	    right side	bottom
+    #     8	    left side	bottom
+    #     """
+    #
+    #     rotate = 0
+    #     flip = None
+    #     try:
+    #         orientation = exif_dict['0th'][0x112]
+    #         if orientation in (5,6,7,8):
+    #             rotate = 90
+    #         if orientation in (4, 7):
+    #             flip = 0
+    #         if orientation in (2, 5):
+    #             flip = 1
+    #         if orientation in (3, 8):
+    #             flip = -1
+    #     except Exception as e:
+    #         logger.exception(msg="error with EXIF/Orientation data")
+    #
+    #     return rotate, flip
 
     def get_rotation_and_flip_PIL(self, exif_dict: dict) -> tuple:
         """
@@ -630,7 +625,6 @@ class Photo(Base):
         path = dbsetup.resource_files(dbsetup.determine_environment(None))
         path += '/'
         im = Image.open(path + watermark_file)
-        im = im.convert("L")
         return im
 
     def apply_watermark(self, img: Image) -> Image:
@@ -646,6 +640,8 @@ class Photo(Base):
 
         width, height = img.size
         im_width, im_height = im.size
+        # f_width, f_height = font.size
+        # image improv "yellow" is #FCBB15, or (252,187, 21)
         waterdraw.text((im_width + 5, height - 20), "imageimprov", fill=(255, 255, 255, 128), font=font)
 
         # Get the watermark image as grayscale and fade the image
@@ -655,14 +651,14 @@ class Photo(Base):
         #  how faded the image will be. That number is in the range [0, 256],
         #  where 0 is black and 256 is white. A good value for fading our white
         #  text is in the range [100, 200].
-        watermask = watermark.convert("L").point(lambda x: min(x, 100))
-        im_mask = im.convert("L").point(lambda x: min(x, 100))
+        watermask = watermark.convert("L").point(lambda x: min(x, 200))
+        im_mask = im.convert("L").point(lambda x: min(x, 200))
 
         # Apply this mask to the watermark image, using the alpha filter to
         #  make it transparent
         watermark.putalpha(watermask)
         im.putalpha(im_mask)
-        im_x = 0
+        im_x = 0 # width - (im_width + f_width)
         im_y = height - im_height
 
         # Paste the watermark (with alpha layer) onto the original image and save it
