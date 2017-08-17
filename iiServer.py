@@ -40,7 +40,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.4.0' #our version string PEP 440
+__version__ = '1.4.1' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -252,6 +252,10 @@ def hello():
                 "  <ul>" \
                 "  <li>fix /preview schema definition</li>" \
                 "  <li>increase test coverage</li>" \
+                "  </ul>" \
+                "<li>v1.4.1</li>" \
+                "  <ul>" \
+                "  <li>add route /<campaign></li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -1888,6 +1892,15 @@ def reset_password():
 
     return rsp
 
+@app.route('/submissions')
+@jwt_required()
+def my_submissions_tst():
+    '''
+    needed to support /<campaign> route and testing
+    :return:
+    '''
+    return my_submissions(None, None)
+
 @app.route('/submissions/<string:dir>/<int:cid>')
 @jwt_required()
 @timeit()
@@ -1997,6 +2010,73 @@ def my_submissions(dir: str, cid: int):
         session.close()
 
     return rsp
+
+@app.route('/update/photo', methods=['PUT'])
+@app.route('/update/photo/<int:pid>', methods=['PUT'])
+@timeit()
+@jwt_required()
+def update_photometa(pid):
+    """
+    Update Photo Data
+    ---
+    tags:
+      - image
+    description: "update information associated with an image"
+    operationId: update-image
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - in: path
+        name: pid
+        description: "The id of the photo whose data is to be updated"
+        required: true
+        type: integer
+      - in: body
+        name: photo-data
+        required: true
+        schema:
+          id: upload_photo
+          properties:
+            like:
+              type: boolean
+              description: "indicates user likes the image"
+            flag:
+              type: boolean
+              description: "indicates the user things the image is offensive"
+            tags:
+              type: array
+              description: "list of strings user wants associated with image"
+              items:
+                type: string
+
+    security:
+      - JWT: []
+    responses:
+      200:
+        description: "image information updated"
+      404:
+        description: "image not found"
+        schema:
+          $ref: '#/definitions/Error'
+    """
+    p = photo.Photo(pid=pid)
+    session = dbsetup.Session()
+    rsp = None
+    try:
+        rsp = make_response(jsonify({'msg': 'service not implemented!'}), status.HTTP_501_NOT_IMPLEMENTED)
+    except Exception as e:
+        logger.exception(msg="[/update] error updating photo metadata")
+        rsp = make_response('image not found', status.HTTP_404_NOT_FOUND)
+    finally:
+        session.close()
+
+    return rsp
+
+@app.route('/<string:campaign>')
+def default_path(campaign: str):
+    return landingpage(campaign)
 
 @app.route('/')
 def root_path():

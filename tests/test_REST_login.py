@@ -1186,7 +1186,7 @@ class TestMySubmissions(iiBaseUnitTest):
     def test_mysubmissions_bad_format(self):
         self.create_testuser_get_token()
         rsp = self.app.get(path='/submissions', headers=self.get_header_html())
-        assert (rsp.status_code == 404)
+        assert (rsp.status_code == 400)
 
         rsp = self.app.get(path='/submissions/bad1', headers=self.get_header_html())
         assert (rsp.status_code == 404)
