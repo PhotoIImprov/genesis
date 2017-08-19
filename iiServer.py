@@ -17,7 +17,7 @@ from models import category
 from models import error
 from models import traction
 from models import admin
-#import json
+from models import engagement
 from flask_swagger import swagger
 from leaderboard.leaderboard import Leaderboard
 import random
@@ -40,7 +40,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.4.1' #our version string PEP 440
+__version__ = '1.4.3' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -256,6 +256,10 @@ def hello():
                 "<li>v1.4.1</li>" \
                 "  <ul>" \
                 "  <li>add route /<campaign></li>" \
+                "  </ul>" \
+                "<li>v1.4.3</li>" \
+                "  <ul>" \
+                "  <li>/update/photo/<pid></li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -2061,11 +2065,24 @@ def update_photometa(pid):
         schema:
           $ref: '#/definitions/Error'
     """
-    p = photo.Photo(pid=pid)
+    json_data = request.get_json()
+    try:
+        u = current_identity
+        uid = u.id
+        like = json_data['like']
+        offensive = json_data['flag']
+        tags = json_data['tags']
+    except KeyError as ke:
+        logger.exception(msg='error with reading JSON input')
+        return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)
+
     session = dbsetup.Session()
     rsp = None
     try:
-        rsp = make_response(jsonify({'msg': 'service not implemented!'}), status.HTTP_501_NOT_IMPLEMENTED)
+        fbm = engagement.FeedbackManager(uid=uid, pid=pid, like=like, offensive=offensive, tags=tags)
+        fbm.created_feedback(session)
+        session.commit()
+        rsp = make_response(jsonify({'msg': 'feedback updated'}), status.HTTP_200_CREATED)
     except Exception as e:
         logger.exception(msg="[/update] error updating photo metadata")
         rsp = make_response('image not found', status.HTTP_404_NOT_FOUND)

@@ -50,22 +50,19 @@ def upload_image(username, fn, cid):
         ft.close()
         if ph is None:
             return
-        img = base64.standard_b64encode(ph)
-        b64img = img.decode("utf-8")
 
         # compose header with users authorization token
         h = Headers()
-        h.add('content-type', 'application/json')
         h.add('Authorization', 'JWT ' + token)
+        h.add('content-type', 'image/jpeg')
 
         # okay, we need to post this
         ext = 'JPEG'
-        url = _base_url + '/photo'
-
+        url = _base_url + '/jpeg/{0}'.format(cid)
 
         # we can occasionally get a '502, Bad Gateway', let's retry if we do'
         for i in range(0,2):
-            rsp = requests.post(url, data=json.dumps(dict(category_id=cid, extension=ext, image=b64img)), headers=h)
+            rsp = requests.post(url=url, headers=h, data=ph)
             if rsp.status_code != 502:
                 return
 
@@ -147,14 +144,21 @@ if __name__ == '__main__':
 
     for c in cl:
         cid = c['id']
+        if cid != 531:
+            continue
+
         theme = c['description']
-        if c['state'] == 'VOTING':
-            if cid is None:
-                status = setcategorystate(token, cid, category.CategoryState.UPLOAD.value)
-                # see if we have a folder with this name
-                if folder_exists(theme, _rootdir):
-                    upload_images(theme, _rootdir, cid)
-                status = setcategorystate(token, cid, category.CategoryState.VOTING.value)
+        current_state = c['state']
+        if current_state in ('VOTING', 'PENDING'):
+            status = setcategorystate(token, cid, category.CategoryState.UPLOAD.value)
+            # see if we have a folder with this name
+            if folder_exists(theme, _rootdir):
+                upload_images(theme, _rootdir, cid)
+
+            state = category.CategoryState.UNKNOWN.value
+            if current_state == 'VOTING':
+                state = category.CategoryState.VOTING.value
+            status = setcategorystate(token, cid, state)
 
         if c['state'] == 'UPLOAD':
             # see if we have a folder with this name
