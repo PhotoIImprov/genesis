@@ -40,7 +40,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.4.3' #our version string PEP 440
+__version__ = '1.4.4' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -260,6 +260,10 @@ def hello():
                 "<li>v1.4.3</li>" \
                 "  <ul>" \
                 "  <li>/update/photo/<pid></li>" \
+                "  </ul>" \
+                "<li>v1.4.4</li>" \
+                "  <ul>" \
+                "  <li>bug in filtering active photos</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"

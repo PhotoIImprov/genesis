@@ -422,6 +422,7 @@ class BallotManager:
         # if ballotentry has been voted on, exclude photos the user has already seen
         if num_votes == 0:
             q = session.query(photo.Photo).filter(photo.Photo.category_id == c.id). \
+                filter(photo.Photo.active == 1). \
                 filter(photo.Photo.user_id != uid). \
                 filter(~exists().where(BallotEntry.photo_id == photo.Photo.id)).limit(over_size)
         else:
