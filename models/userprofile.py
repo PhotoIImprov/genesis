@@ -30,12 +30,12 @@ class Submissions():
             q = session.query(category.Category).filter(category.Category.id > cid). \
                 join(photo.Photo, photo.Photo.category_id == category.Category.id). \
                 filter(photo.Photo.user_id == self._uid). \
-                limit(num_categories)
+                order_by(category.Category.id.asc())
         else:
             q = session.query(category.Category).filter(category.Category.id < cid). \
                 join(photo.Photo, photo.Photo.category_id == category.Category.id). \
                 filter(photo.Photo.user_id == self._uid). \
-                limit(num_categories)
+                order_by(category.Category.id.desc())
 
         cl = q.all()
         return cl
@@ -68,7 +68,7 @@ class Submissions():
         return_dict = {'user': user_info}
 
         # get all the categories we care about
-        cl = self._categories_with_user_photos(session, dir, cid, num_categories)
+        cl = self._categories_with_user_photos(session, dir, cid, None) # BUG! can't pass # categories the limit() fails in SQLAlchemy
         if num_categories is not None:
            del cl[num_categories:]
 

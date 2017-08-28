@@ -204,3 +204,19 @@ class TestSubmissions(DatabaseTest):
             submission_length = submission_length + 1
 
         self.teardown()
+
+
+    def test_submissions_with_num_categories(self):
+        self.setup()
+
+        num_categories = 10
+        uid = self.create_submissions_test_data(num_categories=num_categories)
+        profile = userprofile.Submissions(uid=uid)
+        d = profile.get_user_submissions(self.session, 'next', 0, num_categories//2)
+        assert(d is not None)
+        assert(len(d) == 2)
+        submissions = d['submissions']
+        assert(len(submissions) == num_categories//2)
+        json_d = json.dumps(d)
+
+        self.teardown()
