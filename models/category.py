@@ -56,6 +56,9 @@ class Category(Base):
 
     def __init__(self, **kwargs):
         self.id = kwargs.get('category_id', None)
+        self.start_date = kwargs.get('start_date', None)
+        self.duration_upload = kwargs.get('upload_duration', 24)
+        self.duration_vote = kwargs.get('vote_duration', 72)
 
     @staticmethod
     def get_description_by_resource(rid: int) -> str:
@@ -201,6 +204,24 @@ class Category(Base):
             raise Exception(errno.EINVAL, 'No Category found for cid={}'.format(cid))
 
         return c.state == CategoryState.UPLOAD.value
+
+class CategoryManager():
+    _start_date = None
+    _duration_upload = None
+    _duration_voting = None
+    _description = None
+    def __init__(self, **kwargs):
+        self._start_date = kwargs.get('start_date', None)
+        self._duration_upload = kwargs.get('upload_duration', 24)
+        self._duration_vote = kwargs.get('vote_duration', 72)
+        self._description = kwargs.get('description', None)
+
+    def create_category(self, session):
+
+        # look up resource, see if we already have it
+        r = resource.find_resource_by_string(self._description, 'EN', session)
+        if r is None: # create resource
+            r = resource.create_resource()
 
 class CategoryTag(Base):
     __tablename__ = 'categorytag'

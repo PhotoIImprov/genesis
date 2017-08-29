@@ -10,11 +10,12 @@ class SQLAlchemyHandler(logging.Handler):
         if exc:
             trace = traceback.format_exc()
             if len(trace) > 2000:
-                trace = trace.substring(0,1999)
+                trace = trace[0:1999]
+
         log = sql_logging.Log(logger=record.__dict__['name'],
-                  level=record.__dict__['levelname'],
-                  trace=trace,
-                  msg=record.__dict__['msg'])
+          level=record.__dict__['levelname'],
+          trace=trace,
+          msg=record.__dict__['msg'])
 
         session = dbsetup.Session()
         try:

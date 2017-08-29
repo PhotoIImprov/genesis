@@ -42,3 +42,10 @@ class Resource(Base):
     def write_resource(session, r):
         session.add(r)
         session.flush()
+
+    @staticmethod
+    def find_resource_by_string(resource_string: str, lang: str, session):
+        q = session.query(Resource).filter_by(resource_string = resource_string, iso639_1 = lang)
+        r = q.one_or_none()
+        return r
+

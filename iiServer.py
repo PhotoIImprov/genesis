@@ -18,6 +18,7 @@ from models import error
 from models import traction
 from models import admin
 from models import engagement
+from models import event
 from flask_swagger import swagger
 from leaderboard.leaderboard import Leaderboard
 import random
@@ -2091,7 +2092,7 @@ def update_photometa(pid):
 
     return rsp
 
-@app.route('/createevent', methods=['POST'])
+@app.route('/newevent', methods=['POST'])
 @jwt_required()
 @timeit()
 def create_event():
@@ -2175,6 +2176,14 @@ def create_event():
     except KeyError as ke:
         logger.exception(msg='error with reading JSON input')
         return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)
+
+    session = dbsetup.Session()
+    try:
+        em = event.EventManager(user_id=uid, name=eventname, num_players=numplayers, upload_duration=upload_duration, vote_duration=voting_duration, categories=categories)
+    except Exception as e:
+        session.close()
+        logger.exception(msg="[/newevent] error creating event")
+        return make_response(jsonify({'msg': 'error creating event'}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return make_response(jsonify({'msg': 'not implemented yet!'}), status.HTTP_501_NOT_IMPLEMENTED)
 
