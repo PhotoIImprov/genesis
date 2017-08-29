@@ -23,9 +23,6 @@ class Submissions():
 
     def categories_with_user_photos(self, session, dir: str, cid: int, num_categories: int) -> list:
 
-        if num_categories is None:
-            num_categories = 1000 # something big until we figure out how to dynamically add filters
-
         if dir == 'next':
             e = session.query(category.Category.id).filter(category.Category.id > cid). \
                 join(photo.Photo, photo.Photo.category_id == category.Category.id). \
@@ -46,6 +43,12 @@ class Submissions():
                 order_by(category.Category.id.desc())
 
         cl = q.all()
+        if cl is None or len(cl) == 0:
+            return None
+
+        if num_categories is None:
+            return cl
+
         return cl[:num_categories]
 
     def photos_for_categories(self, session, dir: str, cid: int) -> list:
@@ -77,21 +80,21 @@ class Submissions():
 
         # get all the categories we care about
         cl = self._categories_with_user_photos(session, dir, cid, num_categories)
+        if cl is not None:
+            pl = self._photos_for_categories(session, dir, cid)
+            for c in cl:
+                # create category's photo list
+                cpl = []
+                for p in pl:
+                    if p.category_id == c.id:
+                        p_element = {'pid': p.id, 'votes': p.times_voted, 'likes': p.likes, 'score': p.score,
+                                     'url': 'preview/{0}'.format(p.id)}
+                        cpl.append(p_element)
 
-        pl = self._photos_for_categories(session, dir, cid)
-        for c in cl:
-            # create category's photo list
-            cpl = []
-            for p in pl:
-                if p.category_id == c.id:
-                    p_element = {'pid': p.id, 'votes': p.times_voted, 'likes': p.likes, 'score': p.score,
-                                 'url': 'preview/{0}'.format(p.id)}
-                    cpl.append(p_element)
-
-            if cpl:
-                category_dict = {'id':c.id, 'description':c.get_description(), 'end': str(c.end_date), 'start': str(c.start_date), 'state': category.CategoryState.to_str(c.state)}
-                category_submission = {'category': category_dict, 'photos': cpl}
-                return_dict.setdefault('submissions',[]).append(category_submission)
+                if cpl:
+                    category_dict = {'id':c.id, 'description':c.get_description(), 'end': str(c.end_date), 'start': str(c.start_date), 'state': category.CategoryState.to_str(c.state)}
+                    category_submission = {'category': category_dict, 'photos': cpl}
+                    return_dict.setdefault('submissions',[]).append(category_submission)
 
         return return_dict
 

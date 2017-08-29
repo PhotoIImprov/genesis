@@ -566,12 +566,12 @@ class TestImages(iiBaseUnitTest):
         headers.add('User-Agent', 'Python Tests')
 
         session = dbsetup.Session()
-        p = photo.Photo()
         pids = session.query(func.max(photo.Photo.id)).first()
         pid = pids[0]
         session.close()
         rsp = self.app.get(path='/preview/{0}'.format(pid), headers=headers)
         if rsp.status_code != 200:
+            print("[test_preview_good_pid] HTTP response status = {}".format(rsp.status_code) )
             assert(False)
         assert(rsp.status_code == 200)
         assert(rsp.content_type == 'image/jpeg')

@@ -150,3 +150,12 @@ class TestCategory(DatabaseTest):
         assert(len(clist) <= category._CATEGORYLIST_MAXSIZE)
 
         self.teardown()
+
+    def no_test_category_manager(self):
+        self.setup()
+
+        cm = category.CategoryManager(start_date='2017-09-01 11:00', upload_duration=24, vote_duration=72, description='test_category_manager()')
+        c = cm.create_category(self.session)
+        assert(c is None)
+
+        self.teardown()

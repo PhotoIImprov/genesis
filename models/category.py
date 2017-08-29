@@ -219,9 +219,9 @@ class CategoryManager():
     def create_category(self, session):
 
         # look up resource, see if we already have it
-        r = resource.find_resource_by_string(self._description, 'EN', session)
+        r = resources.Resource.find_resource_by_string(self._description, 'EN', session)
         if r is None: # create resource
-            r = resource.create_resource()
+            r = resources.Resource.create_new_resource(session, lang='EN', resource_str=self._description)
 
 class CategoryTag(Base):
     __tablename__ = 'categorytag'

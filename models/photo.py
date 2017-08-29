@@ -669,6 +669,8 @@ class Photo(Base):
     def read_thumbnail_by_id_with_watermark(self, session, pid: int) -> bytes:
         # Open the original image
         # read our test file
+        if pid is None:
+            return None
 
         try:
             p = session.query(Photo).get(pid)
@@ -680,7 +682,7 @@ class Photo(Base):
             thumb = b.getvalue()
             return thumb
         except Exception as e:
-            logger.exception(msg='error generating watermarked thumbnail!')
+            logger.exception(msg='error generating watermarked thumbnail! pid={}'.format(pid))
             return None
 
 

@@ -8,6 +8,8 @@ from sqlalchemy import func
 import datetime
 
 class TestSubmissions(DatabaseTest):
+    _cl = []
+
     def test_submissions_n_user(self):
         self.setup()
         prf = userprofile.Submissions(uid=None)
@@ -149,11 +151,11 @@ class TestSubmissions(DatabaseTest):
         self.session.add(au)
         self.session.commit()
 
-        cl = self.create_category_list(num_categories)
-        assert(cl is not None)
-        assert(len(cl) == num_categories)
+        self._cl = self.create_category_list(num_categories)
+        assert(self._cl is not None)
+        assert(len(self._cl) == num_categories)
 
-        for c in cl:
+        for c in self._cl:
             num_photos = 5
             self.create_photos_for_category(au.id, c, num_photos)
 
@@ -206,13 +208,30 @@ class TestSubmissions(DatabaseTest):
         self.teardown()
 
 
-    def test_submissions_with_num_categories(self):
+    def test_submissions_with_num_categories_next(self):
         self.setup()
 
         num_categories = 10
         uid = self.create_submissions_test_data(num_categories=num_categories)
         profile = userprofile.Submissions(uid=uid)
         d = profile.get_user_submissions(self.session, 'next', 0, num_categories//2)
+        assert(d is not None)
+        assert(len(d) == 2)
+        submissions = d['submissions']
+        assert(len(submissions) == num_categories//2)
+        json_d = json.dumps(d)
+
+        self.teardown()
+
+    def test_submissions_with_num_categories_prev(self):
+        self.setup()
+
+        num_categories = 10
+        uid = self.create_submissions_test_data(num_categories=num_categories)
+        c = self._cl[num_categories//2]
+        cid = c.id
+        profile = userprofile.Submissions(uid=uid)
+        d = profile.get_user_submissions(self.session, 'prev', cid, num_categories//2)
         assert(d is not None)
         assert(len(d) == 2)
         submissions = d['submissions']

@@ -2,6 +2,8 @@ from sqlalchemy import Column, Integer, String, DateTime, text
 from dbsetup import Base
 from pymysql import OperationalError, IntegrityError
 import sys
+from sqlalchemy.sql.expression import insert, select
+from sqlalchemy import func
 
 resource_map = None
 
@@ -47,5 +49,13 @@ class Resource(Base):
     def find_resource_by_string(resource_string: str, lang: str, session):
         q = session.query(Resource).filter_by(resource_string = resource_string, iso639_1 = lang)
         r = q.one_or_none()
+        return r
+
+    @staticmethod
+    def create_new_resource(session, lang: str, resource_str: str):
+        # this is tricky as we need to create our resource_id during
+        # the update in the DB
+        select_max_id = session.query(func.max(Resource.resource_id)+1, for_update=True)
+        r = session.insert(Resource).values(iso69_1=lang, resource_string=resource_str, resource_id=select_max_id)
         return r
 

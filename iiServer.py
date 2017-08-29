@@ -41,7 +41,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.4.6' #our version string PEP 440
+__version__ = '1.4.6.1' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -1717,9 +1717,10 @@ def download_photo(pid):
         rsp.headers['Content-Disposition'] = 'attachment; filename=img.jpg'
     except Exception as e:
         logger.exception(msg="[/preview] error reading thumbnail!")
-        rsp = make_response('image not found', status.HTTP_404_NOT_FOUND)
     finally:
         session.close()
+        if rsp is None:
+            rsp = make_response('image not found', status.HTTP_404_NOT_FOUND)
 
     return rsp
 
@@ -1958,20 +1959,27 @@ def my_submissions(dir: str, cid: int):
             pid:
               type: integer
               description: "unique photo identifier"
+              example: 1380547
             url:
               type: string
               description: "URL to retrieve photo thumbnail .JPEG image, prefix baseURL and slash"
+              example: "https://api.imageimprov.com/preview/537"
             votes:
               type: integer
               description: "number of votes photo has received"
+              example: 3
             likes:
               type: integer
               description: "number of likes photo has received"
+              example: 4
             score:
               type: integer
+              description: "The score this photo has accumulated"
+              example: 7438
             tags:
               type: array
               description: "List of tags associated with photo"
+              example: ["fluffy", "colorful", "rough", "crude"]
       - schema:
           id: PhotoDetails
           type: array
@@ -1990,9 +1998,11 @@ def my_submissions(dir: str, cid: int):
             id:
               type: integer
               description: "image improv user identifier"
+              example: 24738
             created_date:
               type: string
               description: "date which this user account was created"
+              example: "2017-09-23 12:47"
             submissions:
               type: array
               items:
@@ -2001,7 +2011,11 @@ def my_submissions(dir: str, cid: int):
     if dir is None or cid is None or dir not in ('next', 'prev'):
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
-    num_categories = request.args.get('num_categories')
+    num_categories = None
+    try:
+        num_categories = request.args.get('num_categories')
+    except ValueError:
+        return make_response(jsonify({'msg': 'num_categories is not an integer value'}), status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
     try:
@@ -2053,6 +2067,7 @@ def update_photometa(pid):
             tags:
               type: array
               description: "list of strings user wants associated with image"
+              example: ["solid", "round", "square", "fluffy"]
               items:
                 type: string
 
