@@ -41,7 +41,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.4.6.1' #our version string PEP 440
+__version__ = '1.4.6.2' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -2013,7 +2013,7 @@ def my_submissions(dir: str, cid: int):
 
     num_categories = None
     try:
-        num_categories = request.args.get('num_categories')
+        num_categories = int(request.args.get('num_categories'))
     except ValueError:
         return make_response(jsonify({'msg': 'num_categories is not an integer value'}), status.HTTP_400_BAD_REQUEST)
 

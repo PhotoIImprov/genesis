@@ -46,7 +46,7 @@ class Submissions():
         if cl is None or len(cl) == 0:
             return None
 
-        if num_categories is None:
+        if num_categories is None or num_categories >= len(cl):
             return cl
 
         return cl[:num_categories]
