@@ -2013,7 +2013,9 @@ def my_submissions(dir: str, cid: int):
 
     num_categories = None
     try:
-        num_categories = int(request.args.get('num_categories'))
+        num_categories = request.args.get('num_categories')
+        if num_categories is not None:
+            num_categories = int(num_categories)
     except ValueError:
         return make_response(jsonify({'msg': 'num_categories is not an integer value'}), status.HTTP_400_BAD_REQUEST)
 
