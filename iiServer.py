@@ -40,7 +40,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.4.5' #our version string PEP 440
+__version__ = '1.4.6' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -256,6 +256,10 @@ def hello():
                 "<li>v1.4.5</li>" \
                 "  <ul>" \
                 "  <li>bug fix for # entries in /submissions</li>" \
+                "  </ul>" \
+                "<li>v1.4.6</li>" \
+                "  <ul>" \
+                "  <li>/createevent API defined</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -2086,6 +2090,94 @@ def update_photometa(pid):
         session.close()
 
     return rsp
+
+@app.route('/createevent', methods=['POST'])
+@jwt_required()
+@timeit()
+def create_event():
+    """
+    Create Private Event
+    ---
+    tags:
+      - category
+    description: "create a category that is limited to invited users"
+    operationId: create_event
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - in: body
+        name: event-info
+        required: true
+        schema:
+          id: create-event
+          required:
+            - event_name
+            - num_players
+            - start_time
+            - upload_duration
+            - voting_duration
+            - categories
+          properties:
+            event_name:
+              type: string
+              description: "The name of the overarching event"
+              example: "Company Picnic 2017"
+            num_players:
+              type: integer
+              description: "# of players allowed in the event"
+              example: 5
+            start_time:
+              type: string
+              description: "The UTC date/time when the event should start"
+              example: "2017-09-03 15:30:00"
+            upload_duration:
+              type: integer
+              description: "how long uploading should last in hours"
+              example: 24
+            voting_duration:
+              type: integer
+              description: "how long voting should last in hours"
+              example: 72
+            categories:
+              type: array
+              description: "themes to associate with this event"
+              example: ["Team", "Fun", "Beer"]
+              items:
+                type: string
+            games_excluded:
+              type: array
+              description: "games that are not included in this event"
+              example: ["MatchIt!", "GuessWho?"]
+              items:
+                type: string
+    security:
+      - JWT: []
+    responses:
+      201:
+        description: "event created"
+      400:
+        description: "error in specified arguments"
+        schema:
+          $ref: '#/definitions/Error'
+    """
+    json_data = request.get_json()
+    try:
+        u = current_identity
+        uid = u.id
+        eventname = json_data['event_name']
+        numplayers = json_data['num_players']
+        upload_duration = json_data['upload_duration']
+        voting_duration = json_data['voting_duration']
+        categories = json_data['categories']
+        games_excluded = json_data['games_excluded']
+    except KeyError as ke:
+        logger.exception(msg='error with reading JSON input')
+        return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)
+
+    return make_response(jsonify({'msg': 'not implemented yet!'}), status.HTTP_501_NOT_IMPLEMENTED)
+
 
 @app.route('/<string:campaign>')
 def default_path(campaign: str):
