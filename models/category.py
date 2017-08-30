@@ -14,7 +14,20 @@ from cache.ExpiryCache import _expiry_cache
 
 _CATEGORYLIST_MAXSIZE = 100
 
+class CategoryType(Enum):
+    OPEN = 0 # category is available to all users
+    EVENT = 1 # category is associated with an "event", invite only
+
+    @staticmethod
+    def to_str(type: int) -> str:
+        if type == CategoryType.OPEN.value:
+            return "OPEN"
+        if type == CategoryType.EVENT.value:
+            return "EVENT"
+        return "UNKNOWN"
+
 class CategoryState(Enum):
+    PENDING  = 0
     UNKNOWN  = 0        # initial state
     UPLOAD   = 1        # category available for uploading photos, active
     VOTING   = 2        # category no longer accepting uploads, now we're voting on it, active
@@ -42,6 +55,7 @@ class Category(Base):
     state           = Column(Integer, nullable=False, default=CategoryState.UNKNOWN, index=True)
     round           = Column(Integer, nullable=False, default=0)
     resource_id     = Column(Integer, ForeignKey("resource.resource_id", name="fk_category_resource_id"), nullable=False)
+    type            = Column(Integer, default=CategoryType.OPEN)
     start_date      = Column(DateTime, nullable=False, index=True)
     duration_upload = Column(Integer, nullable=False, default=24)
     duration_vote   = Column(Integer, nullable=False, default=24)
@@ -59,6 +73,13 @@ class Category(Base):
         self.start_date = kwargs.get('start_date', None)
         self.duration_upload = kwargs.get('upload_duration', 24)
         self.duration_vote = kwargs.get('vote_duration', 72)
+        self.resource_id = kwargs.get('rid', None)
+        self.type = kwargs.get('type', CategoryType.OPEN.value)
+        self.state = CategoryState.PENDING.value
+
+        # compute end date if we have enough data
+        if self.start_date is not None and self.duration_upload is not None and self.duration_vote is not None:
+            self.end_date = self.start_date + timedelta(hours=(self.duration_vote + self.duration_upload))
 
     @staticmethod
     def get_description_by_resource(rid: int) -> str:
@@ -116,10 +137,13 @@ class Category(Base):
             # first check the cache
             cl = _expiry_cache.get("ALL_CATEGORIES")
             if cl is not None:
-                logger.info(msg="cache hit for Category list")
+                logger.info(msg="cache hit! Category list")
                 return cl
 
-            q = session.query(Category).filter(Category.state.in_([CategoryState.UPLOAD.value, CategoryState.VOTING.value, CategoryState.COUNTING.value, CategoryState.UNKNOWN.value]))
+            logger.info(msg="cache miss! Category list")
+            q = session.query(Category). \
+                filter(Category.state.in_([CategoryState.UPLOAD.value, CategoryState.VOTING.value, CategoryState.COUNTING.value, CategoryState.UNKNOWN.value])). \
+                filter(Category.type == CategoryType.OPEN.value)
             cl = q.all()
             if cl is not None:
                 del cl[_CATEGORYLIST_MAXSIZE:]    # limit list to 100 elements [Note: Since we're truncating, should we order it by start_date?
@@ -155,12 +179,16 @@ class Category(Base):
         # - VOTING - category photos are ready for voting
         # - COUNTING - past voting, available to see status of winners
         try:
-            cl = Category.all_categories(session, uid) # cached, returns counting
-            if cl is not None:
-                for c in cl:
-                    if c.state == CategoryState.UNKNOWN.value:
-                        cl.remove(c) # remove counting
-            return cl
+            cl = Category.all_categories(session, uid) # cached, returns everything
+            if cl is None:
+                return cl
+
+            active_cl = []
+            for c in cl:
+                if c.state != CategoryState.UNKNOWN.value and c.type == CategoryType.OPEN.value:
+                    active_cl.append(c) # make a new list of "active" categories
+            return active_cl
+
         except Exception as e:
             logger.exception(msg='error reading active categories')
             raise
@@ -211,17 +239,25 @@ class CategoryManager():
     _duration_voting = None
     _description = None
     def __init__(self, **kwargs):
-        self._start_date = kwargs.get('start_date', None)
+        str_start_date = kwargs.get('start_date', None)
+        self._start_date = datetime.strptime(str_start_date, '%Y-%m-%d %H:%M')
         self._duration_upload = kwargs.get('upload_duration', 24)
         self._duration_vote = kwargs.get('vote_duration', 72)
         self._description = kwargs.get('description', None)
 
-    def create_category(self, session):
+    def create_category(self, session, type: int):
 
         # look up resource, see if we already have it
         r = resources.Resource.find_resource_by_string(self._description, 'EN', session)
         if r is None: # create resource
             r = resources.Resource.create_new_resource(session, lang='EN', resource_str=self._description)
+        if r is None:
+            return None
+
+        # we have stashed (or found) our name, time to create the category
+        c = Category(upload_duration=self._duration_upload, vote_duration=self._duration_vote, start_date=self._start_date, rid=r.resource_id, type=type)
+        session.add(c)
+        return c
 
 class CategoryTag(Base):
     __tablename__ = 'categorytag'

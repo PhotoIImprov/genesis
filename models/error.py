@@ -80,6 +80,7 @@ d_ERROR_STRINGS = {'NO_JSON': "missing JSON data",
                    'NO_SUCH_FRIEND': "friend request not found or error",
                    'NOT_IMPLEMENTED': "service has not been implemented yet.",
                    'EMAIL_NOT_FOUND': "email address not found.",
+                   'RESTRICTED_API' : "this API is restricted to authorized staff only",
 
                    # this is if we don't map to anything
                    'UNKNOWN_ERROR': "unknown error ??"}

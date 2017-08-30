@@ -41,7 +41,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.4.6.2' #our version string PEP 440
+__version__ = '1.4.7' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -79,10 +79,10 @@ _jwt.auth_response_callback = usermgr.auth_response_handler # so we can add to t
 def spec():
     """
     Specification
+    A JSON formatted OpenAPI/Swagger document formatting the API
     ---
     tags:
       - admin
-    description: "A JSON formatted OpenAPI/Swagger document formatting the API"
     operationId: get-specification
     consumes:
       - text/html
@@ -120,16 +120,16 @@ def spec():
                                                       'name': 'credentials',
                                                      'schema':
                                                         {'required': ['username', 'password'],
-                                                         'properties':{'username':{'type':'string'},
-                                                                        'password':{'type':'string'}},
+                                                         'properties':{'username':{'type':'string', 'example':'user@gmail.com'},
+                                                                        'password':{'type':'string', 'example':'$pbkdf2-sha256$1000$LAWAMAZAaM25l9Ka8/4fYw$icW/iPLdzqdIc97nxgRjalLmi/MwD3VfV5EdBVrh1LI'}},
                                                          }}],
                                       'responses': {'200':{'description': 'user authenticated',
                                                            'schema':
                                                                {'properties':
                                                                     {'access_token':
-                                                                         {'type':'string'},
+                                                                         {'type':'string', 'description': 'JWT access token', 'example' : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0b3B0YWwuY29tIiwiZXhwIjoxNDI2NDIwODAwLCJodHRwOi8vdG9wdGFsLmNvbS9qd3RfY2xhaW1zL2lzX2FkbWluIjp0cnVlLCJjb21wYW55IjoiVG9wdGFsIiwiYXdlc29tZSI6dHJ1ZX0.yRQYnWzskCZUxPwaQupWkiUzKELZ49eM7oWxAQK_ZXw'},
                                                                      'email':
-                                                                         {'type':'string'}
+                                                                         {'type':'string', 'example': 'user@gmail.com'}
                                                                      }
                                                                 }
                                                            },
@@ -200,10 +200,10 @@ def healthcheck():
 def hello():
     """
     Configuration
+    Simple page that checks some connections to make sure we are setup properly
     ---
     tags:
       - admin
-    description: "Simple page that checks some connections to make sure we are setup properly"
     operationId: get-configuration
     consumes:
       - text/html
@@ -261,6 +261,13 @@ def hello():
                 "<li>v1.4.6</li>" \
                 "  <ul>" \
                 "  <li>/createevent API defined</li>" \
+                "  </ul>" \
+                "<li>v1.4.7</li>" \
+                "  <ul>" \
+                "  <li>/newevent operational</li>" \
+                "  <li>fix expire key before cache entry created in /setcategorystate</li>" \
+                "  <li>added column <b>type</b> to category</li>" \
+                "  <li>fix descriptions in Swagger</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -432,10 +439,11 @@ def hello():
 def set_category_state():
     """
     Set Category State
+    Sets the category state to a specific value - testing only! User account must have admin privileges.
     ---
     tags:
       - admin
-    description: "Sets the category state to a specific value - testing only!"
+    description: "Sets the category state to a specific value - testing only! User account must have admin privileges."
     operationId: set-category-state
     consumes:
       - application/json
@@ -454,6 +462,7 @@ def set_category_state():
           properties:
             category_id:
               type: integer
+              example: 534
             state:
               type: integer
               enum:
@@ -482,6 +491,10 @@ def set_category_state():
     except KeyError as e:
         cid = None
         cstate = None
+
+    u = current_identity
+    if u.usertype != usermgr.UserType.IISTAFF.value:
+        rsp = make_response(jsonify({'msg': error.error_string('RESTRICTED_API')}), status.HTTP_403_FORBIDDEN)
 
     session = dbsetup.Session()
     rsp = None
@@ -513,10 +526,10 @@ def set_category_state():
 def get_category():
     """
     Fetch Category
+    Fetched specified category information
     ---
     tags:
       - category
-    description: Fetched specified category information
     operationId: get-category
     consumes:
       - text/plain
@@ -550,12 +563,15 @@ def get_category():
             description:
               type: string
               description: "A brief description of the category"
+              example: "Flowers"
             start:
               type: string
-              description: "When the category starts and uploading can begin"
+              description: "When the category starts and uploading can begin, UTC time"
+              example: "2017-09-03 13:50"
             end:
               type: string
               description: "When voting on this category ends"
+              example: "2017-09-06 15:50"
             state:
               type: string
               enum:
@@ -568,6 +584,7 @@ def get_category():
             round:
               type: integer
               description: "Which round of voting the category is in."
+              example: 1
     """
     rsp = None
     try:
@@ -593,15 +610,16 @@ def get_category():
 def get_leaderboard():
     """
     Get Leader Board
+    Returns a list of the top 10 photos as well as the caller's (so 11 in total)
     ---
     tags:
       - user
-    description: "Returns a list of the top 10 photos as well as the caller's (so 11 in total)"
     operationId: get-leaderboard
     parameters:
       - in: query
         name: category_id
         description: "Category of the leaderboard being requested"
+        example: 537
         required: true
         type: integer
     security:
@@ -629,18 +647,23 @@ def get_leaderboard():
             username:
               type: string
               description: username of member of this rank
+              example: "someuser@hotmail.com"
             rank:
               type: integer
               description: "overall rank in scoring"
+              example: 3
             score:
               type: integer
               description: "actual score for this rank"
+              example: 23775
             votes:
               type: integer
               description: "how many times this photo has been voted on"
+              example: 47
             likes:
               type: integer
               description: "how many times this photo has been liked"
+              example: 12
             you:
               type: string
               description: "if set, then this rank is yours"
@@ -691,10 +714,10 @@ def get_leaderboard():
 def get_ballot():
     """
     Get Ballot()
+    A list of photos to be voted on, currently no more than 4
     ---
     tags:
       - voting
-    description: "A list of photos to be voted on, currently no more than 4"
     operationId: get-ballot
     parameters:
       - in: query
@@ -751,6 +774,7 @@ def get_ballot():
               description: "list of pre-defined tags user can select from"
               items:
                 type: string
+              example: ['Fluff', 'Square', 'Yellow', 'Old']
             image:
               type: string
               description: 'base64 encoded string of JPEG image data'
@@ -782,10 +806,10 @@ def get_ballot():
 def accept_friendship():
     """
         Accept Friend Request
+        Called to indicate a user has accepted a friend request
         ---
         tags:
           - user
-        description: "Called to indicate a user has accepted a friend request"
         operationId: accept-friendship
         consumes:
           - application/json
@@ -847,10 +871,10 @@ def accept_friendship():
 def tell_a_friend():
     """
     Issue Friendship Request
+    Issue a friendship request, server will notify person to become a friend and join site if necessary
     ---
     tags:
       - user
-    description: "Issue a friendship request, server will notify person to become a friend and join site if necessary"
     operationId: tell-a-friend
     consumes:
         - application/json
@@ -924,10 +948,10 @@ def tell_a_friend():
 def cast_vote():
     """
      Cast Vote
+     Cast votes for a ballot. Will return a ballot from a random category.
      ---
      tags:
        - voting
-     description: "Cast votes for a ballot. Will return a ballot from a random category."
      operationId: cast-vote
      consumes:
        - application/json
@@ -1069,10 +1093,10 @@ def return_ballot(session, uid, cid):
 def image_download():
     """
     Image Download
+    Download an image. If we have a filename, we can download the full image
     ---
     tags:
       - image
-    description: "Download an image. If we have a filename, we can download the full image"
     operationId: image-download
     consumes:
       - text/html
@@ -1138,10 +1162,10 @@ def image_download():
 def last_submission():
     """
     Get Last Submission
+    returns the last submission for this user
     ---
     tags:
       - user
-    description: "returns the last submission for this user"
     operationId: last-submission
     consumes:
         - application/json
@@ -1201,10 +1225,10 @@ def last_submission():
 def photo_upload():
     """
     Upload Photo
+    Upload a photo for the specified category
     ---
     tags:
       - image
-    description: "Upload a photo for the specified category"
     operationId: photo
     consumes:
       - application/json
@@ -1322,10 +1346,10 @@ def store_photo(pi: photo.PhotoImage, uid: int, cid: int):
 def jpeg_photo_upload(cid: int):
     """
     Upload Raw JPEG
+    Upload a JPEG photo for the specified category
     ---
     tags:
       - image
-    description: "Upload a JPEG photo for the specified category"
     operationId: jpeg
     consumes:
       - image/jpeg
@@ -1453,10 +1477,10 @@ def jpeg_photo_upload(cid: int):
 def log_event():
     """
     Log ClientEvent
+    Log an error condition from the client
     ---
     tags:
       - admin
-    description: "log an error condition from the client"
     operationId: log
     consumes:
       - application/json
@@ -1557,10 +1581,10 @@ def register_legituser(session, emailaddress, password, guid):
 def register():
     """
     Register (Create new account)
+    Register a user
     ---
     tags:
       - user
-    description: "register a user"
     operationId: register
     consumes:
       - application/json
@@ -1684,10 +1708,11 @@ def landingpage(campaign=None):
 def download_photo(pid):
     """
     Preview Photo
+    Download a watermarked thumbnail of a photo on the site.
+    Can be used to display images as URLs
     ---
     tags:
       - image
-    description: "download a watermarked thumbnail of a photo on the site"
     operationId: preview-image
     consumes:
       - text/html
@@ -1730,10 +1755,10 @@ def download_photo(pid):
 def base_url():
     """
     Base URL
+    Tell the app where the Base URL is located for this session e.g https://api.imageimprov.com or http:/104.38.47.3:8080
     ---
     tags:
       - admin
-    description: "tell the app where the Base URL is located for this session e.g https://api.imageimprov.com or http:/104.38.47.3:8080"
     operationId: base_url
     consumes:
       - text/html
@@ -1769,10 +1794,10 @@ def base_url():
 def forgot_password():
     """
     Forgot Password
+    Send a reset password link to a user's email address, password is NOT changed
     ---
     tags:
       - user
-    description: "send a reset password link to a user's email address, password is NOT changed"
     operationId: forgot-password
     consumes:
       - text/html
@@ -1829,10 +1854,10 @@ def forgot_password():
 def reset_password():
     """
     Reset Password
+    Reset a user's password
     ---
     tags:
       - user
-    description: "reset a user's password"
     operationId: reset-password
     consumes:
       - text/html
@@ -1913,10 +1938,10 @@ def my_submissions_tst():
 def my_submissions(dir: str, cid: int):
     """
     My Submissions
+    Retrieve a pageable list of photos the user has submitted
     ---
     tags:
       - user
-    description: "retrieve a pageable list of photos the user has submitted"
     operationId: submission
     consumes:
       - text/html
@@ -2039,10 +2064,10 @@ def my_submissions(dir: str, cid: int):
 def update_photometa(pid):
     """
     Update Photo Data
+    Update information associated with an image
     ---
     tags:
       - image
-    description: "update information associated with an image"
     operationId: update-image
     consumes:
       - application/json
@@ -2115,10 +2140,10 @@ def update_photometa(pid):
 def create_event():
     """
     Create Private Event
+    Create a category that is limited to invited users
     ---
     tags:
       - category
-    description: "create a category that is limited to invited users"
     operationId: create_event
     consumes:
       - application/json
@@ -2196,7 +2221,9 @@ def create_event():
 
     session = dbsetup.Session()
     try:
-        em = event.EventManager(user_id=uid, name=eventname, num_players=numplayers, upload_duration=upload_duration, vote_duration=voting_duration, categories=categories)
+        em = event.EventManager(user=u, name=eventname, num_players=numplayers, upload_duration=upload_duration, vote_duration=voting_duration, categories=categories)
+        em.create_event(session)
+        session.commit()
     except Exception as e:
         session.close()
         logger.exception(msg="[/newevent] error creating event")

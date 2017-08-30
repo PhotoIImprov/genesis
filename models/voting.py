@@ -203,12 +203,21 @@ class BallotManager:
 
         # It's possible the ballotentries are from different sections, we'll
         # score based on the first ballotentry
-        bid = json_ballots[0]['bid']
-        be = session.query(BallotEntry).get(bid)
-        vr = session.query(VotingRound).get(be.photo_id)
-        section = 0
-        if vr is not None: # sections only matter for round 2
-            section = vr.section
+        try:
+            bid = json_ballots[0]['bid']
+            be = session.query(BallotEntry).get(bid)
+            vr = session.query(VotingRound).get(be.photo_id)
+            section = 0
+            if vr is not None: # sections only matter for round 2
+                section = vr.section
+        except Exception as e:
+            if json_ballots is not None:
+                msg = 'json_ballots={}'.format(json_ballots)
+            else:
+                msg = "json_ballots is None!"
+
+            logger.exception(msg=msg)
+            raise
 
         c = session.query(category.Category).get(be.category_id)
 
@@ -548,7 +557,11 @@ class TallyMan():
         c.state = new_state
         session.add(c)
 
-        category._expiry_cache.expire_key('ALL_CATEGORIES')
+        try:
+            category._expiry_cache.expire_key('ALL_CATEGORIES')
+        except KeyError as ke:
+            pass # cache entry not created yet, ignore error
+
         return {'error': None, 'arg': c}
 
     def leaderboard_name(self, c: category.Category) -> str:

@@ -144,7 +144,7 @@ if __name__ == '__main__':
 
     for c in cl:
         cid = c['id']
-        if cid != 531:
+        if cid not in (555,556):
             continue
 
         theme = c['description']

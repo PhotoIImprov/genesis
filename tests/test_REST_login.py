@@ -121,20 +121,25 @@ class iiBaseUnitTest(unittest.TestCase):
                             headers={'content-type': 'application/json'})
         return rsp
 
-#    def post_login(self, tu):
-#        u = tu.get_username()
-#        p = tu.get_password()
-
-        # don't call login if we are using JSON Web Tokens (JWT)
-#        return self.post_auth(tu)
-
-
     def post_registration(self, tu):
         u = tu.get_username()
         p = tu.get_password()
         g = tu.get_guid()
         rsp = self.app.post(path='/register', data=json.dumps(dict(username=u, password=p, guid=g)), headers={'content-type': 'application/json'})
         return rsp
+
+    def make_user_IISTAFF(self, emailaddress):
+        """
+        make_user_iistaff() - sets usertype field so this user can call privileged services
+        :param emailaddres:
+        :return:
+        """
+        session = dbsetup.Session()
+        u = usermgr.User.find_user_by_email(session, emailaddress)
+        au = usermgr.AnonUser.get_anon_user_by_id(session, u.id)
+        au.usertype = usermgr.UserType.IISTAFF.value
+        session.add(au)
+        session.commit()
 
     def create_testuser_get_token(self):
         # first create a user
@@ -153,6 +158,7 @@ class iiBaseUnitTest(unittest.TestCase):
         tu.set_token(token)
         self.set_token(token)
 
+        self.make_user_IISTAFF(tu.get_username())
         return tu
 
     def create_anon_testuser_get_token(self):

@@ -14,6 +14,7 @@ import logging
 from handlers import dbg_handler
 from logsetup import logger
 from sqlalchemy import func
+import uuid
 
 
 class TestCategory(DatabaseTest):
@@ -151,11 +152,34 @@ class TestCategory(DatabaseTest):
 
         self.teardown()
 
-    def no_test_category_manager(self):
+    def test_category_manager(self):
         self.setup()
 
-        cm = category.CategoryManager(start_date='2017-09-01 11:00', upload_duration=24, vote_duration=72, description='test_category_manager()')
-        c = cm.create_category(self.session)
-        assert(c is None)
+        guid = str(uuid.uuid1())
+        category_description = guid.upper().translate({ord(c): None for c in '-'})
 
+        cm = category.CategoryManager(start_date='2017-09-01 11:00', upload_duration=24, vote_duration=72, description=category_description)
+        c = cm.create_category(self.session, category.CategoryType.OPEN.value)
+        self.session.commit()
+        assert(c is not None)
+
+        self.teardown()
+
+    def test_category_manager_reuse_resource(self):
+        self.setup()
+
+        guid = str(uuid.uuid1())
+        category_description = guid.upper().translate({ord(c): None for c in '-'})
+
+        cm = category.CategoryManager(start_date='2017-09-01 11:00', upload_duration=24, vote_duration=72, description=category_description)
+        c = cm.create_category(self.session, category.CategoryType.OPEN.value)
+        self.session.commit()
+        assert(c is not None)
+
+        cm = category.CategoryManager(start_date='2017-09-03 11:00', upload_duration=24, vote_duration=72, description=category_description)
+        c1 = cm.create_category(self.session, category.CategoryType.OPEN.value)
+        self.session.commit()
+        assert(c1 is not None)
+
+        assert(c.resource_id == c1.resource_id)
         self.teardown()

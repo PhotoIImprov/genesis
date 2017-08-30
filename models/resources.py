@@ -4,14 +4,15 @@ from pymysql import OperationalError, IntegrityError
 import sys
 from sqlalchemy.sql.expression import insert, select
 from sqlalchemy import func
+from logsetup import logger
 
 resource_map = None
 
 class Resource(Base):
     __tablename__ = 'resource'
 
-    resource_id     = Column(Integer,     nullable=False, primary_key=True) # identifier used to find relevant resource
-    iso639_1        = Column(String(2),   nullable=False, primary_key=True) # language of resource, e.g. "EN" or "ES"
+    resource_id     = Column(Integer,     primary_key=True, autoincrement=True, server_default='0') # identifier used to find relevant resource
+    iso639_1        = Column(String(2),   primary_key=True) # language of resource, e.g. "EN" or "ES"
     resource_string = Column(String(500), nullable=False)                   # language-specific string
 
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
@@ -53,9 +54,14 @@ class Resource(Base):
 
     @staticmethod
     def create_new_resource(session, lang: str, resource_str: str):
-        # this is tricky as we need to create our resource_id during
-        # the update in the DB
-        select_max_id = session.query(func.max(Resource.resource_id)+1, for_update=True)
-        r = session.insert(Resource).values(iso69_1=lang, resource_string=resource_str, resource_id=select_max_id)
-        return r
+        try:
+            r = Resource(None, lang, resource_str)
+            session.add(r)
+            session.commit()
+            return r
+        except Exception as e:
+            logger.exception(msg="error creating new resource")
+            session.close()
+
+        return None
 

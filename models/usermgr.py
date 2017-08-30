@@ -14,13 +14,29 @@ import string
 import random
 import requests
 from models import admin
+from enum import Enum
+
+class UserType(Enum):
+    PLAYER  = 0
+    IIKNOWN = 1        # someone that imageimprov staff knows and doesn't want counted in reports
+    IISTAFF = 2        # an imageimprove staff member that has special powers
+
+    @staticmethod
+    def to_str(type: int) -> str:
+        if type == UserType.PLAYER.value:
+            return "PLAYER"
+        if type == UserType.IIKNOWN.value:
+            return "iiKNOWN"
+        if type == UserType.IISTAFF.value:
+            return "iiSTAFF"
+        return "INVALID"
 
 class AnonUser(Base):
     __tablename__ = "anonuser"
     id            = Column(Integer, primary_key = True, autoincrement=True)
     guid          = Column(String(32), nullable=False, unique=True)
     base_id       = Column(Integer, ForeignKey("baseurl.id", name="fk_anonuser_base_id"), nullable=True)
-    usertype      = Column(Integer, default=0)
+    usertype      = Column(Integer, default=UserType.PLAYER.value)
     created_date  = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
 
     @staticmethod
