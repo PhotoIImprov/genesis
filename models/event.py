@@ -58,3 +58,14 @@ class EventCategory(Base):
         self.event_id = e.id
         self.active = kwargs.get('active', True)
 
+class AccessKey(Base):
+    __tablename__ = 'accesskey'
+
+    id = Column(Integer, nullable=False, primary_key=True, autoincrement=True)
+    passphrase = Column(String(20), nullable=False)
+    used = Column(Boolean, default=True, nullable=False)
+
+    def __init__(self, **kwargs):
+        self.id = kwargs.get('id', None)
+        self.phassphrase = kwargs.get('passphrase', None)
+        self.used = kwargs.get('used', False)

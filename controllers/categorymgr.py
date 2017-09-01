@@ -55,7 +55,7 @@ class CategoryManager():
         session.add(c)
         return c
 
-    def active_categories_for_user(self, session, u):
+    def active_categories_for_user(self, session, au):
         """
         ActiveCategoriesForUser()
         return a list of "active" categories for this user.
@@ -67,8 +67,7 @@ class CategoryManager():
         :param u: an AnonUser object
         :return: <list> of categories
         """
-        open_cl = category.Category.active_categories(session, u)
-
+        open_cl = category.Category.all_categories(session, au)
         try:
             q = session.query(category.Category). \
                 join(event.EventCategory,event.EventCategory.category_id == category.Category.id). \
@@ -76,7 +75,7 @@ class CategoryManager():
                 filter(category.Category.state != category.CategoryState.CLOSED.value) . \
                 filter(event.EventUser.active == True) . \
                 filter(event.EventCategory.active == True). \
-                filter(event.EventUser.user_id == u.id)
+                filter(event.EventUser.user_id == au.id)
             event_cl  = q.all()
         except Exception as e:
             logger.exception(msg="error reading event category list for user:{}".format(u.id))
@@ -144,3 +143,26 @@ class EventManager():
             logger.exception(msg="error creating event categories")
 
         return self._e
+
+class PassPhraseManager():
+
+    def generate_accesskey(self, session):
+        '''
+        returns a passphrase pulled from the database.
+        :param session:
+        :return:
+        '''
+        if session is None:
+            return None
+
+    def read_passphrases_from_db(self,session):
+
+        try:
+            q = session.query(event.AccessKey).filter(event.AccessKey.used == False)
+            pl = q.all()
+            if pl is None or len(pl) == 0:
+                raise Exception('ReadPassPhrase', 'no phrases!')
+        except Exception as e:
+            session.close()
+            raise
+

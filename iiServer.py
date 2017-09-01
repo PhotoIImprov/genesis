@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.5.1' #our version string PEP 440
+__version__ = '1.5.2' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -229,15 +229,6 @@ def hello():
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
     htmlbody += "<ul>" \
-                "<li>v1.3.11</li>" \
-                "  <ul>" \
-                "  <li>/submissions takes # categories</li>" \
-                "  <li>Swagger spec summary -> description, remove http</li>" \
-                "  </ul>" \
-                "<li>v1.3.12</li>" \
-                "  <ul>" \
-                "  <li>/preview ii logo is color and less opaque</li>" \
-                "  </ul>" \
                 "<li>v1.4.5</li>" \
                 "  <ul>" \
                 "  <li>bug fix for # entries in /submissions</li>" \
@@ -265,6 +256,10 @@ def hello():
                 "<li>v1.5.1</li>" \
                 "  <ul>" \
                 "    <li>/category now returns user-specific categories createdc by /newevent</li>" \
+                "  </ul>" \
+                "<li>v1.5.2</li>" \
+                "  <ul>" \
+                "    <li>/category OPEN categories now includes PENDING</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"

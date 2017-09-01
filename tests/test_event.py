@@ -77,3 +77,15 @@ class TestEvent(DatabaseTest):
             assert (e.args[1] == 'badargs')
         finally:
             self.teardown()
+
+    def test_read_pass_phrase(self):
+        self.setup()
+
+        try:
+            pm = categorymgr.PassPhraseManager()
+            pl = pm.read_passphrases_from_db(self.session)
+
+        except Exception as e:
+            assert(e.args[1] == 'no phrases!')
+        finally:
+            self.teardown()
