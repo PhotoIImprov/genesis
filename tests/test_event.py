@@ -78,14 +78,14 @@ class TestEvent(DatabaseTest):
         finally:
             self.teardown()
 
-    def test_read_pass_phrase(self):
+    def test_pass_phrase(self):
         self.setup()
 
         try:
-            pm = categorymgr.PassPhraseManager()
-            pl = pm.read_passphrases_from_db(self.session)
-
+            passphrase = categorymgr.PassPhraseManager().select_passphrase(self.session)
+            assert(passphrase is not None)
+            assert(len(passphrase) == 9)
         except Exception as e:
-            assert(e.args[1] == 'no phrases!')
+            assert(False)
         finally:
             self.teardown()

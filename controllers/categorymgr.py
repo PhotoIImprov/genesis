@@ -107,8 +107,6 @@ class EventManager():
         start_date = kwargs.get('start_date', None)
         self._e = event.Event(**kwargs)
 
-        self._e.accesskey = 'strange-dreams'
-
         self._cm_list = []
         for n in self._nl:
             c = CategoryManager(description=n, start_date=start_date, upload_duration=upload_duration, vote_duration=vote_duration)
@@ -116,6 +114,8 @@ class EventManager():
 
     def create_event(self, session) -> event.Event:
 
+        passphrases = PassPhraseManager().select_passphrase(session)
+        self._e.accesskey = passphrases
         session.add(self._e)
 
         try:
@@ -146,23 +146,16 @@ class EventManager():
 
 class PassPhraseManager():
 
-    def generate_accesskey(self, session):
-        '''
-        returns a passphrase pulled from the database.
-        :param session:
-        :return:
-        '''
-        if session is None:
-            return None
-
-    def read_passphrases_from_db(self,session):
-
+    def select_passphrase(self, session) -> str:
         try:
-            q = session.query(event.AccessKey).filter(event.AccessKey.used == False)
-            pl = q.all()
-            if pl is None or len(pl) == 0:
-                raise Exception('ReadPassPhrase', 'no phrases!')
-        except Exception as e:
-            session.close()
-            raise
+            q = session.query(event.AccessKey). \
+                filter(event.AccessKey.used == False). \
+                order_by(event.AccessKey.hash). \
+                with_for_update()
 
+            ak = q.first()
+            ak.used = True
+            session.commit()
+            return ak.passphrase
+        except Exception as e:
+            raise Exception('select_passphrase', 'no phrases!')

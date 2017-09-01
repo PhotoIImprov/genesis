@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.5.2' #our version string PEP 440
+__version__ = '1.5.3' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -260,6 +260,11 @@ def hello():
                 "<li>v1.5.2</li>" \
                 "  <ul>" \
                 "    <li>/category OPEN categories now includes PENDING</li>" \
+                "  </ul>" \
+                "<li>v1.5.3</li>" \
+                "  <ul>" \
+                "    <li>/newevent returns 'accesskey' on success</li>" \
+                "    <li>'accesskey' values pulled from table randomized</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -2195,6 +2200,13 @@ def create_event():
     responses:
       201:
         description: "event created"
+        schema:
+          id: event_info
+          properties:
+            accesskey:
+              type: string
+              description: "unique, generated passphrase for invitations, always 2 phrases seperated by space"
+              example: "able frog"
       400:
         description: "error in specified arguments"
         schema:
@@ -2220,7 +2232,7 @@ def create_event():
         em = categorymgr.EventManager(user=current_identity, name=eventname, start_date=startdate, num_players=numplayers, upload_duration=upload_duration, vote_duration=voting_duration, categories=categories)
         em.create_event(session)
         session.commit()
-        return make_response(jsonify({'msg': 'event created!'}), status.HTTP_201_CREATED)
+        return make_response(jsonify({'accesskey': em._e.accesskey}), status.HTTP_201_CREATED)
     except Exception as e:
         session.close()
         logger.exception(msg="[/newevent] error creating event")

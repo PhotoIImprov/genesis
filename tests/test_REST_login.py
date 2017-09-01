@@ -1335,6 +1335,9 @@ class TestCategoryFiltering(iiBaseUnitTest):
         json_data = json.dumps(d)
         rsp = self.app.post(path='/newevent', data=json_data, headers=self.get_header_json())
         assert(rsp.status_code == 201)
+        accesskey_data = json.loads(rsp.data.decode('utf-8'))
+        accesskey = accesskey_data['accesskey']
+        assert(len(accesskey) == 9)
 
         # Step 4 - get categories again, should be more!
         rsp = self.app.get(path='/category', headers=self.get_header_html())

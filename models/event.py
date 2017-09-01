@@ -64,6 +64,7 @@ class AccessKey(Base):
     id = Column(Integer, nullable=False, primary_key=True, autoincrement=True)
     passphrase = Column(String(20), nullable=False)
     used = Column(Boolean, default=True, nullable=False)
+    hash = Column(String(32), nullable=False)
 
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
