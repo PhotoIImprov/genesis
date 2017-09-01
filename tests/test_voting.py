@@ -14,6 +14,7 @@ from logsetup import logger
 from flask import Flask, jsonify
 import json
 import dbsetup
+from controllers import categorymgr
 
 class TestVoting(DatabaseTest):
 
@@ -264,7 +265,8 @@ class TestVoting(DatabaseTest):
 
     def get_active_user(self):
         max_uid = self.session.query(func.max(usermgr.AnonUser.id)).one()
-        return max_uid[0]
+        au = self.session.query(usermgr.AnonUser).get(max_uid[0])
+        return au
 
     def get_active_photo(self):
         max_pid = self.session.query(func.max(photo.Photo.id)).one()
@@ -273,31 +275,26 @@ class TestVoting(DatabaseTest):
     def test_ballotentry_with_tags(self):
         self.setup()
 
-        uid = self.get_active_user()
-        clist = category.Category.active_categories(self.session, uid)
-        assert(len(clist) != 0)
+        # create a new category so we can add tags to it!
+        au = self.get_active_user()
+        category_description = 'test_ballot_entry_with_tags()'
+        start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+        cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
+        c = cm.create_category(self.session, category.CategoryType.OPEN.value)
 
-        # grab a category and add some tags
-        ctags = category.CategoryTagList()
-        for c in clist:
-            tag_list = ctags.read_category_tags(c.id, self.session)
-            if (len(tag_list) == 0):
-                # we found a category with no tags, let's create some
-                max_resource_id = self.session.query(func.max(resources.Resource.resource_id)).one()
-                rid = max_resource_id[0]
-                tag_list = category.CategoryTagList()
-                for i in range(1,5):
-                    r = resources.Resource.create_resource(rid+i, 'EN', 'tag{0}'.format(i))
-                    resources.Resource.write_resource(self.session, r)
-                    ctag = category.CategoryTag(category_id=c.id, resource_id = rid+i)
-                    self.session.add(ctag)
+        tag_list = category.CategoryTagList()
+        for i in range(1,5):
+            r = cm.create_resource(self.session,'tag{0}'.format(i))
+            ctag = category.CategoryTag(category_id=c.id, resource_id = r.resource_id)
+            self.session.add(ctag)
 
-                self.session.commit()
-                break
+        self.session.commit()
+
+        tag_list.read_category_tags(c.id, self.session)
 
         # Now create a ballot entry for this category
         pid = self.get_active_photo()
-        be = voting.BallotEntry(user_id=uid, category_id=c.id, photo_id=pid)
+        be = voting.BallotEntry(user_id=au.id, category_id=c.id, photo_id=pid)
         be.bid = 1
         be.orientation = 6
         be.image = b'\x00\x00\0x1'

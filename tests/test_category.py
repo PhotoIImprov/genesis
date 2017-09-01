@@ -5,6 +5,8 @@ from models import resources
 from models import usermgr
 
 from models import category, voting, photo
+from controllers import categorymgr
+
 from tests import DatabaseTest
 import os
 import json
@@ -15,7 +17,7 @@ from handlers import dbg_handler
 from logsetup import logger
 from sqlalchemy import func
 import uuid
-
+from models import event
 
 class TestCategory(DatabaseTest):
 
@@ -34,13 +36,15 @@ class TestCategory(DatabaseTest):
     def test_active_category_bad_user(self):
         self.setup()
 
-        cl = category.Category.active_categories(self.session, 0)
+        u = usermgr.User()
+        cl = category.Category.active_categories(self.session, u)
         assert(cl is None)
 
     def test_all_category_bad_user(self):
         self.setup()
 
-        cl = category.Category.all_categories(self.session, 0)
+        u = usermgr.User()
+        cl = category.Category.all_categories(self.session, u)
         assert(cl is None)
 
     def test_active_category_no_args(self):
@@ -48,8 +52,12 @@ class TestCategory(DatabaseTest):
         cl = category.Category.active_categories(session, None)
         assert(cl is None)
 
-        cl = category.Category.active_categories(None, 3)
-        assert(cl is None)
+        try:
+            au = usermgr.AnonUser()
+            cl = category.Category.active_categories(None, au)
+            assert(False)
+        except Exception as e:
+            assert(e.args[0] == "'NoneType' object has no attribute 'query'")
 
     def test_all_category_no_args(self):
         session = 1
@@ -114,12 +122,13 @@ class TestCategory(DatabaseTest):
 
     def get_active_user(self):
         max_uid = self.session.query(func.max(usermgr.AnonUser.id)).one()
-        return max_uid
+        au = self.session.query(usermgr.AnonUser).get(max_uid)
+        return au
 
     def test_category_tag_list(self):
         self.setup()
-        uid = self.get_active_user()
-        clist = category.Category.active_categories(self.session, uid[0])
+        au = self.get_active_user()
+        clist = category.Category.active_categories(self.session, au)
         assert(len(clist) != 0)
 
         ctags = category.CategoryTagList()
@@ -145,8 +154,8 @@ class TestCategory(DatabaseTest):
     def test_read_all_categories(self):
         self.setup()
 
-        uid = self.get_active_user()
-        clist = category.Category.all_categories(self.session, uid[0])
+        au = self.get_active_user()
+        clist = category.Category.all_categories(self.session, au)
         assert(len(clist) != 0)
         assert(len(clist) <= category._CATEGORYLIST_MAXSIZE)
 
@@ -157,8 +166,9 @@ class TestCategory(DatabaseTest):
 
         guid = str(uuid.uuid1())
         category_description = guid.upper().translate({ord(c): None for c in '-'})
+        start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
 
-        cm = category.CategoryManager(start_date='2017-09-01 11:00', upload_duration=24, vote_duration=72, description=category_description)
+        cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
         c = cm.create_category(self.session, category.CategoryType.OPEN.value)
         self.session.commit()
         assert(c is not None)
@@ -170,16 +180,136 @@ class TestCategory(DatabaseTest):
 
         guid = str(uuid.uuid1())
         category_description = guid.upper().translate({ord(c): None for c in '-'})
+        start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
 
-        cm = category.CategoryManager(start_date='2017-09-01 11:00', upload_duration=24, vote_duration=72, description=category_description)
+        cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
         c = cm.create_category(self.session, category.CategoryType.OPEN.value)
         self.session.commit()
         assert(c is not None)
 
-        cm = category.CategoryManager(start_date='2017-09-03 11:00', upload_duration=24, vote_duration=72, description=category_description)
+        cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
         c1 = cm.create_category(self.session, category.CategoryType.OPEN.value)
         self.session.commit()
         assert(c1 is not None)
 
         assert(c.resource_id == c1.resource_id)
         self.teardown()
+
+    def test_category_manager_upload_negative(self):
+
+        try:
+            start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+            cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=-5, vote_duration=72, description='test_category_manager_upload_negative')
+            assert(False)
+        except Exception as e:
+            assert(e.args[1] == 'badargs')
+
+    def test_category_manager_vote_negative(self):
+
+        try:
+            start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+            cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=20, vote_duration=-72,
+                                          description='test_category_manager_vote_negative')
+            assert (False)
+        except Exception as e:
+            assert (e.args[1] == 'badargs')
+
+    def test_category_manager_vote_too_large(self):
+
+        try:
+            start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+            cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=20, vote_duration=24*15,
+                                          description='test_category_manager_vote_too_large')
+            assert (False)
+        except Exception as e:
+            assert (e.args[1] == 'badargs')
+
+    def test_category_manager_upload_too_large(self):
+
+        try:
+            start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+            cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24*15, vote_duration=24,
+                                          description='test_category_manager_upload_too_large')
+            assert (False)
+        except Exception as e:
+            assert (e.args[1] == 'badargs')
+
+    def test_category_manager_upload_not_int(self):
+
+        try:
+            start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+            cm = categorymgr.CategoryManager(start_date=start_date, upload_duration='72', vote_duration=24,
+                                          description='test_category_manager_upload_not_int')
+            assert (False)
+        except Exception as e:
+            assert (e.args[1] == 'badargs')
+
+    def test_category_manager_vote_not_int(self):
+
+        try:
+            start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+            cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=72, vote_duration='24',
+                                          description='test_category_manager_vote_not_int')
+            assert (False)
+        except Exception as e:
+            assert (e.args[1] == 'badargs')
+
+    def test_category_manager_start_too_early(self):
+
+        try:
+            start_date = (datetime.datetime.now() - datetime.timedelta(minutes=10) ).strftime('%Y-%m-%d %H:%M')
+            cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=72, vote_duration=24,
+                                          description='test_category_manager_start_too_early')
+            assert (False)
+        except Exception as e:
+            assert (e.args[1] == 'badargs')
+
+    def create_anon_user(self, session):
+        guid = str(uuid.uuid1())
+        guid = guid.upper().translate({ord(c): None for c in '-'})
+        au = usermgr.AnonUser.create_anon_user(session, guid)
+        session.commit()
+        return au
+
+    def test_event_categories(self):
+        self.setup()
+        # first we need a user
+        au = self.create_anon_user(self.session)
+        uid = au.id
+        self.session.add(au)  # in case it needs it's attributes refreshed ???
+
+        try:
+            start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+            em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date,
+                                    categories=['fluffy', 'round', 'team'],
+                                    name='Test', max_players=10, user=au, active=False, accesskey='weird-foods')
+            e = em.create_event(self.session)
+            assert (len(em._cl) == 3)
+            assert(e is not None)
+
+            eu = self.session.query(event.EventUser).filter(event.EventUser.user_id == uid).all()
+            assert(eu is not None)
+
+            # okay we now have 3 legit categories tied to this user
+            # put them in the UPLOAD state
+            for c in em._cl:
+                c.state = category.CategoryState.UPLOAD.value
+            self.session.commit()
+
+            cm = categorymgr.CategoryManager()
+            cl = cm.active_categories_for_user(self.session, au)
+            assert(cl is not None)
+            assert(len(cl) >= len(em._cl))
+
+            # try another user that shouldn't get the new categories
+            au = self.create_anon_user(self.session)
+            uid = au.id
+            self.session.add(au)  # in case it needs it's attributes refreshed ???
+            cl_short = cm.active_categories_for_user(self.session, au)
+            assert(len(cl) > len(cl_short))
+
+        except Exception as e:
+            assert(False)
+        finally:
+            self.session.close()
+            self.teardown()

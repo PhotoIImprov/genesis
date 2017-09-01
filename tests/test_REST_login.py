@@ -141,7 +141,7 @@ class iiBaseUnitTest(unittest.TestCase):
         session.add(au)
         session.commit()
 
-    def create_testuser_get_token(self):
+    def create_testuser_get_token(self, make_staff=True):
         # first create a user
         tu = TestUser()
         tu.create_user()
@@ -158,7 +158,8 @@ class iiBaseUnitTest(unittest.TestCase):
         tu.set_token(token)
         self.set_token(token)
 
-        self.make_user_IISTAFF(tu.get_username())
+        if make_staff:
+            self.make_user_IISTAFF(tu.get_username())
         return tu
 
     def create_anon_testuser_get_token(self):
@@ -1308,3 +1309,43 @@ class TestTraction(iiBaseUnitTest):
         tu = self.create_testuser_get_token()
         rsp = self.app.get(path='/forgotpwd', query_string=urlencode({'email':tu.get_username()}))
         assert(rsp.status_code == 200)
+
+class TestCategoryFiltering(iiBaseUnitTest):
+
+    def test_newevent_and_categories(self):
+        """
+        Testing that we can create an event and the categories
+        generated will only be visible to the user that created
+        the event.
+        :return:
+        """
+
+        # Step 1 - create test user
+        self.create_testuser_get_token(make_staff=False)
+
+        # Step 2 - get current categories
+        rsp = self.app.get(path='/category', headers=self.get_header_html())
+        assert(rsp.status_code == 200)
+        category_data = json.loads(rsp.data.decode("utf-8"))
+
+        # Step 3 - create event
+        start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        d = {'categories' :['Team', 'Success', 'Fun'],'num_players': 5, 'start_time': start_date, 'upload_duration': 24, 'voting_duration': 72, 'event_name': 'Image Improv Test'}
+        json_data = json.dumps(d)
+        rsp = self.app.post(path='/newevent', data=json_data, headers=self.get_header_json())
+        assert(rsp.status_code == 201)
+
+        # Step 4 - get categories again, should be more!
+        rsp = self.app.get(path='/category', headers=self.get_header_html())
+        assert(rsp.status_code == 200)
+        event_data = json.loads(rsp.data.decode("utf-8"))
+
+        # Step 5 - create a new user, have them fetch categories
+
+        # Step 5a - create test user
+        self.create_testuser_get_token()
+
+        # Step 5b - get this user's categories
+        rsp = self.app.get(path='/category', headers=self.get_header_html())
+        assert(rsp.status_code == 200)
+        newuser_category_data = json.loads(rsp.data.decode("utf-8"))

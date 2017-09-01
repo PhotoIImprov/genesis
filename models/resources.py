@@ -49,7 +49,7 @@ class Resource(Base):
     @staticmethod
     def find_resource_by_string(resource_string: str, lang: str, session):
         q = session.query(Resource).filter_by(resource_string = resource_string, iso639_1 = lang)
-        r = q.one_or_none()
+        r = q.first()
         return r
 
     @staticmethod

@@ -34,6 +34,7 @@ from urllib.parse import urlparse
 import uuid
 from models import userprofile
 from flask_cors import CORS, cross_origin
+from controllers import categorymgr
 
 app = Flask(__name__)
 app.debug = True
@@ -41,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.4.7' #our version string PEP 440
+__version__ = '1.5.0' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -237,37 +238,29 @@ def hello():
                 "  <ul>" \
                 "  <li>/preview ii logo is color and less opaque</li>" \
                 "  </ul>" \
-                "<li>v1.4.0</li>" \
-                "  <ul>" \
-                "  <li>fix /preview schema definition</li>" \
-                "  <li>increase test coverage</li>" \
-                "  </ul>" \
-                "<li>v1.4.1</li>" \
-                "  <ul>" \
-                "  <li>add route /<campaign></li>" \
-                "  </ul>" \
-                "<li>v1.4.3</li>" \
-                "  <ul>" \
-                "  <li>/update/photo/<pid></li>" \
-                "  </ul>" \
-                "<li>v1.4.4</li>" \
-                "  <ul>" \
-                "  <li>bug in filtering active photos</li>" \
-                "  </ul>" \
                 "<li>v1.4.5</li>" \
                 "  <ul>" \
                 "  <li>bug fix for # entries in /submissions</li>" \
                 "  </ul>" \
                 "<li>v1.4.6</li>" \
                 "  <ul>" \
-                "  <li>/createevent API defined</li>" \
+                "    <li>/createevent API defined</li>" \
                 "  </ul>" \
                 "<li>v1.4.7</li>" \
                 "  <ul>" \
-                "  <li>/newevent operational</li>" \
-                "  <li>fix expire key before cache entry created in /setcategorystate</li>" \
-                "  <li>added column <b>type</b> to category</li>" \
-                "  <li>fix descriptions in Swagger</li>" \
+                "    <li>/newevent operational</li>" \
+                "    <li>fix expire key before cache entry created in /setcategorystate</li>" \
+                "    <li>added column <b>type</b> to category</li>" \
+                "    <li>fix descriptions in Swagger</li>" \
+                "  </ul>" \
+                "<li>v1.4.8</li>" \
+                "  <ul>" \
+                "    <li>/photo schema definition fixed!</li>" \
+                "    <li>fix EXIF error handling for missing keys (Samsung error)</li>" \
+                "  </ul>" \
+                "<li>v1.5.0</li>" \
+                "  <ul>" \
+                "    <li>/newevent with user-specific categories</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -340,7 +333,8 @@ def hello():
     logger.info(msg='[config] List active categories')
 
     tm = voting.TallyMan()
-    cl = category.Category.active_categories(session, 1)
+    au = usermgr.AnonUser.get_anon_user_by_id(session, 1)
+    cl = category.Category.active_categories(session, au)
     if cl is None:
         htmlbody += "\n<br>No category information retrieved (ERROR)<br>"
     else:
@@ -588,9 +582,8 @@ def get_category():
     """
     rsp = None
     try:
-        uid = current_identity.id
         session = dbsetup.Session()
-        cl = category.Category.all_categories(session, uid)
+        cl = category.Category.all_categories(session, current_identity._get_current_object()) # 'current_identity' is a werkzeug.local.LocalProxy, get our object
         session.close()
         if cl is None:
            rsp = make_response(jsonify({'msg': error.error_string('CATEGORY_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -1248,6 +1241,7 @@ def photo_upload():
             category_id:
               type: integer
               description: "the category id of the current category accepting uploads"
+              example: 543
             extension:
               type: string
               enum:
@@ -1257,6 +1251,7 @@ def photo_upload():
             image:
               type: string
               description: "Base64 encoded image"
+              example: "R0lGODlhPQBEAPeoAJosM//AwO/AwHVYZ/z595kzAP/s7P+goOXMv8+fhw/v739/f+8PD98fH/8mJl+fn/9ZWb8/PzWlwv6wWGbImAPgTEMImIN9gUFCEm"
     security:
       - JWT: []
     responses:
@@ -2083,7 +2078,7 @@ def update_photometa(pid):
         name: photo-data
         required: true
         schema:
-          id: upload_photo
+          id: upload_photometa
           properties:
             like:
               type: boolean
@@ -2214,22 +2209,28 @@ def create_event():
         upload_duration = json_data['upload_duration']
         voting_duration = json_data['voting_duration']
         categories = json_data['categories']
-        games_excluded = json_data['games_excluded']
+        startdate = json_data['start_time']
+        games_excluded = json_data.get('games_excluded', None)
     except KeyError as ke:
         logger.exception(msg='error with reading JSON input')
         return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
     try:
-        em = event.EventManager(user=u, name=eventname, num_players=numplayers, upload_duration=upload_duration, vote_duration=voting_duration, categories=categories)
+        em = categorymgr.EventManager(user=u, name=eventname, start_date=startdate, num_players=numplayers, upload_duration=upload_duration, vote_duration=voting_duration, categories=categories)
         em.create_event(session)
         session.commit()
+        return make_response(jsonify({'msg': 'event created!'}), status.HTTP_201_CREATED)
     except Exception as e:
         session.close()
         logger.exception(msg="[/newevent] error creating event")
+
+        if e.args[1] == 'badargs':
+            return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)
+
         return make_response(jsonify({'msg': 'error creating event'}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    return make_response(jsonify({'msg': 'not implemented yet!'}), status.HTTP_501_NOT_IMPLEMENTED)
+    return make_response(jsonify({'msg': 'something really bad happened...'}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @app.route('/<string:campaign>')

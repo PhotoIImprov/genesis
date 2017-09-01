@@ -84,7 +84,9 @@ class Photo(Base):
         if fp is None:
             raise Exception(errno.EBADFD)
 
-        fp.write(fdata)
+        bytes_written = fp.write(fdata)
+        if (bytes_written != len(fdata)):
+            raise Exception(errno.EBADFD)
         fp.close()
         return
 
@@ -187,18 +189,30 @@ class Photo(Base):
 
     def samsung_fix(self, exif_dict: dict, exif_data: list) -> None:
         try:
-            if exif_data['Make'].decode('utf-8') != 'samsung':
+            if 'Make' not in exif_data or 'Orientation' not in exif_data:
                 return
-            if not 'Orientation' in exif_data:  # if orientation tags missing, pretty useless
+
+            # been seeing a bug where the 'Make' is not bytes but a string
+            if type(exif_data['Make']) is bytes:
+                make = exif_data['Make'].decode('utf-8')
+            elif type(exif_data['Make']) is str:
+                make = exif_data['Make']
+            else:
+                return
+
+            if make.lower() != 'samsung':
                 return
 
             image_orientation = exif_dict['0th'][0x112]
-            thumb_orientation = exif_dict['1st'][0x112]
+            thumb_orientation = exif_dict['1st'].get(0x112, image_orientation)
 
-            if image_orientation != thumb_orientation:
-                logger.info(msg="swapping orientation {0}->{1} for file {2}/{3}".format(image_orientation, thumb_orientation, self.filepath, self.filename))
-                exif_data['Orientation'] = thumb_orientation
-                exif_dict['0th'][0x112] = thumb_orientation
+            if image_orientation == thumb_orientation:
+                return
+
+            # The "Samsung bug" where the photo & the thumbnail have different orientations, the thumbnail is correct!
+            logger.info(msg="swapping orientation {0}->{1} for file {2}/{3}".format(image_orientation, thumb_orientation, self.filepath, self.filename))
+            exif_data['Orientation'] = thumb_orientation
+            exif_dict['0th'][0x112] = thumb_orientation
         except Exception as e:
             logger.exception(msg="Error with EXIF data parsing for file {0}/{1}".format(self.filepath, self.filename))
 

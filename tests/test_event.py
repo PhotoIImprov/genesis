@@ -11,6 +11,8 @@ import iiServer
 from flask import Flask
 from test_REST_login import TestUser
 import uuid
+from controllers import categorymgr
+
 
 class TestEvent(DatabaseTest):
 
@@ -31,17 +33,47 @@ class TestEvent(DatabaseTest):
 
     def test_event_manager(self):
         self.setup()
+        start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         u = self.create_user(self.session)
-        em = event.EventManager(vote_duration=24, upload_duration=72, start_date='2017-09-03 14:30', categories=['fluffy', 'round', 'team'],
+        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round', 'team'],
                                name='Test', max_players=10, user=u, active=False, accesskey='weird-foods')
         self.teardown()
 
     def test_create_event(self):
         self.setup()
+        start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         u = self.create_user(self.session)
-        em = event.EventManager(vote_duration=24, upload_duration=72, start_date='2017-09-03 14:30', categories=['fluffy', 'round', 'team'],
+        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round', 'team'],
                                name='Test', max_players=10, user=u, active=False, accesskey='weird-foods')
         em.create_event(self.session)
 
         assert(len(em._cl) == 3)
         self.teardown()
+
+    def test_event_manager_bad_date_too_early(self):
+        self.setup()
+        start_date = (datetime.datetime.now() - datetime.timedelta(minutes=10)).strftime('%Y-%m-%d %H:%M')
+        try:
+            u = self.create_user(self.session)
+            em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date,
+                                    categories=['fluffy', 'round', 'team'],
+                                    name='Test', max_players=10, user=u, active=False, accesskey='weird-foods')
+            assert(False)
+        except Exception as e:
+            assert (e.args[1] == 'badargs')
+        finally:
+            self.teardown()
+
+    def test_event_manager_bad_no_categories(self):
+        self.setup()
+        start_date = (datetime.datetime.now() - datetime.timedelta(minutes=10)).strftime('%Y-%m-%d %H:%M')
+        try:
+            u = self.create_user(self.session)
+            em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date,
+                                    categories=None,
+                                    name='Test', max_players=10, user=u, active=False, accesskey='weird-foods')
+            assert(False)
+        except Exception as e:
+            assert (e.args[1] == 'badargs')
+        finally:
+            self.teardown()

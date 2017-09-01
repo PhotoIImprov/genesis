@@ -45,6 +45,8 @@ class TestPhoto(DatabaseTest):
                 fn = fo.filename
                 fo.create_thumb()
 
+        self.session.commit() # write to the DB
+
         return  # just created a slew of photos for this category and new users
 
 # ----------------------------------- T E S T S ---------------------------------------
@@ -163,7 +165,6 @@ class TestPhoto(DatabaseTest):
         d = fo.save_user_image(self.session, pi, au.id, c.id)
         assert(d['error'] is None)
         fn = fo.filename
-        fo.create_thumb_PIL(fn=None)
         self.session.commit() # Photo & PhotoMeta should be written out
 
         pid = fo.id
@@ -178,7 +179,7 @@ class TestPhoto(DatabaseTest):
 
         # now clean up
         os.remove(fo.filepath + "/" + fn + ".JPEG")  # our main image
-        os.remove(fo.create_thumb_filename())  # our thumbnail
+        # os.remove(fo.create_thumb_filename())  # our thumbnail
        # os.removedirs(fo.filepath)
 
         self.teardown()

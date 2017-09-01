@@ -140,7 +140,7 @@ class BallotEntry(Base):
             if self._tags is None:
                 d = dict({'bid': self.id, 'orientation': 1, 'votes': votes, 'likes': likes, 'score': score,'image': self._b64image})
             else:
-                d = dict({'bid':self.id, 'orientation': 1, 'votes': votes, 'likes': likes, 'score': score, 'tags': self._tags, 'image':self._b64image})
+                d = dict({'bid':self.id, 'orientation': 1, 'votes': votes, 'likes': likes, 'score': score, 'tags': self._tags.to_str(), 'image':self._b64image})
         except Exception as e:
             raise
 

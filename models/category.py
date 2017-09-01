@@ -124,14 +124,13 @@ class Category(Base):
         return categories
 
     @staticmethod
-    def all_categories(session, uid: int) -> list:
+    def all_categories(session, au: usermgr.AnonUser) -> list:
         # display all categories that are in any of the three "Category States"
         # - UPLOAD - category can accept photos to be uploaded
         # - VOTING - category photos are ready for voting
         # - COUNTING - past voting, available to see status of winners
         try:
-            au = usermgr.AnonUser.get_anon_user_by_id(session, uid) # ensure we have a valid user context
-            if au is None:
+            if au is None or type(au) is not usermgr.AnonUser:
                 return None
 
             # first check the cache
@@ -145,7 +144,10 @@ class Category(Base):
                 filter(Category.state.in_([CategoryState.UPLOAD.value, CategoryState.VOTING.value, CategoryState.COUNTING.value, CategoryState.UNKNOWN.value])). \
                 filter(Category.type == CategoryType.OPEN.value)
             cl = q.all()
-            if cl is not None:
+            if cl is None or len(cl) == 0:
+                return None
+
+            if len(cl) > _CATEGORYLIST_MAXSIZE:
                 del cl[_CATEGORYLIST_MAXSIZE:]    # limit list to 100 elements [Note: Since we're truncating, should we order it by start_date?
 
             # if we are here then we had a cache miss, so let's stuff this in the cache
@@ -173,13 +175,13 @@ class Category(Base):
             raise
 
     @staticmethod
-    def active_categories(session, uid: int) -> list:
+    def active_categories(session, au: usermgr.AnonUser) -> list:
         # display all categories that are in any of the three "Category States"
         # - UPLOAD - category can accept photos to be uploaded
         # - VOTING - category photos are ready for voting
         # - COUNTING - past voting, available to see status of winners
         try:
-            cl = Category.all_categories(session, uid) # cached, returns everything
+            cl = Category.all_categories(session, au) # cached, returns everything
             if cl is None:
                 return cl
 
@@ -232,32 +234,6 @@ class Category(Base):
             raise Exception(errno.EINVAL, 'No Category found for cid={}'.format(cid))
 
         return c.state == CategoryState.UPLOAD.value
-
-class CategoryManager():
-    _start_date = None
-    _duration_upload = None
-    _duration_voting = None
-    _description = None
-    def __init__(self, **kwargs):
-        str_start_date = kwargs.get('start_date', None)
-        self._start_date = datetime.strptime(str_start_date, '%Y-%m-%d %H:%M')
-        self._duration_upload = kwargs.get('upload_duration', 24)
-        self._duration_vote = kwargs.get('vote_duration', 72)
-        self._description = kwargs.get('description', None)
-
-    def create_category(self, session, type: int):
-
-        # look up resource, see if we already have it
-        r = resources.Resource.find_resource_by_string(self._description, 'EN', session)
-        if r is None: # create resource
-            r = resources.Resource.create_new_resource(session, lang='EN', resource_str=self._description)
-        if r is None:
-            return None
-
-        # we have stashed (or found) our name, time to create the category
-        c = Category(upload_duration=self._duration_upload, vote_duration=self._duration_vote, start_date=self._start_date, rid=r.resource_id, type=type)
-        session.add(c)
-        return c
 
 class CategoryTag(Base):
     __tablename__ = 'categorytag'

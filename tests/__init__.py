@@ -36,10 +36,11 @@ def teardown_module():
 class DatabaseTest(TestCase):
     def setup(self):
         self.__transaction = connection.begin_nested()
-        self.session = Session() #Session(connection)
+        self.session = Session()
 
     def teardown(self):
-        self.session.close()
+        self.session.rollback()
+#        self.session.close()
         self.__transaction.rollback()
 
     @classmethod
