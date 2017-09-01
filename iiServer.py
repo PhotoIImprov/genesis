@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.5.0' #our version string PEP 440
+__version__ = '1.5.1' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -261,6 +261,10 @@ def hello():
                 "<li>v1.5.0</li>" \
                 "  <ul>" \
                 "    <li>/newevent with user-specific categories</li>" \
+                "  </ul>" \
+                "<li>v1.5.1</li>" \
+                "  <ul>" \
+                "    <li>/category now returns user-specific categories createdc by /newevent</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -583,7 +587,8 @@ def get_category():
     rsp = None
     try:
         session = dbsetup.Session()
-        cl = category.Category.all_categories(session, current_identity._get_current_object()) # 'current_identity' is a werkzeug.local.LocalProxy, get our object
+        cm = categorymgr.CategoryManager()
+        cl = cm.active_categories_for_user(session, current_identity._get_current_object())
         session.close()
         if cl is None:
            rsp = make_response(jsonify({'msg': error.error_string('CATEGORY_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -2217,7 +2222,7 @@ def create_event():
 
     session = dbsetup.Session()
     try:
-        em = categorymgr.EventManager(user=u, name=eventname, start_date=startdate, num_players=numplayers, upload_duration=upload_duration, vote_duration=voting_duration, categories=categories)
+        em = categorymgr.EventManager(user=current_identity, name=eventname, start_date=startdate, num_players=numplayers, upload_duration=upload_duration, vote_duration=voting_duration, categories=categories)
         em.create_event(session)
         session.commit()
         return make_response(jsonify({'msg': 'event created!'}), status.HTTP_201_CREATED)

@@ -578,7 +578,7 @@ class TestImages(iiBaseUnitTest):
         session.close()
         rsp = self.app.get(path='/preview/{0}'.format(pid), headers=headers)
         if rsp.status_code != 200:
-            print("[test_preview_good_pid] HTTP response status = {}".format(rsp.status_code) )
+            print("[test_preview_good_pid] HTTP response status = {} for pid {}".format(rsp.status_code, pid))
             assert(False)
         assert(rsp.status_code == 200)
         assert(rsp.content_type == 'image/jpeg')
@@ -1330,7 +1330,8 @@ class TestCategoryFiltering(iiBaseUnitTest):
 
         # Step 3 - create event
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        d = {'categories' :['Team', 'Success', 'Fun'],'num_players': 5, 'start_time': start_date, 'upload_duration': 24, 'voting_duration': 72, 'event_name': 'Image Improv Test'}
+        new_categories = ['Team', 'Success', 'Fun']
+        d = {'categories' : new_categories,'num_players': 5, 'start_time': start_date, 'upload_duration': 24, 'voting_duration': 72, 'event_name': 'Image Improv Test'}
         json_data = json.dumps(d)
         rsp = self.app.post(path='/newevent', data=json_data, headers=self.get_header_json())
         assert(rsp.status_code == 201)
@@ -1343,9 +1344,21 @@ class TestCategoryFiltering(iiBaseUnitTest):
         # Step 5 - create a new user, have them fetch categories
 
         # Step 5a - create test user
-        self.create_testuser_get_token()
+        self.create_testuser_get_token(make_staff=False)
 
         # Step 5b - get this user's categories
         rsp = self.app.get(path='/category', headers=self.get_header_html())
         assert(rsp.status_code == 200)
         newuser_category_data = json.loads(rsp.data.decode("utf-8"))
+
+        assert(len(event_data) - len(newuser_category_data) == len(new_categories)) # new user should get less categories
+
+        # verify the new categories are in the new list
+        found = 0
+        for n in new_categories:
+            for c in event_data:
+                if n == c['description']:
+                    found = found + 1
+                    break
+
+        assert(found == len(new_categories))

@@ -5,6 +5,7 @@ import sys
 from sqlalchemy.sql.expression import insert, select
 from sqlalchemy import func
 from logsetup import logger
+from sqlalchemy import func
 
 resource_map = None
 
@@ -48,7 +49,7 @@ class Resource(Base):
 
     @staticmethod
     def find_resource_by_string(resource_string: str, lang: str, session):
-        q = session.query(Resource).filter_by(resource_string = resource_string, iso639_1 = lang)
+        q = session.query(Resource).filter_by(resource_string = func.binary(resource_string), iso639_1 = lang)
         r = q.first()
         return r
 

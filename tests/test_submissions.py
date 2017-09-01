@@ -205,6 +205,12 @@ class TestSubmissions(DatabaseTest):
 
             submission_length = submission_length + 1
 
+        # our final act is make these all inactive
+        for c in self._cl:
+            c.state = category.CategoryState.CLOSED.value;
+
+        self.session.commit()
+
         self.teardown()
 
 
