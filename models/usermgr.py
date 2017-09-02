@@ -141,21 +141,21 @@ class User(Base):
     def change_password(self, session, password: str) -> None:
         self.hashedPWD = pbkdf2_sha256.hash(password, rounds=1000, salt_size=16)
 
-    def forgot_password(self, session) -> int:
-        '''
-        User has forgotten their password, generate a new one
-        update their record and email it to them.
-        :param session:
-        :return:
-        '''
-        try:
-            new_password = self.random_password(8)
-            self.change_password(session, new_password)
-            http_status = self.send_password_email(new_password)
-        except Exception as e:
-            http_status = 500
-        finally:
-            return http_status
+    # def forgot_password(self, session) -> int:
+    #     '''
+    #     User has forgotten their password, generate a new one
+    #     update their record and email it to them.
+    #     :param session:
+    #     :return:
+    #     '''
+    #     try:
+    #         new_password = self.random_password(8)
+    #         self.change_password(session, new_password)
+    #         http_status = self.send_password_email(new_password)
+    #     except Exception as e:
+    #         http_status = 500
+    #     finally:
+    #         return http_status
 
     @staticmethod
     def create_user(session, guid, username, password):

@@ -11,6 +11,7 @@ from logsetup import logger
 from models import resources
 from models import usermgr, category, event
 from cache.ExpiryCache import _expiry_cache
+from sqlalchemy import exists
 
 _CATEGORYLIST_MAXSIZE = 100
 
@@ -112,8 +113,45 @@ class EventManager():
             c = CategoryManager(description=n, start_date=start_date, upload_duration=upload_duration, vote_duration=vote_duration)
             self._cm_list.append(c)
 
-    def create_event(self, session) -> event.Event:
+    @staticmethod
+    def join_event(session, accesskey: str, au: usermgr.AnonUser) -> list:
+        try:
+            # q = session.query(event.Event).\
+            #     join(event.EventCategory, event.EventCategory.event_id == event.Event.id). \
+            #     join(category.Category, category.Category.id == event.EventCategory.category_id). \
+            #     filter(event.Event.accesskey == accesskey). \
+            #     filter(category.Category.state != category.CategoryState.CLOSED.value)
+            q = session.query(event.Event).\
+                filter(event.Event.accesskey == accesskey)
+            e = q.one_or_none()
+            if e is None:
+                raise Exception('join_event', 'event not found') # no such event
 
+            # we have an event the user can join, so we need to create an EventUser
+            # see if it already exists...
+            q = session.query(event.EventUser). \
+                filter(event.EventUser.user_id == au.id). \
+                filter(event.EventUser.event_id == e.id)
+            eu = q.one_or_none()
+            if eu is None:
+                eu = event.EventUser(user=au, event=e, active=True)
+                session.add(eu)
+
+            # okay we have joined the event (or we were already joined). Let's get this event's
+            # category list
+            q = session.query(category.Category). \
+                join(event.EventCategory, event.EventCategory.category_id == category.Category.id). \
+                filter(event.EventCategory.event_id == e.id)
+
+            cl = q.all()
+            return cl
+        except Exception as e:
+            logger.exception(msg='error joining event')
+            raise
+
+        raise Exception('join_event', 'fatal error')
+
+    def create_event(self, session) -> event.Event:
         passphrases = PassPhraseManager().select_passphrase(session)
         self._e.accesskey = passphrases
         session.add(self._e)

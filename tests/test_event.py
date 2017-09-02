@@ -89,3 +89,45 @@ class TestEvent(DatabaseTest):
             assert(False)
         finally:
             self.teardown()
+
+    def test_join_event_creator(self):
+        self.setup()
+        start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        u = self.create_user(self.session)
+        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round', 'team'],
+                               name='Test', max_players=10, user=u, active=False, accesskey='weird-foods')
+        em.create_event(self.session)
+
+        accesskey = em._e.accesskey
+        assert(accesskey is not None)
+
+        # let's try to join this event, we are already in it so no harm, no foul
+        cl = categorymgr.EventManager.join_event(self.session, accesskey, u)
+        assert(cl is not None)
+        assert(len(cl) == 3)
+
+        self.teardown()
+
+    def test_join_event_user(self):
+        self.setup()
+        start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        u = self.create_user(self.session)
+        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round', 'team'],
+                               name='Test', max_players=10, user=u, active=False, accesskey='weird-foods')
+        em.create_event(self.session)
+
+        accesskey = em._e.accesskey
+        assert(accesskey is not None)
+
+        # let's try to join this event, we are already in it so no harm, no foul
+        u = self.create_user(self.session)
+        cl = categorymgr.EventManager.join_event(self.session, accesskey, u)
+        assert(cl is not None)
+        assert(len(cl) == 3)
+        self.session.commit()
+
+        # there should be an EventUser record created by that last commit, and only one!
+        eu = self.session.query(event.EventUser).filter(event.EventUser.user_id == u.id).one()
+        assert(eu is not None)
+
+        self.teardown()

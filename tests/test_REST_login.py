@@ -1312,7 +1312,7 @@ class TestTraction(iiBaseUnitTest):
 
 class TestCategoryFiltering(iiBaseUnitTest):
 
-    def test_newevent_and_categories(self):
+    def create_newevent_and_categories(self) -> str:
         """
         Testing that we can create an event and the categories
         generated will only be visible to the user that created
@@ -1365,3 +1365,23 @@ class TestCategoryFiltering(iiBaseUnitTest):
                     break
 
         assert(found == len(new_categories))
+
+        return accesskey
+
+    def test_newevent(self):
+        accesskey = self.create_newevent_and_categories()
+        assert(accesskey is not None)
+
+    def test_joinevent(self):
+        accesskey = self.create_newevent_and_categories()
+        assert(accesskey is not None)
+
+        # Step 1 - create test user
+        self.create_testuser_get_token(make_staff=False)
+
+        # Step 2 - join
+        rsp = self.app.post(path='/joinevent', query_string=urlencode({'accesskey': accesskey}), headers=self.get_header_html())
+        assert(rsp.status_code == 200)
+        category_data = json.loads(rsp.data.decode("utf-8"))
+        assert(category_data is not None)
+        assert(len(category_data) == 3)

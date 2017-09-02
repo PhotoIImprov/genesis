@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.5.3' #our version string PEP 440
+__version__ = '1.5.4' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -122,7 +122,7 @@ def spec():
                                                      'schema':
                                                         {'required': ['username', 'password'],
                                                          'properties':{'username':{'type':'string', 'example':'user@gmail.com'},
-                                                                        'password':{'type':'string', 'example':'$pbkdf2-sha256$1000$LAWAMAZAaM25l9Ka8/4fYw$icW/iPLdzqdIc97nxgRjalLmi/MwD3VfV5EdBVrh1LI'}},
+                                                                        'password':{'type':'string', 'example':'mysecretpassword'}},
                                                          }}],
                                       'responses': {'200':{'description': 'user authenticated',
                                                            'schema':
@@ -265,6 +265,10 @@ def hello():
                 "  <ul>" \
                 "    <li>/newevent returns 'accesskey' on success</li>" \
                 "    <li>'accesskey' values pulled from table randomized</li>" \
+                "  </ul>" \
+                "<li>v1.5.4</li>" \
+                "  <ul>" \
+                "    <li>/joinevent implemented & defined</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -2244,6 +2248,56 @@ def create_event():
 
     return make_response(jsonify({'msg': 'something really bad happened...'}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@app.route('/joinevent', methods=['POST'])
+@jwt_required()
+@timeit()
+def join_event():
+    """
+    Join a Private Event
+    join an event (one or more categories) that was organized by another party
+    ---
+    tags:
+      - category
+    operationId: join_event
+    consumes:
+      - text/html
+    produces:
+      - application/json
+    parameters:
+      - in: query
+        name: accesskey
+        description: "string that uniquely identifies an event to join"
+        example: "able move"
+        required: true
+        type: string
+    security:
+      - JWT: []
+    responses:
+      200:
+        description: "category list for event"
+        schema:
+          id: categories
+          type: array
+          items:
+            $ref: '#/definitions/Category'
+      400:
+        description: "error in specified arguments"
+        schema:
+          $ref: '#/definitions/Error'
+    """
+
+    session = dbsetup.Session()
+    try:
+        accesskey = request.args.get('accesskey')
+        cl = categorymgr.EventManager.join_event(session, accesskey, current_identity._get_current_object())
+        if cl is not None:
+            categories = category.Category.list_to_json(cl)
+            return make_response(jsonify(categories), status.HTTP_200_OK)
+    except KeyError:
+        session.close()
+        return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)
+
+    return make_response(jsonify({'msg': 'event not found or not categories'}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @app.route('/<string:campaign>')
 def default_path(campaign: str):
