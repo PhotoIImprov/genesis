@@ -69,6 +69,13 @@ class Photo(Base):
         num_photos = session.query(Photo).filter_by(category_id = cid).count()
         return num_photos
 
+    @staticmethod
+    def count_by_users(session, cid: int) -> int:
+        # let's count how many distinct users have uploaded photos for this category
+        q = session.query(Photo.user_id).distinct().filter(Photo.category_id == cid)
+        num_users = q.count()
+        return num_users
+
     def set_orientation(self, orientation: int) -> None:
         self._orientation = orientation
 

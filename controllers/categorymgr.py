@@ -231,6 +231,37 @@ class EventManager():
         return self._e
 
     @staticmethod
+    def event_details(session, au: usermgr.AnonUser, event_id: int) -> list:
+        try:
+            e = session.query(event.Event).get(event_id)
+            cl = e.read_categories(session)
+            cl_dict = []
+            for c in cl:
+                (num_photos, num_users) = EventManager.category_details(session, c)
+                c_dict = c.to_json()
+                c_dict['num_players'] = num_users
+                c_dict['num_photos'] = num_photos
+                cl_dict.append(c_dict)
+
+            e_dict = e.to_dict()
+            e_dict['categories'] = cl_dict
+            return e_dict
+        except Exception as e:
+            logger.exception(msg="error fetching event {0}".format(event_id))
+            raise
+
+        return None
+
+    @staticmethod
+    def category_details(session, c: category.Category):
+        try:
+            num_photos = photo.Photo.count_by_category(session, c.id)
+            num_users = photo.Photo.count_by_users(session, c.id)
+            return (num_photos, num_users)
+        except Exception as e:
+            raise
+
+    @staticmethod
     def events_for_user(session, au: usermgr.AnonUser) -> list:
         try:
             q = session.query(event.Event). \

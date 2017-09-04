@@ -205,3 +205,25 @@ class TestEvent(DatabaseTest):
                 assert(e['id'] == e2.id)
 
         self.teardown()
+
+    def test_event_detail(self):
+        self.setup()
+
+        # first create an event
+        start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        au = self.create_anon_user(self.session)
+        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
+                               name='EventList Test#1', max_players=10, user=au, active=False)
+        e = em.create_event(self.session)
+
+        assert(len(em._cl) == 2)
+
+        # now get the details for the first element
+        e_dict = categorymgr.EventManager.event_details(self.session, au, e.id)
+        assert(e_dict is not None)
+        cl = e_dict['categories']
+        assert(len(cl) == 2)
+        for c in cl:
+            assert(c['num_players'] == 0 and c['num_photos'] == 0)
+
+        self.teardown()

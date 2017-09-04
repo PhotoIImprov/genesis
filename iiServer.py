@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.5.7' #our version string PEP 440
+__version__ = '1.5.8' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -262,6 +262,11 @@ def hello():
                 "<li>v1.5.7</li>" \
                 "  <ul>" \
                 "    <li>/event - lists all active events this user has rights to see</li>" \
+                "  </ul>" \
+                "<li>v1.5.8</li>" \
+                "  <ul>" \
+                "    <li>/category does NOT return categories for Events, call /event</li>" \
+                "    <li>/event/<event_id> returns details of Event and associated categories</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -522,7 +527,9 @@ def set_category_state():
 def get_category():
     """
     Fetch Category
-    Fetched specified category information
+    Return a list of categories that are not closed
+    (PENDING, VOTING, UPLOAD & COUNTING). No categories associated
+    with Events are returned, call /event service
     ---
     tags:
       - category
@@ -585,8 +592,9 @@ def get_category():
     rsp = None
     try:
         session = dbsetup.Session()
-        cm = categorymgr.CategoryManager()
-        cl = cm.active_categories_for_user(session, current_identity._get_current_object())
+        cl = category.Category.all_categories(session,current_identity._get_current_object())
+#        cm = categorymgr.CategoryManager()
+#        cl = cm.active_categories_for_user(session, current_identity._get_current_object())
         session.close()
         if cl is None:
 #           categories = []
@@ -2498,6 +2506,109 @@ def event_status():
     session = dbsetup.Session()
     try:
         d_el = categorymgr.EventManager.events_for_user(session, current_identity._get_current_object())
+        return make_response(jsonify(d_el), status.HTTP_200_OK)
+    except KeyError:
+        session.close()
+        return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)
+
+    return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_501_NOT_IMPLEMENTED)
+
+@app.route('/event/<int:event_id>', methods=['GET'])
+@jwt_required()
+@timeit()
+def event_details(event_id):
+    """
+    Event details
+    returns details for the specified event and all categories
+    associated with it.
+    ---
+    tags:
+      - category
+    operationId: event_status
+    consumes:
+      - text/html
+    produces:
+      - application/json
+    security:
+      - JWT: []
+    responses:
+      200:
+        description: "list of active events for this user"
+        schema:
+          id: eventdetails
+          items:
+            $ref: '#/definitions/EventDetails'
+      400:
+        description: "error in specified arguments"
+        schema:
+          $ref: '#/definitions/Error'
+    definitions:
+      - schema:
+          id: CategoryDetails
+          properties:
+            id:
+              type: integer
+              description : "unique internal category identifier"
+            description:
+              type: string
+              description: "the category's theme"
+            start_date:
+              type: string
+              description: "date & time category started, UTC, 24hour time"
+              example: "2017-09-24 13:45"
+            num_players:
+              type: integer
+              description: "The number of unique players that have uploaded at least one photo to this category"
+              example: 53
+            num_photos:
+              type: integer
+              description: "The total number of photos uploaded to this category"
+              example: 132347
+            state:
+              type: string
+              enum:
+                - UPLOAD
+                - VOTING
+                - COUNTING
+                - CLOSED
+                - PENDING
+              description: "The current state of the category (VOTING, UPLOADING, CLOSED, etc.)"
+      - schema:
+          id: EventDetails
+          properties:
+            id:
+              type: integer
+              description: "unique internal event identifier"
+              example: 1347
+            accesskey:
+              type: string
+              description: "key phrase used to join this event"
+              example: "able move"
+            name:
+              type: string
+              description: "name of this event"
+              example: "2017 Company Picnic"
+            created:
+              type: string
+              description: "date/time this event was created, UTC"
+              example: "2017-09-04 14:25"
+            num_players:
+              type: int
+              description: "number of players who have joined this event"
+              example: 5
+            created_by:
+              type: string
+              description: "the user that created this event, or 'me' if the user making this call"
+              example: "someuser@gmail.com -or- Image Improv -or- me"
+            categories:
+              type: array
+              items:
+                $ref: '#/definitions/CategoryDetails'
+    """
+
+    session = dbsetup.Session()
+    try:
+        d_el = categorymgr.EventManager.event_details(session, current_identity._get_current_object(), event_id)
         return make_response(jsonify(d_el), status.HTTP_200_OK)
     except KeyError:
         session.close()

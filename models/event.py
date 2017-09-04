@@ -32,6 +32,7 @@ class Event(Base):
                 join(EventCategory, EventCategory.category_id == category.Category.id). \
                 filter(EventCategory.event_id == self.id)
             self._cl = q.all()
+            return self._cl
         except Exception as e:
             logger.exception(msg="error reading categories for Event {0}".format(self.id))
             raise
@@ -40,7 +41,7 @@ class Event(Base):
         d_cl = []
         for c in self._cl:
             d_cl.append(c.to_json())
-        return {'accesskey': self.accesskey, 'max_players': self.num_players, 'name': self.name, 'active': self.active, 'created_by': str(self.user_id), 'categories': d_cl, 'created': self.created_date.strftime("%Y-%m-%d %H:%M")}
+        return {'id': self.id, 'accesskey': self.accesskey, 'max_players': self.num_players, 'name': self.name, 'active': self.active, 'created_by': str(self.user_id), 'categories': d_cl, 'created': self.created_date.strftime("%Y-%m-%d %H:%M")}
 
 class EventUser(Base):
     __tablename__ = 'eventuser'

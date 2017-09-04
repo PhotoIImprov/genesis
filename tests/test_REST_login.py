@@ -1431,32 +1431,20 @@ class TestCategoryFiltering(iiBaseUnitTest):
         accesskey = accesskey_data['accesskey']
         assert(len(accesskey) == 9)
 
-        # Step 4 - get categories again, should be more!
-        rsp = self.app.get(path='/category', headers=self.get_header_html())
-        assert(rsp.status_code == 200)
-        event_data = json.loads(rsp.data.decode("utf-8"))
-
-        # Step 5 - create a new user, have them fetch categories
-
-        # Step 5a - create test user
-        self.create_testuser_get_token(make_staff=False)
-
-        # Step 5b - get this user's categories
-        rsp = self.app.get(path='/category', headers=self.get_header_html())
-        assert(rsp.status_code == 200)
-        newuser_category_data = json.loads(rsp.data.decode("utf-8"))
-
-        assert(len(event_data) - len(newuser_category_data) == len(new_categories)) # new user should get less categories
-
-        # verify the new categories are in the new list
-        found = 0
-        for n in new_categories:
-            for c in event_data:
-                if n == c['description']:
-                    found = found + 1
-                    break
-
-        assert(found == len(new_categories))
+        # # Step 4 - get categories again, should be more!
+        # rsp = self.app.get(path='/category', headers=self.get_header_html())
+        # assert(rsp.status_code == 200)
+        # event_data = json.loads(rsp.data.decode("utf-8"))
+        #
+        # # Step 5 - create a new user, have them fetch categories
+        #
+        # # Step 5a - create test user
+        # self.create_testuser_get_token(make_staff=False)
+        #
+        # # Step 5b - get this user's categories
+        # rsp = self.app.get(path='/category', headers=self.get_header_html())
+        # assert(rsp.status_code == 200)
+        # newuser_category_data = json.loads(rsp.data.decode("utf-8"))
 
         return accesskey
 
@@ -1487,6 +1475,24 @@ class TestCategoryFiltering(iiBaseUnitTest):
         assert(rsp.status_code == 200)
         event_list = json.loads(rsp.data.decode("utf-8"))
         assert(event_list is not None)
+
+    def test_event_details(self):
+
+        # okay, we need to create an event and get it back
+        tu = self.create_testuser_get_token()
+        self.create_newevent_and_categories(tu)
+        rsp = self.app.get(path='/event', headers=self.get_header_html())
+        assert(rsp.status_code == 200)
+        event_list = json.loads(rsp.data.decode("utf-8"))
+        assert(event_list is not None)
+        assert(len(event_list) == 1)
+
+        event_id = event_list[0]['id']
+
+        rsp = self.app.get(path='/event/{0}'.format(event_id), headers=self.get_header_html())
+        assert(rsp.status_code == 200)
+        cl = event_list[0]['categories']
+        assert(len(cl) == 3)
 
 
 class TestAdminAPIs(iiBaseUnitTest):
