@@ -6,6 +6,7 @@ import json
 import uuid
 from sqlalchemy import func
 import datetime
+from controllers import categorymgr
 
 class TestSubmissions(DatabaseTest):
     _cl = []
@@ -102,32 +103,6 @@ class TestSubmissions(DatabaseTest):
 
         self.teardown()
 
-    def create_category_list(self, num_categories: int) -> list:
-        # let's create our categories
-        r = self.session.query(func.max(resources.Resource.resource_id)).first()
-        rid = r[0]
-        cl = []
-        for i in range(1,num_categories+1):
-            category_desc = "TestCategory{0}".format(i)
-            rid = rid + 1
-            r = resources.Resource(rid, 'EN', category_desc)
-            self.session.add(r)
-            self.session.commit()
-
-            c = category.Category()
-            c.resource_id = rid
-            c.start_date = datetime.datetime.now()
-            c.end_date = c.start_date + datetime.timedelta(days=1)
-
-            c.duration_upload = 24
-            c.duration_vote = 72
-            c.state = category.CategoryState.UNKNOWN.value
-            self.session.add(c)
-            self.session.commit()
-            cl.append(c)
-
-        return cl
-
     def create_photos_for_category(self, uid: int, c, num_photos: int)-> None:
 
         for i in range (1,num_photos):
@@ -143,6 +118,18 @@ class TestSubmissions(DatabaseTest):
             self.session.add(p)
 
         self.session.commit()
+
+    def create_category_list(self, num_categories: int) -> list:
+        cl = []
+        for i in range(0, num_categories):
+            guid = str(uuid.uuid1())
+            category_description = guid.upper().translate({ord(c): None for c in '-'})
+            start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+
+            cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
+            c = cm.create_category(self.session, category.CategoryType.OPEN.value)
+            cl.append(c)
+        return cl
 
     def create_submissions_test_data(self, num_categories: int)-> int:
         guid = str(uuid.uuid1())

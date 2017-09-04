@@ -17,13 +17,30 @@ class Event(Base):
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
     _u = None
+    _cl = None
     def __init__(self, **kwargs):
         self._u = kwargs.get('user', None)
         self.user_id = self._u.id
         self.accesskey = kwargs.get('accesskey', None)
-        self.max_players = kwargs.get('max_players', 5)
+        self.num_players = kwargs.get('max_players', 5)
         self.active = kwargs.get('active', True)
         self.name = kwargs.get('name', None)
+
+    def read_categories(self, session):
+        try:
+            q = session.query(category.Category). \
+                join(EventCategory, EventCategory.category_id == category.Category.id). \
+                filter(EventCategory.event_id == self.id)
+            self._cl = q.all()
+        except Exception as e:
+            logger.exception(msg="error reading categories for Event {0}".format(self.id))
+            raise
+
+    def to_dict(self) -> dict:
+        d_cl = []
+        for c in self._cl:
+            d_cl.append(c.to_json())
+        return {'accesskey': self.accesskey, 'max_players': self.num_players, 'name': self.name, 'active': self.active, 'created_by': str(self.user_id), 'categories': d_cl, 'created': self.created_date.strftime("%Y-%m-%d %H:%M")}
 
 class EventUser(Base):
     __tablename__ = 'eventuser'

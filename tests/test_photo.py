@@ -19,21 +19,21 @@ from flask import Flask
 import cv2
 import numpy
 import subprocess
+from controllers import categorymgr
 
 class TestPhoto(DatabaseTest):
 
-    def create_test_photos(self, cid):
+    def create_test_photos(self, cid, num=50):
         # create a bunch of test photos for the specified category
 
         # read our test file
-#        ft = open('../photos/TEST4.jpg', 'rb')
         ft = open('../photos/SAMSUNG2.jpg', 'rb')
         pi = photo.PhotoImage()
         pi._extension = 'JPEG'
         pi._binary_image = ft.read()
         ft.close()
 
-        for i in range(1, 50):
+        for i in range(0, num):
             email = 'bp100a_' + str(i) + '@gmail.com'
             auuid = str(uuid.uuid1()).replace('-','')
             au = usermgr.AnonUser.create_anon_user(self.session, auuid)
@@ -144,20 +144,20 @@ class TestPhoto(DatabaseTest):
         pi._binary_image = ft.read()
         ft.close()
 
-        # first we need a resource
-        r = resources.Resource.load_resource_by_id(self.session, rid=5555, lang='EN')
-        if r is None:
-            r = resources.Resource.create_resource(rid=5555, lang='EN', resource_str='Kittens')
-            resources.Resource.write_resource(self.session, r)
+        guid = str(uuid.uuid1())
+        category_description = guid.upper().translate({ord(c): None for c in '-'})
+        start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
 
-        # now create our category
-        s_date = datetime.datetime.now()
-        e_date = s_date + datetime.timedelta(days=1)
-        c = category.Category.create_category(r.resource_id, s_date, e_date, category.CategoryState.UPLOAD)
-        category.Category.write_category(self.session, c)
+        cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
+        c = cm.create_category(self.session, category.CategoryType.OPEN.value)
+        c.state = category.CategoryState.UPLOAD.value
+
+        self.session.commit()
 
         # create a user
-        au = usermgr.AnonUser.create_anon_user(self.session, '99275132efe811e6bc6492361f002673')
+        guid = str(uuid.uuid1())
+        anon_username = guid.upper().translate({ord(c): None for c in '-'})
+        au = usermgr.AnonUser.create_anon_user(self.session, anon_username)
         assert(au is not None)
         self.session.commit()
 
@@ -463,12 +463,55 @@ class TestPhoto(DatabaseTest):
         fn.write(binary_img)
         fn.close()
 
+    def get_valid_photo_id(self, session):
+
+        fo = photo.Photo()
+        pi = photo.PhotoImage()
+        pi._extension = 'JPEG'
+
+        # read our test file
+        cwd = os.getcwd()
+        if 'tests' in cwd:
+            path = '../photos/SAMSUNG2.JPG' #'../photos/Cute_Puppy.jpg'
+        else:
+            path = cwd + '/photos/SAMSUNG2.JPG' #'/photos/Cute_Puppy.jpg'
+        ft = open(path, 'rb')
+        pi._binary_image = ft.read()
+        ft.close()
+
+        guid = str(uuid.uuid1())
+        category_description = guid.upper().translate({ord(c): None for c in '-'})
+        start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+
+        cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
+        c = cm.create_category(session, category.CategoryType.OPEN.value)
+        c.state = category.CategoryState.UPLOAD.value
+        session.commit()
+
+        # create a user
+        guid = str(uuid.uuid1())
+        anon_username = guid.upper().translate({ord(c): None for c in '-'})
+        au = usermgr.AnonUser.create_anon_user(session, anon_username)
+        assert(au is not None)
+        session.commit()
+
+        fo.category_id = c.id
+        d = fo.save_user_image(self.session, pi, au.id, c.id)
+        assert(d['error'] is None)
+        fn = fo.filename
+        session.commit() # Photo & PhotoMeta should be written out
+
+        pid = fo.id
+
+        c.state = category.CategoryState.CLOSED.value
+        session.commit()
+        return pid
+
     def test_iiServer_preview(self):
         self.setup()
-        p = photo.Photo()
-        pid = self.session.query(func.max(photo.Photo.id)).first()
+        pid = self.get_valid_photo_id(self.session)
 
-        binary_image = p.read_thumbnail_by_id_with_watermark(self.session, pid[0])
+        binary_image = photo.Photo().read_thumbnail_by_id_with_watermark(self.session, pid)
         assert(binary_image is not None)
 
         self.teardown()

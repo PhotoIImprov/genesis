@@ -9,6 +9,8 @@ import dbsetup
 import iiServer
 from flask import Flask
 from sqlalchemy import func
+from controllers import categorymgr
+
 
 class TestEngagement(DatabaseTest):
 
@@ -29,11 +31,11 @@ class TestEngagement(DatabaseTest):
         assert(ft is not None)
 
     def test_rewardmanager_instantiation(self):
-        rm = engagement.RewardManager()
+        rm = categorymgr.RewardManager()
         assert(rm is not None)
 
     def test_feedbackmanager_instantiation(self):
-        fm = engagement.FeedbackManager()
+        fm = categorymgr.FeedbackManager()
         assert(fm is not None)
 
     def get_test_photo(self, session) -> photo.Photo:
@@ -49,7 +51,7 @@ class TestEngagement(DatabaseTest):
         p = self.get_test_photo(self.session)
         assert(p is not None)
 
-        fm = engagement.FeedbackManager(uid=p.user_id, pid=p.id, like=True, offensive=True, tags=['tag1', 'tag2', 'tag3'])
+        fm = categorymgr.FeedbackManager(uid=p.user_id, pid=p.id, like=True, offensive=True, tags=['tag1', 'tag2', 'tag3'])
         assert(fm is not None)
 
         fm.create_feedback(self.session)

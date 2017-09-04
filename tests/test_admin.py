@@ -1,10 +1,12 @@
 
 from unittest import TestCase
 from models import admin
-from models import usermgr
+from models import usermgr, category, photo
 from tests import DatabaseTest
 from datetime import datetime, timedelta
 from sqlalchemy import func
+from controllers import categorymgr
+import uuid
 
 class TestBaseURL(DatabaseTest):
     def test_default_url(self):
@@ -89,6 +91,7 @@ class TestCSRFevent(DatabaseTest):
             assert (False)
 
     def test_csrfevent_been_used(self):
+        self.setup()
         ce = admin.CSRFevent(1, 24)
         assert(not ce.been_used)
         assert(ce.isvalid())
@@ -100,3 +103,46 @@ class TestCSRFevent(DatabaseTest):
         ce.expiration_date = datetime.now() - timedelta(days=1)
         ce.been_used = False
         assert(not ce.isvalid())
+        self.teardown()
+
+    def test_category_photo_list(self):
+        self.setup()
+
+        guid = str(uuid.uuid1())
+        guid = guid.translate({ord(c): None for c in '-'})
+        au = usermgr.AnonUser.create_anon_user(self.session, guid)
+        self.session.add(au)
+
+        guid = str(uuid.uuid1())
+        category_description = guid.upper().translate({ord(c): None for c in '-'})
+        start_date = datetime.now().strftime('%Y-%m-%d %H:%M')
+
+        cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
+        c = cm.create_category(self.session, category.CategoryType.OPEN.value)
+        self.session.commit()
+
+        num_photos = 5
+        for i in range (1,num_photos+1):
+            p = photo.Photo()
+            p.category_id = c.id
+            p.filepath = 'boguspath'
+            p.filename = str(uuid.uuid1()).translate({ord(c): None for c in '-'})
+            p.user_id = au.id
+            p.times_voted = 0
+            p.score = i*4
+            p.likes = 0
+            p.active = 1
+            self.session.add(p)
+
+        self.session.commit()
+
+        # okay we have a new user, a new category, and the category has 5 photos
+
+        pl = cm.category_photo_list(self.session, 'next', 0, c.id)
+        assert(pl is not None)
+        assert(len(pl) == num_photos)
+
+        c.state = category.CategoryState.CLOSED.value;
+        self.session.commit()
+
+        self.teardown()

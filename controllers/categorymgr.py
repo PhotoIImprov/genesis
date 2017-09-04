@@ -9,7 +9,7 @@ from cache.iiMemoize import memoize_with_expiry, _memoize_cache
 from dbsetup import Base
 from logsetup import logger
 from models import resources
-from models import usermgr, category, event
+from models import usermgr, category, event, engagement, photo
 from cache.ExpiryCache import _expiry_cache
 from sqlalchemy import exists
 
@@ -24,9 +24,15 @@ class CategoryManager():
     def __init__(self, **kwargs):
         if len(kwargs) == 0:
             return
-        str_start_date = kwargs.get('start_date', None)
-        if str_start_date is not None:
-            self._start_date = datetime.strptime(str_start_date, '%Y-%m-%d %H:%M')
+        try:
+            str_start_date = kwargs.get('start_date', None)
+            if str_start_date is not None:
+                self._start_date = datetime.strptime(str_start_date, '%Y-%m-%d %H:%M')
+        except ValueError as ve:
+            msg = "error with date/time format {0}, format should be YYYY-MM-DD HH:MM, UTC time".format(str_start_date)
+            logger.excepion(msg=msg)
+            raise
+
         self._duration_upload = kwargs.get('upload_duration', 24)
         self._duration_vote = kwargs.get('vote_duration', 72)
         self._description = kwargs.get('description', None)
@@ -70,13 +76,20 @@ class CategoryManager():
         """
         open_cl = category.Category.all_categories(session, au)
         try:
+            # q = session.query(category.Category). \
+            #     join(event.EventCategory,event.EventCategory.category_id == category.Category.id). \
+            #     join(event.EventUser, event.EventUser.event_id == event.EventCategory.event_id). \
+            #     filter(category.Category.state != category.CategoryState.CLOSED.value) . \
+            #     filter(event.EventUser.active == True) . \
+            #     filter(event.EventCategory.active == True). \
+            #     filter(event.EventUser.user_id == au.id)
+
             q = session.query(category.Category). \
                 join(event.EventCategory,event.EventCategory.category_id == category.Category.id). \
                 join(event.EventUser, event.EventUser.event_id == event.EventCategory.event_id). \
                 filter(category.Category.state != category.CategoryState.CLOSED.value) . \
-                filter(event.EventUser.active == True) . \
-                filter(event.EventCategory.active == True). \
                 filter(event.EventUser.user_id == au.id)
+
             event_cl  = q.all()
         except Exception as e:
             logger.exception(msg="error reading event category list for user:{}".format(u.id))
@@ -89,6 +102,41 @@ class CategoryManager():
         combined_cl = open_cl + event_cl
 
         return combined_cl
+
+    _PHOTOLIST_MAXSIZE = 100
+    def category_photo_list(self, session, dir: str, pid: int, cid: int) -> list:
+        '''
+        return a list of photos for the specified category
+        :param session:
+        :param pid: recent photo id to fetch from
+        :param dir: "next" or "prev"
+        :param cid: category identifier
+        :return:
+        '''
+        try:
+            if (dir == 'next'):
+                q = session.query(photo.Photo). \
+                    filter(photo.Photo.category_id == cid). \
+                    filter(photo.Photo.id > pid). \
+                    order_by(photo.Photo.id.asc())
+            else:
+                q = session.query(photo.Photo). \
+                    filter(photo.Photo.category_id == cid). \
+                    filter(photo.Photo.id < pid). \
+                    order_by(photo.Photo.id.desc())
+
+            pl = q.all()
+        except Exception as e:
+            raise
+
+        return pl[:self._PHOTOLIST_MAXSIZE]
+
+    def photo_dict(self, pl: list) -> list:
+        d_photos = []
+        for p in pl:
+            d_photos.append(p.to_dict())
+
+        return d_photos
 
 class EventManager():
     _nl = [] # list of resources (strings)
@@ -182,6 +230,31 @@ class EventManager():
 
         return self._e
 
+    @staticmethod
+    def events_for_user(session, au: usermgr.AnonUser) -> list:
+        try:
+            q = session.query(event.Event). \
+                join(event.EventUser, event.EventUser.event_id == event.Event.id). \
+                join(event.EventCategory, event.EventCategory.event_id == event.Event.id). \
+                join(category.Category, category.Category.id == event.EventCategory.category_id). \
+                filter(event.EventUser.user_id == au.id). \
+                filter(category.Category.state.in_([category.CategoryState.UPLOAD.value, category.CategoryState.VOTING.value, category.CategoryState.COUNTING.value, category.CategoryState.UNKNOWN.value]))
+
+#            q = session.query(event.EventUser).filter(event.EventUser.user_id == au.id)
+            el = q.all()
+
+            # for each event, read in the categories
+            d_el = []
+            for e in el:
+                e.read_categories(session)
+                d_el.append(e.to_dict())
+
+            return d_el # a dictionary suitable for jsonification
+        except Exception as e:
+            logger.exception(msg="events_for_user() failed to get event user list")
+            raise
+
+
 class PassPhraseManager():
 
     def select_passphrase(self, session) -> str:
@@ -197,3 +270,65 @@ class PassPhraseManager():
             return ak.passphrase
         except Exception as e:
             raise Exception('select_passphrase', 'no phrases!')
+
+class RewardManager():
+    _user_id = None
+    _rewardtype = None
+    def __init__(self, **kwargs):
+        self._user_id = kwargs.get('user_id', None)
+        self._rewardtype = kwargs.get('rewardtype', None)
+
+    def create_reward(self, session, quantity: int) -> None:
+        try:
+            r = engagement.Reward(user_id=self._user_id, rewardtype=self._rewardtype, quantity=quantity)
+            session.add(r)
+
+            ur_l = session.query(engagement.UserReward).filter(user_id = self._user_id).filter(rewardtype = self._rewardtype).all()
+            if ur_l is not None:
+                ur = ur_l[0]
+            if ur is None:
+                ur = engagement.UserReward(user_id=self.user_id, rewardtype=self._rewardtype, quantity=0)
+
+            ur.update_quantity(quantity)
+            session.add(ur)
+        except Exception as e:
+            logger.exception(msg="error updating reward quantity")
+            raise
+
+class FeedbackManager():
+
+    _uid = None
+    _pid = None
+    _like = False
+    _offensive = False
+    _tags = None
+
+    def __init__(self, **kwargs):
+        self._uid = kwargs.get('uid', None)
+        self._pid = kwargs.get('pid', None)
+        self._like = kwargs.get('like', False)
+        self._offensive = kwargs.get('offensive', False)
+        self._tags = kwargs.get('tags', None)
+
+    def create_feedback(self, session) -> None:
+        try:
+            fb = session.query(engagement.Feedback).filter(engagement.Feedback.user_id == self._uid).filter(engagement.Feedback.photo_id == self._pid).one_or_none()
+            if fb is None:
+                fb = engagement.Feedback(uid=self._uid, pid=self._pid, like=self._like, offensive=self._offensive)
+            else:
+                fb.update_feedback(like=self._like, offensive=self._offensive)
+            session.add(fb)
+
+            if self._tags is not None:
+                ft = session.query(engagement.FeedbackTag).filter(engagement.FeedbackTag.user_id == self._uid).filter(engagement.FeedbackTag.photo_id == self._pid).one_or_none()
+                if ft is None:
+                    ft = engagement.FeedbackTag(uid=self._uid, pid=self._pid, tags=self._tags)
+                else:
+                    ft.update_feedbacktags(self._tags)
+
+                session.add(ft)
+
+            fb.update_photo(session, self._pid)
+        except Exception as e:
+            logger.exception(msg="error creating feedback entry")
+            raise

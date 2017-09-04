@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.5.4' #our version string PEP 440
+__version__ = '1.5.7' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -229,26 +229,6 @@ def hello():
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
     htmlbody += "<ul>" \
-                "<li>v1.4.5</li>" \
-                "  <ul>" \
-                "  <li>bug fix for # entries in /submissions</li>" \
-                "  </ul>" \
-                "<li>v1.4.6</li>" \
-                "  <ul>" \
-                "    <li>/createevent API defined</li>" \
-                "  </ul>" \
-                "<li>v1.4.7</li>" \
-                "  <ul>" \
-                "    <li>/newevent operational</li>" \
-                "    <li>fix expire key before cache entry created in /setcategorystate</li>" \
-                "    <li>added column <b>type</b> to category</li>" \
-                "    <li>fix descriptions in Swagger</li>" \
-                "  </ul>" \
-                "<li>v1.4.8</li>" \
-                "  <ul>" \
-                "    <li>/photo schema definition fixed!</li>" \
-                "    <li>fix EXIF error handling for missing keys (Samsung error)</li>" \
-                "  </ul>" \
                 "<li>v1.5.0</li>" \
                 "  <ul>" \
                 "    <li>/newevent with user-specific categories</li>" \
@@ -269,6 +249,19 @@ def hello():
                 "<li>v1.5.4</li>" \
                 "  <ul>" \
                 "    <li>/joinevent implemented & defined</li>" \
+                "  </ul>" \
+                "<li>v1.5.5</li>" \
+                "  <ul>" \
+                "    <li>/cors_auth for authentication from Javascript/browsers (admin tools)</li>" \
+                "  </ul>" \
+                "<li>v1.5.6</li>" \
+                "  <ul>" \
+                "    <li>/photo/<cid>/<dir>/<pid> for pathing photo ids</li>" \
+                "    <li>added CORS tag to /category so Javascript can get category list</li>" \
+                "  </ul>" \
+                "<li>v1.5.7</li>" \
+                "  <ul>" \
+                "    <li>/event - lists all active events this user has rights to see</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -523,6 +516,7 @@ def set_category_state():
         return rsp
 
 @app.route("/category", methods=['GET'])
+@cross_origin(origins='*')
 @jwt_required()
 @timeit()
 def get_category():
@@ -595,6 +589,8 @@ def get_category():
         cl = cm.active_categories_for_user(session, current_identity._get_current_object())
         session.close()
         if cl is None:
+#           categories = []
+#           rsp = make_response(jsonify(categories), status.HTTP_200_OK)
            rsp = make_response(jsonify({'msg': error.error_string('CATEGORY_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
            categories = category.Category.list_to_json(cl)
@@ -1221,6 +1217,89 @@ def last_submission():
             rsp = make_response(jsonify({'msg': error.error_string('NO_SUBMISSION')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
         return rsp
 
+@app.route("/photo/<int:cid>/<string:dir>/<int:pid>", methods=['GET'])
+@cross_origin(origins='*')
+@jwt_required()
+@timeit()
+def category_photo_list(cid: int, dir: str, pid: int):
+    """
+    List of Categories Photos
+    returns a list of photos in the specified category
+    restricted usage, ImageImprov staff only!
+    ---
+    tags:
+      - admin
+    operationId: photo-list
+    consumes:
+      - text/html
+    produces:
+      - application/json
+    parameters:
+      - in: path
+        name: cid
+        description: "The category id we are inspecting"
+        required: true
+        type: integer
+    security:
+      - JWT: []
+    responses:
+      200:
+         description: "list of photos that are in this category"
+         schema:
+          $ref: '#/definitions/PhotoInfo'
+      400:
+        description: "missing required arguments"
+        schema:
+          $ref: '#/definitions/Error'
+      500:
+        description: "error uploading image"
+        schema:
+          $ref: '#/definitions/Error'
+      default:
+        description: "unexpected error"
+        schema:
+          $ref: '#/definitions/Error'
+    definitions:
+      - schema:
+          id: PhotoInfo
+          properties:
+            id:
+              type: integer
+              description: Photo Identifier
+              example: "27432"
+            offensive:
+              type: boolean
+              description: indicates photo was deemed offensive (flagged)
+            active:
+              type: boolean
+              description: "=True, record is active"
+            likes:
+              type: integer
+              description: "# of likes this photo has"
+              example: 3
+    """
+    u = current_identity
+    if u.usertype != usermgr.UserType.IISTAFF.value:
+        rsp = make_response(jsonify({'msg': error.error_string('RESTRICTED_API')}), status.HTTP_403_FORBIDDEN)
+
+    session = dbsetup.Session()
+    try:
+        cm = categorymgr.CategoryManager()
+        pl = cm.category_photo_list(session, dir, pid, cid)
+        d_photos = cm.photo_dict(pl)
+        rsp = make_response(jsonify(d_photos), status.HTTP_200_OK)
+
+    except Exception as e:
+        logger.exception(msg="[/photo/{0}/{1}/{2}".format(cid, dir, pid))
+        rsp = make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        session.close()
+        if rsp is not None:
+            return rsp
+
+    return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_501_NOT_IMPLEMENTED)
+
+
 @app.route("/photo", methods=['POST'])
 @jwt_required()
 @timeit()
@@ -1708,6 +1787,7 @@ def landingpage(campaign=None):
         return redirect(target_url, code=302)
 
 @app.route('/preview/<int:pid>', methods=['GET'])
+@cross_origin(origins='*')
 @timeit()
 def download_photo(pid):
     """
@@ -1851,6 +1931,64 @@ def forgot_password():
         if rsp is None:
             rsp = make_response(jsonify({'msg': 'weird error'}), status.HTTP_500_INTERNAL_SERVER_ERROR)
         return rsp
+
+@app.route('/cors_auth', methods=['POST'])
+@cross_origin(origins='*')
+def CORS_auth():
+    """
+    CORS JWT Authentication
+    Same as the /auth endpoint but allows CORS (Cross Origin Resource Sharing)
+    access to the authentication endpoint. Utilizes the callback registered in
+    Flask-JWT.
+    Note: Inputs determine what type of authentication to perfor: username/password, anonymous or oAuth2 service provider
+      1) If username is a hash of the password field, this is an anonymous user
+      2) If username is the name of a defined service provider, then the password is an oAuth2 token
+    ---
+    tags:
+      - admin
+    operationId: cors-auth
+    consumes:
+      - application/json
+    produces:
+      - applications/json
+    parameters:
+      - in: body
+        name: cors-credentials
+        schema:
+          id: auth_req
+          required:
+            - username
+            - password
+          properties:
+            username:
+              type: string
+              description: "user to be authenticated"
+              example: "someuser@gmail.com"
+            password:
+              type: string
+              description: "clear text password"
+              example: "mysecretpassw0rd!"
+    responses:
+      200:
+        description: "user has been authenticated"
+        schema:
+          id: auth_info
+          properties:
+            access_token:
+              type: string
+              description: "JWT access token"
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0b3B0YWwuY29tIiwiZXhwIjoxNDI2NDIwODAwLCJodHRwOi8vdG9wdGFsLmNvbS9qd3RfY2xhaW1zL2lzX2FkbWluIjp0cnVlLCJjb21wYW55IjoiVG9wdGFsIiwiYXdlc29tZSI6dHJ1ZX0.yRQYnWzskCZUxPwaQupWkiUzKELZ49eM7oWxAQK_ZXw"
+            emailaddress:
+              type: string
+              description: "email address of user authenticated (if available)"
+              example: "someuser@gmail.com"
+      401:
+        description: "error authenticating user"
+        schema:
+          $ref: '#/definitions/Error'
+    """
+    return _jwt.auth_request_callback()
+
 
 @app.route('/resetpwd', methods=['POST'])
 @cross_origin(origins='*')
@@ -2204,13 +2342,6 @@ def create_event():
     responses:
       201:
         description: "event created"
-        schema:
-          id: event_info
-          properties:
-            accesskey:
-              type: string
-              description: "unique, generated passphrase for invitations, always 2 phrases seperated by space"
-              example: "able frog"
       400:
         description: "error in specified arguments"
         schema:
@@ -2236,6 +2367,7 @@ def create_event():
         em = categorymgr.EventManager(user=current_identity, name=eventname, start_date=startdate, num_players=numplayers, upload_duration=upload_duration, vote_duration=voting_duration, categories=categories)
         em.create_event(session)
         session.commit()
+        logger.info(msg="[/newevent] user {0} has created event {1}".format(u.id, em._e.accesskey))
         return make_response(jsonify({'accesskey': em._e.accesskey}), status.HTTP_201_CREATED)
     except Exception as e:
         session.close()
@@ -2292,12 +2424,86 @@ def join_event():
         cl = categorymgr.EventManager.join_event(session, accesskey, current_identity._get_current_object())
         if cl is not None:
             categories = category.Category.list_to_json(cl)
+            logger.info(msg="[/joinevent] user {0} has joined event {1}".format(current_identity.id, accesskey))
             return make_response(jsonify(categories), status.HTTP_200_OK)
     except KeyError:
         session.close()
         return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)
 
     return make_response(jsonify({'msg': 'event not found or not categories'}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@app.route('/event', methods=['GET'])
+@jwt_required()
+@timeit()
+def event_status():
+    """
+    Event Status for User
+    returns a list of active events this user is registered in
+    ---
+    tags:
+      - category
+    operationId: event_status
+    consumes:
+      - text/html
+    produces:
+      - application/json
+    security:
+      - JWT: []
+    responses:
+      200:
+        description: "list of active events for this user"
+        schema:
+          id: events
+          type: array
+          items:
+            $ref: '#/definitions/Event'
+      400:
+        description: "error in specified arguments"
+        schema:
+          $ref: '#/definitions/Error'
+    definitions:
+      - schema:
+          id: Event
+          properties:
+            id:
+              type: integer
+              description: "unique internal event identifier"
+              example: 1347
+            accesskey:
+              type: string
+              description: "key phrase used to join this event"
+              example: "able move"
+            name:
+              type: string
+              description: "name of this event"
+              example: "2017 Company Picnic"
+            created:
+              type: string
+              description: "date/time this event was created, UTC"
+              example: "2017-09-04 14:25"
+            max_players:
+              type: int
+              description: "maximum number of players allowed in event"
+              example: 5
+            created_by:
+              type: string
+              description: "the user that created this event, or 'me' if the user making this call"
+              example: "someuser@gmail.com -or- Image Improv -or- me"
+            categories:
+              type: array
+              items:
+                $ref: '#/definitions/Category'
+    """
+
+    session = dbsetup.Session()
+    try:
+        d_el = categorymgr.EventManager.events_for_user(session, current_identity._get_current_object())
+        return make_response(jsonify(d_el), status.HTTP_200_OK)
+    except KeyError:
+        session.close()
+        return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)
+
+    return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_501_NOT_IMPLEMENTED)
 
 @app.route('/<string:campaign>')
 def default_path(campaign: str):

@@ -72,6 +72,10 @@ class Photo(Base):
     def set_orientation(self, orientation: int) -> None:
         self._orientation = orientation
 
+    def to_dict(self) -> dict:
+        d = {"id": self.id, "active": self.active, "likes":self.likes}
+        return d
+
     # okay, if the directory hasn't been created this will fail!
     @staticmethod
     @timeit()

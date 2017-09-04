@@ -17,7 +17,7 @@ from models import admin, usermgr
 from tests import DatabaseTest
 from models import photo
 from sqlalchemy import func
-
+from controllers import categorymgr
 
 class TestUser:
     _u = None   # username
@@ -121,6 +121,12 @@ class iiBaseUnitTest(unittest.TestCase):
                             headers={'content-type': 'application/json'})
         return rsp
 
+    def post_cors_auth(self, tu):
+        u = tu.get_username()
+        p = tu.get_password()
+        rsp = self.app.post(path='/cors_auth', data=json.dumps(dict(username=u, password=p)),
+                            headers={'content-type': 'application/json'})
+        return rsp
     def post_registration(self, tu):
         u = tu.get_username()
         p = tu.get_password()
@@ -241,6 +247,22 @@ class TestLogin(iiBaseUnitTest):
 
         # now login and get a token
         rsp = self.post_auth(tu)
+        data = json.loads(rsp.data.decode("utf-8"))
+        token = data['access_token']
+        assert(rsp.status_code == 200 and token is not None)
+        tu.set_token(token)
+        tu._ia = datetime.datetime.now()
+        return
+
+    def test_cors_auth(self):
+        # first register a user
+        tu = TestUser()
+        tu.create_user()
+        rsp = self.post_registration(tu)
+        assert(rsp.status_code == 201)
+
+        # now login and get a token
+        rsp = self.post_cors_auth(tu)
         data = json.loads(rsp.data.decode("utf-8"))
         token = data['access_token']
         assert(rsp.status_code == 200 and token is not None)
@@ -567,16 +589,61 @@ class TestImages(iiBaseUnitTest):
         rsp = self.app.get(path='/preview/0', headers=headers)
         assert(rsp.status_code == 404)
 
+    def get_valid_photo_id(self, session):
+
+        fo = photo.Photo()
+        pi = photo.PhotoImage()
+        pi._extension = 'JPEG'
+
+        # read our test file
+        cwd = os.getcwd()
+        if 'tests' in cwd:
+            path = '../photos/SAMSUNG2.JPG' #'../photos/Cute_Puppy.jpg'
+        else:
+            path = cwd + '/photos/SAMSUNG2.JPG' #'/photos/Cute_Puppy.jpg'
+        ft = open(path, 'rb')
+        pi._binary_image = ft.read()
+        ft.close()
+
+        guid = str(uuid.uuid1())
+        category_description = guid.upper().translate({ord(c): None for c in '-'})
+        start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+
+        cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
+        c = cm.create_category(session, category.CategoryType.OPEN.value)
+        c.state = category.CategoryState.UPLOAD.value
+        session.commit()
+
+        # create a user
+        guid = str(uuid.uuid1())
+        anon_username = guid.upper().translate({ord(c): None for c in '-'})
+        au = usermgr.AnonUser.create_anon_user(session, anon_username)
+        assert(au is not None)
+        session.commit()
+
+        fo.category_id = c.id
+        d = fo.save_user_image(session, pi, au.id, c.id)
+        assert(d['error'] is None)
+        fn = fo.filename
+        session.commit() # Photo & PhotoMeta should be written out
+
+        pid = fo.id
+
+        c.state = category.CategoryState.CLOSED.value
+        session.commit()
+        return pid
+
     def test_preview_good_pid(self):
         headers = Headers()
         headers.add('content-type', 'text/html')
         headers.add('User-Agent', 'Python Tests')
 
         session = dbsetup.Session()
-        pids = session.query(func.max(photo.Photo.id)).first()
-        pid = pids[0]
-        session.close()
+        pid = self.get_valid_photo_id(session)
         rsp = self.app.get(path='/preview/{0}'.format(pid), headers=headers)
+
+        session.rollback()
+        session.close()
         if rsp.status_code != 200:
             print("[test_preview_good_pid] HTTP response status = {} for pid {}".format(rsp.status_code, pid))
             assert(False)
@@ -1312,7 +1379,26 @@ class TestTraction(iiBaseUnitTest):
 
 class TestCategoryFiltering(iiBaseUnitTest):
 
-    def create_newevent_and_categories(self) -> str:
+    def create_open_categories(self, num_categories: int):
+        session = dbsetup.Session()
+        for i in range(0, num_categories):
+            start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+            category_description = "TestingCategory{0}".format(i)
+            cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
+            c = cm.create_category(session, category.CategoryType.OPEN.value)
+            session.add(c)
+
+        session.commit()
+
+    def close_existing_categories(self):
+
+        session = dbsetup.Session()
+        q = session.query(category.Category). \
+            filter(category.Category.state != category.CategoryState.CLOSED.value). \
+            update({category.Category.state: category.CategoryState.CLOSED.value})
+        session.commit()
+
+    def create_newevent_and_categories(self, tu=None) -> str:
         """
         Testing that we can create an event and the categories
         generated will only be visible to the user that created
@@ -1320,8 +1406,14 @@ class TestCategoryFiltering(iiBaseUnitTest):
         :return:
         """
 
-        # Step 1 - create test user
-        self.create_testuser_get_token(make_staff=False)
+        self.close_existing_categories()
+        self.create_open_categories(num_categories=3)
+
+        # Step 1 - create test user (if not passed in)
+        if tu is None:
+            tu = self.create_testuser_get_token(make_staff=False)
+        else:
+            self.set_token(tu.get_token())
 
         # Step 2 - get current categories
         rsp = self.app.get(path='/category', headers=self.get_header_html())
@@ -1385,3 +1477,54 @@ class TestCategoryFiltering(iiBaseUnitTest):
         category_data = json.loads(rsp.data.decode("utf-8"))
         assert(category_data is not None)
         assert(len(category_data) == 3)
+
+    def test_event_list(self):
+
+        # okay, we need to create an event and get it back
+        tu = self.create_testuser_get_token()
+        self.create_newevent_and_categories(tu)
+        rsp = self.app.get(path='/event', headers=self.get_header_html())
+        assert(rsp.status_code == 200)
+        event_list = json.loads(rsp.data.decode("utf-8"))
+        assert(event_list is not None)
+
+
+class TestAdminAPIs(iiBaseUnitTest):
+
+    def test_category_photolist_next(self):
+        tu = self.create_testuser_get_token()
+
+        session = dbsetup.Session()
+        q = session.query(usermgr.User).filter(usermgr.User.emailaddress == tu.get_username())
+        u = q.one()
+        guid = str(uuid.uuid1())
+        category_description = guid.upper().translate({ord(c): None for c in '-'})
+        start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+
+        cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
+        c = cm.create_category(session, category.CategoryType.OPEN.value)
+        session.commit()
+
+        num_photos = 5
+        for i in range (1,num_photos+1):
+            p = photo.Photo()
+            p.category_id = c.id
+            p.filepath = 'boguspath'
+            p.filename = str(uuid.uuid1()).translate({ord(c): None for c in '-'})
+            p.user_id = u.id
+            p.times_voted = 0
+            p.score = i*4
+            p.likes = 0
+            p.active = 1
+            session.add(p)
+
+        session.commit()
+
+        path = '/photo/{0}/next/0'.format(c.id)
+        rsp = self.app.get(path=path, headers=self.get_header_html())
+        c.state = category.CategoryState.CLOSED.value
+        session.commit()
+
+        session.rollback()
+        session.close()
+        assert (rsp.status_code == 200)
