@@ -1427,24 +1427,9 @@ class TestCategoryFiltering(iiBaseUnitTest):
         json_data = json.dumps(d)
         rsp = self.app.post(path='/newevent', data=json_data, headers=self.get_header_json())
         assert(rsp.status_code == 201)
-        accesskey_data = json.loads(rsp.data.decode('utf-8'))
-        accesskey = accesskey_data['accesskey']
+        event_details = json.loads(rsp.data.decode('utf-8'))
+        accesskey = event_details['accesskey']
         assert(len(accesskey) == 9)
-
-        # # Step 4 - get categories again, should be more!
-        # rsp = self.app.get(path='/category', headers=self.get_header_html())
-        # assert(rsp.status_code == 200)
-        # event_data = json.loads(rsp.data.decode("utf-8"))
-        #
-        # # Step 5 - create a new user, have them fetch categories
-        #
-        # # Step 5a - create test user
-        # self.create_testuser_get_token(make_staff=False)
-        #
-        # # Step 5b - get this user's categories
-        # rsp = self.app.get(path='/category', headers=self.get_header_html())
-        # assert(rsp.status_code == 200)
-        # newuser_category_data = json.loads(rsp.data.decode("utf-8"))
 
         return accesskey
 
@@ -1460,11 +1445,13 @@ class TestCategoryFiltering(iiBaseUnitTest):
         self.create_testuser_get_token(make_staff=False)
 
         # Step 2 - join
-        rsp = self.app.post(path='/joinevent', query_string=urlencode({'accesskey': accesskey}), headers=self.get_header_html())
+        query_string = urlencode({'accesskey': accesskey})
+        rsp = self.app.post(path='/joinevent', query_string=query_string, headers=self.get_header_html())
         assert(rsp.status_code == 200)
-        category_data = json.loads(rsp.data.decode("utf-8"))
-        assert(category_data is not None)
-        assert(len(category_data) == 3)
+        event_details = json.loads(rsp.data.decode("utf-8"))
+        cl = event_details['categories']
+        assert(len(cl) == 3)
+        assert(event_details['accesskey'] == accesskey)
 
     def test_event_list(self):
 
@@ -1491,8 +1478,10 @@ class TestCategoryFiltering(iiBaseUnitTest):
 
         rsp = self.app.get(path='/event/{0}'.format(event_id), headers=self.get_header_html())
         assert(rsp.status_code == 200)
-        cl = event_list[0]['categories']
+        event_details = json.loads(rsp.data.decode("utf-8"))
+        cl = event_details['categories']
         assert(len(cl) == 3)
+        assert(event_details['id'] == event_id)
 
 
 class TestAdminAPIs(iiBaseUnitTest):

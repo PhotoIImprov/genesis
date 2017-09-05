@@ -8,7 +8,7 @@ class Event(Base):
     __tablename__ = 'event'
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("anonuser.id", name="fk_event_userid"), nullable=False)
-    accesskey = Column(String(32), nullable=False)
+    accesskey = Column(String(32), nullable=False, unique=True)
     num_players = Column(Integer, default=5, nullable=False)
     active = Column(Boolean, default=True, nullable=False)
     name = Column(String(100), nullable=False)

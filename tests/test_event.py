@@ -111,9 +111,10 @@ class TestEvent(DatabaseTest):
         assert(accesskey is not None)
 
         # let's try to join this event, we are already in it so no harm, no foul
-        cl = categorymgr.EventManager.join_event(self.session, accesskey, u)
-        assert(cl is not None)
-        assert(len(cl) == 3)
+        e = categorymgr.EventManager.join_event(self.session, accesskey, u)
+        assert(e is not None)
+        assert(e._cl is not None)
+        assert(len(e._cl) == 3)
 
         self.teardown()
 
@@ -130,9 +131,10 @@ class TestEvent(DatabaseTest):
 
         # let's try to join this event, we are already in it so no harm, no foul
         u = self.create_user(self.session)
-        cl = categorymgr.EventManager.join_event(self.session, accesskey, u)
-        assert(cl is not None)
-        assert(len(cl) == 3)
+        e = categorymgr.EventManager.join_event(self.session, accesskey, u)
+        assert(e is not None)
+        assert(e._cl is not None)
+        assert(len(e._cl) == 3)
         self.session.commit()
 
         # there should be an EventUser record created by that last commit, and only one!
@@ -154,15 +156,17 @@ class TestEvent(DatabaseTest):
 
         # let's try to join this event, we are already in it so no harm, no foul
         u = self.create_user(self.session)
-        cl = categorymgr.EventManager.join_event(self.session, accesskey, u)
-        assert(cl is not None)
-        assert(len(cl) == 3)
+        e = categorymgr.EventManager.join_event(self.session, accesskey, u)
+        assert(e is not None)
+        assert(e._cl is not None)
+        assert(len(e._cl) == 3)
         self.session.commit()
 
         # join a second time!!
-        cl = categorymgr.EventManager.join_event(self.session, accesskey, u)
-        assert(cl is not None)
-        assert(len(cl) == 3)
+        e = categorymgr.EventManager.join_event(self.session, accesskey, u)
+        assert(e is not None)
+        assert(e._cl is not None)
+        assert(len(e._cl) == 3)
         self.session.commit()
 
         # there should be an EventUser record created by that last commit, and only one!

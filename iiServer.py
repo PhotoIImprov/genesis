@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.5.8' #our version string PEP 440
+__version__ = '1.5.9' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -229,27 +229,6 @@ def hello():
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
     htmlbody += "<ul>" \
-                "<li>v1.5.0</li>" \
-                "  <ul>" \
-                "    <li>/newevent with user-specific categories</li>" \
-                "  </ul>" \
-                "<li>v1.5.1</li>" \
-                "  <ul>" \
-                "    <li>/category now returns user-specific categories createdc by /newevent</li>" \
-                "  </ul>" \
-                "<li>v1.5.2</li>" \
-                "  <ul>" \
-                "    <li>/category OPEN categories now includes PENDING</li>" \
-                "  </ul>" \
-                "<li>v1.5.3</li>" \
-                "  <ul>" \
-                "    <li>/newevent returns 'accesskey' on success</li>" \
-                "    <li>'accesskey' values pulled from table randomized</li>" \
-                "  </ul>" \
-                "<li>v1.5.4</li>" \
-                "  <ul>" \
-                "    <li>/joinevent implemented & defined</li>" \
-                "  </ul>" \
                 "<li>v1.5.5</li>" \
                 "  <ul>" \
                 "    <li>/cors_auth for authentication from Javascript/browsers (admin tools)</li>" \
@@ -267,6 +246,10 @@ def hello():
                 "  <ul>" \
                 "    <li>/category does NOT return categories for Events, call /event</li>" \
                 "    <li>/event/<event_id> returns details of Event and associated categories</li>" \
+                "  </ul>" \
+                "<li>v1.5.9</li>" \
+                "  <ul>" \
+                "    <li>/joinevent returns same data as /event/<event_id></li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -2350,6 +2333,10 @@ def create_event():
     responses:
       201:
         description: "event created"
+        schema:
+          id: eventdetails
+          items:
+            $ref: '#/definitions/EventDetails'
       400:
         description: "error in specified arguments"
         schema:
@@ -2373,10 +2360,11 @@ def create_event():
     session = dbsetup.Session()
     try:
         em = categorymgr.EventManager(user=current_identity, name=eventname, start_date=startdate, num_players=numplayers, upload_duration=upload_duration, vote_duration=voting_duration, categories=categories)
-        em.create_event(session)
+        e = em.create_event(session)
         session.commit()
+        d_el = categorymgr.EventManager.event_details(session, current_identity._get_current_object(), e.id)
         logger.info(msg="[/newevent] user {0} has created event {1}".format(u.id, em._e.accesskey))
-        return make_response(jsonify({'accesskey': em._e.accesskey}), status.HTTP_201_CREATED)
+        return make_response(jsonify(d_el), status.HTTP_201_CREATED)
     except Exception as e:
         session.close()
         logger.exception(msg="[/newevent] error creating event")
@@ -2416,10 +2404,10 @@ def join_event():
       200:
         description: "category list for event"
         schema:
-          id: categories
-          type: array
+        schema:
+          id: eventdetails
           items:
-            $ref: '#/definitions/Category'
+            $ref: '#/definitions/EventDetails'
       400:
         description: "error in specified arguments"
         schema:
@@ -2429,11 +2417,10 @@ def join_event():
     session = dbsetup.Session()
     try:
         accesskey = request.args.get('accesskey')
-        cl = categorymgr.EventManager.join_event(session, accesskey, current_identity._get_current_object())
-        if cl is not None:
-            categories = category.Category.list_to_json(cl)
-            logger.info(msg="[/joinevent] user {0} has joined event {1}".format(current_identity.id, accesskey))
-            return make_response(jsonify(categories), status.HTTP_200_OK)
+        e = categorymgr.EventManager.join_event(session, accesskey, current_identity._get_current_object())
+        d_el = categorymgr.EventManager.event_details(session, current_identity._get_current_object(), e.id)
+        session.commit()
+        return make_response(jsonify(d_el), status.HTTP_200_OK)
     except KeyError:
         session.close()
         return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)

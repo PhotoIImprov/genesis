@@ -162,7 +162,7 @@ class EventManager():
             self._cm_list.append(c)
 
     @staticmethod
-    def join_event(session, accesskey: str, au: usermgr.AnonUser) -> list:
+    def join_event(session, accesskey: str, au: usermgr.AnonUser) -> event.Event:
         try:
             # q = session.query(event.Event).\
             #     join(event.EventCategory, event.EventCategory.event_id == event.Event.id). \
@@ -185,14 +185,13 @@ class EventManager():
                 eu = event.EventUser(user=au, event=e, active=True)
                 session.add(eu)
 
-            # okay we have joined the event (or we were already joined). Let's get this event's
-            # category list
+            # get the categories for this event
             q = session.query(category.Category). \
-                join(event.EventCategory, event.EventCategory.category_id == category.Category.id). \
+                join(event.EventCategory, event.EventCategory.category_id == category.Category.id).\
                 filter(event.EventCategory.event_id == e.id)
+            e._cl = q.all()
 
-            cl = q.all()
-            return cl
+            return e
         except Exception as e:
             logger.exception(msg='error joining event')
             raise
