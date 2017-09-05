@@ -3,7 +3,7 @@ from unittest import TestCase
 import initschema
 import datetime
 import os, errno
-from models import category, usermgr, event
+from models import category, usermgr, event, voting, photo
 from tests import DatabaseTest
 from sqlalchemy import func
 import dbsetup
@@ -15,6 +15,49 @@ from controllers import categorymgr
 
 
 class TestEvent(DatabaseTest):
+
+    def write_photo_to_category(self, session, c: category.Category, au:usermgr.AnonUser) -> photo.Photo:
+
+        fo = photo.Photo()
+        pi = photo.PhotoImage()
+        pi._extension = 'JPEG'
+
+        # read our test file
+        cwd = os.getcwd()
+        if 'tests' in cwd:
+            path = '../photos/TestPic.JPG' #'../photos/Cute_Puppy.jpg'
+        else:
+            path = cwd + '/photos/TestPic.JPG' #'/photos/Cute_Puppy.jpg'
+        ft = open(path, 'rb')
+        pi._binary_image = ft.read()
+        ft.close()
+
+        fo.category_id = c.id
+        d = fo.save_user_image(session, pi, au.id, c.id)
+        assert(d['error'] is None)
+        fn = fo.filename
+        session.commit() # Photo & PhotoMeta should be written out
+
+        return fo
+
+    def create_open_categories(self, session, state: int, num_categories: int) -> list:
+        cl = []
+        for i in range(0, num_categories):
+            start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+            category_description = "TestingCategory{0}".format(i)
+            cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
+            c = cm.create_category(session, category.CategoryType.OPEN.value)
+            c.state = category.CategoryState.UPLOAD.value
+            cl.append(c)
+
+        session.commit()
+        return cl
+
+    def close_existing_categories(self, session):
+        q = session.query(category.Category). \
+            filter(category.Category.state != category.CategoryState.CLOSED.value). \
+            update({category.Category.state: category.CategoryState.CLOSED.value})
+        session.commit()
 
     def create_anon_user(self, session) -> usermgr.AnonUser:
         # create a user
@@ -209,6 +252,137 @@ class TestEvent(DatabaseTest):
                 assert(e['id'] == e2.id)
 
         self.teardown()
+
+    def active_voting_list_for_events_by_state(self, state_for_list: int):
+
+        # setup some OPEN categories
+        self.close_existing_categories(self.session)
+        num_categories = 5
+        cl = self.create_open_categories(self.session, state=category.CategoryState.UPLOAD.value, num_categories=num_categories)
+        assert(len(cl) == num_categories)
+        au = self.create_anon_user(self.session)
+        second_au = self.create_anon_user(self.session)
+        assert(au is not None)
+        assert(second_au is not None)
+
+        # put Photos in our new categories so they'll show up in lists
+        # write some photos out to these categories
+        for c in cl:
+            for i in range(0, dbsetup.Configuration.UPLOAD_CATEGORY_PICS):
+                self.write_photo_to_category(self.session, c, au)
+                self.write_photo_to_category(self.session, c, second_au)
+
+        active_open_cl = voting.BallotManager().active_voting_categories(self.session, au.id)
+
+        # now create an event with Categories
+        start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
+                               name='EventList Test#1', max_players=10, user=au, active=False)
+        e1 = em.create_event(self.session)
+        assert(len(em._cl) == 2)
+
+        # change the category state to reflect what state we are testing
+        for c in em._cl:
+            c.state = category.CategoryState.UPLOAD.value
+        self.session.commit()
+
+        # now upload photos to these categories
+        for c in em._cl:
+            for i in range(0, dbsetup.Configuration.UPLOAD_CATEGORY_PICS):
+                self.write_photo_to_category(self.session, c, au)
+                self.write_photo_to_category(self.session, c, second_au)
+
+        # change the category state to reflect what state we are testing
+        for c in em._cl:
+            c.state = state_for_list
+        for c in cl:
+            c.state= state_for_list
+
+        self.session.commit()
+
+        active_cl = voting.BallotManager().active_voting_categories(self.session, au.id)
+        assert(len(active_cl) == (len(em._cl) + len(cl)))
+        self.teardown()
+
+    def test_active_voting_list_for_events_upload_state(self):
+        self.setup()
+        self.active_voting_list_for_events_by_state(category.CategoryState.UPLOAD.value)
+        self.teardown()
+
+    def test_active_voting_list_for_events_voting_state(self):
+        self.setup()
+        self. active_voting_list_for_events_by_state(category.CategoryState.VOTING.value)
+        self.teardown()
+
+    # def test_active_voting_list_for_voting_state(self):
+    #     self.setup()
+    #
+    #     self.close_existing_categories(self.session)
+    #     num_categories = 5
+    #     cl = self.create_open_categories(self.session, state=category.CategoryState.UPLOAD.value, num_categories=num_categories)
+    #     assert(len(cl) == num_categories)
+    #     au = self.create_anon_user(self.session)
+    #     second_au = self.create_anon_user(self.session)
+    #     assert(au is not None)
+    #     bm = voting.BallotManager()
+    #     active_cl = bm.active_voting_categories(self.session, au.id)
+    #
+    #     # we have no photos for these categories, so
+    #     assert(len(active_cl) == 0)
+    #
+    #     # write some photos out to these categories
+    #     for c in cl:
+    #         for i in range(0, dbsetup.Configuration.UPLOAD_CATEGORY_PICS):
+    #             self.write_photo_to_category(self.session, c, au)
+    #             self.write_photo_to_category(self.session, c, second_au)
+    #
+    #     for c in cl:
+    #         c.state = category.CategoryState.VOTING.value
+    #     self.session.commit()
+    #
+    #     # since au uploaded, once there are 4 photos not uploaded by au we can
+    #     # "see" the category list
+    #     active_cl = bm.active_voting_categories(self.session, au.id)
+    #
+    #     # we have no photos for these categories, so
+    #     assert (len(active_cl) == len(cl))
+    #
+    #     # okay, so active returns the # categories we just created. Now create an event
+    #     # and see if it's categories are added.
+    #     self.teardown()
+    #
+    # def test_active_voting_list_for_upload_state(self):
+    #     self.setup()
+    #
+    #     self.close_existing_categories(self.session)
+    #     num_categories = 5
+    #     cl = self.create_open_categories(self.session, state=category.CategoryState.UPLOAD.value, num_categories=num_categories)
+    #     assert(len(cl) == num_categories)
+    #     au = self.create_anon_user(self.session)
+    #     second_au = self.create_anon_user(self.session)
+    #     assert(au is not None)
+    #     bm = voting.BallotManager()
+    #     active_cl = bm.active_voting_categories(self.session, au.id)
+    #
+    #     # we have no photos for these categories, so
+    #     assert(len(active_cl) == 0)
+    #
+    #     # write some photos out to these categories
+    #     for c in cl:
+    #         for i in range(0, dbsetup.Configuration.UPLOAD_CATEGORY_PICS):
+    #             self.write_photo_to_category(self.session, c, au)
+    #             self.write_photo_to_category(self.session, c, second_au)
+    #
+    #     # since au uploaded, once there are 4 photos not uploaded by au we can
+    #     # "see" the category list
+    #     active_cl = bm.active_voting_categories(self.session, au.id)
+    #
+    #     # we have no photos for these categories, so
+    #     assert (len(active_cl) == len(cl))
+    #
+    #     # okay, so active returns the # categories we just created. Now create an event
+    #     # and see if it's categories are added.
+    #     self.teardown()
 
     def test_event_detail(self):
         self.setup()

@@ -1273,12 +1273,25 @@ class TestMySubmissions(iiBaseUnitTest):
         self.create_testuser_get_token()
         rsp = self.app.get(path='/submissions/next/0', headers=self.get_header_html())
         assert (rsp.status_code == 200)
+        data = json.loads(rsp.data.decode("utf-8"))
+        try:
+            user_id = data['user']['id']
+            created_date = data['user']['created_date']
+            assert(user_id is not None and created_date is not None)
+        except KeyError as ke:
+            assert(False)
 
     def test_mysubmissions_prev(self):
         self.create_testuser_get_token()
         rsp = self.app.get(path='/submissions/prev/0', headers=self.get_header_html())
         assert (rsp.status_code == 200)
-
+        data = json.loads(rsp.data.decode("utf-8"))
+        try:
+            user_id = data['user']['id']
+            created_date = data['user']['created_date']
+            assert(user_id is not None and created_date is not None)
+        except KeyError as ke:
+            assert(False)
 
 class TestBase(iiBaseUnitTest):
     def test_default_base_url(self):
@@ -1379,26 +1392,26 @@ class TestTraction(iiBaseUnitTest):
 
 class TestCategoryFiltering(iiBaseUnitTest):
 
-    def create_open_categories(self, num_categories: int):
-        session = dbsetup.Session()
+    def create_open_categories(self, session, num_categories: int) -> list:
+        cl = []
         for i in range(0, num_categories):
             start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
             category_description = "TestingCategory{0}".format(i)
             cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
             c = cm.create_category(session, category.CategoryType.OPEN.value)
-            session.add(c)
+            cl.append(c)
 
         session.commit()
+        return cl
 
-    def close_existing_categories(self):
+    def close_existing_categories(self, session):
 
-        session = dbsetup.Session()
         q = session.query(category.Category). \
             filter(category.Category.state != category.CategoryState.CLOSED.value). \
             update({category.Category.state: category.CategoryState.CLOSED.value})
         session.commit()
 
-    def create_newevent_and_categories(self, tu=None) -> str:
+    def create_newevent_and_categories(self, session, tu=None) -> str:
         """
         Testing that we can create an event and the categories
         generated will only be visible to the user that created
@@ -1406,8 +1419,8 @@ class TestCategoryFiltering(iiBaseUnitTest):
         :return:
         """
 
-        self.close_existing_categories()
-        self.create_open_categories(num_categories=3)
+        self.close_existing_categories(session)
+        open_cl = self.create_open_categories(session, num_categories=3)
 
         # Step 1 - create test user (if not passed in)
         if tu is None:
@@ -1415,10 +1428,10 @@ class TestCategoryFiltering(iiBaseUnitTest):
         else:
             self.set_token(tu.get_token())
 
-        # Step 2 - get current categories
-        rsp = self.app.get(path='/category', headers=self.get_header_html())
-        assert(rsp.status_code == 200)
-        category_data = json.loads(rsp.data.decode("utf-8"))
+        # # Step 2 - get current categories
+        # rsp = self.app.get(path='/category', headers=self.get_header_html())
+        # assert(rsp.status_code == 200)
+        # category_data = json.loads(rsp.data.decode("utf-8"))
 
         # Step 3 - create event
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -1430,16 +1443,26 @@ class TestCategoryFiltering(iiBaseUnitTest):
         event_details = json.loads(rsp.data.decode('utf-8'))
         accesskey = event_details['accesskey']
         assert(len(accesskey) == 9)
-
-        return accesskey
+        cl = event_details['categories']
+        assert(cl is not None)
+        assert(len(cl) == len(new_categories))
+        session.close()
+        return (event_details, open_cl)
 
     def test_newevent(self):
-        accesskey = self.create_newevent_and_categories()
-        assert(accesskey is not None)
+        session = dbsetup.Session()
+        event_details = self.create_newevent_and_categories(session)
+        assert(event_details is not None)
+        session.close()
 
     def test_joinevent(self):
-        accesskey = self.create_newevent_and_categories()
+        session = dbsetup.Session()
+        event_details, open_cl = self.create_newevent_and_categories(session)
+        session.close()
+        assert(event_details is not None)
+        accesskey = event_details['accesskey']
         assert(accesskey is not None)
+        assert(len(accesskey) == 9)
 
         # Step 1 - create test user
         self.create_testuser_get_token(make_staff=False)
@@ -1456,8 +1479,10 @@ class TestCategoryFiltering(iiBaseUnitTest):
     def test_event_list(self):
 
         # okay, we need to create an event and get it back
+        session = dbsetup.Session()
         tu = self.create_testuser_get_token()
-        self.create_newevent_and_categories(tu)
+        self.create_newevent_and_categories(session, tu)
+        session.close()
         rsp = self.app.get(path='/event', headers=self.get_header_html())
         assert(rsp.status_code == 200)
         event_list = json.loads(rsp.data.decode("utf-8"))
@@ -1467,7 +1492,9 @@ class TestCategoryFiltering(iiBaseUnitTest):
 
         # okay, we need to create an event and get it back
         tu = self.create_testuser_get_token()
-        self.create_newevent_and_categories(tu)
+        session = dbsetup.Session()
+        self.create_newevent_and_categories(session, tu)
+        session.close()
         rsp = self.app.get(path='/event', headers=self.get_header_html())
         assert(rsp.status_code == 200)
         event_list = json.loads(rsp.data.decode("utf-8"))
@@ -1483,6 +1510,57 @@ class TestCategoryFiltering(iiBaseUnitTest):
         assert(len(cl) == 3)
         assert(event_details['id'] == event_id)
 
+    def upload_photo_to_category(self, c:category.Category):
+
+        # we have our user, now we need a photo to upload
+        # read our test file
+        cwd = os.getcwd()
+        if 'tests' in cwd:
+            path = '../photos/TestPic.JPG' #'../photos/Cute_Puppy.jpg'
+        else:
+            path = cwd + '/photos/TestPic.JPG' #'/photos/Cute_Puppy.jpg'
+        ft = open(path, 'rb')
+        ph = ft.read()
+        ft.close()
+
+        ext = 'JPEG'
+        img = base64.standard_b64encode(ph)
+        b64img = img.decode("utf-8")
+        rsp = self.app.post(path='/photo', data=json.dumps(dict(category_id=c.id, extension=ext, image=b64img)),
+                            headers=self.get_header_json())
+
+
+    def test_event_category_list(self):
+
+        tu1 = self.create_testuser_get_token()  # get a user so we can use the API
+        tu2 = self.create_testuser_get_token()
+        session = dbsetup.Session()
+        event_details, open_cl = self.create_newevent_and_categories(session, tu1) # create an Event with categories (in PENDING state, also closes all other categories)
+        category_list = event_details['categories']
+
+
+        # all these categories are in the PENDING state
+        # let's change them to upload and upload some photos to them
+        for c in open_cl:
+            c.state = category.CategoryState.UPLOAD.value
+            session.add(c)
+        session.commit()
+
+        # we now have categories that will accept a photo
+        for c in open_cl:
+            for i in range(0, dbsetup.Configuration.UPLOAD_CATEGORY_PICS):
+                self.set_token(tu1.get_token())
+                self.upload_photo_to_category(c)
+                self.set_token(tu2.get_token())
+                self.upload_photo_to_category(c)
+
+        session.close()
+
+        # okay we should be able to request the category and get the categories we just created & populated
+        rsp = self.app.get(path='/category', headers=self.get_header_html())
+        assert(rsp.status_code == 200)
+        categories = json.loads(rsp.data.decode('utf-8'))
+        assert(len(categories) == len(open_cl))
 
 class TestAdminAPIs(iiBaseUnitTest):
 

@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.5.9' #our version string PEP 440
+__version__ = '1.5.9.1' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -250,6 +250,10 @@ def hello():
                 "<li>v1.5.9</li>" \
                 "  <ul>" \
                 "    <li>/joinevent returns same data as /event/<event_id></li>" \
+                "  </ul>" \
+                "<li>v1.5.9.1</li>" \
+                "  <ul>" \
+                "    <li>Can now vote on categories in Events!</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -2151,7 +2155,7 @@ def my_submissions(dir: str, cid: int):
             photos:
               $ref: '#/definitions/PhotoDetails'
       - schema:
-          id: SubmissionResp
+          id: SubmissionUser
           properties:
             id:
               type: integer
@@ -2161,6 +2165,11 @@ def my_submissions(dir: str, cid: int):
               type: string
               description: "date which this user account was created"
               example: "2017-09-23 12:47"
+      - schema:
+          id: SubmissionResp
+          properties:
+            user:
+              $ref: '#/definitions/SubmissionUser'
             submissions:
               type: array
               items:

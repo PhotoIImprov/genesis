@@ -24,7 +24,7 @@ class EnvironmentType(Enum):
     PROD    = 4
 
 class Configuration():
-    UPLOAD_CATEGORY_PICS = 40
+    UPLOAD_CATEGORY_PICS = 4
 
 def determine_environment(hostname):
     if hostname is None:

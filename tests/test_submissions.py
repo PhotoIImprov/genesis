@@ -201,6 +201,26 @@ class TestSubmissions(DatabaseTest):
         self.teardown()
 
 
+    def test_submissions_with_no_data(self):
+        self.setup()
+
+        num_categories = 10
+        guid = str(uuid.uuid1())
+        guid = guid.translate({ord(c): None for c in '-'})
+        au = usermgr.AnonUser.create_anon_user(self.session, guid)
+        self.session.add(au)
+        self.session.commit()
+
+        profile = userprofile.Submissions(uid=au.id)
+        d = profile.get_user_submissions(self.session, 'next', 0, None)
+        assert(d is not None)
+        created_date = d['user']['created_date']
+        user_id = d['user']['id']
+        assert(created_date is not None and user_id is not None)
+        assert(user_id == au.id)
+
+        self.teardown()
+
     def test_submissions_with_num_categories_next(self):
         self.setup()
 

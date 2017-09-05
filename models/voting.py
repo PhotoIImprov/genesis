@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import exists, and_
 import errno
 from dbsetup import Base, Session, Configuration
-from models import photo, category, usermgr
+from models import photo, category, usermgr, event
 import sys
 import json
 import base64
@@ -456,31 +456,40 @@ class BallotManager:
         '''
         Only return categories that have photos that can be voted on
         :param session: database connection
-        :param uid: user id, incase there's a filter in the future
-        :return: 
+        :param uid: user id, to filter the category list to only categories the user can access
+        :return: <list> of categories available to the user for voting
         '''
         q = session.query(category.Category).filter(category.Category.state == category.CategoryState.VOTING.value).\
             join(photo.Photo, photo.Photo.category_id == category.Category.id).\
+            outerjoin(event.EventCategory, event.EventCategory.category_id == category.Category.id). \
+            outerjoin(event.EventUser, event.EventUser.event_id == event.EventCategory.event_id). \
             filter(photo.Photo.user_id != uid).\
             filter(photo.Photo.active == 1). \
-            group_by(category.Category.id).having(func.count(photo.Photo.id) > 4)
+            filter( (event.EventUser.user_id == uid) | (event.EventUser.user_id == None) ). \
+            group_by(category.Category.id).having(func.count(photo.Photo.id) > 3)
         cl = q.all()
 
         # see if the user has uploaded to the current UPLOAD category, and if they have check to see
         # if there are enough photos include it in the vote-able category list
         q = session.query(category.Category).filter(category.Category.state == category.CategoryState.UPLOAD.value).\
             join(photo.Photo, photo.Photo.category_id == category.Category.id).\
+            outerjoin(event.EventCategory, event.EventCategory.category_id == category.Category.id). \
+            outerjoin(event.EventUser, event.EventUser.event_id == event.EventCategory.event_id). \
             filter(photo.Photo.user_id == uid).\
             filter(photo.Photo.active == 1). \
+            filter((event.EventUser.user_id == uid) | (event.EventUser.user_id == None) ). \
             group_by(category.Category.id).having(func.count(photo.Photo.id) > 0)
         c_can_vote_on = q.all()
 
         if len(c_can_vote_on) > 0:
             q = session.query(category.Category).filter(category.Category.state == category.CategoryState.UPLOAD.value).\
-                join(photo.Photo, photo.Photo.category_id == category.Category.id).\
+                join(photo.Photo, photo.Photo.category_id == category.Category.id). \
+                outerjoin(event.EventCategory, event.EventCategory.category_id == category.Category.id). \
+                outerjoin(event.EventUser, event.EventUser.event_id == event.EventCategory.event_id). \
                 filter(photo.Photo.user_id != uid).\
                 filter(photo.Photo.active == 1). \
-                group_by(category.Category.id).having(func.count(photo.Photo.id) > Configuration.UPLOAD_CATEGORY_PICS)
+                filter((event.EventUser.user_id == uid) | (event.EventUser.user_id == None)). \
+                group_by(category.Category.id).having(func.count(photo.Photo.id) >= Configuration.UPLOAD_CATEGORY_PICS)
             c_upload = q.all()
 
             # only items in c_can_vote_on and also in c_upload can be voted on
