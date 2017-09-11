@@ -49,16 +49,26 @@ class TestCSRFevent(DatabaseTest):
     def test_csrfevent_expiration(self):
         self.setup()
 
-        u = usermgr.User.find_user_by_id(self.session, 1)
-        a = admin.CSRFevent(u.id, 1)
+        guid = str(uuid.uuid1())
+        guid = guid.translate({ord(c): None for c in '-'})
+        au = usermgr.AnonUser.create_anon_user(self.session, guid)
+        self.session.add(au)
+        self.session.commit()
+
+        a = admin.CSRFevent(au.id, expiration_hours=1)
         assert(a.expiration_date > datetime.now())
         self.teardown()
 
     def test_read_csrfevent(self):
         self.setup()
 
-        u = usermgr.User.find_user_by_id(self.session, 1)
-        a = admin.CSRFevent(u.id, 1)
+        guid = str(uuid.uuid1())
+        guid = guid.translate({ord(c): None for c in '-'})
+        au = usermgr.AnonUser.create_anon_user(self.session, guid)
+        self.session.add(au)
+        self.session.commit()
+
+        a = admin.CSRFevent(au.id, expiration_hours=1)
         self.session.add(a)
         self.session.commit()
 
@@ -142,7 +152,17 @@ class TestCSRFevent(DatabaseTest):
         assert(pl is not None)
         assert(len(pl) == num_photos)
 
+        pl = cm.category_photo_list(self.session, 'prev', pl[num_photos-1].id, c.id)
+        assert(pl is not None)
+        assert(len(pl) == num_photos-1)
+
         c.state = category.CategoryState.CLOSED.value;
         self.session.commit()
 
         self.teardown()
+
+    def test_send_forgot_password_email(self):
+
+        emailaddress = 'bp100a@hotmail.com'
+        status = admin.send_forgot_password_email(emailaddress, 'fake_csrftoken')
+        assert(status == 200)

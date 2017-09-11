@@ -978,11 +978,20 @@ class TestCategory(iiBaseUnitTest):
         data = json.loads(rsp.data.decode("utf-8"))
         assert(data['msg'] == error.error_string('UNKNOWN_ERROR'))
 
-    def test_category_state(self):
+    def test_category_state_valid_category(self):
         # let's create a user
         self.create_testuser_get_token()
 
-        cid = 1
+        # create a category for us to use
+        session = dbsetup.Session()
+        start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72,
+                                         description="SetCategoryTesting")
+        c = cm.create_category(session, category.CategoryType.OPEN.value)
+        session.commit()
+        cid = c.id
+        session.close()
+
         cstate = category.CategoryState.UPLOAD.value
         rsp = self.app.post(path='/setcategorystate', data=json.dumps(dict(category_id=cid, state=cstate)),
                             headers=self.get_header_json())
@@ -990,7 +999,17 @@ class TestCategory(iiBaseUnitTest):
         assert(rsp.status_code == 200)
         data = json.loads(rsp.data.decode("utf-8"))
         msg = data['msg']
-        assert(msg == error.error_string('CATEGORY_STATE') or msg == error.iiServerErrors.error_message(error.iiServerErrors.NO_STATE_CHANGE) )
+        assert(msg == error.error_string('CATEGORY_STATE') )
+
+        cstate = category.CategoryState.UPLOAD.value
+        rsp = self.app.post(path='/setcategorystate', data=json.dumps(dict(category_id=cid, state=cstate)),
+                            headers=self.get_header_json())
+
+        session.close()
+        assert (rsp.status_code == 200)
+        data = json.loads(rsp.data.decode("utf-8"))
+        msg = data['msg']
+        assert (msg == error.iiServerErrors.error_message(error.iiServerErrors.NO_STATE_CHANGE))
 
     def set_category_state(self, cid, target_state):
         # let's create a user
