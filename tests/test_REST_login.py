@@ -32,8 +32,11 @@ class TestUser:
         self._u = str(uuid.uuid1())
         self._u = self._u.translate({ord(c): None for c in '-'})
         self._p = hashlib.sha224(self._u.encode('utf-8')).hexdigest()
-        self_g = self._u
+        self._g = self._u
         return
+
+    def is_anonuser(self):
+        return self._g == self._u
 
     def create_user(self):
         self._p = 'pa55w0rd'
@@ -134,15 +137,19 @@ class iiBaseUnitTest(unittest.TestCase):
         rsp = self.app.post(path='/register', data=json.dumps(dict(username=u, password=p, guid=g)), headers={'content-type': 'application/json'})
         return rsp
 
-    def make_user_IISTAFF(self, emailaddress):
+    def make_user_IISTAFF(self, tu):
         """
         make_user_iistaff() - sets usertype field so this user can call privileged services
         :param emailaddres:
         :return:
         """
         session = dbsetup.Session()
-        u = usermgr.User.find_user_by_email(session, emailaddress)
-        au = usermgr.AnonUser.get_anon_user_by_id(session, u.id)
+        if not tu.is_anonuser():
+            u = usermgr.User.find_user_by_email(session, tu.get_username())
+            au = usermgr.AnonUser.get_anon_user_by_id(session, u.id)
+        else:
+            au = usermgr.AnonUser.find_anon_user(session, tu._g)
+
         au.usertype = usermgr.UserType.IISTAFF.value
         session.add(au)
         session.commit()
@@ -165,10 +172,10 @@ class iiBaseUnitTest(unittest.TestCase):
         self.set_token(token)
 
         if make_staff:
-            self.make_user_IISTAFF(tu.get_username())
+            self.make_user_IISTAFF(tu)
         return tu
 
-    def create_anon_testuser_get_token(self):
+    def create_anon_testuser_get_token(self, make_staff=False):
         # first create a user
         tu = TestUser()
         tu.create_anon_user()
@@ -185,6 +192,9 @@ class iiBaseUnitTest(unittest.TestCase):
         tu.set_token(token)
         self.set_token(token)
 
+        # see if we need to turn this user into a stff member
+        if make_staff:
+            self.make_user_IISTAFF(tu)
         return tu
 
 class TestLogin(iiBaseUnitTest):
@@ -691,7 +701,7 @@ class TesttVoting(iiBaseUnitTest):
     def get_ballot_by_token(self, token=None):
         # let's create a user
         if token is None:
-            self.create_testuser_get_token()
+            self.create_testuser_get_token(make_staff=True)
         else:
             self.set_token(token)
 
@@ -734,7 +744,7 @@ class TesttVoting(iiBaseUnitTest):
 
     def test_anon_voting(self):
 
-        self.create_anon_testuser_get_token()
+        self.create_anon_testuser_get_token(make_staff=True)
 
         # first make sure we have an uploadable category
         cid = TestCategory().get_category_by_state(category.CategoryState.UPLOAD, self.get_token())
@@ -1408,6 +1418,34 @@ class TestTraction(iiBaseUnitTest):
         tu = self.create_testuser_get_token()
         rsp = self.app.get(path='/forgotpwd', query_string=urlencode({'email':tu.get_username()}))
         assert(rsp.status_code == 200)
+
+    def test_resetpassword_legit_email(self):
+        tu = self.create_testuser_get_token()
+        rsp = self.app.get(path='/forgotpwd', query_string=urlencode({'email':tu.get_username()}))
+        assert(rsp.status_code == 200)
+
+        # okay a password link has been sent out, go to the database and get the CSRF token
+        session = dbsetup.Session()
+        u = usermgr.User.find_user_by_email(session, tu.get_username())
+        assert(u is not None)
+        q = session.query(admin.CSRFevent).filter(admin.CSRFevent.user_id == u.id).filter(admin.CSRFevent.been_used == False)
+        csrf_list = q.all()
+        assert(csrf_list is not None)
+        assert(len(csrf_list) > 0)
+        csrf = csrf_list[0]
+        assert(csrf is not None)
+
+        old_password = u.hashedPWD
+
+        rsp = self.app.post(path='/resetpwd', query_string=urlencode({'pwd': 'pa55w0rd', 'token': csrf.csrf}))
+        assert(rsp.status_code == 200)
+
+        session.close()
+        session = dbsetup.Session()
+        # refetch the user (.expire & .refresh didn't seem to work ??)
+        u = usermgr.User.find_user_by_email(session, tu.get_username())
+        assert(u.hashedPWD != old_password)
+        session.close()
 
 class TestCategoryFiltering(iiBaseUnitTest):
 

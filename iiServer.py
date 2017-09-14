@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.5.9.1' #our version string PEP 440
+__version__ = '1.6.1' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -229,19 +229,6 @@ def hello():
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
     htmlbody += "<ul>" \
-                "<li>v1.5.5</li>" \
-                "  <ul>" \
-                "    <li>/cors_auth for authentication from Javascript/browsers (admin tools)</li>" \
-                "  </ul>" \
-                "<li>v1.5.6</li>" \
-                "  <ul>" \
-                "    <li>/photo/<cid>/<dir>/<pid> for pathing photo ids</li>" \
-                "    <li>added CORS tag to /category so Javascript can get category list</li>" \
-                "  </ul>" \
-                "<li>v1.5.7</li>" \
-                "  <ul>" \
-                "    <li>/event - lists all active events this user has rights to see</li>" \
-                "  </ul>" \
                 "<li>v1.5.8</li>" \
                 "  <ul>" \
                 "    <li>/category does NOT return categories for Events, call /event</li>" \
@@ -254,6 +241,16 @@ def hello():
                 "<li>v1.5.9.1</li>" \
                 "  <ul>" \
                 "    <li>Can now vote on categories in Events!</li>" \
+                "  </ul>" \
+                "<li>v1.6.0</li>" \
+                "  <ul>" \
+                "    <li>Support for HTML/JavaScript admin tools</li>" \
+                "  </ul>" \
+                "<li>v1.6.1</li>" \
+                "  <ul>" \
+                "    <li>fix reset password bugs, updated testing</li>" \
+                "    <li>POST /category will create categories for IISTAFF only</li>" \
+                "    <li>/config now shows all categories (i.e. PENDING included)</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -327,7 +324,7 @@ def hello():
 
     tm = voting.TallyMan()
     au = usermgr.AnonUser.get_anon_user_by_id(session, 1)
-    cl = category.Category.active_categories(session, au)
+    cl = category.Category.all_categories(session, au)
     if cl is None:
         htmlbody += "\n<br>No category information retrieved (ERROR)<br>"
     else:
@@ -479,9 +476,9 @@ def set_category_state():
         cid = None
         cstate = None
 
-    u = current_identity
-    if u.usertype != usermgr.UserType.IISTAFF.value:
-        rsp = make_response(jsonify({'msg': error.error_string('RESTRICTED_API')}), status.HTTP_403_FORBIDDEN)
+    au = current_identity._get_current_object()
+    if au.usertype != usermgr.UserType.IISTAFF.value:
+        return make_response(jsonify({'msg': error.error_string('RESTRICTED_API')}), status.HTTP_403_FORBIDDEN)
 
     session = dbsetup.Session()
     rsp = None
@@ -506,6 +503,68 @@ def set_category_state():
         if rsp is None:
             rsp = make_response(jsonify({'msg': error.error_string('UNKNOWN_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
         return rsp
+
+@app.route("/category", methods=['POST'])
+@cross_origin(origins='*')
+@jwt_required()
+@timeit()
+def create_category():
+    """
+    Create Category
+    Creates a category given the specified input parameters
+    ---
+    tags:
+      - admin
+    operationId: create-category
+    consumes:
+      - application/json
+    security:
+      - JWT: []
+    produces:
+      - application/json
+    responses:
+      201:
+        description: "category created"
+        schema:
+          id: category
+          type: '#/definitions/Category'
+      400:
+        description: "missing required arguments"
+        schema:
+          $ref: '#/definitions/Error'
+      500:
+        description: "error creating specified category"
+        schema:
+          $ref: '#/definitions/Error'
+    """
+
+    au = current_identity._get_current_object()
+    if au.usertype != usermgr.UserType.IISTAFF.value:
+        return make_response(jsonify({'msg': error.error_string('RESTRICTED_API')}), status.HTTP_403_FORBIDDEN)
+
+    if not request.json:
+        return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
+
+    try:
+        category_name = request.json['name']
+        start_date = request.json['start_date']
+        upload_duration = request.json['upload']
+        vote_duration = request.json['voting']
+    except KeyError as e:
+        return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
+
+    session = dbsetup.Session()
+    try:
+        cm = categorymgr.CategoryManager(description=category_name, start_date=start_date, upload_duration=upload_duration, vote_duration=vote_duration)
+        c = cm.create_category(session, type=category.CategoryType.OPEN)
+        session.commit()
+        return make_response(jsonify({'category', c.to_json()}), status.HTTP_201_CREATED)
+
+    except Exception as e:
+        session.close()
+
+    return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_501_NOT_IMPLEMENTED)
+
 
 @app.route("/category", methods=['GET'])
 @cross_origin(origins='*')
@@ -1273,9 +1332,9 @@ def category_photo_list(cid: int, dir: str, pid: int):
               description: "# of likes this photo has"
               example: 3
     """
-    u = current_identity
-    if u.usertype != usermgr.UserType.IISTAFF.value:
-        rsp = make_response(jsonify({'msg': error.error_string('RESTRICTED_API')}), status.HTTP_403_FORBIDDEN)
+    au = current_identity._get_current_object()
+    if au.usertype != usermgr.UserType.IISTAFF.value:
+        return make_response(jsonify({'msg': error.error_string('RESTRICTED_API')}), status.HTTP_403_FORBIDDEN)
 
     session = dbsetup.Session()
     try:
@@ -1818,7 +1877,7 @@ def download_photo(pid):
         image_binary = p.read_thumbnail_by_id_with_watermark(session, pid)
         rsp = make_response(image_binary, status.HTTP_200_OK)
         rsp.headers['Content-Type'] = 'image/jpeg'
-        rsp.headers['Content-Disposition'] = 'attachment; filename=img.jpg'
+        # rsp.headers['Content-Disposition'] = 'attachment; filename=img.jpg'
     except Exception as e:
         logger.exception(msg="[/preview] error reading thumbnail!")
     finally:
@@ -1907,7 +1966,7 @@ def forgot_password():
             if cev is not None:
                 session.add(cev)
                 cev.generate_csrf_token()
-                http_status = admin.send_forgot_password_email(u.emailaddress, cev.csrf)
+                http_status = admin.Emailer().send_forgot_password_email(u.emailaddress, cev.csrf)
                 session.commit()
                 rsp = make_response('new password sent via email', status.HTTP_200_OK)
             else:
@@ -2037,9 +2096,9 @@ def reset_password():
                 u = usermgr.User.find_user_by_id(session, cev.user_id)
                 # change the password
                 u.change_password(session, pwd)
-                http_status = status.HTTP_200_OK
-                admin.send_reset_password_notification_email(u.emailaddress)
-                cev.markused() # invalidate from future usage!
+                session.add(u)
+                http_status = admin.Emailer().send_reset_password_notification_email(u.emailaddress)
+                cev.mark_used() # invalidate from future usage!
                 session.commit()
                 logger.info(msg="[/resetpwd] user password reset")
 

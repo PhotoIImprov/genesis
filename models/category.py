@@ -183,7 +183,7 @@ class Category(Base):
         try:
             cl = Category.all_categories(session, au) # cached, returns everything
             if cl is None:
-                return cl
+                return None
 
             active_cl = []
             for c in cl:

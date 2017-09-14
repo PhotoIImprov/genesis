@@ -66,7 +66,7 @@ class CSRFevent(Base):
         ev = q.one()
         return ev
 
-    def marked_used(self):
+    def mark_used(self):
         self.been_used = True
 
     def isvalid(self)-> bool:
@@ -80,89 +80,114 @@ class CSRFevent(Base):
 
         return True
 
-def read_template(template_name: str) -> str:
-    '''
-    read the named template in as string
-    :param template_name:
-    :return:
-    '''
-    base_dir = dbsetup.template_dir(environment=None)
-    fname = base_dir + '/' + template_name
-    try:
-        fp = open(fname, 'r')
-        template = fp.read()
-        fp.close()
-        return template
-    except Exception as e:
-        logger.exception(msg="problem openning template")
-        raise
+class Emailer():
 
-def send_forgot_password_email(emailaddress: str, csrf: str) -> int:
-    """
-    Send a link to the user where they can reset their password. The token
-    ensures what account is being reset.
-    :param emailaddress:
-    :param csrf:
-    :return:
-    """
+    _send_email = None
+    def __init__(self, **kwargs):
+        self._uid = kwargs.get('uid', None)
+        # dependency injection...
+        self._send_email = kwargs.get('f_sendemail', self.send_email)
 
-    mail_template = read_template("email/reset_password.html")
-    root_url = dbsetup.root_url(environment=None)
-    target_url = root_url + "/en-US/user/resetpassword.html?token={0}".format(csrf)
+    def read_template(self, template_name: str) -> str:
+        '''
+        read the named template in as string
+        :param template_name:
+        :return:
+        '''
+        base_dir = dbsetup.template_dir(environment=None)
+        fname = base_dir + '/' + template_name
+        try:
+            fp = open(fname, 'r')
+            template = fp.read()
+            fp.close()
+            return template
+        except Exception as e:
+            logger.exception(msg="problem openning template")
+            raise
 
-    rtemplate = jinja2.Template(mail_template)
-    mail_body = rtemplate.render(action_url=target_url, support_url="mailto:feedback@imageimprov.com")
+    def send_forgot_password_email(self, emailaddress: str, csrf: str) -> int:
+        """
+        Send a link to the user where they can reset their password. The token
+        ensures what account is being reset.
+        :param emailaddress:
+        :param csrf:
+        :return:
+        """
 
-    mailgun_APIkey = 'key-6896c65db1a821c6e15ae34ae2ad94e9'  # shh! this is a secret
-#    mailgun_SMTPpwd = 'e2b0c198a98ebf1f1a338bb4046352a1'
-    mailgun_baseURL = 'https://api.mailgun.net/v3/api.imageimprov.com/messages'
+        mail_template = self.read_template("email/reset_password.html")
+        root_url = dbsetup.root_url(environment=None)
+        target_url = root_url + "/en-US/user/resetpassword.html?token={0}".format(csrf)
 
-    res = requests.post(mailgun_baseURL,
-                        auth=("api", mailgun_APIkey),
-                        data={"from": "Forgot Password <noreply@imageimprov.com>",
-                              "to": emailaddress,
-                              "subject": "Password reset",
-                              "html": mail_body})
-    '''
-        200 - Everything work as expected
-        400 - Bad Request - often missing required parameter
-        401 - Unauthorized - No valid API key provided
-        402 - Request failed - parameters were valid but request failed
-        404 - Not found - requested item doesn't exist
-        500, 502, 503, 504 - Server Errors - something wrong on Mailgun's end
-    '''
-    return res.status_code
+        rtemplate = jinja2.Template(mail_template)
+        mail_body = rtemplate.render(action_url=target_url, support_url="mailto:feedback@imageimprov.com")
 
-def send_reset_password_notification_email(emailaddress) -> int:
-    """
-    Send a link to the user where they can reset their password. The token
-    ensures what account is being reset.
-    :param emailaddress:
-    :param csrf:
-    :return:
-    """
-    mail_template = read_template("email/password_changed.html")
+        status_code = self._send_email(to_email=emailaddress, from_email="Forgot Password <noreply@imageimprov.com>", subject_email="Password reset", body_email=mail_body)
+        return status_code
 
-    rtemplate = jinja2.Template(mail_template)
-    mail_body = rtemplate.render(action_url=target_url, support_url="mailto:feedback@imageimprov.com")
+    def send_reset_password_notification_email(self, emailaddress) -> int:
+        """
+        Send a link to the user where they can reset their password. The token
+        ensures what account is being reset.
+        :param emailaddress:
+        :param csrf:
+        :return:
+        """
+        mail_template = self.read_template("email/password_changed.html")
 
-    mailgun_APIkey = 'key-6896c65db1a821c6e15ae34ae2ad94e9'  # shh! this is a secret
-#    mailgun_SMTPpwd = 'e2b0c198a98ebf1f1a338bb4046352a1'
-    mailgun_baseURL = 'https://api.mailgun.net/v3/api.imageimprov.com/messages'
-    mail_body = "You're password has been changed!"
+        rtemplate = jinja2.Template(mail_template)
+        mail_body = rtemplate.render(support_url="mailto:feedback@imageimprov.com")
 
-    res = requests.post(mailgun_baseURL,
-                        auth=("api", mailgun_APIkey),
-                        data={"from": "Password Change <noreply@imageimprov.com>",
-                              "to": emailaddress,
-                              "subject": "Password Change notification",
-                              "html": mail_body})
-    '''
-        200 - Everything work as expected
-        400 - Bad Request - often missing required parameter
-        401 - Unauthorized - No valid API key provided
-        402 - Request failed - parameters were valid but request failed
-        404 - Not found - requested item doesn't exist
-        500, 502, 503, 504 - Server Errors - something wrong on Mailgun's end
-    '''
-    return res.status_code
+        status_code = self._send_email(to_email=emailaddress, from_email="Password Change <noreply@imageimprov.com>", subject_email="Password Change notification", body_email=mail_body)
+        return status_code
+
+    #     mailgun_APIkey = 'key-6896c65db1a821c6e15ae34ae2ad94e9'  # shh! this is a secret
+    # #    mailgun_SMTPpwd = 'e2b0c198a98ebf1f1a338bb4046352a1'
+    #     mailgun_baseURL = 'https://api.mailgun.net/v3/api.imageimprov.com/messages'
+    #     mail_body = "You're password has been changed!"
+    #
+    #     res = requests.post(mailgun_baseURL,
+    #                         auth=("api", mailgun_APIkey),
+    #                         data={"from": "Password Change <noreply@imageimprov.com>",
+    #                               "to": emailaddress,
+    #                               "subject": "Password Change notification",
+    #                               "html": mail_body})
+    #     '''
+    #         200 - Everything work as expected
+    #         400 - Bad Request - often missing required parameter
+    #         401 - Unauthorized - No valid API key provided
+    #         402 - Request failed - parameters were valid but request failed
+    #         404 - Not found - requested item doesn't exist
+    #         500, 502, 503, 504 - Server Errors - something wrong on Mailgun's end
+    #     '''
+    #     return res.status_code
+
+    @staticmethod
+    def send_email(to_email:str, from_email: str, subject_email: str, body_email:str) -> int:
+        '''
+        Sends an email via an external emailing service
+        :param to_email:
+        :param from_email:
+        :param subject_email:
+        :param body_email:
+        :return:
+        '''
+        mailgun_APIkey = 'key-6896c65db1a821c6e15ae34ae2ad94e9'  # shh! this is a secret
+        #    mailgun_SMTPpwd = 'e2b0c198a98ebf1f1a338bb4046352a1'
+        mailgun_baseURL = 'https://api.mailgun.net/v3/api.imageimprov.com/messages'
+        mail_body = "You're password has been changed!"
+
+        res = requests.post(mailgun_baseURL,
+                            auth=("api", mailgun_APIkey),
+                            data={"from": from_email,
+                                  "to": to_email,
+                                  "subject": subject_email,
+                                  "html": body_email})
+        '''
+            200 - Everything work as expected
+            400 - Bad Request - often missing required parameter
+            401 - Unauthorized - No valid API key provided
+            402 - Request failed - parameters were valid but request failed
+            404 - Not found - requested item doesn't exist
+            500, 502, 503, 504 - Server Errors - something wrong on Mailgun's end
+        '''
+        return res.status_code

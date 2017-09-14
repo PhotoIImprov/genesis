@@ -80,7 +80,7 @@ class Photo(Base):
         self._orientation = orientation
 
     def to_dict(self) -> dict:
-        d = {"id": self.id, "active": self.active, "likes":self.likes}
+        d = {"id": self.id, "active": self.active, "likes":self.likes, "created_date": self.created_date, "score": self.score, "votes": self.times_voted}
         return d
 
     # okay, if the directory hasn't been created this will fail!

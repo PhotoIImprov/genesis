@@ -88,14 +88,14 @@ class TestCSRFevent(DatabaseTest):
 
     def test_read_change_password_template(self):
         try:
-            change_pwd_template = admin.read_template('/email/reset_password.html')
+            change_pwd_template = admin.Emailer().read_template('/email/reset_password.html')
             assert(change_pwd_template is not None)
         except Exception as e:
             assert(False)
 
     def test_read_password_changed_template(self):
         try:
-            template = admin.read_template('/email/password_changed.html')
+            template = admin.Emailer().read_template('/email/password_changed.html')
             assert (template is not None)
         except Exception as e:
             assert (False)
@@ -106,7 +106,7 @@ class TestCSRFevent(DatabaseTest):
         assert(not ce.been_used)
         assert(ce.isvalid())
 
-        ce.marked_used()
+        ce.mark_used()
         assert(ce.been_used)
         assert(not ce.isvalid())
 
@@ -161,8 +161,30 @@ class TestCSRFevent(DatabaseTest):
 
         self.teardown()
 
+    @staticmethod
+    def f_test_send_forgot_password_send_email(to_email:str, from_email: str, subject_email: str, body_email:str) -> int:
+
+        assert(to_email == 'bp100a@hotmail.com')
+        assert(subject_email == 'Forgot Password <noreply@imageimprov.com>')
+        return 200
+
     def test_send_forgot_password_email(self):
 
         emailaddress = 'bp100a@hotmail.com'
-        status = admin.send_forgot_password_email(emailaddress, 'fake_csrftoken')
+        status = admin.Emailer(f_sendmail=TestCSRFevent.f_test_send_forgot_password_send_email).send_forgot_password_email(emailaddress, 'fake_csrftoken')
         assert(status == 200)
+
+    @staticmethod
+    def f_test_send_password_changed_send_email(to_email: str, from_email: str, subject_email: str,
+                                              body_email: str) -> int:
+
+        assert (to_email == 'bp100a@hotmail.com')
+        assert (subject_email == 'Password Change <noreply@imageimprov.com>')
+        return 200
+
+    def test_send_password_changed_email(self):
+
+        emailaddress = 'bp100a@hotmail.com'
+        status = admin.Emailer(f_sendmail=TestCSRFevent.f_test_send_password_changed_send_email).send_reset_password_notification_email(emailaddress)
+        assert (status == 200)
+

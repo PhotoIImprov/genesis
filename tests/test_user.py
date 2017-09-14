@@ -39,6 +39,18 @@ class TestUserMgr(DatabaseTest):
         assert(first_hashedPWD != u2_pwd.hashedPWD)
 
         self.teardown()
+    def test_usertype_normal(self):
+        ut = usermgr.UserType.to_str(0)
+        assert(ut == 'PLAYER')
+
+        ut = usermgr.UserType.to_str(1)
+        assert(ut == 'iiKNOWN')
+
+        ut = usermgr.UserType.to_str(2)
+        assert(ut == 'iiSTAFF')
+
+        ut = usermgr.UserType.to_str(3)
+        assert(ut == 'INVALID')
 
     def test_create_user(self):
         self.setup()
