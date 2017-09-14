@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.6.1' #our version string PEP 440
+__version__ = '1.6.2' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -251,6 +251,10 @@ def hello():
                 "    <li>fix reset password bugs, updated testing</li>" \
                 "    <li>POST /category will create categories for IISTAFF only</li>" \
                 "    <li>/config now shows all categories (i.e. PENDING included)</li>" \
+                "  </ul>" \
+                "<li>v1.6.2</li>" \
+                "  <ul>" \
+                "    <li>NGINX does not allow POST to a static page, so now GET to passwordchanged.html</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -555,6 +559,8 @@ def create_category():
 
     session = dbsetup.Session()
     try:
+        if start_date == 'next':
+            start_date = categorymgr.CategoryManager.next_category_start(session)
         cm = categorymgr.CategoryManager(description=category_name, start_date=start_date, upload_duration=upload_duration, vote_duration=vote_duration)
         c = cm.create_category(session, type=category.CategoryType.OPEN)
         session.commit()

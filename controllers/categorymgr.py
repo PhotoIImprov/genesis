@@ -12,6 +12,7 @@ from models import resources
 from models import usermgr, category, event, engagement, photo
 from cache.ExpiryCache import _expiry_cache
 from sqlalchemy import exists
+from sqlalchemy import func
 
 _CATEGORYLIST_MAXSIZE = 100
 
@@ -137,6 +138,17 @@ class CategoryManager():
             d_photos.append(p.to_dict())
 
         return d_photos
+
+    @staticmethod
+    def next_category_start(session) -> str:
+        q = session.query(func.max(category.Category.start_date). \
+            filter(Category.state.in_(
+            [CategoryState.UPLOAD.value, CategoryState.VOTING.value, CategoryState.COUNTING.value,
+             CategoryState.UNKNOWN.value])). \
+            filter(Category.type == CategoryType.OPEN.value) )
+
+        c = q.one()
+        return c.end_date
 
 class EventManager():
     _nl = [] # list of resources (strings)
