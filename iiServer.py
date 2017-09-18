@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.6.4' #our version string PEP 440
+__version__ = '1.6.4.1' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -263,6 +263,10 @@ def hello():
                 "<li>v1.6.4</li>" \
                 "  <ul>" \
                 "    <li>POST /category copies photos, works with HTML admin pages</li>" \
+                "  </ul>" \
+                "<li>v1.6.4.1</li>" \
+                "  <ul>" \
+                "    <li>GET /likes API spec implemented, returns 501/Not Implemented</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -538,8 +542,7 @@ def create_category():
       201:
         description: "category created"
         schema:
-          id: category
-          type: '#/definitions/Category'
+          $ref: '#/definitions/Category'
       400:
         description: "missing required arguments"
         schema:
@@ -1264,12 +1267,11 @@ def last_submission():
       200:
         description: "last submission found"
         schema:
-          id: image
-          type: string
-          id: category
-          title: Category
-          items:
-            $ref: '#/definitions/Category'
+            id: image
+            type: string
+            id: category
+            items:
+              $ref: '#/definitions/Category'
       400:
         description: "missing required arguments"
         schema:
@@ -1331,6 +1333,19 @@ def category_photo_list(cid: int, dir: str, pid: int):
         description: "The category id we are inspecting"
         required: true
         type: integer
+      - in: path
+        name: dir
+        description: "next/prev direction from specified photo id for next or previous page"
+        required: true
+        type: string
+        enum:
+          - next
+          - prev
+      - in: path
+        description: "the photo id to start paging from"
+        name: pid
+        type: integer
+        required: true
     security:
       - JWT: []
     responses:
@@ -2193,12 +2208,12 @@ def my_submissions(dir: str, cid: int):
         name: cid
         description: "category id to start fetch from, if 0 fetch around active categories"
         required: true
-        type: int
+        type: integer
       - in: query
         name: num_categories
         description: "The number of categories to fetch in a single call, if not specified all will be fetched"
         required: false
-        type: int
+        type: integer
     security:
       - JWT: []
     responses:
@@ -2238,6 +2253,8 @@ def my_submissions(dir: str, cid: int):
               type: array
               description: "List of tags associated with photo"
               example: ["fluffy", "colorful", "rough", "crude"]
+              items:
+                type: string
       - schema:
           id: PhotoDetails
           type: array
@@ -2296,6 +2313,9 @@ def my_submissions(dir: str, cid: int):
     return rsp
 
 @app.route('/update/photo', methods=['PUT'])
+def update_photometa2():
+    return update_photometa(0)
+
 @app.route('/update/photo/<int:pid>', methods=['PUT'])
 @timeit()
 @jwt_required()
@@ -2306,7 +2326,7 @@ def update_photometa(pid):
     ---
     tags:
       - image
-    operationId: update-image
+    operationId: update-imagedata
     consumes:
       - application/json
     produces:
@@ -2582,7 +2602,7 @@ def event_status():
               description: "date/time this event was created, UTC"
               example: "2017-09-04 14:25"
             max_players:
-              type: int
+              type: integer
               description: "maximum number of players allowed in event"
               example: 5
             created_by:
@@ -2616,13 +2636,19 @@ def event_details(event_id):
     ---
     tags:
       - category
-    operationId: event_status
+    operationId: event_details
     consumes:
       - text/html
     produces:
       - application/json
     security:
       - JWT: []
+    parameters:
+      - in: path
+        name: event_id
+        description: "Event identifier, uniquely identifies this event"
+        required: true
+        type: integer
     responses:
       200:
         description: "list of active events for this user"
@@ -2685,7 +2711,7 @@ def event_details(event_id):
               description: "date/time this event was created, UTC"
               example: "2017-09-04 14:25"
             num_players:
-              type: int
+              type: integer
               description: "number of players who have joined this event"
               example: 5
             created_by:
@@ -2702,6 +2728,106 @@ def event_details(event_id):
     try:
         d_el = categorymgr.EventManager.event_details(session, current_identity._get_current_object(), event_id)
         return make_response(jsonify(d_el), status.HTTP_200_OK)
+    except KeyError:
+        session.close()
+        return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)
+
+    return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_501_NOT_IMPLEMENTED)
+
+@app.route('/like/<string:dir>/<int:pid>', methods=['GET'])
+@jwt_required()
+@timeit()
+def mylikes(dir: str):
+    """
+    User Likes
+    Returns a pageable list of photos that the user likes
+    ---
+    tags:
+      - image
+    operationId: my-likes
+    consumes:
+      - text/html
+    produces:
+      - application/json
+    security:
+      - JWT: []
+    parameters:
+      - in: path
+        name: dir
+        description: "next/prev direction from specified category id for next page"
+        required: true
+        type: string
+        enum:
+          - next
+          - prev
+      - in: path
+        name: pid
+        description: "when paging, indicates the first photo-identifer to start fetching new page, non-inclusive"
+        type: integer
+        required: true
+    responses:
+      200:
+        description: "list of photos that the user likes"
+        schema:
+          id: liked-category-photos
+          type: array
+          items:
+            $ref: '#/definitions/LikedPhotos'
+      400:
+        description: "error in specified arguments"
+        schema:
+          $ref: '#/definitions/Error'
+    definitions:
+      - schema:
+          id: LikedPhotoDetail
+          properties:
+            pid:
+              type: integer
+              description: "unique photo identifier"
+              example: 1380547
+            url:
+              type: string
+              description: "URL to retrieve photo thumbnail .JPEG image, prefix baseURL and slash"
+              example: "https://api.imageimprov.com/preview/537"
+            votes:
+              type: integer
+              description: "number of votes photo has received"
+              example: 3
+            likes:
+              type: integer
+              description: "number of likes photo has received"
+              example: 4
+            score:
+              type: integer
+              description: "The score this photo has accumulated"
+              example: 7438
+            user:
+              type: string
+              description: "The email address of the user if available"
+              example: "hcollins@gmail.com"
+            isfriend:
+              type: boolean
+              description: "=True, then this user has a friendship relationship with user requesting likes"
+            tags:
+              type: array
+              description: "List of tags associated with photo"
+              example: ["fluffy", "colorful", "rough", "crude"]
+              items:
+                type: string
+      - schema:
+          id: LikedPhotos
+          properties:
+            category:
+              $ref: '#definitions/Category'
+            likedphotos:
+              type: array
+              items:
+                $ref: '#definitions/LikedPhotoDetail'
+    """
+
+    session = dbsetup.Session()
+    try:
+        return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_501_NOT_IMPLEMENTED)
     except KeyError:
         session.close()
         return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)
