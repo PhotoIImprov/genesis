@@ -1,7 +1,8 @@
-from dbsetup           import Base
+from dbsetup import Base
 import os, os.path, errno
 import dbsetup
 from models import category, usermgr, photo
+from models import engagement, voting
 
 '''
 User Profile 
@@ -97,4 +98,75 @@ class Submissions():
                     return_dict.setdefault('submissions',[]).append(category_submission)
 
         return return_dict
+
+    _MAX_PHOTOS_TO_RETURN = 50
+    @staticmethod
+    def get_user_likes(session, au: usermgr.AnonUser, dir: str, pid: int) -> list:
+        '''
+        returns a list of the photos a user "likes" as list of
+        jsonifyable dictionary elements
+
+        dir - next/prev direction from specified photo_id (pid)
+        pid - photo to start next/prev search, non-inclusive
+        :return:
+        '''
+        if dir == 'next':
+            q = session.query(photo.Photo).filter(photo.Photo.id > pid). \
+                join(engagement.Feedback, engagement.Feedback.photo_id == photo.Photo.id). \
+                filter(engagement.Feedback.like > pid). \
+                filter(engagement.Feedback.user_id == au.id)
+            pl = q.all()
+
+            # now get the categories...
+            q = session.query(category.Category). \
+                join(photo.Photo, photo.Photo.category_id == category.Category.id). \
+                join(engagement.Feedback, engagement.Feedback.photo_id == photo.Photo.id). \
+                filter(engagement.Feedback.like > pid). \
+                filter(engagement.Feedback.user_id == au.id)
+        else:
+            q = session.query(photo.Photo).filter(photo.Photo.id > pid). \
+                join(engagement.Feedback, engagement.Feedback.photo_id == photo.Photo.id). \
+                filter(engagement.Feedback.like < pid). \
+                filter(engagement.Feedback.user_id == au.id)
+            pl = q.all()
+
+            q = session.query(category.Category). \
+                join(photo.Photo, photo.Photo.category_id == category.Category.id). \
+                join(engagement.Feedback, engagement.Feedback.photo_id == photo.Photo.id). \
+                filter(engagement.Feedback.like < pid). \
+                filter(engagement.Feedback.user_id == au.id)
+
+        # okay we have a list of photos, now we need the categories for these photos...
+        if pl is None:
+            return None
+        if len(pl) == 0:
+            return None
+
+        # okay we have some photos, which means we have some categories to fetch
+        cl = q.all()
+        if cl is None:
+            return None
+        if len(cl) == 0:
+            return None
+
+        # okay we have photos and categories, so we need to create our dictionary
+        r = []
+        num_photos = 0
+        for c in cl:
+            c_dict = c.to_json() # get jsonifyable dictionary
+            p_dicts = []
+            for p in pl:
+                if c.id == p.category_id:
+                    p_element = {'pid': p.id, 'votes': p.times_voted, 'likes': p.likes, 'score': p.score,
+                                 'url': 'preview/{0}'.format(p.id)}
+                    p_dicts.append(p_element)
+
+            # okay, if we have photos, create a dictionary element
+            if len(p_dicts) > 0:
+                element = {'category': c_dict, 'photos': p_dicts}
+                r.append(element)
+                num_photos = num_photos + len(p_dicts)
+                if num_photos > _MAX_PHOTOS_TO_RETURN:
+                    return r
+        return r
 

@@ -16,6 +16,9 @@ class Event(Base):
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
+    _username = None
+    _usertype = usermgr.UserType.PLAYER
+
     _u = None
     _cl = None
     def __init__(self, **kwargs):
@@ -25,6 +28,19 @@ class Event(Base):
         self.num_players = kwargs.get('max_players', 5)
         self.active = kwargs.get('active', True)
         self.name = kwargs.get('name', None)
+
+    def read_userinfo(self, session):
+        try:
+            q = session.query(usermgr.AnonUser).filter(usermgr.AnonUser.id == self.user_id)
+            au = q.one()
+            self._usertype = au.usertype
+            q = session.query(usermgr.User).filter(usermgr.User.id == self.user_id)
+            u = q.one_or_none()
+            if u is not None:
+                self._username = u.emailaddress
+        except Exception as e:
+            logger.exception(msg="error reading user information for Event {0}".format(self.id))
+            raise
 
     def read_categories(self, session):
         try:
@@ -37,11 +53,21 @@ class Event(Base):
             logger.exception(msg="error reading categories for Event {0}".format(self.id))
             raise
 
-    def to_dict(self) -> dict:
+    def to_dict(self, uid: int) -> dict:
         d_cl = []
         for c in self._cl:
             d_cl.append(c.to_json())
-        return {'id': self.id, 'accesskey': self.accesskey, 'max_players': self.num_players, 'name': self.name, 'active': self.active, 'created_by': str(self.user_id), 'categories': d_cl, 'created': self.created_date.strftime("%Y-%m-%d %H:%M")}
+
+        if self._usertype == usermgr.UserType.IISTAFF.value:
+            created_by = 'Image Improv'
+        elif self.user_id == uid:
+            created_by = 'me'
+        elif self._username is not None: # this shouldn't really happen!
+            created_by = self._username
+        else:
+            created_by = '??'
+
+        return {'id': self.id, 'accesskey': self.accesskey, 'max_players': self.num_players, 'name': self.name, 'active': self.active, 'created_by': created_by, 'categories': d_cl, 'created': self.created_date.strftime("%Y-%m-%d %H:%M")}
 
 class EventUser(Base):
     __tablename__ = 'eventuser'

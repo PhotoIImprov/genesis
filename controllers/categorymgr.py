@@ -272,7 +272,7 @@ class EventManager():
                 c_dict['num_photos'] = num_photos
                 cl_dict.append(c_dict)
 
-            e_dict = e.to_dict()
+            e_dict = e.to_dict(au.id)
             e_dict['categories'] = cl_dict
             return e_dict
         except Exception as e:
@@ -307,7 +307,8 @@ class EventManager():
             d_el = []
             for e in el:
                 e.read_categories(session)
-                d_el.append(e.to_dict())
+                e.read_userinfo(session)
+                d_el.append(e.to_dict(au.id))
 
             return d_el # a dictionary suitable for jsonification
         except Exception as e:

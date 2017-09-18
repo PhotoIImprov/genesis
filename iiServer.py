@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.6.4.1' #our version string PEP 440
+__version__ = '1.6.5' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -229,19 +229,6 @@ def hello():
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
     htmlbody += "<ul>" \
-                "<li>v1.5.8</li>" \
-                "  <ul>" \
-                "    <li>/category does NOT return categories for Events, call /event</li>" \
-                "    <li>/event/<event_id> returns details of Event and associated categories</li>" \
-                "  </ul>" \
-                "<li>v1.5.9</li>" \
-                "  <ul>" \
-                "    <li>/joinevent returns same data as /event/<event_id></li>" \
-                "  </ul>" \
-                "<li>v1.5.9.1</li>" \
-                "  <ul>" \
-                "    <li>Can now vote on categories in Events!</li>" \
-                "  </ul>" \
                 "<li>v1.6.0</li>" \
                 "  <ul>" \
                 "    <li>Support for HTML/JavaScript admin tools</li>" \
@@ -267,6 +254,10 @@ def hello():
                 "<li>v1.6.4.1</li>" \
                 "  <ul>" \
                 "    <li>GET /likes API spec implemented, returns 501/Not Implemented</li>" \
+                "  </ul>" \
+                "<li>v1.6.5</li>" \
+                "  <ul>" \
+                "    <li>/event now returns me/image improv/{username} as per spec</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -711,7 +702,6 @@ def get_leaderboard():
       - in: query
         name: category_id
         description: "Category of the leaderboard being requested"
-        example: 537
         required: true
         type: integer
     security:
@@ -2520,7 +2510,6 @@ def join_event():
       - in: query
         name: accesskey
         description: "string that uniquely identifies an event to join"
-        example: "able move"
         required: true
         type: string
     security:

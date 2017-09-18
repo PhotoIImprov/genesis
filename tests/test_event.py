@@ -59,11 +59,14 @@ class TestEvent(DatabaseTest):
             update({category.Category.state: category.CategoryState.CLOSED.value})
         session.commit()
 
-    def create_anon_user(self, session) -> usermgr.AnonUser:
+    def create_anon_user(self, session, make_staff=False) -> usermgr.AnonUser:
         # create a user
         guid = str(uuid.uuid1())
         guid = guid.upper().translate({ord(c): None for c in '-'})
         au = usermgr.AnonUser.create_anon_user(session, guid)
+        if make_staff:
+            au.usertype = usermgr.UserType.IISTAFF.value
+
         session.commit() # write it out to get the id
         assert (au is not None)
         return au
@@ -218,7 +221,7 @@ class TestEvent(DatabaseTest):
 
         self.teardown()
 
-    def test_event_list(self):
+    def test_event_list_me(self):
         self.setup()
         # first create an event
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -250,6 +253,86 @@ class TestEvent(DatabaseTest):
                 assert(e['max_players'] == 8)
                 assert(len(e['categories']) == 3)
                 assert(e['id'] == e2.id)
+            assert(e['created_by'] == 'me')
+
+        self.teardown()
+
+    def test_event_list_unknown(self):
+        self.setup()
+        # first create an event
+        start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        au = self.create_anon_user(self.session)
+        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
+                               name='EventList Test#1', max_players=10, user=au, active=False)
+        event_created = em.create_event(self.session)
+
+        assert(len(em._cl) == 2)
+
+        # create new, anon user and create and add them to the event
+        au = self.create_anon_user(self.session)
+        event_joined = em.join_event(self.session, event_created.accesskey, au)
+        assert(event_joined.id == event_created.id)
+
+        # now see if we can read this event list for the user
+        d_el = em.events_for_user(self.session, au)
+        assert(len(d_el) == 1)
+
+        # check the data thoroughly
+        for e in d_el:
+            assert(e['created_by'] == '??')
+
+        self.teardown()
+
+    def test_event_list_iistaff(self):
+        self.setup()
+        # first create an event
+        start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        au = self.create_anon_user(self.session, make_staff=True)
+        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
+                               name='EventList Test#1', max_players=10, user=au, active=False)
+        event_created = em.create_event(self.session)
+
+        assert(len(em._cl) == 2)
+
+        # create new, anon user and create and add them to the event
+        au = self.create_anon_user(self.session)
+        event_joined = em.join_event(self.session, event_created.accesskey, au)
+        assert(event_joined.id == event_created.id)
+
+        # now see if we can read this event list for the user
+        d_el = em.events_for_user(self.session, au)
+        assert(len(d_el) == 1)
+
+        # check the data thoroughly
+        for e in d_el:
+            assert(e['created_by'] == 'Image Improv')
+
+        self.teardown()
+
+    def test_event_list_player(self):
+        self.setup()
+        # first create an event
+        start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        u = self.create_user(self.session)
+        au = usermgr.AnonUser.get_anon_user_by_id(self.session, u.id)
+        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
+                               name='EventList Test#1', max_players=10, user=au, active=False)
+        event_created = em.create_event(self.session)
+
+        assert(len(em._cl) == 2)
+
+        # create new, anon user and create and add them to the event
+        au = self.create_anon_user(self.session)
+        event_joined = em.join_event(self.session, event_created.accesskey, au)
+        assert(event_joined.id == event_created.id)
+
+        # now see if we can read this event list for the user
+        d_el = em.events_for_user(self.session, au)
+        assert(len(d_el) == 1)
+
+        # check the data thoroughly
+        for e in d_el:
+            assert(e['created_by'] == u.emailaddress)
 
         self.teardown()
 
