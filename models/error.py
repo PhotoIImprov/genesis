@@ -81,6 +81,9 @@ d_ERROR_STRINGS = {'NO_JSON': "missing JSON data",
                    'NOT_IMPLEMENTED': "service has not been implemented yet.",
                    'EMAIL_NOT_FOUND': "email address not found.",
                    'RESTRICTED_API' : "this API is restricted to authorized staff only",
+                   'BAD_DATEFORMAT' : "improperly formatted date string, should be YYYY-mm-dd HH:MM",
+                   'TOO_EARLY': "date specified is too early",
+                   'BAD_ARGS': "one or more arguments are in error",
 
                    # this is if we don't map to anything
                    'UNKNOWN_ERROR': "unknown error ??"}

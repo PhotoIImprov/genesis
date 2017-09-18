@@ -742,6 +742,53 @@ class TesttVoting(iiBaseUnitTest):
         assert(rsp.status_code == 500 and emsg == error.error_string('NO_BALLOT') )
         return
 
+    def test_create_category_next_start(self):
+        self.create_anon_testuser_get_token(make_staff=True)
+
+        # create category information
+        d_data = {'start_date': 'next', 'upload': 24, 'voting': 72, 'name': 'TESTCategory'}
+        j_category = json.dumps(d_data)
+        rsp = self.app.post(path='/category', data=j_category,headers=self.get_header_json())
+        assert(rsp.status_code == 201)
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(data['category']['description'] == 'TESTCategory')
+
+    def test_create_category_bad_start(self):
+        self.create_anon_testuser_get_token(make_staff=True)
+
+        # create category information
+        start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:S")
+        d_data = {'start_date': start_date, 'upload': 24, 'voting': 72, 'name': 'CreateCategoryBadDate'}
+        j_category = json.dumps(d_data)
+        rsp = self.app.post(path='/category', data=j_category,headers=self.get_header_json())
+        assert(rsp.status_code == 400)
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(data['msg'] == error.error_string('BAD_DATEFORMAT'))
+
+    def test_create_category_early_start(self):
+        self.create_anon_testuser_get_token(make_staff=True)
+
+        # create category information
+        start_date = (datetime.datetime.now() - datetime.timedelta(days=1) ).strftime("%Y-%m-%d %H:%M")
+        d_data = {'start_date': start_date, 'upload': 24, 'voting': 72, 'name': 'CreateCategoryEarlyDate'}
+        j_category = json.dumps(d_data)
+        rsp = self.app.post(path='/category', data=j_category,headers=self.get_header_json())
+        assert(rsp.status_code == 400)
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(data['msg'] == error.error_string('TOO_EARLY'))
+
+    def test_create_category_good_start(self):
+        self.create_anon_testuser_get_token(make_staff=True)
+
+        # create category information
+        start_date = (datetime.datetime.now() + datetime.timedelta(days=1) ).strftime("%Y-%m-%d %H:%M")
+        d_data = {'start_date': start_date, 'upload': 24, 'voting': 72, 'name': 'CreateCategoryGoodDate'}
+        j_category = json.dumps(d_data)
+        rsp = self.app.post(path='/category', data=j_category,headers=self.get_header_json())
+        assert(rsp.status_code == 201)
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert(data['category']['description'] == 'CreateCategoryGoodDate')
+
     def test_anon_voting(self):
 
         self.create_anon_testuser_get_token(make_staff=True)

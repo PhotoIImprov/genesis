@@ -31,17 +31,23 @@ class CategoryManager():
                 self._start_date = datetime.strptime(str_start_date, '%Y-%m-%d %H:%M')
         except ValueError as ve:
             msg = "error with date/time format {0}, format should be YYYY-MM-DD HH:MM, UTC time".format(str_start_date)
-            logger.excepion(msg=msg)
+            logger.exception(msg=msg)
             raise
 
         self._duration_upload = kwargs.get('upload_duration', 24)
         self._duration_vote = kwargs.get('vote_duration', 72)
         self._description = kwargs.get('description', None)
 
+        # timedelta.seconds is a magnitude
+        dtnow = datetime.now()
+        time_difference = (dtnow - self._start_date).seconds
+        if self._start_date > dtnow:
+            time_difference = 0 - time_difference
+
         # validate arguments, start_date must be no more 5 minutes in the past
         if (type(self._duration_upload) is not int or self._duration_upload < 1 or self._duration_upload > 24*14) or \
            (type(self._duration_vote) is not int or self._duration_vote < 1 or self._duration_vote > 24 * 14) or \
-           (datetime.now() - self._start_date).seconds > 300:
+           (time_difference > 300):
            raise Exception('CategoryManager', 'badargs')
 
     def create_resource(self, session, resource_string: str) -> resources.Resource:
@@ -140,15 +146,27 @@ class CategoryManager():
         return d_photos
 
     @staticmethod
-    def next_category_start(session) -> str:
-        q = session.query(func.max(category.Category.start_date). \
-            filter(Category.state.in_(
-            [CategoryState.UPLOAD.value, CategoryState.VOTING.value, CategoryState.COUNTING.value,
-             CategoryState.UNKNOWN.value])). \
-            filter(Category.type == CategoryType.OPEN.value) )
+    def next_category_start(session) -> datetime:
+        # find the last category to finish with uploading, that's when we need to start this one
+        q = session.query(func.max(func.date_add(category.Category.start_date, text("INTERVAL duration_upload HOUR")))).\
+            filter(category.Category.state.in_([category.CategoryState.UPLOAD.value, category.CategoryState.UNKNOWN.value])).\
+            filter(category.Category.type == category.CategoryType.OPEN.value)
 
-        c = q.one()
-        return c.end_date
+        last_date = q.all()
+        dt_last = datetime.strptime(last_date[0][0], '%Y-%m-%d %H:%M:%S')
+        return dt_last
+
+    @staticmethod
+    def copy_photos_from_previous_categories(session, cid: int) -> int:
+        '''
+        Copy photo records from previous categories of the same name
+        We'll call our stored procedure to do this work
+        '''
+        stored_proc = 'CALL sp_CopyCategories(:cid)'
+        results = session.execute(stored_proc, {'cid': cid})
+
+        num_photos = photo.Photo.count_by_category(session, cid)
+        return num_photos
 
 class EventManager():
     _nl = [] # list of resources (strings)

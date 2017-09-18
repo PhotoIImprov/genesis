@@ -313,3 +313,10 @@ class TestCategory(DatabaseTest):
         finally:
             self.session.close()
             self.teardown()
+
+    def test_create_category_next_start_date(self):
+        self.setup()
+        start_date = categorymgr.CategoryManager.next_category_start(self.session)
+        assert(start_date is not None)
+
+        self.teardown()

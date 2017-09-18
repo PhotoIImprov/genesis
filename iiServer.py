@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.6.2' #our version string PEP 440
+__version__ = '1.6.4' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -255,6 +255,14 @@ def hello():
                 "<li>v1.6.2</li>" \
                 "  <ul>" \
                 "    <li>NGINX does not allow POST to a static page, so now GET to passwordchanged.html</li>" \
+                "  </ul>" \
+                "<li>v1.6.3</li>" \
+                "  <ul>" \
+                "    <li>POST /category, creates categories, tested</li>" \
+                "  </ul>" \
+                "<li>v1.6.4</li>" \
+                "  <ul>" \
+                "    <li>POST /category copies photos, works with HTML admin pages</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -552,24 +560,47 @@ def create_category():
     try:
         category_name = request.json['name']
         start_date = request.json['start_date']
-        upload_duration = request.json['upload']
-        vote_duration = request.json['voting']
+        upload_duration = int(request.json['upload'])
+        vote_duration = int(request.json['voting'])
     except KeyError as e:
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
     try:
+        # create current timestamp to minute resolution
+        dt_now = datetime.datetime.strptime(datetime.datetime.now().strftime("%Y-%m-%d %H:%M"), '%Y-%m-%d %H:%M')
         if start_date == 'next':
-            start_date = categorymgr.CategoryManager.next_category_start(session)
+            dt_start = categorymgr.CategoryManager.next_category_start(session)
+            if dt_start is None:
+                start_date = dt_now.strftime("%Y-%m-%d %H:%M")
+            else:
+                start_date = dt_start.strftime("%Y-%m-%d %H:%M")
+        try:
+            dt_start = datetime.datetime.strptime(start_date, '%Y-%m-%d %H:%M')
+        except Exception as e:
+            return make_response(jsonify({'msg': error.error_string('BAD_DATEFORMAT')}), status.HTTP_400_BAD_REQUEST)
+
+        if dt_start < dt_now:
+            return make_response(jsonify({'msg': error.error_string('TOO_EARLY')}), status.HTTP_400_BAD_REQUEST)
+
         cm = categorymgr.CategoryManager(description=category_name, start_date=start_date, upload_duration=upload_duration, vote_duration=vote_duration)
-        c = cm.create_category(session, type=category.CategoryType.OPEN)
+        c = cm.create_category(session, type=category.CategoryType.OPEN.value)
         session.commit()
-        return make_response(jsonify({'category', c.to_json()}), status.HTTP_201_CREATED)
+        session.add(c)
+        num_photos = cm.copy_photos_from_previous_categories(session, c.id)
+        session.commit()
+        d_category = c.to_json()
+        d_category['num_photos'] = num_photos
+        rsp = make_response(jsonify({'category': d_category}), status.HTTP_201_CREATED)
+        session.close()
+        return rsp
 
     except Exception as e:
         session.close()
+        if e.args[0] == 'CategoryManager' and e.args[1] == 'badargs':
+            return make_response(jsonify({'msg': error.error_string('BAD_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
-    return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_501_NOT_IMPLEMENTED)
+    return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @app.route("/category", methods=['GET'])

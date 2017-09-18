@@ -12,19 +12,11 @@ from models import category
 _rootdir = '/mnt/seed_data'
 _base_url = 'https://api.imageimprov.com'
 
-def login_user(u):
-    url = _base_url + '/register'
-    p = 'pa55w0rd'
-    g = str(uuid.uuid1())
-    g = g.translate({ord(c): None for c in '-'})
-
-    a_rsp = requests.post(url, data=json.dumps(dict(username=u, password=p, guid=g)),
-                          headers={'content-type': 'application/json'})
-    if a_rsp.status_code != 400 and a_rsp.status_code != 201:
-        return None
-
-    # now let's login this user
+def login_user(u=None):
     url = _base_url + '/auth'
+    if u is None:
+        u = 'bp100a@hotmail.com'
+    p = 'pa55w0rd'
     l_rsp = requests.post(url, data=json.dumps(dict(username=u, password=p)),
                         headers={'content-type': 'application/json'})
     if l_rsp.status_code != 200:
@@ -34,10 +26,10 @@ def login_user(u):
     token = data['access_token']
     return token
 
-def upload_image(username, fn, cid):
+def upload_image(fn, cid):
 
     # register user
-    token = login_user(username)
+    token = login_user()
     if token is None:
         return
 
@@ -84,11 +76,8 @@ def upload_images(subdir_name, rootdir, cid):
             # upload the photo
             # rename it so we won't upload it again
             full_name = dirpath + '/' + f
-            username = 'testuser{0}@imageimprov.com'.format(idx)
             idx += 1
-            upload_image(username, full_name, cid)
-#            newname = full_name + '.1'
-#            os.rename(full_name, newname)
+            upload_image(full_name, cid)
 
     return
 
@@ -133,18 +122,13 @@ if __name__ == '__main__':
 
     # now get the current active categories
 
-    user_list = ie.register_test_users()
-    assert(len(user_list) > 0)
-
     # Now use the first user to get the category
-    tu = user_list[0]
-    token = tu.get_token()
-
+    token = login_user() # this user has to have a usertype of 'IISTAFF' to change category state
     cl = ie.read_category(token)
 
     for c in cl:
         cid = c['id']
-        if cid not in (555,556):
+        if cid not in (612,613,614):
             continue
 
         theme = c['description']
