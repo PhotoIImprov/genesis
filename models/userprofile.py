@@ -9,6 +9,8 @@ User Profile
 ------------
 All the user profile models are here
 '''
+_MAX_PHOTOS_TO_RETURN = 50 # of photos that likes list will return
+
 
 class Submissions():
     _uid = None
@@ -99,42 +101,47 @@ class Submissions():
 
         return return_dict
 
-    _MAX_PHOTOS_TO_RETURN = 50
     @staticmethod
-    def get_user_likes(session, au: usermgr.AnonUser, dir: str, pid: int) -> list:
+    def get_user_likes(session, au: usermgr.AnonUser, dir: str, cid: int) -> list:
         '''
         returns a list of the photos a user "likes" as list of
         jsonifyable dictionary elements
 
         dir - next/prev direction from specified photo_id (pid)
-        pid - photo to start next/prev search, non-inclusive
+        cid - category to start next/prev search, non-inclusive
         :return:
         '''
         if dir == 'next':
-            q = session.query(photo.Photo).filter(photo.Photo.id > pid). \
+            q = session.query(photo.Photo).filter(photo.Photo.category_id > cid). \
                 join(engagement.Feedback, engagement.Feedback.photo_id == photo.Photo.id). \
-                filter(engagement.Feedback.like > pid). \
+                filter(engagement.Feedback.like > 0). \
                 filter(engagement.Feedback.user_id == au.id)
             pl = q.all()
 
             # now get the categories...
             q = session.query(category.Category). \
+                filter(category.Category.id > cid). \
                 join(photo.Photo, photo.Photo.category_id == category.Category.id). \
                 join(engagement.Feedback, engagement.Feedback.photo_id == photo.Photo.id). \
-                filter(engagement.Feedback.like > pid). \
-                filter(engagement.Feedback.user_id == au.id)
+                filter(engagement.Feedback.like > 0). \
+                filter(engagement.Feedback.user_id == au.id). \
+                order_by(category.Category.id.asc())
+
         else:
-            q = session.query(photo.Photo).filter(photo.Photo.id > pid). \
+            q = session.query(photo.Photo).filter(photo.Photo.category_id < cid). \
                 join(engagement.Feedback, engagement.Feedback.photo_id == photo.Photo.id). \
-                filter(engagement.Feedback.like < pid). \
+                filter(engagement.Feedback.like > 0). \
                 filter(engagement.Feedback.user_id == au.id)
             pl = q.all()
 
+            # now get the categories...
             q = session.query(category.Category). \
+                filter(category.Category.id < cid). \
                 join(photo.Photo, photo.Photo.category_id == category.Category.id). \
                 join(engagement.Feedback, engagement.Feedback.photo_id == photo.Photo.id). \
-                filter(engagement.Feedback.like < pid). \
-                filter(engagement.Feedback.user_id == au.id)
+                filter(engagement.Feedback.like > 0). \
+                filter(engagement.Feedback.user_id == au.id). \
+                order_by(category.Category.id.desc())
 
         # okay we have a list of photos, now we need the categories for these photos...
         if pl is None:
@@ -158,7 +165,7 @@ class Submissions():
             for p in pl:
                 if c.id == p.category_id:
                     p_element = {'pid': p.id, 'votes': p.times_voted, 'likes': p.likes, 'score': p.score,
-                                 'url': 'preview/{0}'.format(p.id)}
+                                 'url': 'preview/{0}'.format(p.id), 'username':'tbd', 'isfriend': False}
                     p_dicts.append(p_element)
 
             # okay, if we have photos, create a dictionary element
@@ -166,7 +173,7 @@ class Submissions():
                 element = {'category': c_dict, 'photos': p_dicts}
                 r.append(element)
                 num_photos = num_photos + len(p_dicts)
-                if num_photos > _MAX_PHOTOS_TO_RETURN:
+                if num_photos >= _MAX_PHOTOS_TO_RETURN:
                     return r
         return r
 

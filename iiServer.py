@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.6.5' #our version string PEP 440
+__version__ = '1.6.6' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -258,6 +258,10 @@ def hello():
                 "<li>v1.6.5</li>" \
                 "  <ul>" \
                 "    <li>/event now returns me/image improv/{username} as per spec</li>" \
+                "  </ul>" \
+                "<li>v1.6.6</li>" \
+                "  <ul>" \
+                "    <li>/like implemented, pageable</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -2723,10 +2727,10 @@ def event_details(event_id):
 
     return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_501_NOT_IMPLEMENTED)
 
-@app.route('/like/<string:dir>/<int:pid>', methods=['GET'])
+@app.route('/like/<string:dir>/<int:cid>', methods=['GET'])
 @jwt_required()
 @timeit()
-def mylikes(dir: str):
+def mylikes(dir: str, cid: int):
     """
     User Likes
     Returns a pageable list of photos that the user likes
@@ -2750,8 +2754,8 @@ def mylikes(dir: str):
           - next
           - prev
       - in: path
-        name: pid
-        description: "when paging, indicates the first photo-identifer to start fetching new page, non-inclusive"
+        name: cid
+        description: "when paging, indicates the first category-identifier to start fetching new page, non-inclusive"
         type: integer
         required: true
     responses:
@@ -2813,13 +2817,21 @@ def mylikes(dir: str):
               items:
                 $ref: '#definitions/LikedPhotoDetail'
     """
+    if dir != 'next' and dir != 'prev':
+        return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
     try:
-        return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_501_NOT_IMPLEMENTED)
-    except KeyError:
+        au = current_identity._get_current_object()
+        r = userprofile.Submissions.get_user_likes(session, au, dir, cid)
+        if r is None:
+            return make_response('', status.HTTP_204_NO_CONTENT)
+        else:
+            return make_response(jsonify(r), status.HTTP_200_OK)
+    except Exception as e:
         session.close()
-        return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)
+        logger.exception('[/like] internal server error')
+        return make_response(jsonify({'msg': 'unspecified error'}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_501_NOT_IMPLEMENTED)
 

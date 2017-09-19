@@ -7,6 +7,7 @@ import uuid
 from sqlalchemy import func
 import datetime
 from controllers import categorymgr
+from models import engagement
 
 class TestSubmissions(DatabaseTest):
     _cl = []
@@ -103,9 +104,10 @@ class TestSubmissions(DatabaseTest):
 
         self.teardown()
 
-    def create_photos_for_category(self, uid: int, c, num_photos: int)-> None:
+    def create_photos_for_category(self, uid: int, c, num_photos: int) -> list:
 
-        for i in range (1,num_photos):
+        pl = []
+        for i in range (0,num_photos):
             p = photo.Photo()
             p.category_id = c.id
             p.filepath = 'boguspath'
@@ -116,8 +118,10 @@ class TestSubmissions(DatabaseTest):
             p.likes = 0
             p.active = 1
             self.session.add(p)
+            pl.append(p)
 
         self.session.commit()
+        return pl
 
     def create_category_list(self, num_categories: int) -> list:
         cl = []
@@ -131,19 +135,21 @@ class TestSubmissions(DatabaseTest):
             cl.append(c)
         return cl
 
-    def create_submissions_test_data(self, num_categories: int)-> int:
+    def create_anon_user(self):
         guid = str(uuid.uuid1())
         guid = guid.translate({ord(c): None for c in '-'})
         au = usermgr.AnonUser.create_anon_user(self.session, guid)
         self.session.add(au)
         self.session.commit()
+        return au
 
+    def create_submissions_test_data(self, num_categories: int, num_photos: int)-> int:
+        au = self.create_anon_user()
         self._cl = self.create_category_list(num_categories)
         assert(self._cl is not None)
         assert(len(self._cl) == num_categories)
 
         for c in self._cl:
-            num_photos = 5
             self.create_photos_for_category(au.id, c, num_photos)
 
         self.session.commit()
@@ -154,7 +160,8 @@ class TestSubmissions(DatabaseTest):
         self.setup()
 
         num_categories = 10
-        uid = self.create_submissions_test_data(num_categories=num_categories)
+        num_photos = 5
+        uid = self.create_submissions_test_data(num_categories=num_categories, num_photos=num_photos)
         profile = userprofile.Submissions(uid=uid)
         d = profile.get_user_submissions(self.session, 'next', 0, None)
         assert(d is not None)
@@ -225,7 +232,7 @@ class TestSubmissions(DatabaseTest):
         self.setup()
 
         num_categories = 10
-        uid = self.create_submissions_test_data(num_categories=num_categories)
+        uid = self.create_submissions_test_data(num_categories=num_categories, num_photos=5)
         profile = userprofile.Submissions(uid=uid)
         d = profile.get_user_submissions(self.session, 'next', 0, num_categories//2)
         assert(d is not None)
@@ -240,7 +247,7 @@ class TestSubmissions(DatabaseTest):
         self.setup()
 
         num_categories = 10
-        uid = self.create_submissions_test_data(num_categories=num_categories)
+        uid = self.create_submissions_test_data(num_categories=num_categories, num_photos=5)
         c = self._cl[num_categories//2]
         cid = c.id
         profile = userprofile.Submissions(uid=uid)
@@ -250,5 +257,133 @@ class TestSubmissions(DatabaseTest):
         submissions = d['submissions']
         assert(len(submissions) == num_categories//2)
         json_d = json.dumps(d)
+
+        self.teardown()
+
+    def test_user_likes(self):
+        self.setup()
+
+        # Get a list of photos that user "likes".
+        # Step #1 - create categories
+        # Step #2 - create test users
+        # Step #3 - create photos for test users for categories
+        # Step #4 - create feedback (likes) for photos
+        # Step #5 - have user request list of likes
+        # Step #6 - validate list
+
+
+        # Step #1
+        num_categories = 5
+        self.create_submissions_test_data(num_categories=num_categories, num_photos=5)
+
+        # Step #2 - create users
+        num_users = 5
+        aul = []
+        for i in range(0,num_users):
+            au = self.create_anon_user()
+            aul.append(au)
+
+        # Step #3 - create photos
+        pl = []
+        num_photos = 2
+        for c in self._cl:
+            for au in aul:
+                u_pl = self.create_photos_for_category(au.id, c, num_photos)
+                pl = pl + u_pl
+
+        # now create our anon user that will be "liking" things
+        au = self.create_anon_user()
+
+        # now cycle through our photos and create feedback (likes) for them
+        for p in pl:
+            fm = categorymgr.FeedbackManager(uid=au.id, pid=p.id, like=( (p.id & 0x1) == 1))
+            fm.create_feedback(self.session)
+        self.session.commit()
+
+        # okay we'v written out a bunch of feedback
+        user_likes = userprofile.Submissions.get_user_likes(self.session, au=au, dir='next', cid=0)
+        assert(user_likes is not None)
+        assert(len(user_likes) == len(self._cl))
+
+        for cphotos in user_likes:
+            c = cphotos['category']
+            photos = cphotos['photos']
+            for photo in photos:
+                assert( (photo['pid'] & 0x1) == 1)
+                assert(photo['likes'] == 1)
+
+        self.teardown()
+
+    def count_liked_photos(self, user_likes: list) -> int:
+        total_photos = 0
+        for cphotos in user_likes:
+            c = cphotos['category']
+            photos = cphotos['photos']
+            total_photos += len(photos)
+
+            for photo in photos:
+                assert(photo['likes'] == 1)
+
+        return total_photos
+
+    def test_user_likes_paging(self):
+        self.setup()
+
+        # Get a list of photos that user "likes".
+        # Step #1 - create categories
+        # Step #2 - create test users
+        # Step #3 - create photos for test users for categories
+        # Step #4 - create feedback (likes) for photos
+        # Step #5 - have user request list of likes
+        # Step #6 - validate list
+
+
+        # Step #1
+        num_categories = 5
+        self.create_submissions_test_data(num_categories=num_categories, num_photos=0)
+
+        # Step #2 - create users
+        num_users = 5
+        aul = []
+        for i in range(0,num_users):
+            au = self.create_anon_user()
+            aul.append(au)
+
+        # Step #3 - create photos
+        pl = []
+        num_photos_per_user = 5
+        for c in self._cl:
+            for au in aul:
+                u_pl = self.create_photos_for_category(au.id, c, num_photos_per_user)
+                pl = pl + u_pl
+
+        # now create our anon user that will be "liking" things
+        au = self.create_anon_user()
+
+        # now cycle through our photos and create feedback (likes) for them
+        for p in pl:
+            fm = categorymgr.FeedbackManager(uid=au.id, pid=p.id, like=True)
+            fm.create_feedback(self.session)
+        self.session.commit()
+
+        # okay we'v written out a bunch of feedback
+        user_likes = userprofile.Submissions.get_user_likes(self.session, au=au, dir='next', cid=0)
+        assert(user_likes is not None)
+
+        assert(self.count_liked_photos(user_likes) == userprofile._MAX_PHOTOS_TO_RETURN) # NOTE: The # photos per category needs to be be a factor of this value for the test to work
+
+        # let's get the next 2 categories
+        c = user_likes[len(user_likes)-1]['category']
+        cid = c['id']
+
+        next_user_likes = userprofile.Submissions.get_user_likes(self.session, au=au, dir='next', cid = cid)
+        assert(self.count_liked_photos(next_user_likes) == userprofile._MAX_PHOTOS_TO_RETURN) # NOTE: The # photos per category needs to be be a factor of this value for the test to work
+
+        # now page back
+        c = next_user_likes[len(user_likes)-1]['category']
+        cid = c['id']
+
+        prev_user_likes = userprofile.Submissions.get_user_likes(self.session, au=au, dir='prev', cid = cid)
+        assert(self.count_liked_photos(prev_user_likes) == userprofile._MAX_PHOTOS_TO_RETURN) # NOTE: The # photos per category needs to be be a factor of this value for the test to work
 
         self.teardown()

@@ -1705,3 +1705,120 @@ class TestAdminAPIs(iiBaseUnitTest):
         session.rollback()
         session.close()
         assert (rsp.status_code == 200)
+
+
+class TestUserLikes(iiBaseUnitTest):
+
+    def get_user_id(self,session, tu) -> int:
+
+        au = usermgr.AnonUser.find_anon_user(session, tu.get_guid())
+        assert(au is not None)
+        return au.id
+
+    def upload_photo_to_category(self, c:category.Category):
+
+        # we have our user, now we need a photo to upload
+        # read our test file
+        cwd = os.getcwd()
+        if 'tests' in cwd:
+            path = '../photos/TestPic.JPG' #'../photos/Cute_Puppy.jpg'
+        else:
+            path = cwd + '/photos/TestPic.JPG' #'/photos/Cute_Puppy.jpg'
+        ft = open(path, 'rb')
+        ph = ft.read()
+        ft.close()
+
+        ext = 'JPEG'
+        img = base64.standard_b64encode(ph)
+        b64img = img.decode("utf-8")
+        rsp = self.app.post(path='/photo', data=json.dumps(dict(category_id=c.id, extension=ext, image=b64img)),
+                            headers=self.get_header_json())
+        assert(rsp.status_code == 201 or rsp.status_code == 200)
+
+    def create_test_categories_with_photos(self, session, num_categories: int, num_photos: int) -> list:
+        u_staff = self.create_testuser_get_token(make_staff=True)  # get a user so we can use the API
+
+        open_cl = []
+        for i in range(0, num_categories):
+            category_name = 'TestUserLike{0}'.format(i)
+            dt_start = categorymgr.CategoryManager.next_category_start(session)
+            start_date = dt_start.strftime("%Y-%m-%d %H:%M")
+            cm = categorymgr.CategoryManager(description=category_name, start_date=start_date, upload_duration=24, vote_duration=24)
+            c = cm.create_category(session, type=category.CategoryType.OPEN.value)
+            session.commit()
+            session.add(c)
+            open_cl.append(c)
+
+        session.commit()
+
+        # all these categories are in the PENDING state
+        # let's change them to upload and upload some photos to them
+        for c in open_cl:
+            c.state = category.CategoryState.UPLOAD.value
+            session.add(c)
+
+        session.commit() # flush everything to the DB
+
+        # we now have categories that will accept a photo
+        self.set_token(u_staff.get_token())
+        for c in open_cl:
+            for i in range(0, num_photos):
+                self.upload_photo_to_category(c)
+
+        u_staff._uid = self.get_user_id(session, u_staff)
+        session2 = dbsetup.Session()
+        q = session2.query(photo.Photo).filter(photo.Photo.user_id == u_staff._uid)
+        pl = q.all()
+        session2.close()
+        return pl
+
+    def test_user_likes_none(self):
+        tu = self.create_testuser_get_token(make_staff=False)
+        path = '/like/next/0'
+        rsp = self.app.get(path=path, headers=self.get_header_html())
+        assert(rsp.status_code == 204)
+        assert( len(rsp.data) == 0)
+
+    def test_user_likes_has_some(self):
+        # Get a list of photos that user "likes".
+        # Step #1 - create categories
+        # Step #2 - create test users
+        # Step #3 - create photos for test users for categories
+        # Step #4 - create feedback (likes) for photos
+        # Step #5 - have user request list of likes
+        # Step #6 - validate list
+        session = dbsetup.Session()
+        me = self.create_testuser_get_token(make_staff=False)
+        me._uid = self.get_user_id(session, me)
+        pl = self.create_test_categories_with_photos(session, num_categories=5, num_photos=25)
+        assert(pl is not None)
+        assert(len(pl) > 0)
+
+        session.close()
+        session = dbsetup.Session()
+
+        # Now let's "like" all the odd photos
+        for p in pl:
+            if ( (p.id & 0x1) == 1):
+                fm = categorymgr.FeedbackManager(uid=me._uid, pid=p.id, like=True)
+                fm.create_feedback(session)
+
+        session.commit()
+        session.close()
+
+        # now ask or the likes via the API
+        self.set_token(me.get_token())
+        rsp = self.app.get(path='/like/next/0', headers=self.get_header_html(), content_type='image/jpeg')
+        assert(rsp.status_code == 200)
+
+        user_likes = json.loads(rsp.data.decode('utf-8'))
+        assert(user_likes is not None)
+
+        for cphotos in user_likes:
+            c = cphotos['category']
+            photos = cphotos['photos']
+            for photo in photos:
+                assert( (photo['pid'] & 0x1) == 1)
+                assert(photo['likes'] == 1)
+
+        session.close()

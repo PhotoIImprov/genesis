@@ -247,6 +247,8 @@ class BallotManager:
                 p = session.query(photo.Photo).get(be.photo_id)
                 p.score += score
                 p.times_voted += 1
+                if be.like:
+                    p.likes += 1
                 bel.append(be)
             except Exception as e:
                 logger.exception(msg="error while updating photo with score")
