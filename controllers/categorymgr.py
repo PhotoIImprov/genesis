@@ -819,8 +819,9 @@ class BallotManager:
                 raise
 
             try:
-                fbm = FeedbackManager(uid=uid, pid=p.id, like=like, offensive=offensive, tags=tags)
-                fbm.create_feedback(session)
+                if like or offensive or tags is not None:
+                    fbm = FeedbackManager(uid=uid, pid=p.id, like=like, offensive=offensive, tags=tags)
+                    fbm.create_feedback(session)
             except Exception as e:
                 logger.exception(msg="error while updating feedback for ballotentry")
                 raise

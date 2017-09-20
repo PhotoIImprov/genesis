@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.7.0' #our version string PEP 440
+__version__ = '1.7.1' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -229,32 +229,6 @@ def hello():
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
     htmlbody += "<ul>" \
-                "<li>v1.6.0</li>" \
-                "  <ul>" \
-                "    <li>Support for HTML/JavaScript admin tools</li>" \
-                "  </ul>" \
-                "<li>v1.6.1</li>" \
-                "  <ul>" \
-                "    <li>fix reset password bugs, updated testing</li>" \
-                "    <li>POST /category will create categories for IISTAFF only</li>" \
-                "    <li>/config now shows all categories (i.e. PENDING included)</li>" \
-                "  </ul>" \
-                "<li>v1.6.2</li>" \
-                "  <ul>" \
-                "    <li>NGINX does not allow POST to a static page, so now GET to passwordchanged.html</li>" \
-                "  </ul>" \
-                "<li>v1.6.3</li>" \
-                "  <ul>" \
-                "    <li>POST /category, creates categories, tested</li>" \
-                "  </ul>" \
-                "<li>v1.6.4</li>" \
-                "  <ul>" \
-                "    <li>POST /category copies photos, works with HTML admin pages</li>" \
-                "  </ul>" \
-                "<li>v1.6.4.1</li>" \
-                "  <ul>" \
-                "    <li>GET /likes API spec implemented, returns 501/Not Implemented</li>" \
-                "  </ul>" \
                 "<li>v1.6.5</li>" \
                 "  <ul>" \
                 "    <li>/event now returns me/image improv/{username} as per spec</li>" \
@@ -274,6 +248,11 @@ def hello():
                 "<li>v1.7.0</li>" \
                 "  <ul>" \
                 "    <li>refactored, Ballot & Tally mgrs moved</li>" \
+                "  </ul>" \
+                "<li>v1.7.1</li>" \
+                "  <ul>" \
+                "    <li>feedback for voting only if there is data</li>" \
+                "    <li>logging tabulate votes</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
