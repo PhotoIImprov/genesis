@@ -766,6 +766,7 @@ class BallotManager:
         # It's possible the ballotentries are from different sections, we'll
         # score based on the first ballotentry
         try:
+            logger.info(msg='tabulate_votes, json[{0}]'.format(json_ballots))
             bid = json_ballots[0]['bid']
             be = session.query(voting.BallotEntry).get(bid)
             vr = session.query(voting.VotingRound).get(be.photo_id)
