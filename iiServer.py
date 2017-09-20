@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.6.6' #our version string PEP 440
+__version__ = '1.7.0' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -263,6 +263,18 @@ def hello():
                 "  <ul>" \
                 "    <li>/like implemented, pageable</li>" \
                 "  </ul>" \
+                "<li>v1.6.7</li>" \
+                "  <ul>" \
+                "    <li>/badges to get light bulb balance</li>" \
+                "  </ul>" \
+                "<li>v1.6.8</li>" \
+                "  <ul>" \
+                "    <li>bypass cache for IISTAFF</li>" \
+                "  </ul>" \
+                "<li>v1.7.0</li>" \
+                "  <ul>" \
+                "    <li>refactored, Ballot & Tally mgrs moved</li>" \
+                "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
@@ -333,7 +345,7 @@ def hello():
 
     logger.info(msg='[config] List active categories')
 
-    tm = voting.TallyMan()
+    tm = categorymgr.TallyMan()
     au = usermgr.AnonUser.get_anon_user_by_id(session, 1)
     cl = category.Category.all_categories(session, au)
     if cl is None:
@@ -497,7 +509,7 @@ def set_category_state():
         if cid is None:
             rsp = make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
         else:
-            tm = voting.TallyMan()
+            tm = categorymgr.TallyMan()
             d = tm.change_category_state(session, cid, cstate)
             session.commit()
             if d['error'] is not None:
@@ -780,7 +792,7 @@ def get_leaderboard():
         if cid is None or cid == 'None' or uid is None:
             rsp = make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
         else:
-            tm = voting.TallyMan()
+            tm = categorymgr.TallyMan()
             c = category.Category.read_category_by_id(cid, session)
             lb_list = tm.fetch_leaderboard(session, uid, c)
             if lb_list is not None:
@@ -1123,7 +1135,7 @@ def cast_vote():
     session = dbsetup.Session()
 
     try:
-        voting.BallotManager().tabulate_votes(session, uid, votes)
+        categorymgr.BallotManager().tabulate_votes(session, uid, votes)
     except BaseException as e:
         str_e = str(e)
         logger.exception(msg=str_e)
@@ -1143,7 +1155,7 @@ def return_ballot(session, uid, cid):
     '''
     rsp = None
     try:
-        bm = voting.BallotManager()
+        bm = categorymgr.BallotManager()
         if cid is None:
             cl = bm.active_voting_categories(session, uid)
             shuffle(cl)
@@ -2374,10 +2386,10 @@ def update_photometa(pid):
     session = dbsetup.Session()
     rsp = None
     try:
-        fbm = engagement.FeedbackManager(uid=uid, pid=pid, like=like, offensive=offensive, tags=tags)
-        fbm.created_feedback(session)
+        fbm = categorymgr.FeedbackManager(uid=uid, pid=pid, like=like, offensive=offensive, tags=tags)
+        fbm.create_feedback(session)
         session.commit()
-        rsp = make_response(jsonify({'msg': 'feedback updated'}), status.HTTP_200_CREATED)
+        rsp = make_response(jsonify({'msg': 'feedback updated'}), status.HTTP_200_OK)
     except Exception as e:
         logger.exception(msg="[/update] error updating photo metadata")
         rsp = make_response('image not found', status.HTTP_404_NOT_FOUND)
@@ -2736,7 +2748,7 @@ def mylikes(dir: str, cid: int):
     Returns a pageable list of photos that the user likes
     ---
     tags:
-      - image
+      - user
     operationId: my-likes
     consumes:
       - text/html
@@ -2766,6 +2778,8 @@ def mylikes(dir: str, cid: int):
           type: array
           items:
             $ref: '#/definitions/LikedPhotos'
+      204:
+        description: "no content found, user has not liked any photos"
       400:
         description: "error in specified arguments"
         schema:
@@ -2832,6 +2846,78 @@ def mylikes(dir: str, cid: int):
         session.close()
         logger.exception('[/like] internal server error')
         return make_response(jsonify({'msg': 'unspecified error'}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_501_NOT_IMPLEMENTED)
+
+@app.route('/badges', methods=['GET'])
+@jwt_required()
+@timeit()
+def get_reward():
+    """
+    Badges
+    Returns rewards for this user
+    ---
+    tags:
+      - user
+    operationId: my-badges
+    consumes:
+      - text/html
+    produces:
+      - application/json
+    security:
+      - JWT: []
+    responses:
+      200:
+        description: "list of rewards for this user"
+        schema:
+          id: user_reward
+          type: array
+          items:
+            $ref: '#/definitions/UserRewards'
+      204:
+         description: "no rewards/badges found for user"
+      400:
+        description: "error in specified arguments"
+        schema:
+          $ref: '#/definitions/Error'
+    definitions:
+      - schema:
+          id: UserRewards
+          properties:
+            total_bulbs:
+              type: integer
+              description: "total # of light bulbs the user has been awarded"
+              example: 138
+            unspent_bulbs:
+              type: integer
+              description: "# of light bulbs user hasn't spent"
+              example: 3
+            highest_rated_photo:
+              type: string
+              description: "base URL to photo with highest rating"
+              example:
+            max_daily_bulbs:
+              type: integer
+              description: "highest number of bulbs won in a day"
+              example: 14
+            tags:
+              type: array
+              description: "List of tags associated with highest rated photo"
+              example: ["fluffy", "colorful", "rough", "crude"]
+              items:
+                type: string
+    """
+    session = dbsetup.Session()
+    try:
+        au = current_identity._get_current_object()
+        d_rewards = categorymgr.RewardManager.rewards(session, engagement.RewardType.LIGHTBULB, au)
+        if d_rewards is None:
+            return make_response('', status.HTTP_204_NO_CONTENT)
+
+        return make_response(jsonify(d_rewards), status.HTTP_200_OK)
+    except Exception as e:
+        session.close()
+        return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_501_NOT_IMPLEMENTED)
 

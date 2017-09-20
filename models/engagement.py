@@ -6,13 +6,28 @@ from models import resources
 from models import usermgr, photo
 from cache.ExpiryCache import _expiry_cache
 import json
+from enum import Enum
+
+class RewardType(Enum):
+    TEST = 0 # just for testing
+    LIGHTBULB = 1 # lightbulb rewards
+
+    @staticmethod
+    def to_str(type: int) -> str:
+        if type == RewardType.TEST.value:
+            return "TEST"
+        elif type == RewardType.LIGHTBULB.value:
+            return "LIGHTBULB"
+
+        return "UNKNOWN"
 
 class UserReward(Base):
     __tablename__ = 'userreward'
 
     user_id = Column(Integer, ForeignKey("anonuser.id", name="fk_userreward_userid"), primary_key=True, nullable=False)
     rewardtype = Column(String(32), nullable=False)
-    quantity = Column(Integer, default=0, nullable=False)
+    current_balance = Column(Integer, default=0, nullable=True)
+    total_balance = Column(Integer, default=0, nullable=True)
 
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
@@ -20,10 +35,19 @@ class UserReward(Base):
     def __init__(self, **kwargs):
         self.user_id = kwargs.get('user_id', None)
         self.rewardtype = kwargs.get('rewardtype', None)
-        self.quantity = kwargs.get('quantity', 0)
+        self.current_balance = kwargs.get('quantity', 0)
+        self.total_balance = self.current_balance
 
-    def update_quantity(self, quantity: int) -> None:
-        self.quantity = self.quantity + quantity
+    def decrement_quantity(self, quantity: int) -> bool:
+        if self.current_balance > quantity:
+            self.current_balance -= quantity
+            return True
+        return False
+
+    def update_quantity(self, quantity: int) -> int:
+        self.current_balance += quantity
+        self.total_balance += quantity
+        return self.current_balance
 
 class Reward(Base):
     __tablename__ = 'reward'

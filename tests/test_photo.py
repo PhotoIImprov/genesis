@@ -259,7 +259,7 @@ class TestPhoto(DatabaseTest):
             raise BaseException(errno.EINVAL)
 
         q = session.query(photo.Photo)\
-        .outerjoin(voting.BallotEntry)\
+        .outerjoin(categorymgr.BallotEntry)\
         .filter(voting.BallotEntry.ballot_id is None).limit(count)
 
         p = q.all()

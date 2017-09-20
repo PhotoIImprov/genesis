@@ -355,7 +355,7 @@ class TestEvent(DatabaseTest):
                 self.write_photo_to_category(self.session, c, au)
                 self.write_photo_to_category(self.session, c, second_au)
 
-        active_open_cl = voting.BallotManager().active_voting_categories(self.session, au.id)
+        active_open_cl = categorymgr.BallotManager().active_voting_categories(self.session, au.id)
 
         # now create an event with Categories
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -383,7 +383,7 @@ class TestEvent(DatabaseTest):
 
         self.session.commit()
 
-        active_cl = voting.BallotManager().active_voting_categories(self.session, au.id)
+        active_cl = categorymgr.BallotManager().active_voting_categories(self.session, au.id)
         assert(len(active_cl) == (len(em._cl) + len(cl)))
         self.teardown()
 

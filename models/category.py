@@ -129,15 +129,17 @@ class Category(Base):
         # - UPLOAD - category can accept photos to be uploaded
         # - VOTING - category photos are ready for voting
         # - COUNTING - past voting, available to see status of winners
+        # bypass the cache for IISTAFF users
         try:
             if au is None or type(au) is not usermgr.AnonUser:
                 return None
 
-            # first check the cache
-            cl = _expiry_cache.get("ALL_CATEGORIES")
-            if cl is not None:
-                logger.info(msg="cache hit! Category list")
-                return cl
+            # if IISTAFF, bypass the cache
+            if au.usertype != usermgr.UserType.IISTAFF.value:
+                cl = _expiry_cache.get("ALL_CATEGORIES")
+                if cl is not None:
+                    logger.info(msg="cache hit! Category list")
+                    return cl
 
             logger.info(msg="cache miss! Category list")
             q = session.query(Category). \
@@ -146,6 +148,10 @@ class Category(Base):
             cl = q.all()
             if cl is None or len(cl) == 0:
                 return None
+
+            # only for admins, return an unadulterated list directly from the DB
+            if au.usertype == usermgr.UserType.IISTAFF.value:
+                return cl
 
             if len(cl) > _CATEGORYLIST_MAXSIZE:
                 del cl[_CATEGORYLIST_MAXSIZE:]    # limit list to 100 elements [Note: Since we're truncating, should we order it by start_date?

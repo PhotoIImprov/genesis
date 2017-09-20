@@ -10,7 +10,7 @@ import iiServer
 from flask import Flask
 from sqlalchemy import func
 from controllers import categorymgr
-
+import uuid
 
 class TestEngagement(DatabaseTest):
 
@@ -62,4 +62,62 @@ class TestEngagement(DatabaseTest):
         assert(fb is not None)
         assert(fb.like and fb.offensive)
 
+        self.teardown()
+
+    def create_anon_user(self, session):
+        guid = str(uuid.uuid1())
+        guid = guid.translate({ord(c): None for c in '-'})
+        au = usermgr.AnonUser.create_anon_user(session, guid)
+        session.add(au)
+        session.commit()
+        return au
+
+    def test_user_reward(self):
+        self.setup()
+        session = dbsetup.Session()
+        au = self.create_anon_user(session)
+        rm = categorymgr.RewardManager(uid=au.id, type=engagement.RewardType.TEST.value)
+        ur = rm.award(session, 5)
+        assert(ur.current_balance == 5)
+        session.commit()
+        session.close()
+        self.teardown()
+
+    def test_user_increment_reward(self):
+        self.setup()
+        session = dbsetup.Session()
+        au = self.create_anon_user(session)
+        rm = categorymgr.RewardManager(uid=au.id, type=engagement.RewardType.TEST.value)
+        ur = rm.award(session, 5)
+        assert(ur.current_balance == 5)
+        session.commit()
+
+        # now a second update
+        ur2 = rm.award(session, 10)
+        assert(ur2.current_balance == 15)
+        session.commit()
+        session.close()
+        self.teardown()
+
+    def test_user_spend_reward(self):
+        self.setup()
+        session = dbsetup.Session()
+        au = self.create_anon_user(session)
+        rm = categorymgr.RewardManager(uid=au.id, type=engagement.RewardType.TEST.value)
+        ur = rm.award(session, 5)
+        assert(ur.current_balance == 5)
+        session.commit()
+
+        # now a second update
+        ur2 = rm.award(session, 10)
+        assert(ur2.current_balance == 15)
+        assert(ur2.total_balance == 15)
+
+        # now a second update
+        ur2 = rm.spend(session, 10)
+        assert(ur2.current_balance == 5)
+        assert(ur2.total_balance == 15)
+
+        session.commit()
+        session.close()
         self.teardown()

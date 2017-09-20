@@ -3,6 +3,7 @@
 import sys
 import time
 import os
+from controllers import categorymgr
 
 lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
@@ -75,7 +76,7 @@ class sync_daemon(myDaemon):
         :return: 
         '''
         cl = self.read_all_categories(session)
-        tm = voting.TallyMan()
+        tm = categorymgr.TallyMan()
         if self._redis_conn is not None:
             tm._redis_host = self._redis_host
             tm._redis_port = self._redis_port

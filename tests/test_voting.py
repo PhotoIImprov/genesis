@@ -19,7 +19,7 @@ from controllers import categorymgr
 class TestVoting(DatabaseTest):
 
     def test_calculate_score_round2(self):
-        bm = voting.BallotManager()
+        bm = categorymgr.BallotManager()
 
         score = bm.calculate_score(1, 1, 0) # first pick of first secton
         assert(score == 7)
@@ -36,14 +36,14 @@ class TestVoting(DatabaseTest):
 
     def test_read_thumbnail_fakepid(self):
         self.setup()
-        tm = voting.TallyMan()
+        tm = categorymgr.TallyMan()
 
         th, p = tm.read_thumbnail(self.session, 0)
         assert(th == None and p == None)
 
     def test_create_leaderboard_nocid(self):
         self.setup()
-        tm = voting.TallyMan()
+        tm = categorymgr.TallyMan()
         try:
             r = tm.fetch_leaderboard(self.session, 1, None)
         except Exception as e:
@@ -54,7 +54,7 @@ class TestVoting(DatabaseTest):
 
     def test_leaderboard_member(self):
         self.setup()
-        tm = voting.TallyMan()
+        tm = categorymgr.TallyMan()
         c = category.Category()
         c.id = 87654321
 
@@ -77,7 +77,7 @@ class TestVoting(DatabaseTest):
 
     def test_leaderboard_invalid_category(self):
         self.setup()
-        tm = voting.TallyMan()
+        tm = categorymgr.TallyMan()
         c = category.Category()
         c.id = 0
 
@@ -89,14 +89,14 @@ class TestVoting(DatabaseTest):
 
     def test_leaderboard_invalid_category_nocheck(self):
         self.setup()
-        tm = voting.TallyMan()
+        tm = categorymgr.TallyMan()
         lb = tm.get_leaderboard_by_category(self.session, None, check_exist=False)
         assert(lb is None)
         self.teardown()
 
     def test_create_displayname_anonymous(self):
         self.setup()
-        tm = voting.TallyMan()
+        tm = categorymgr.TallyMan()
 
         # create a user
         guid = str(uuid.uuid1())
@@ -154,7 +154,7 @@ class TestVoting(DatabaseTest):
         try:
             c = self.create_category('round 2 testing')
             u = self.create_user()
-            bm = voting.BallotManager()
+            bm = categorymgr.BallotManager()
             b = bm.create_ballot(self.session, u.id, c, allow_upload=False)
             assert(False)
         except Exception as e:
@@ -165,7 +165,7 @@ class TestVoting(DatabaseTest):
         # need to test when everything has been voted on max # of times
         # that we still get sent images
         self.setup()
-        tm = voting.TallyMan()
+        tm = categorymgr.TallyMan()
 
         # 1) create a category
         # 2) upload 4 images
@@ -193,7 +193,7 @@ class TestVoting(DatabaseTest):
         # now create a new user
         nu = self.create_user()
 
-        bm = voting.BallotManager()
+        bm = categorymgr.BallotManager()
         for i in range(0,_NUM_PHOTOS_UPLOADED+1): # need to ask for enough ballots to test all cases
             b = bm.create_ballot(self.session, nu.id, c)
             self.session.flush() # write ballot/ballotentries to DB
@@ -239,7 +239,7 @@ class TestVoting(DatabaseTest):
         self.teardown()
 
     def test_get_leaderboard_by_category_no_session(self):
-        tm = voting.TallyMan()
+        tm = categorymgr.TallyMan()
 
         hndlr = dbg_handler.DebugHandler()
         logger.addHandler(hndlr)
@@ -251,7 +251,7 @@ class TestVoting(DatabaseTest):
         assert(log['msg'] == "error getting leader board by category")
 
     def test_update_leaderboard_no_arguments(self):
-        tm = voting.TallyMan()
+        tm = categorymgr.TallyMan()
 
         hndlr = dbg_handler.DebugHandler()
         logger.addHandler(hndlr)
@@ -312,7 +312,7 @@ class TestVoting(DatabaseTest):
     def test_voting_with_tags(self):
         # need to test we can submit a ballotentry (vote) with tags
         self.setup()
-        tm = voting.TallyMan()
+        tm = categorymgr.TallyMan()
 
         # 1) create a category
         # 2) upload 4 images
@@ -340,7 +340,7 @@ class TestVoting(DatabaseTest):
         # now create a new user
         nu = self.create_user()
 
-        bm = voting.BallotManager()
+        bm = categorymgr.BallotManager()
         for i in range(0,_NUM_PHOTOS_UPLOADED+1): # need to ask for enough ballots to test all cases
             b = bm.create_ballot(self.session, nu.id, c)
             self.session.flush() # write ballot/ballotentries to DB
@@ -359,7 +359,7 @@ class TestVoting(DatabaseTest):
     def test_voting_offensive(self):
         # need to test we can submit a ballotentry (vote) with offensive flag
         self.setup()
-        tm = voting.TallyMan()
+        tm = categorymgr.TallyMan()
 
         # 1) create a category
         # 2) upload 4 images
@@ -387,7 +387,7 @@ class TestVoting(DatabaseTest):
         # now create a new user
         nu = self.create_user()
 
-        bm = voting.BallotManager()
+        bm = categorymgr.BallotManager()
         for i in range(0, _NUM_PHOTOS_UPLOADED + 1):  # need to ask for enough ballots to test all cases
             b = bm.create_ballot(self.session, nu.id, c)
             self.session.flush()  # write ballot/ballotentries to DB
@@ -497,7 +497,7 @@ class TestVoting(DatabaseTest):
 
         self.setup()
 
-        bm = voting.BallotManager()
+        bm = categorymgr.BallotManager()
 
         c = self.create_category('upload ballot test')
         assert(c is not None)
