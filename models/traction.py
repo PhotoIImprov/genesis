@@ -22,8 +22,9 @@ class TractionLog(Base):
 
         # truncate these strings so they'll fit
         if self.header is not None:
-            self.header = self.header[:2000]
+            self.header = self.header[:1000]
         if self.referer is not None:
-            self.referer = self.referer[:2000]
-
+            self.referer = self.referer[:1000]
+        if self.campaign is not None:
+            self.campaign = self.campaign[:100]
 

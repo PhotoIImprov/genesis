@@ -820,7 +820,7 @@ class BallotManager:
 
             try:
                 if like or offensive or tags is not None:
-                    fbm = FeedbackManager(uid=uid, pid=p.id, like=like, offensive=offensive, tags=tags)
+                    fbm = FeedbackManager(uid=uid, pid=be.photo_id, like=like, offensive=offensive, tags=tags)
                     fbm.create_feedback(session)
             except Exception as e:
                 logger.exception(msg="error while updating feedback for ballotentry")
