@@ -174,6 +174,7 @@ class Submissions():
                 r.append(element)
                 num_photos = num_photos + len(p_dicts)
                 if num_photos >= _MAX_PHOTOS_TO_RETURN:
-                    return r
-        return r
+                    return dict({'likes':r})
+
+        return dict({'likes': r})
 

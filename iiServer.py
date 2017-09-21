@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.7.1' #our version string PEP 440
+__version__ = '1.7.2' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -253,6 +253,10 @@ def hello():
                 "  <ul>" \
                 "    <li>feedback for voting only if there is data</li>" \
                 "    <li>logging tabulate votes</li>" \
+                "  </ul>" \
+                "<li>v1.7.2</li>" \
+                "  <ul>" \
+                "    <li>/like response now has likes tag</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -2754,9 +2758,8 @@ def mylikes(dir: str, cid: int):
         description: "list of photos that the user likes"
         schema:
           id: liked-category-photos
-          type: array
-          items:
-            $ref: '#/definitions/LikedPhotos'
+        schema:
+          $ref: '#/definitions/LikeResp'
       204:
         description: "no content found, user has not liked any photos"
       400:
@@ -2809,6 +2812,13 @@ def mylikes(dir: str, cid: int):
               type: array
               items:
                 $ref: '#definitions/LikedPhotoDetail'
+      - schema:
+          id: LikeResp
+          properties:
+            likes:
+              type: array
+              items:
+                $ref: '#/definitions/LikedPhotos'
     """
     if dir != 'next' and dir != 'prev':
         return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)

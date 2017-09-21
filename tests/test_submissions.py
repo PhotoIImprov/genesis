@@ -303,9 +303,9 @@ class TestSubmissions(DatabaseTest):
         # okay we'v written out a bunch of feedback
         user_likes = userprofile.Submissions.get_user_likes(self.session, au=au, dir='next', cid=0)
         assert(user_likes is not None)
-        assert(len(user_likes) == len(self._cl))
+        assert(len(user_likes['likes']) == len(self._cl))
 
-        for cphotos in user_likes:
+        for cphotos in user_likes['likes']:
             c = cphotos['category']
             photos = cphotos['photos']
             for photo in photos:
@@ -370,20 +370,20 @@ class TestSubmissions(DatabaseTest):
         user_likes = userprofile.Submissions.get_user_likes(self.session, au=au, dir='next', cid=0)
         assert(user_likes is not None)
 
-        assert(self.count_liked_photos(user_likes) == userprofile._MAX_PHOTOS_TO_RETURN) # NOTE: The # photos per category needs to be be a factor of this value for the test to work
+        assert(self.count_liked_photos(user_likes['likes']) == userprofile._MAX_PHOTOS_TO_RETURN) # NOTE: The # photos per category needs to be be a factor of this value for the test to work
 
         # let's get the next 2 categories
-        c = user_likes[len(user_likes)-1]['category']
+        c = user_likes['likes'][len(user_likes['likes'])-1]['category']
         cid = c['id']
 
         next_user_likes = userprofile.Submissions.get_user_likes(self.session, au=au, dir='next', cid = cid)
-        assert(self.count_liked_photos(next_user_likes) == userprofile._MAX_PHOTOS_TO_RETURN) # NOTE: The # photos per category needs to be be a factor of this value for the test to work
+        assert(self.count_liked_photos(next_user_likes['likes']) == userprofile._MAX_PHOTOS_TO_RETURN) # NOTE: The # photos per category needs to be be a factor of this value for the test to work
 
         # now page back
-        c = next_user_likes[len(user_likes)-1]['category']
+        c = next_user_likes['likes'][len(user_likes['likes'])-1]['category']
         cid = c['id']
 
         prev_user_likes = userprofile.Submissions.get_user_likes(self.session, au=au, dir='prev', cid = cid)
-        assert(self.count_liked_photos(prev_user_likes) == userprofile._MAX_PHOTOS_TO_RETURN) # NOTE: The # photos per category needs to be be a factor of this value for the test to work
+        assert(self.count_liked_photos(prev_user_likes['likes']) == userprofile._MAX_PHOTOS_TO_RETURN) # NOTE: The # photos per category needs to be be a factor of this value for the test to work
 
         self.teardown()

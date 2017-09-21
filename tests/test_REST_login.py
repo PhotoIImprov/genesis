@@ -1811,7 +1811,7 @@ class TestUserLikes(iiBaseUnitTest):
         rsp = self.app.get(path='/like/next/0', headers=self.get_header_html(), content_type='image/jpeg')
         assert(rsp.status_code == 200)
 
-        user_likes = json.loads(rsp.data.decode('utf-8'))
+        user_likes = json.loads(rsp.data.decode('utf-8'))['likes']
         assert(user_likes is not None)
 
         for cphotos in user_likes:
@@ -1866,7 +1866,7 @@ class TestUpdatePhoto(iiBaseUnitTest):
 
         rsp = self.app.get(path='/like/next/0', headers=self.get_header_html())
         assert(rsp.status_code == 200)
-        user_likes = json.loads(rsp.data.decode('utf-8'))
+        user_likes = json.loads(rsp.data.decode('utf-8'))['likes']
         for cphotos in user_likes:
             c = cphotos['category']
             photos = cphotos['photos']
