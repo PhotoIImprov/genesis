@@ -531,3 +531,101 @@ class TestVoting(DatabaseTest):
         assert(found) # we should find something
 
         self.teardown()
+
+    # def test_vote_counting_first_vote(self, u=None):
+    #     self.setup()
+    #
+    #     if u is None:
+    #         u = self.create_user()
+    #         assert(u is not None)
+    #
+    #     bm = categorymgr.BallotManager()
+    #     num_badges = bm.badges_for_votes(self.session, u.id)
+    #     threshold, badge_award = categorymgr.BallotManager._BADGES_FOR_VOTING[0]
+    #     assert(threshold == 1)
+    #     assert(num_badges == badge_award)
+    #     self.teardown()
+
+    def test_vote_counting_first_vote(self):
+        self.setup()
+
+        u = self.create_user()
+        assert(u is not None)
+
+        # we need to create a Ballot object
+        c = self.create_category('TestBadges1stVote')
+        assert(c is not None)
+        b = voting.Ballot(cid=c.id, uid=u.id)
+        self.session.add(b)
+        self.session.commit()
+
+        bm = categorymgr.BallotManager()
+        threshold, num_badges = bm.badges_for_votes(self.session, u.id)
+        assert(num_badges == 1)
+
+        self.teardown()
+
+    def test_vote_counting_25_votes(self):
+        self.setup()
+
+        u = self.create_user()
+        assert(u is not None)
+
+        # we need to create a Ballot objects
+        c = self.create_category('TestBadges25Votes')
+        assert(c is not None)
+        for i in range(0,25):
+            b = voting.Ballot(cid=c.id, uid=u.id)
+            self.session.add(b)
+        self.session.commit()
+
+        bm = categorymgr.BallotManager()
+        reward_threshold, num_badges = bm.badges_for_votes(self.session, u.id)
+        threshold, badge_award = categorymgr.BallotManager._BADGES_FOR_VOTING[1]
+        assert(threshold == 25)
+        assert(num_badges == badge_award)
+
+        self.teardown()
+
+    def test_vote_counting_50_votes(self):
+        self.setup()
+
+        u = self.create_user()
+        assert(u is not None)
+
+        # we need to create a Ballot objects
+        c = self.create_category('TestBadges50Votes')
+        assert(c is not None)
+        for i in range(0,50):
+            b = voting.Ballot(cid=c.id, uid=u.id)
+            self.session.add(b)
+        self.session.commit()
+
+        bm = categorymgr.BallotManager()
+        threshold, num_badges = bm.badges_for_votes(self.session, u.id)
+        assert(num_badges == 0)
+
+        self.teardown()
+
+    def test_vote_counting_100_votes(self):
+        self.setup()
+
+        u = self.create_user()
+        assert(u is not None)
+
+        # we need to create a Ballot objects
+        c = self.create_category('TestBadges100Votes')
+        assert(c is not None)
+        for i in range(0,100):
+            b = voting.Ballot(cid=c.id, uid=u.id)
+            self.session.add(b)
+        self.session.commit()
+
+        bm = categorymgr.BallotManager()
+        reward_threshold, num_badges = bm.badges_for_votes(self.session, u.id)
+        threshold, badge_award = categorymgr.BallotManager._BADGES_FOR_VOTING[2]
+        assert(threshold == 100)
+        assert(threshold == reward_threshold)
+        assert(num_badges == badge_award)
+
+        self.teardown()

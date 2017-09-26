@@ -112,5 +112,5 @@ class AccessKey(Base):
 
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
-        self.phassphrase = kwargs.get('passphrase', None)
+        self.passphrase = kwargs.get('passphrase', None)
         self.used = kwargs.get('used', False)

@@ -488,3 +488,15 @@ class TestEvent(DatabaseTest):
             assert(c['num_players'] == 0 and c['num_photos'] == 0)
 
         self.teardown()
+
+    def test_accesskey_initialization(self):
+        ak = event.AccessKey(id=47, passphrase='able walker', used=True)
+        assert(ak.id == 47 and ak.passphrase == 'able walker' and ak.used)
+
+    def test_eventuser_initialization(self):
+        u = usermgr.User()
+        u.id = 123
+        e = event.Event(user=u)
+        e.id = 456
+        eu = event.EventUser(user=u, event=e, active=True)
+        assert(eu.user_id == 123 and eu.event_id == 456 and eu.active)

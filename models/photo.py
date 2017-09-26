@@ -366,12 +366,10 @@ class Photo(Base):
         file_jpegdata = BytesIO(self._photoimage._binary_image)
         digest = None
 
-        # stop computing the hash since now we are live and shouldn't have duplicates
-        # if hash is '0' then no comparison for duplicates performed
-        # m = hashlib.md5()
-        # m.update(file_jpegdata.getvalue())
-        # digest = m.hexdigest()
-        # digest = digest.upper()
+        m = hashlib.md5()
+        m.update(file_jpegdata.getvalue())
+        digest = m.hexdigest()
+        digest = digest.upper()
 
         pil_img = Image.open(file_jpegdata)
         exif_dict = self.get_exif_dict(pil_img) # raw data from image

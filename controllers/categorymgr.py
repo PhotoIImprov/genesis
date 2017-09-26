@@ -342,6 +342,7 @@ class PassPhraseManager():
 class RewardManager():
     _user_id = None
     _rewardtype = None
+
     def __init__(self, **kwargs):
         self._user_id = kwargs.get('user_id', None)
         self._rewardtype = kwargs.get('rewardtype', None)
@@ -351,11 +352,11 @@ class RewardManager():
             r = engagement.Reward(user_id=self._user_id, rewardtype=self._rewardtype, quantity=quantity)
             session.add(r)
 
-            ur_l = session.query(engagement.UserReward).filter(user_id = self._user_id).filter(rewardtype = self._rewardtype).all()
-            if ur_l is not None:
+            ur_l = session.query(engagement.UserReward).filter(engagement.UserReward.user_id == self._user_id).filter(engagement.UserReward.rewardtype == self._rewardtype).all()
+            if ur_l is not None and len(ur_l) > 0:
                 ur = ur_l[0]
-            if ur is None:
-                ur = engagement.UserReward(user_id=self.user_id, rewardtype=self._rewardtype, quantity=0)
+            else:
+                ur = engagement.UserReward(user_id=self._user_id, rewardtype=self._rewardtype, quantity=0)
 
             ur.update_quantity(quantity)
             session.add(ur)
@@ -363,18 +364,11 @@ class RewardManager():
             logger.exception(msg="error updating reward quantity")
             raise
 
-class RewardManager():
-    _uid = None
-    _type = None
-    def __init__(self, **kwargs):
-        self._uid = kwargs.get('uid', None)
-        self._type = kwargs.get('type', None)
-
     def spend(self, session, quantity: int) -> engagement.UserReward:
         try:
             q = session.query(engagement.UserReward). \
-                filter(engagement.UserReward.user_id == self._uid). \
-                filter(engagement.UserReward.rewardtype == self._type)
+                filter(engagement.UserReward.user_id == self._user_id). \
+                filter(engagement.UserReward.rewardtype == self._rewardtype)
             ur = q.one()
 
             if not ur.decrement_quantity(quantity=quantity):
@@ -388,25 +382,25 @@ class RewardManager():
         # first get UserReward record
         try:
             q = session.query(engagement.UserReward). \
-                filter(engagement.UserReward.user_id == self._uid). \
-                filter(engagement.UserReward.rewardtype == self._type)
+                filter(engagement.UserReward.user_id == self._user_id). \
+                filter(engagement.UserReward.rewardtype == self._rewardtype)
             ur = q.one_or_none()
             if ur is None:
-                ur = engagement.UserReward(user_id=self._uid, rewardtype=self._type, quantity=quantity)
+                ur = engagement.UserReward(user_id=self._user_id, rewardtype=self._rewardtype, quantity=quantity)
                 session.add(ur)
             else:
                 ur.update_quantity(quantity=quantity)
 
             # now we need to create and/or update a Reward record
             q = session.query(engagement.Reward). \
-                filter(engagement.UserReward.user_id == self._uid). \
-                filter(engagement.UserReward.rewardtype == self._type). \
-                filter(func.year(engagement.UserReward.created_date) == func.year(dt_now)). \
-                filter(func.month(engagement.UserReward.created_date) == func.month(dt_now) ) .\
-                filter(func.day(engagement.UserReward.created_date) == func.day(dt_now))
+                filter(engagement.Reward.user_id == self._user_id). \
+                filter(engagement.Reward.rewardtype == self._rewardtype). \
+                filter(func.year(engagement.Reward.created_date) == func.year(dt_now)). \
+                filter(func.month(engagement.Reward.created_date) == func.month(dt_now) ) .\
+                filter(func.day(engagement.Reward.created_date) == func.day(dt_now))
             r  = q.one_or_none()
             if r is None:
-                r = engagement.Reward(user_id=self._uid, rewardtype=self._type, quantity=quantity)
+                r = engagement.Reward(user_id=self._user_id, rewardtype=self._rewardtype, quantity=quantity)
                 session.add(r)
             else:
                 r.quantity += quantity
@@ -422,8 +416,8 @@ class RewardManager():
             # now get the highest rewards in a day
             q = session.query(func.max(engagement.Reward.quantity)). \
                 filter(engagement.Reward.user_id == au.id). \
-                filter(engaement.Reward.rewardtype == type.value)
-            max_score = q.one_or_none()
+                filter(engagement.Reward.rewardtype == type.value)
+            max_score = q.scalar()
             if max_score is not None:
                 q = session.query(engagement.Reward). \
                     filter(engagement.Reward.user_id == au.id). \
@@ -437,19 +431,20 @@ class RewardManager():
             raise
 
     @staticmethod
-    def max_score_photo(session, au: usermgr.AnonUser):
+    def max_score_photo(session, au: usermgr.AnonUser) -> photo.Photo:
         try:
             # now get the highest rated photo
             q = session.query(func.max(photo.Photo.score)). \
                 filter(photo.Photo.user_id == au.id)
-            highest_score = q.first()
-            if highest_rated_photo is not None:
-                q = session.query(photo.Photo). \
-                    filter(photo.Photo.user_id == au.id). \
-                    filter(photo.Photo.score == highest_score). \
-                    order_by(photo.Photo.created_date.desc())
-                photo = q.first()
-            return photo
+            highest_score = q.scalar()
+            if highest_score is None:
+                return None
+            q = session.query(photo.Photo). \
+                filter(photo.Photo.user_id == au.id). \
+                filter(photo.Photo.score == highest_score). \
+                order_by(photo.Photo.created_date.desc())
+            ph = q.first()
+            return ph
         except Exception as e:
             logger.exception(msg="error selecting maximum scored photo")
             raise
@@ -482,6 +477,24 @@ class RewardManager():
         except Exception as e:
             logger.exception(msg='[rewardmgr] error reading rewards')
             raise
+
+    @staticmethod
+    def consecutive_voting_days(session, au: usermgr.AnonUser, day_span: int) -> bool:
+        try:
+            dt_now = datetime.now()
+            early_date = dt_now - timedelta(hours=day_span*24 + 1)
+
+            q = session.query(func.year(voting.Ballot.created_date), func.month(voting.Ballot.created_date), func.day(voting.Ballot.created_date)). \
+                filter(voting.Ballot.user_id == au.id). \
+                filter(voting.Ballot.created_date >= early_date). \
+                distinct(func.year(voting.Ballot.created_date), \
+                         func.month(voting.Ballot.created_date), \
+                         func.day(voting.Ballot.created_date) )
+            d = q.all()
+            return len(d) >= day_span+1 # picket fence
+        except Exception as e:
+            raise
+
 
 class FeedbackManager():
 
@@ -716,10 +729,7 @@ class TallyMan():
                 if lb_uid == uid:
                     lb_dict['you'] = True
                 else:
-                    if usermgr.Friend.is_friend(session, uid, lb_uid):
-                        lb_dict['isfriend'] = True
-                    else:
-                        lb_dict['isfriend'] = False
+                    lb_dict['isfriend'] = usermgr.Friend.is_friend(session, uid, lb_uid)
 
                 lb_dict['image'] = b64_utf8
                 lb_list.append(lb_dict)
@@ -757,6 +767,55 @@ class BallotManager:
                 return 1
         return 0
 
+    def create_ballotentry_for_tags(self, session, be_dict: dict) -> list:
+        try:
+            if 'tags' in be_dict.keys():
+                bid = be_dict['bid']
+                tags = be_dict['tags']
+                be_tags = voting.BallotEntryTag(bid=bid, tags=tags)
+                session.add(be_tags)
+                return tags
+        except Exception as e:
+            logger.exception(msg="error while writing ballotentrytag")
+            raise
+        return None
+
+    _BADGES_FOR_VOTING = [(1,1), (25,2), (100,5)]
+    def badges_for_votes(self, session, uid: int) -> (int, int):
+        # let's determine if the user has earned any badges for this vote
+        # (Note: the current vote hasn't been cast yet)
+
+        try:
+            q = session.query(func.count(voting.Ballot.user_id)).filter(voting.Ballot.user_id == uid)
+            num_votes = q.scalar()
+            # note: this is an ordered list!!
+            for i in range(0, len(self._BADGES_FOR_VOTING)):
+                threshold, badge_award = self._BADGES_FOR_VOTING[i]
+                if threshold == num_votes:
+                    return threshold, badge_award
+                if threshold > num_votes: # early exit
+                    return 0, 0
+            return 0, 0
+
+        except Exception as e:
+            raise
+
+    def update_rewards_for_vote(self, session, uid:int) -> None:
+        '''
+        Update the rewards information for this user as a result of this vote
+        :param session:
+        :param uid:
+        :return:
+        '''
+        threshold, badges = self.badges_for_votes(session, uid)
+        if badges > 0:
+            try:
+                rm = RewardManager(user_id=uid, rewardtype=engagement.RewardType.LIGHTBULB.value)
+                rm.create_reward(session, quantity=badges)
+            except Exception as e:
+                raise
+        return None
+
     def tabulate_votes(self, session, uid: int, json_ballots: str) -> list:
         # we have a list of ballots, we need to determine the scoring.
         # we'll need category information:
@@ -793,11 +852,7 @@ class BallotManager:
             # if there is an 'tag' specified, then create a BallotEntryTag
             # record and save it
             try:
-                tags = None
-                if 'tags' in j_be.keys():
-                    tags = j_be['tags']
-                    be_tags = voting.BallotEntryTag(bid=bid, tags=tags)
-                    session.add(be_tags)
+                tags = self.create_ballotentry_for_tags(session, j_be)
             except Exception as e:
                 logger.exception(msg="error while writing ballotentrytag")
                 raise
@@ -811,8 +866,6 @@ class BallotManager:
                 p = session.query(photo.Photo).get(be.photo_id)
                 p.score += score
                 p.times_voted += 1
-                # if be.like:
-                #     p.likes += 1
                 bel.append(be)
             except Exception as e:
                 logger.exception(msg="error while updating photo with score")
@@ -831,6 +884,12 @@ class BallotManager:
                 tm.update_leaderboard(session, c, p)  # leaderboard may not be defined yet!
             except:
                 pass
+
+            try:
+                self.update_rewards_for_vote(session, uid)
+            except Exception as e:
+                logger.exception(msg="error updating reward for user{0}".format(uid))
+                raise
 
         return bel  # this is for testing only, no one else cares!
 

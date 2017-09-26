@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.7.3' #our version string PEP 440
+__version__ = '1.7.5' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -229,18 +229,6 @@ def hello():
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
     htmlbody += "<ul>" \
-                "<li>v1.6.5</li>" \
-                "  <ul>" \
-                "    <li>/event now returns me/image improv/{username} as per spec</li>" \
-                "  </ul>" \
-                "<li>v1.6.6</li>" \
-                "  <ul>" \
-                "    <li>/like implemented, pageable</li>" \
-                "  </ul>" \
-                "<li>v1.6.7</li>" \
-                "  <ul>" \
-                "    <li>/badges to get light bulb balance</li>" \
-                "  </ul>" \
                 "<li>v1.6.8</li>" \
                 "  <ul>" \
                 "    <li>bypass cache for IISTAFF</li>" \
@@ -261,6 +249,14 @@ def hello():
                 "<li>v1.7.3</li>" \
                 "  <ul>" \
                 "    <li>ensure campaign column does not except traction logging length</li>" \
+                "  </ul>" \
+                "<li>v1.7.4</li>" \
+                "  <ul>" \
+                "    <li>add back thumbnail hash to meta data</li>" \
+                "  </ul>" \
+                "<li>v1.7.5</li>" \
+                "  <ul>" \
+                "    <li>badge accrual and tracking</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"

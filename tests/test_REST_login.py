@@ -153,6 +153,7 @@ class iiBaseUnitTest(unittest.TestCase):
         au.usertype = usermgr.UserType.IISTAFF.value
         session.add(au)
         session.commit()
+        session.close()
 
     def create_testuser_get_token(self, make_staff=True):
         # first create a user
@@ -1840,6 +1841,55 @@ class TestUserRewards(iiBaseUnitTest):
         self.set_token(me.get_token())
         rsp = self.app.get(path='/badges', headers=self.get_header_html(), content_type='image/jpeg')
         assert(rsp.status_code == 204)
+
+    def test_user_firstreward(self):
+        session = dbsetup.Session()
+
+        # create a category and put some photos in it
+        pl, cl = self.create_test_categories_with_photos(session, num_categories=1, num_photos=25)
+
+        # now create a user that will vote on these photo
+        me = self.create_testuser_get_token(make_staff=True)
+
+        # we haven't voted yet, so no content
+        self.set_token(me.get_token())
+        rsp = self.app.get(path='/badges', headers=self.get_header_html(), content_type='image/jpeg')
+        assert(rsp.status_code == 204)
+
+        pl, cl = self.create_test_categories_with_photos(session, num_categories=1, num_photos=10)
+        assert(pl is not None)
+        assert(len(pl) == 10)
+
+        # set category to voting
+        self.set_token(me.get_token()) # make sure a user with 'IISTAFF' is set
+        rsp = self.app.post(path='/setcategorystate', data=json.dumps(dict(category_id=cl[0].id, state=category.CategoryState.VOTING.value)),
+                            headers=self.get_header_json())
+        assert(rsp.status_code == 200)
+
+        rsp = self.app.get(path='/ballot', query_string=urlencode({'category_id':cl[0].id}),
+                            headers=self.get_header_html())
+        assert(rsp.status_code == 200)
+
+        data = json.loads(rsp.data.decode("utf-8"))
+        ballots = data['ballots']
+        votes = []
+        vote_num = 0
+        for be_dict in ballots:
+            vote_num += 1
+            bid = be_dict['bid']
+            votes.append(dict({'bid':bid, 'vote':vote_num, 'like':"true"}))
+
+        jvotes = json.dumps(dict({'votes':votes}))
+
+        rsp = self.app.post(path='/vote', data=jvotes, headers=self.get_header_json())
+        assert(rsp.status_code == 200)
+
+        rsp = self.app.get(path='/badges', headers=self.get_header_html(), content_type='image/jpeg')
+        assert(rsp.status_code == 200)
+        data = json.loads(rsp.data.decode("utf-8"))
+
+        session.close()
+        session = dbsetup.Session()
 
 class TestUpdatePhoto(iiBaseUnitTest):
 
