@@ -153,9 +153,9 @@ class TestEngagement(DatabaseTest):
         # need to create some ballots
         day_span = 5
         dt_now = datetime.datetime.now()
-        hour_span = day_span * 24
-        dt = dt_now - datetime.timedelta(hours=hour_span)
-        for i in range(0, day_span):
+        dt_start = dt_now - datetime.timedelta(days=day_span)
+        dt = dt_start
+        for i in range(0, day_span+1):
             b = voting.Ballot(uid=au.id, cid=c.id)
             b.created_date = dt
             session.add(b)
@@ -184,7 +184,7 @@ class TestEngagement(DatabaseTest):
         dt_now = datetime.datetime.now()
         hour_span = day_span * 24
         dt = dt_now - datetime.timedelta(days=day_span)
-        for i in range(0, day_span*2):
+        for i in range(0, day_span*2+1):
             b = voting.Ballot(uid=au.id, cid=c.id)
             b.created_date = dt
             session.add(b)
