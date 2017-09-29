@@ -346,13 +346,15 @@ class RewardManager():
     def __init__(self, **kwargs):
         self._user_id = kwargs.get('user_id', None)
         self._rewardtype = kwargs.get('rewardtype', None)
+        if self._rewardtype is not None:
+            assert(isinstance(self._rewardtype, engagement.RewardType))
 
     def create_reward(self, session, quantity: int) -> None:
         try:
             r = engagement.Reward(user_id=self._user_id, rewardtype=self._rewardtype, quantity=quantity)
             session.add(r)
 
-            ur_l = session.query(engagement.UserReward).filter(engagement.UserReward.user_id == self._user_id).filter(engagement.UserReward.rewardtype == self._rewardtype).all()
+            ur_l = session.query(engagement.UserReward).filter(engagement.UserReward.user_id == self._user_id).filter(engagement.UserReward.rewardtype == str(self._rewardtype) ).all()
             if ur_l is not None and len(ur_l) > 0:
                 ur = ur_l[0]
             else:
@@ -368,7 +370,7 @@ class RewardManager():
         try:
             q = session.query(engagement.UserReward). \
                 filter(engagement.UserReward.user_id == self._user_id). \
-                filter(engagement.UserReward.rewardtype == self._rewardtype)
+                filter(engagement.UserReward.rewardtype == str(self._rewardtype) )
             ur = q.one()
 
             if not ur.decrement_quantity(quantity=quantity):
@@ -383,7 +385,7 @@ class RewardManager():
         try:
             q = session.query(engagement.UserReward). \
                 filter(engagement.UserReward.user_id == self._user_id). \
-                filter(engagement.UserReward.rewardtype == self._rewardtype)
+                filter(engagement.UserReward.rewardtype == str(self._rewardtype) )
             ur = q.one_or_none()
             if ur is None:
                 ur = engagement.UserReward(user_id=self._user_id, rewardtype=self._rewardtype, quantity=quantity)
@@ -394,13 +396,13 @@ class RewardManager():
             # now we need to create and/or update a Reward record
             q = session.query(engagement.Reward). \
                 filter(engagement.Reward.user_id == self._user_id). \
-                filter(engagement.Reward.rewardtype == self._rewardtype). \
+                filter(engagement.Reward.rewardtype == str(engagement.RewardType.LIGHTBULB) ). \
                 filter(func.year(engagement.Reward.created_date) == func.year(dt_now)). \
                 filter(func.month(engagement.Reward.created_date) == func.month(dt_now) ) .\
                 filter(func.day(engagement.Reward.created_date) == func.day(dt_now))
             r  = q.one_or_none()
             if r is None:
-                r = engagement.Reward(user_id=self._user_id, rewardtype=engagement.RewardType.LIGHTBULB.value, quantity=quantity)
+                r = engagement.Reward(user_id=self._user_id, rewardtype=engagement.RewardType.LIGHTBULB, quantity=quantity)
                 session.add(r)
             else:
                 r.quantity += quantity
@@ -450,6 +452,36 @@ class RewardManager():
             raise
 
     @staticmethod
+    def add_reward_types(ur_l: list, d: dict) -> dict:
+        voted_30 = False
+        voted_100 = False
+        upload_7 = False
+        upload_30 = False
+        upload_100 = False
+        first_photo = False
+        for ur in ur_l:
+            if ur.rewardtype == str(engagement.RewardType.DAYSPLAYED_30):
+                voted_30 = True
+            elif ur.rewardtype == str(engagement.RewardType.DAYSPLAYED_100):
+                voted_100 = True
+            elif ur.rewardtype == str(engagement.RewardType.DAYSPHOTO_7):
+                upload_7 = True
+            elif ur.rewardtype == str(engagement.RewardType.DAYSPHOTO_30):
+                upload_30 = True
+            elif ur.rewardtype == str(engagement.RewardType.DAYSPHOTO_100):
+                upload_100 = True
+            elif ur.rewardtype == str(engagement.RewardType.FIRSTPHOTO):
+                first_photo = True
+
+        d['vote30'] = voted_30
+        d['vote100'] = voted_100
+        d['upload7'] = upload_7
+        d['upload30'] = upload_30
+        d['upload100'] = upload_100
+        d['firstphoto'] = first_photo
+        return d
+
+    @staticmethod
     def rewards(session, type: engagement.RewardType, au: usermgr.AnonUser) -> dict:
         '''
         read the user's current state of rewards
@@ -463,14 +495,18 @@ class RewardManager():
                 d_rewards['HighestRatedPhotoURL'] = "preview/{0}".format(highest_rated_photo.id)
 
             q = session.query(engagement.UserReward). \
-                filter(engagement.UserReward.user_id == au.id). \
-                filter(engagement.UserReward.rewardtype == type.value)
-            ur = q.one_or_none()
-            if ur is not None:
+                filter(engagement.UserReward.user_id == au.id)
+            ur_l = q.all()
+            if ur_l is not None:
+                for ur in ur_l:
+                    if ur.rewardtype == str(engagement.RewardType.LIGHTBULB):
+                        d_rewards = {'totalLightbulbs': ur.total_balance, 'unspentBulbs': ur.current_balance}
+
                 max_reward = RewardManager.max_reward_day(session, type, au)
-                d_rewards = {'totalLightbulbs': ur.total_balance, 'unspentBulbs': ur.current_balance}
                 if max_reward is not None:
                     d_rewards['mostBulbsInADay'] = max_reward.quantity
+
+                d_rewards = RewardManager.add_reward_types(ur_l, d_rewards)
 
             if len(d_rewards) == 0:
                 return None
@@ -481,8 +517,8 @@ class RewardManager():
 
     def check_consecutive_day_rewards(self, session, au: usermgr.AnonUser, rewardtype: engagement.RewardType):
         # check our 'consecutive day' awards, pull out specifics from dictionary
-        award_qty = engagement._REWARD_AMOUNTS[rewardtype.value] # how many "lightbulbs" to award
-        day_span = engagement._REWARD_DAYSPAN[rewardtype.value]  # how many consecutive days of play
+        award_qty = engagement._REWARDS['amount'][rewardtype] # how many "lightbulbs" to award
+        day_span = engagement._REWARDS['span'][rewardtype]  # how many consecutive days of play
         try:
             q = session.query(engagement.UserReward).\
                 filter(engagement.UserReward.rewardtype == rewardtype.value).\
@@ -532,11 +568,12 @@ class RewardManager():
         :param rewardtype:
         :return:
         '''
-        award_qty = engagement._REWARD_AMOUNTS[rewardtype.value] # how many "lightbulbs" to award
-        day_span = engagement._REWARD_DAYSPAN[rewardtype.value]  # how many consecutive days of play
+        award_qty = engagement._REWARDS['amount'][rewardtype] # how many "lightbulbs" to award
+        day_span = engagement._REWARDS['span'][rewardtype]  # how many consecutive days of play
+        self._rewardtype = rewardtype
         try:
             q = session.query(engagement.UserReward).\
-                filter(engagement.UserReward.rewardtype == rewardtype.value).\
+                filter(engagement.UserReward.rewardtype == str(rewardtype)).\
                 filter(engagement.UserReward.user_id == au.id)
             ur = q.one_or_none()
             if ur is None:
@@ -562,7 +599,8 @@ class RewardManager():
 
             # group by YYYY-MM-DD and check that there's a record for every day since the start of this period
             q = session.query(func.year(photo.PhotoMeta.created_date), func.month(photo.PhotoMeta.created_date), func.day(photo.PhotoMeta.created_date)). \
-                filter(photo.PhotoMeta.user_id == au.id). \
+                join(photo.Photo, photo.Photo.id == photo.PhotoMeta.id). \
+                filter(photo.Photo.user_id == au.id). \
                 filter(photo.PhotoMeta.created_date >= early_date). \
                 distinct(func.year(photo.PhotoMeta.created_date), \
                          func.month(photo.PhotoMeta.created_date), \
@@ -571,6 +609,38 @@ class RewardManager():
             return len(d) >= day_span+1 # picket fence
         except Exception as e:
             raise
+
+    def first_photo(self, session, au: usermgr.AnonUser) -> None:
+        try:
+            q = session.query(engagement.UserReward). \
+                filter(engagement.UserReward.user_id == au.id). \
+                filter(engagement.UserReward.rewardtype == str(engagement.RewardType.FIRSTPHOTO))
+
+            ur = q.one_or_none()
+            if ur is None:
+                self._rewardtype = engagement.RewardType.FIRSTPHOTO
+                self._user_id = au.id
+                self.award(session, quantity=engagement._REWARDS['amount'][engagement.RewardType.FIRSTPHOTO])
+        except Exception as e:
+            raise
+
+    def update_rewards_for_photo(self, session, au: usermgr.AnonUser) -> None:
+        '''
+        Update the rewards for photo uploading activity
+        :param session:
+        :param uid:
+        :return:
+        '''
+        # check out consecutive days of play...from
+        try:
+            self.first_photo(session, au)
+            self.check_consecutive_photo_day_rewards(session, au, rewardtype=engagement.RewardType.DAYSPHOTO_7)
+            self.check_consecutive_photo_day_rewards(session, au, rewardtype=engagement.RewardType.DAYSPHOTO_30)
+            self.check_consecutive_photo_day_rewards(session, au, rewardtype=engagement.RewardType.DAYSPHOTO_100)
+        except Exception as e:
+            raise
+        return None
+
 
 class FeedbackManager():
 
@@ -886,7 +956,7 @@ class BallotManager:
         threshold, badges = self.badges_for_votes(session, au.id)
         if badges > 0:
             try:
-                rm = RewardManager(user_id=au.id, rewardtype=engagement.RewardType.LIGHTBULB.value)
+                rm = RewardManager(user_id=au.id, rewardtype=engagement.RewardType.LIGHTBULB)
                 rm.create_reward(session, quantity=badges)
             except Exception as e:
                 raise
@@ -1236,3 +1306,4 @@ class BallotManager:
                 cl.extend(set_list)
 
         return cl
+

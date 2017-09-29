@@ -1840,7 +1840,7 @@ class TestUserRewards(iiBaseUnitTest):
 
         self.set_token(me.get_token())
         rsp = self.app.get(path='/badges', headers=self.get_header_html(), content_type='image/jpeg')
-        assert(rsp.status_code == 204)
+        assert(rsp.status_code == 200)
 
     def test_user_firstreward(self):
         session = dbsetup.Session()
@@ -1854,7 +1854,7 @@ class TestUserRewards(iiBaseUnitTest):
         # we haven't voted yet, so no content
         self.set_token(me.get_token())
         rsp = self.app.get(path='/badges', headers=self.get_header_html(), content_type='image/jpeg')
-        assert(rsp.status_code == 204)
+        assert(rsp.status_code == 200)
 
         pl, cl = self.create_test_categories_with_photos(session, num_categories=1, num_photos=10)
         assert(pl is not None)

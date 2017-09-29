@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.7.6' #our version string PEP 440
+__version__ = '1.7.7' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -229,27 +229,6 @@ def hello():
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
     htmlbody += "<ul>" \
-                "<li>v1.6.8</li>" \
-                "  <ul>" \
-                "    <li>bypass cache for IISTAFF</li>" \
-                "  </ul>" \
-                "<li>v1.7.0</li>" \
-                "  <ul>" \
-                "    <li>refactored, Ballot & Tally mgrs moved</li>" \
-                "  </ul>" \
-                "<li>v1.7.1</li>" \
-                "  <ul>" \
-                "    <li>feedback for voting only if there is data</li>" \
-                "    <li>logging tabulate votes</li>" \
-                "  </ul>" \
-                "<li>v1.7.2</li>" \
-                "  <ul>" \
-                "    <li>/like response now has likes tag</li>" \
-                "  </ul>" \
-                "<li>v1.7.3</li>" \
-                "  <ul>" \
-                "    <li>ensure campaign column does not except traction logging length</li>" \
-                "  </ul>" \
                 "<li>v1.7.4</li>" \
                 "  <ul>" \
                 "    <li>add back thumbnail hash to meta data</li>" \
@@ -266,6 +245,12 @@ def hello():
                 "  <ul>" \
                 "    <li>/photo GET now allows all user to query for photos</li>" \
                 "    <li>/badges, returns highest score even if no other rewards</li>" \
+                "  </ul>" \
+                "<li>v1.7.7</li>" \
+                "  <ul>" \
+                "    <li>UserReward now has two column PK (user_id/rewardtype)</li>" \
+                "    <li>rewardtype passed around as enum, .name used as string version</li>" \
+                "    <li>calculate consecutive day photos & 1st day rewards</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -2908,6 +2893,21 @@ def get_reward():
               type: integer
               description: "highest number of bulbs won in a day"
               example: 14
+            vote30:
+              type: boolean
+              description: "Indicates the user has voted for 30 consecutive days at some point"
+            vote100:
+              type: boolean
+              description: "Indicates the user has voted for 100 consecutive days at some point"
+            upload7:
+              type: boolean
+              description: "Indicates the user has submitted photos for 7 consecutive days at some point"
+            upload30:
+              type: boolean
+              description: "Indicates the user has submitted photos for 30 consecutive days at some point"
+            upload100:
+              type: boolean
+              description: "Indicates the user has submitted photos for 100 consecutive days at some point"
             tags:
               type: array
               description: "List of tags associated with highest rated photo"

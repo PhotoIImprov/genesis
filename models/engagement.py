@@ -9,6 +9,7 @@ import json
 from enum import Enum
 
 class RewardType(Enum):
+    # note: these names are used in the database!!
     TEST = 0 # just for testing
     LIGHTBULB = 1 # lightbulb rewards
     DAYSPLAYED_30 = 2 # 30 days of consecutive playing
@@ -16,41 +17,32 @@ class RewardType(Enum):
     DAYSPHOTO_7 = 4 # 7 days straight uploading photos
     DAYSPHOTO_30 = 5 # 30 days straight uploading photos
     DAYSPHOTO_100 = 6 # 100 days straight uploading photos
+    FIRSTPHOTO = 7 # first photo submitted to the sight
 
-    @staticmethod
-    def to_str(type: int) -> str:
-        if type == RewardType.TEST.value:
-            return "TEST"
-        elif type == RewardType.LIGHTBULB.value:
-            return "LIGHTBULB"
-
-        return "UNKNOWN"
+    def __str__(self):
+        return self.name
 
 # some information on the various reward types
-_REWARD_AMOUNTS = {RewardType.DAYSPLAYED_30.value: 5,
-                   RewardType.DAYSPLAYED_100.value: 50,
-                   RewardType.DAYSPHOTO_7.value: 5,
-                   RewardType.DAYSPHOTO_30.value: 10,
-                   RewardType.DAYSPHOTO_100: 50}
+_REWARDS = {'amount': {RewardType.DAYSPLAYED_30: 5,
+                       RewardType.DAYSPLAYED_100: 50,
+                       RewardType.DAYSPHOTO_7: 5,
+                       RewardType.DAYSPHOTO_30: 10,
+                       RewardType.DAYSPHOTO_100: 50,
+                       RewardType.FIRSTPHOTO: 25},
 
-_REWARD_DAYSPAN = {RewardType.DAYSPLAYED_30.value: 30,
-                   RewardType.DAYSPLAYED_100.value: 100,
-                   RewardType.DAYSPHOTO_7.value: 7,
-                   RewardType.DAYSPHOTO_30.value: 30,
-                   RewardType.DAYSPHOTO_100.value: 100}
-
-_REWARD_VALUES = {RewardType.LIGHTBULB.value: RewardType.LIGHTBULB.value,
-                  RewardType.DAYSPLAYED_30.value: RewardType.LIGHTBULB.value,
-                  RewardType.DAYSPLAYED_100.value: RewardType.LIGHTBULB.value,
-                  RewardType.DAYSPHOTO_7.value: RewardType.LIGHTBULB.value,
-                  RewardType.DAYSPHOTO_30.value: RewardType.LIGHTBULB.value,
-                  RewardType.DAYSPHOTO_100.value: RewardType.LIGHTBULB.value}
+            'span':    {RewardType.DAYSPLAYED_30: 30,
+                        RewardType.DAYSPLAYED_100: 100,
+                        RewardType.DAYSPHOTO_7: 7,
+                        RewardType.DAYSPHOTO_30: 30,
+                        RewardType.DAYSPHOTO_100: 100}
+            }
 
 class UserReward(Base):
     __tablename__ = 'userreward'
 
     user_id = Column(Integer, ForeignKey("anonuser.id", name="fk_userreward_userid"), primary_key=True, nullable=False)
-    rewardtype = Column(String(32), nullable=False)
+    rewardtype = Column(String(32), nullable=False, primary_key=True)
+
     current_balance = Column(Integer, default=0, nullable=True)
     total_balance = Column(Integer, default=0, nullable=True)
 
@@ -59,7 +51,11 @@ class UserReward(Base):
 
     def __init__(self, **kwargs):
         self.user_id = kwargs.get('user_id', None)
-        self.rewardtype = kwargs.get('rewardtype', None)
+        rewardtype = kwargs.get('rewardtype', None)
+        if rewardtype is not None:
+            assert(isinstance(rewardtype, RewardType))
+            self.rewardtype = str(rewardtype)
+
         self.current_balance = kwargs.get('quantity', 0)
         self.total_balance = self.current_balance
 
@@ -86,8 +82,12 @@ class Reward(Base):
 
     def __init__(self, **kwargs):
         self.user_id = kwargs.get('user_id', None)
-        self.rewardtype = kwargs.get('rewardtype', None)
         self.quantity = kwargs.get('quantity', None)
+
+        rewardtype = kwargs.get('rewardtype', None)
+        if rewardtype is not None:
+            assert(isinstance(rewardtype, RewardType))
+            self.rewardtype = str(rewardtype)
 
 
 class Feedback(Base):

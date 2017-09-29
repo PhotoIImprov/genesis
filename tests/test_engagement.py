@@ -80,7 +80,7 @@ class TestEngagement(DatabaseTest):
         self.setup()
         session = dbsetup.Session()
         au = self.create_anon_user(session)
-        rm = categorymgr.RewardManager(user_id=au.id, rewardtype=engagement.RewardType.TEST.value)
+        rm = categorymgr.RewardManager(user_id=au.id, rewardtype=engagement.RewardType.TEST)
         ur = rm.award(session, 5)
         assert(ur.current_balance == 5)
         session.commit()
@@ -91,7 +91,7 @@ class TestEngagement(DatabaseTest):
         self.setup()
         session = dbsetup.Session()
         au = self.create_anon_user(session)
-        rm = categorymgr.RewardManager(user_id=au.id, rewardtype=engagement.RewardType.TEST.value)
+        rm = categorymgr.RewardManager(user_id=au.id, rewardtype=engagement.RewardType.TEST)
         ur = rm.award(session, 5)
         assert(ur.current_balance == 5)
         session.commit()
@@ -107,7 +107,7 @@ class TestEngagement(DatabaseTest):
         self.setup()
         session = dbsetup.Session()
         au = self.create_anon_user(session)
-        rm = categorymgr.RewardManager(user_id=au.id, rewardtype=engagement.RewardType.TEST.value)
+        rm = categorymgr.RewardManager(user_id=au.id, rewardtype=engagement.RewardType.TEST)
         ur = rm.award(session, 5)
         assert(ur.current_balance == 5)
         session.commit()
@@ -127,10 +127,8 @@ class TestEngagement(DatabaseTest):
         self.teardown()
 
     def test_rewardtype_strings(self):
-
-        assert(engagement.RewardType.to_str(engagement.RewardType.LIGHTBULB.value) == 'LIGHTBULB')
-        assert(engagement.RewardType.to_str(engagement.RewardType.TEST.value) == 'TEST')
-        assert(engagement.RewardType.to_str(2) == 'UNKNOWN')
+        assert(str(engagement.RewardType.LIGHTBULB) == 'LIGHTBULB')
+        assert(str(engagement.RewardType.TEST) == 'TEST')
 
     def test_consecutive_not_voting_days(self):
         session = dbsetup.Session()
@@ -226,13 +224,21 @@ class TestEngagement(DatabaseTest):
         session.commit()
 
         # now see if we have consecutive days
-        categorymgr.RewardManager(user_id=au.id, rewardtype=engagement.RewardType.DAYSPLAYED_30.value).check_consecutive_day_rewards(session, au, engagement.RewardType.DAYSPLAYED_30)
+        categorymgr.RewardManager(user_id=au.id, rewardtype=engagement.RewardType.DAYSPLAYED_30).check_consecutive_day_rewards(session, au, engagement.RewardType.DAYSPLAYED_30)
         session.commit()
         q = session.query(engagement.UserReward). \
-            filter(engagement.UserReward.rewardtype == engagement.RewardType.DAYSPLAYED_30.value). \
+            filter(engagement.UserReward.rewardtype == str(engagement.RewardType.DAYSPLAYED_30) ). \
             filter(engagement.UserReward.user_id == au.id)
         ur = q.one_or_none()
         assert(ur is not None)
+
+        d_rewards = categorymgr.RewardManager.rewards(session, engagement.RewardType.LIGHTBULB, au)
+        assert(d_rewards is not None)
+        assert(d_rewards['vote30'])
+        assert(not d_rewards['vote100'])
+        assert(not d_rewards['upload7'])
+        assert(not d_rewards['upload30'])
+        assert(not d_rewards['upload100'])
 
         self.teardown()
 
@@ -279,7 +285,7 @@ class TestEngagement(DatabaseTest):
 
         session.commit()
 
-        # now ask for the hight score
+        # now ask for the high scored photo
         p = categorymgr.RewardManager.max_score_photo(session, au)
         assert(p is not None)
         assert(p.score == i)
@@ -287,5 +293,68 @@ class TestEngagement(DatabaseTest):
         d_rewards = categorymgr.RewardManager.rewards(session, engagement.RewardType.LIGHTBULB, au)
         assert(d_rewards is not None)
         assert(d_rewards['HighestRatedPhotoURL'] is not None)
+        assert(not d_rewards['vote30'])
+        assert(not d_rewards['vote100'])
+        assert(not d_rewards['upload7'])
+        assert(not d_rewards['upload30'])
+        assert(not d_rewards['upload100'])
+
+        self.teardown()
+
+    def test_consecutive_7day_photo(self):
+        self.setup()
+        session = dbsetup.Session()
+        au = self.create_anon_user(session)
+        assert(au is not None)
+
+        # create a category we can test in
+        category_description = str(uuid.uuid1()).upper().translate({ord(c): None for c in '-'})
+        start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+
+        cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
+        c = cm.create_category(session, category.CategoryType.OPEN.value)
+        session.commit()
+
+        # now create photo & photometa data records
+        pl = []
+        day_span = 7
+        dt_now = datetime.datetime.now()
+        dt_start = dt_now - datetime.timedelta(days=day_span)
+        dt = dt_start
+        for i in range(0, day_span+1):
+            p = photo.Photo()
+            p.created_date = dt
+            pm = photo.PhotoMeta(height=0, width=0, th_hash=None)
+            pm.created_date = dt
+            p.user_id = au.id
+            p.category_id = c.id
+            p.filepath = 'boguspath'
+            p.filename = str(uuid.uuid1()).upper().translate({ord(c): None for c in '-'})
+            p.likes = 0
+            p.score = i
+            p.active = 1
+            p._photometa = pm
+            session.add(p)
+            pl.append(p)
+            dt += datetime.timedelta(days=1)
+
+        session.commit()
+
+        categorymgr.RewardManager().update_rewards_for_photo(session, au)
+
+        # now ask for the high scored photo
+        p = categorymgr.RewardManager.max_score_photo(session, au)
+        assert(p is not None)
+        assert(p.score == i)
+
+        d_rewards = categorymgr.RewardManager.rewards(session, engagement.RewardType.LIGHTBULB, au)
+        assert(d_rewards is not None)
+        assert(d_rewards['HighestRatedPhotoURL'] is not None)
+        assert(not d_rewards['vote30'])
+        assert(not d_rewards['vote100'])
+        assert(d_rewards['firstphoto'])
+        assert(d_rewards['upload7'])
+        assert(not d_rewards['upload30'])
+        assert(not d_rewards['upload100'])
 
         self.teardown()
