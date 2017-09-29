@@ -400,7 +400,7 @@ class RewardManager():
                 filter(func.day(engagement.Reward.created_date) == func.day(dt_now))
             r  = q.one_or_none()
             if r is None:
-                r = engagement.Reward(user_id=self._user_id, rewardtype=self._rewardtype, quantity=quantity)
+                r = engagement.Reward(user_id=self._user_id, rewardtype=engagement.RewardType.LIGHTBULB.value, quantity=quantity)
                 session.add(r)
             else:
                 r.quantity += quantity
@@ -498,10 +498,19 @@ class RewardManager():
 
     @staticmethod
     def consecutive_voting_days(session, au: usermgr.AnonUser, day_span: int) -> bool:
+        '''
+        given a span-of-days, will determine if the user has been voting consistently for that
+        period of time and return 'True' if so.
+        :param session:
+        :param au:
+        :param day_span:
+        :return:
+        '''
         try:
             dt_now = datetime.now()
             early_date = dt_now - timedelta(hours=day_span*24 + 1)
 
+            # group by the YYYY-MM-DD and count the records some our starting date, it should match 'day-span' if we've been consistently voting
             q = session.query(func.year(voting.Ballot.created_date), func.month(voting.Ballot.created_date), func.day(voting.Ballot.created_date)). \
                 filter(voting.Ballot.user_id == au.id). \
                 filter(voting.Ballot.created_date >= early_date). \
@@ -514,6 +523,15 @@ class RewardManager():
             raise
 
     def check_consecutive_photo_day_rewards(self, session, au: usermgr.AnonUser, rewardtype: engagement.RewardType):
+        '''
+        consecutive voting rewards are only awarded once, we track their state in the UserReward
+        table, so before we incure the cost of the consecutive check query, do the quick check to
+        see if the reward has already been issued.
+        :param session:
+        :param au:
+        :param rewardtype:
+        :return:
+        '''
         award_qty = engagement._REWARD_AMOUNTS[rewardtype.value] # how many "lightbulbs" to award
         day_span = engagement._REWARD_DAYSPAN[rewardtype.value]  # how many consecutive days of play
         try:
@@ -531,10 +549,18 @@ class RewardManager():
 
     @staticmethod
     def consecutive_photo_days(session, au: usermgr.AnonUser, day_span: int) -> bool:
+        '''
+        check if the user has submitted a photo every day for a the specified span-of-days
+        :param session:
+        :param au:
+        :param day_span:
+        :return:
+        '''
         try:
             dt_now = datetime.now()
             early_date = dt_now - timedelta(hours=day_span*24 + 1)
 
+            # group by YYYY-MM-DD and check that there's a record for every day since the start of this period
             q = session.query(func.year(photo.PhotoMeta.created_date), func.month(photo.PhotoMeta.created_date), func.day(photo.PhotoMeta.created_date)). \
                 filter(photo.PhotoMeta.user_id == au.id). \
                 filter(photo.PhotoMeta.created_date >= early_date). \

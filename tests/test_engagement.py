@@ -196,11 +196,45 @@ class TestEngagement(DatabaseTest):
         isConsecutive = categorymgr.RewardManager.consecutive_voting_days(session, au, day_span=day_span)
         assert(isConsecutive)
 
-        # isConsecutive = categorymgr.RewardManager.consecutive_voting_days(session, au, day_span=day_span-1)
-        # assert(not isConsecutive)
-
         isConsecutive = categorymgr.RewardManager.consecutive_voting_days(session, au, day_span=day_span+1)
         assert(not isConsecutive)
+
+    def test_consecutive_day_oneshot(self):
+        self.setup()
+        session = dbsetup.Session()
+        au = self.create_anon_user(session)
+
+        guid = str(uuid.uuid1())
+        category_description = guid.upper().translate({ord(c): None for c in '-'})
+        start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+
+        cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
+        c = cm.create_category(session, category.CategoryType.OPEN.value)
+        session.commit()
+
+        # need to create some ballots
+        day_span = 30
+        dt_now = datetime.datetime.now()
+        hour_span = day_span * 24
+        dt = dt_now - datetime.timedelta(days=day_span)
+        for i in range(0, day_span*2+1):
+            b = voting.Ballot(uid=au.id, cid=c.id)
+            b.created_date = dt
+            session.add(b)
+            dt += datetime.timedelta(hours=12)
+
+        session.commit()
+
+        # now see if we have consecutive days
+        categorymgr.RewardManager(user_id=au.id, rewardtype=engagement.RewardType.DAYSPLAYED_30.value).check_consecutive_day_rewards(session, au, engagement.RewardType.DAYSPLAYED_30)
+        session.commit()
+        q = session.query(engagement.UserReward). \
+            filter(engagement.UserReward.rewardtype == engagement.RewardType.DAYSPLAYED_30.value). \
+            filter(engagement.UserReward.user_id == au.id)
+        ur = q.one_or_none()
+        assert(ur is not None)
+
+        self.teardown()
 
     def test_highest_rated_photo_none(self):
 
