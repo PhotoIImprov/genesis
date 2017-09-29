@@ -134,7 +134,7 @@ class TestVoting(DatabaseTest):
         if au is not None:
             u = usermgr.User.create_user(self.session, au.guid, '{}@gmail.com'.format(guid), 'pa55w0rd')
 
-        return u
+        return u, au
 
     def upload_image(self, pi, c, u):
         fo = photo.Photo()
@@ -153,7 +153,7 @@ class TestVoting(DatabaseTest):
 
         try:
             c = self.create_category('round 2 testing')
-            u = self.create_user()
+            u, au = self.create_user()
             bm = categorymgr.BallotManager()
             b = bm.create_ballot(self.session, u.id, c, allow_upload=False)
             assert(False)
@@ -174,7 +174,7 @@ class TestVoting(DatabaseTest):
         c = self.create_category('test_voting_max')
 
         # upload images
-        u = self.create_user()
+        u, au = self.create_user()
         # read our test file
         ft = open('../photos/TEST4.JPG', 'rb')
         pi = photo.PhotoImage()
@@ -191,7 +191,7 @@ class TestVoting(DatabaseTest):
         self.session.flush()
 
         # now create a new user
-        nu = self.create_user()
+        nu, au = self.create_user()
 
         bm = categorymgr.BallotManager()
         for i in range(0,_NUM_PHOTOS_UPLOADED+1): # need to ask for enough ballots to test all cases
@@ -203,7 +203,7 @@ class TestVoting(DatabaseTest):
                 j_votes.append({'bid': be.id, 'vote': idx})
                 idx += 1
 
-            bm.tabulate_votes(self.session, nu.id, j_votes)
+            bm.tabulate_votes(self.session, au, j_votes)
 
         # okay, round #1 is over, let's initiate round #2
         self.session.execute('CALL sp_advance_category_round2()')
@@ -227,7 +227,7 @@ class TestVoting(DatabaseTest):
                 j_votes.append({'bid': be.id, 'vote': idx})
                 idx += 1
 
-            bm.tabulate_votes(self.session, nu.id, j_votes)
+            bm.tabulate_votes(self.session, au, j_votes)
 
         # we need to clean up
         # clear out VotingRound table entries
@@ -321,7 +321,7 @@ class TestVoting(DatabaseTest):
         c = self.create_category('test_voting_with_tags')
 
         # upload images
-        u = self.create_user()
+        u, au = self.create_user()
         # read our test file
         ft = open('../photos/TEST3.JPG', 'rb')
         pi = photo.PhotoImage()
@@ -338,7 +338,7 @@ class TestVoting(DatabaseTest):
         self.session.flush()
 
         # now create a new user
-        nu = self.create_user()
+        nu, au = self.create_user()
 
         bm = categorymgr.BallotManager()
         for i in range(0,_NUM_PHOTOS_UPLOADED+1): # need to ask for enough ballots to test all cases
@@ -350,7 +350,7 @@ class TestVoting(DatabaseTest):
                 j_votes.append({'bid': be.id, 'vote': idx, 'tags':['tag1', 'tag2', 'tag3']})
                 idx += 1
 
-            bel = bm.tabulate_votes(self.session, nu.id, j_votes)
+            bel = bm.tabulate_votes(self.session, au, j_votes)
 
             assert(bel is not None)
 
@@ -368,7 +368,7 @@ class TestVoting(DatabaseTest):
         c = self.create_category('test_voting_offensive')
 
         # upload images
-        u = self.create_user()
+        u, au = self.create_user()
         # read our test file
         ft = open('../photos/TEST6.JPG', 'rb')
         pi = photo.PhotoImage()
@@ -385,7 +385,7 @@ class TestVoting(DatabaseTest):
         self.session.flush()
 
         # now create a new user
-        nu = self.create_user()
+        nu, au = self.create_user()
 
         bm = categorymgr.BallotManager()
         for i in range(0, _NUM_PHOTOS_UPLOADED + 1):  # need to ask for enough ballots to test all cases
@@ -400,7 +400,7 @@ class TestVoting(DatabaseTest):
                     j_votes.append({'bid': be.id, 'vote': idx, 'offensive': str(idx%2), 'like': str(idx%2)})
                 idx += 1
 
-            bel = bm.tabulate_votes(self.session, nu.id, j_votes)
+            bel = bm.tabulate_votes(self.session, au, j_votes)
             assert(bel is not None)
             assert(len(bel) == 4)
 
@@ -502,11 +502,11 @@ class TestVoting(DatabaseTest):
         c = self.create_category('upload ballot test')
         assert(c is not None)
 
-        user_a = self.create_user()
+        user_a, au_a = self.create_user()
         assert(user_a is not None)
-        user_b = self.create_user()
+        user_b, au_b = self.create_user()
         assert(user_b is not None)
-        user_c = self.create_user()
+        user_c, au_c = self.create_user()
         assert(user_b is not None)
 
         # upload 40 images for user a
@@ -549,7 +549,7 @@ class TestVoting(DatabaseTest):
     def test_vote_counting_first_vote(self):
         self.setup()
 
-        u = self.create_user()
+        u, au = self.create_user()
         assert(u is not None)
 
         # we need to create a Ballot object
@@ -568,7 +568,7 @@ class TestVoting(DatabaseTest):
     def test_vote_counting_25_votes(self):
         self.setup()
 
-        u = self.create_user()
+        u, au = self.create_user()
         assert(u is not None)
 
         # we need to create a Ballot objects
@@ -590,7 +590,7 @@ class TestVoting(DatabaseTest):
     def test_vote_counting_50_votes(self):
         self.setup()
 
-        u = self.create_user()
+        u, au = self.create_user()
         assert(u is not None)
 
         # we need to create a Ballot objects
@@ -610,7 +610,7 @@ class TestVoting(DatabaseTest):
     def test_vote_counting_100_votes(self):
         self.setup()
 
-        u = self.create_user()
+        u, au = self.create_user()
         assert(u is not None)
 
         # we need to create a Ballot objects

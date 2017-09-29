@@ -11,6 +11,11 @@ from enum import Enum
 class RewardType(Enum):
     TEST = 0 # just for testing
     LIGHTBULB = 1 # lightbulb rewards
+    DAYSPLAYED_30 = 2 # 30 days of consecutive playing
+    DAYSPLAYED_100 = 3 # 100 days of consecutive playing
+    DAYSPHOTO_7 = 4 # 7 days straight uploading photos
+    DAYSPHOTO_30 = 5 # 30 days straight uploading photos
+    DAYSPHOTO_100 = 6 # 100 days straight uploading photos
 
     @staticmethod
     def to_str(type: int) -> str:
@@ -20,6 +25,26 @@ class RewardType(Enum):
             return "LIGHTBULB"
 
         return "UNKNOWN"
+
+# some information on the various reward types
+_REWARD_AMOUNTS = {RewardType.DAYSPLAYED_30.value: 5,
+                   RewardType.DAYSPLAYED_100.value: 50,
+                   RewardType.DAYSPHOTO_7.value: 5,
+                   RewardType.DAYSPHOTO_30.value: 10,
+                   RewardType.DAYSPHOTO_100: 50}
+
+_REWARD_DAYSPAN = {RewardType.DAYSPLAYED_30.value: 30,
+                   RewardType.DAYSPLAYED_100.value: 100,
+                   RewardType.DAYSPHOTO_7.value: 7,
+                   RewardType.DAYSPHOTO_30.value: 30,
+                   RewardType.DAYSPHOTO_100.value: 100}
+
+_REWARD_VALUES = {RewardType.LIGHTBULB.value: RewardType.LIGHTBULB.value,
+                  RewardType.DAYSPLAYED_30.value: RewardType.LIGHTBULB.value,
+                  RewardType.DAYSPLAYED_100.value: RewardType.LIGHTBULB.value,
+                  RewardType.DAYSPHOTO_7.value: RewardType.LIGHTBULB.value,
+                  RewardType.DAYSPHOTO_30.value: RewardType.LIGHTBULB.value,
+                  RewardType.DAYSPHOTO_100.value: RewardType.LIGHTBULB.value}
 
 class UserReward(Base):
     __tablename__ = 'userreward'

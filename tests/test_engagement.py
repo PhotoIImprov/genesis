@@ -201,3 +201,57 @@ class TestEngagement(DatabaseTest):
 
         isConsecutive = categorymgr.RewardManager.consecutive_voting_days(session, au, day_span=day_span+1)
         assert(not isConsecutive)
+
+    def test_highest_rated_photo_none(self):
+
+        self.setup()
+        session = dbsetup.Session()
+        au = self.create_anon_user(session)
+        assert(au is not None)
+
+        ph = categorymgr.RewardManager.max_score_photo(session, au)
+        assert(ph is None)
+        self.teardown()
+
+    def test_highest_rated_photo(self):
+        self.setup()
+        session = dbsetup.Session()
+        au = self.create_anon_user(session)
+        assert(au is not None)
+
+        # create a category we can test in
+        category_description = str(uuid.uuid1()).upper().translate({ord(c): None for c in '-'})
+        start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+
+        cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
+        c = cm.create_category(session, category.CategoryType.OPEN.value)
+        session.commit()
+
+        # now create photo & photometa data records
+        pl = []
+        for i in range(0,10):
+            p = photo.Photo()
+            pm = photo.PhotoMeta(height=0, width=0, th_hash=None)
+            p.user_id = au.id
+            p.category_id = c.id
+            p.filepath = 'boguspath'
+            p.filename = str(uuid.uuid1()).upper().translate({ord(c): None for c in '-'})
+            p.likes = 0
+            p.score = i
+            p.active = 1
+            p._photometa = pm
+            session.add(p)
+            pl.append(p)
+
+        session.commit()
+
+        # now ask for the hight score
+        p = categorymgr.RewardManager.max_score_photo(session, au)
+        assert(p is not None)
+        assert(p.score == i)
+
+        d_rewards = categorymgr.RewardManager.rewards(session, engagement.RewardType.LIGHTBULB, au)
+        assert(d_rewards is not None)
+        assert(d_rewards['HighestRatedPhotoURL'] is not None)
+
+        self.teardown()

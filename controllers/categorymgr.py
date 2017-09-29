@@ -456,26 +456,44 @@ class RewardManager():
         :param session:
         :return:
         '''
+        d_rewards = {}
         try:
+            highest_rated_photo = RewardManager.max_score_photo(session, au)
+            if highest_rated_photo is not None:
+                d_rewards['HighestRatedPhotoURL'] = "preview/{0}".format(highest_rated_photo.id)
+
             q = session.query(engagement.UserReward). \
                 filter(engagement.UserReward.user_id == au.id). \
                 filter(engagement.UserReward.rewardtype == type.value)
             ur = q.one_or_none()
-            if ur is None: # no rewards
+            if ur is not None:
+                max_reward = RewardManager.max_reward_day(session, type, au)
+                d_rewards = {'totalLightbulbs': ur.total_balance, 'unspentBulbs': ur.current_balance}
+                if max_reward is not None:
+                    d_rewards['mostBulbsInADay'] = max_reward.quantity
+
+            if len(d_rewards) == 0:
                 return None
-
-            max_reward = RewardManager.max_reward_day(session, type, au)
-            highest_rated_photo = RewardManager.max_score_photo(session, au)
-
-            d_rewards = {'totalLightbulbs': ur.total_balance, 'unspentBulbs': ur.current_balance}
-            if max_reward is not None:
-                d_rewards['mostBulbsInADay'] = max_reward.quantity
-            if highest_rated_photo is not None:
-                d_rewards['HighestRatedPhotoURL'] = "preview/{0}".format(highest_rated_photo.id)
-
             return d_rewards
         except Exception as e:
             logger.exception(msg='[rewardmgr] error reading rewards')
+            raise
+
+    def check_consecutive_day_rewards(self, session, au: usermgr.AnonUser, rewardtype: engagement.RewardType):
+        # check our 'consecutive day' awards, pull out specifics from dictionary
+        award_qty = engagement._REWARD_AMOUNTS[rewardtype.value] # how many "lightbulbs" to award
+        day_span = engagement._REWARD_DAYSPAN[rewardtype.value]  # how many consecutive days of play
+        try:
+            q = session.query(engagement.UserReward).\
+                filter(engagement.UserReward.rewardtype == rewardtype.value).\
+                filter(engagement.UserReward.user_id == au.id)
+            ur = q.one_or_none()
+            if ur is None:
+                if RewardManager.consecutive_voting_days(session, au, day_span=day_span):
+                     # create a xx-days of consecutive play award
+                    self.award(session, quantity=award_qty)
+                    return
+        except Exception as e:
             raise
 
     @staticmethod
@@ -495,6 +513,38 @@ class RewardManager():
         except Exception as e:
             raise
 
+    def check_consecutive_photo_day_rewards(self, session, au: usermgr.AnonUser, rewardtype: engagement.RewardType):
+        award_qty = engagement._REWARD_AMOUNTS[rewardtype.value] # how many "lightbulbs" to award
+        day_span = engagement._REWARD_DAYSPAN[rewardtype.value]  # how many consecutive days of play
+        try:
+            q = session.query(engagement.UserReward).\
+                filter(engagement.UserReward.rewardtype == rewardtype.value).\
+                filter(engagement.UserReward.user_id == au.id)
+            ur = q.one_or_none()
+            if ur is None:
+                if RewardManager.consecutive_photo_days(session, au, day_span=day_span):
+                     # create a xx-days of consecutive photo upload award
+                    self.award(session, quantity=award_qty)
+                    return
+        except Exception as e:
+            raise
+
+    @staticmethod
+    def consecutive_photo_days(session, au: usermgr.AnonUser, day_span: int) -> bool:
+        try:
+            dt_now = datetime.now()
+            early_date = dt_now - timedelta(hours=day_span*24 + 1)
+
+            q = session.query(func.year(photo.PhotoMeta.created_date), func.month(photo.PhotoMeta.created_date), func.day(photo.PhotoMeta.created_date)). \
+                filter(photo.PhotoMeta.user_id == au.id). \
+                filter(photo.PhotoMeta.created_date >= early_date). \
+                distinct(func.year(photo.PhotoMeta.created_date), \
+                         func.month(photo.PhotoMeta.created_date), \
+                         func.day(photo.PhotoMeta.created_date) )
+            d = q.all()
+            return len(d) >= day_span+1 # picket fence
+        except Exception as e:
+            raise
 
 class FeedbackManager():
 
@@ -800,49 +850,39 @@ class BallotManager:
         except Exception as e:
             raise
 
-    def update_rewards_for_vote(self, session, uid:int) -> None:
+    def update_rewards_for_vote(self, session, au:usermgr.AnonUser) -> None:
         '''
         Update the rewards information for this user as a result of this vote
         :param session:
         :param uid:
         :return:
         '''
-        threshold, badges = self.badges_for_votes(session, uid)
+        threshold, badges = self.badges_for_votes(session, au.id)
         if badges > 0:
             try:
-                rm = RewardManager(user_id=uid, rewardtype=engagement.RewardType.LIGHTBULB.value)
+                rm = RewardManager(user_id=au.id, rewardtype=engagement.RewardType.LIGHTBULB.value)
                 rm.create_reward(session, quantity=badges)
             except Exception as e:
                 raise
+
+        # check out consecutive days of play...from
+        try:
+            rm = RewardManager()
+            rm.check_consecutive_day_rewards(session, au, rewardtype=engagement.RewardType.DAYSPLAYED_30)
+            rm.check_consecutive_day_rewards(session, au, rewardtype=engagement.RewardType.DAYSPLAYED_100)
+        except Exception as e:
+            raise
         return None
 
-    def tabulate_votes(self, session, uid: int, json_ballots: str) -> list:
-        # we have a list of ballots, we need to determine the scoring.
-        # we'll need category information:
-        # category.round - to determine what score table to use
-        # votinground.section - further define for round #2 what scoring to use
-
-        # It's possible the ballotentries are from different sections, we'll
-        # score based on the first ballotentry
-        try:
-            logger.info(msg='tabulate_votes, json[{0}]'.format(json_ballots))
-            bid = json_ballots[0]['bid']
-            be = session.query(voting.BallotEntry).get(bid)
-            vr = session.query(voting.VotingRound).get(be.photo_id)
-            section = 0
-            if vr is not None:  # sections only matter for round 2
-                section = vr.section
-        except Exception as e:
-            if json_ballots is not None:
-                msg = 'json_ballots={}'.format(json_ballots)
-            else:
-                msg = "json_ballots is None!"
-
-            logger.exception(msg=msg)
-            raise
-
-        c = session.query(category.Category).get(be.category_id)
-
+    def process_ballots(self, session, au: usermgr.AnonUser, c: category.Category, section: int, json_ballots: str) -> list:
+        '''
+        take the JSON ballot entries and process the votes
+        :param session:
+        :param c: our category
+        :param section: the section (if voting round #2) the ballot is in
+        :param json_ballots: the ballotentries from the request
+        :return: list of ballotentries, added to session, ready for commit
+        '''
         bel = []
         for j_be in json_ballots:
             bid = j_be['bid']
@@ -871,9 +911,10 @@ class BallotManager:
                 logger.exception(msg="error while updating photo with score")
                 raise
 
+
             try:
                 if like or offensive or tags is not None:
-                    fbm = FeedbackManager(uid=uid, pid=be.photo_id, like=like, offensive=offensive, tags=tags)
+                    fbm = FeedbackManager(uid=au.id, pid=be.photo_id, like=like, offensive=offensive, tags=tags)
                     fbm.create_feedback(session)
             except Exception as e:
                 logger.exception(msg="error while updating feedback for ballotentry")
@@ -886,11 +927,43 @@ class BallotManager:
                 pass
 
             try:
-                self.update_rewards_for_vote(session, uid)
+                self.update_rewards_for_vote(session, au)
             except Exception as e:
-                logger.exception(msg="error updating reward for user{0}".format(uid))
+                logger.exception(msg="error updating reward for user{0}".format(au.id))
                 raise
 
+        return bel
+
+    def tabulate_votes(self, session, au: usermgr.AnonUser, json_ballots: list) -> list:
+        '''
+        We have a request with a ballot of votes. We need to parse out the
+        JSON and tabulate the scores.
+        :param session:
+        :param au: the user
+        :param json_ballots: ballot information from the request
+        :return: list of ballot entries
+        '''
+        # It's possible the ballotentries are from different sections, we'll
+        # score based on the first ballotentry
+        try:
+            logger.info(msg='tabulate_votes, json[{0}]'.format(json_ballots))
+            bid = json_ballots[0]['bid']
+            be = session.query(voting.BallotEntry).get(bid)
+            vr = session.query(voting.VotingRound).get(be.photo_id)
+            section = 0
+            if vr is not None:  # sections only matter for round 2
+                section = vr.section
+        except Exception as e:
+            if json_ballots is not None:
+                msg = 'json_ballots={}'.format(json_ballots)
+            else:
+                msg = "json_ballots is None!"
+
+            logger.exception(msg=msg)
+            raise
+
+        c = session.query(category.Category).get(be.category_id)
+        bel = self.process_ballots(session, au, c, section, json_ballots)
         return bel  # this is for testing only, no one else cares!
 
     def calculate_score(self, vote: int, round: int, section: int) -> int:

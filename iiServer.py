@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.7.5' #our version string PEP 440
+__version__ = '1.7.6' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -257,6 +257,15 @@ def hello():
                 "<li>v1.7.5</li>" \
                 "  <ul>" \
                 "    <li>badge accrual and tracking</li>" \
+                "  </ul>" \
+                "<li>v1.7.5.1</li>" \
+                "  <ul>" \
+                "    <li>Swagger specification for /photo update and /photos (get all photos) API</li>" \
+                "  </ul>" \
+                "<li>v1.7.6</li>" \
+                "  <ul>" \
+                "    <li>/photo GET now allows all user to query for photos</li>" \
+                "    <li>/badges, returns highest score even if no other rewards</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -1118,7 +1127,8 @@ def cast_vote():
     session = dbsetup.Session()
 
     try:
-        categorymgr.BallotManager().tabulate_votes(session, uid, votes)
+        au = current_identity._get_current_object()
+        categorymgr.BallotManager().tabulate_votes(session, au, votes)
     except BaseException as e:
         str_e = str(e)
         logger.exception(msg=str_e)
@@ -1341,7 +1351,10 @@ def category_photo_list(cid: int, dir: str, pid: int):
       200:
          description: "list of photos that are in this category"
          schema:
-          $ref: '#/definitions/PhotoInfo'
+           photos:
+           type: array
+           items:
+             $ref: '#/definitions/PhotoInfo'
       400:
         description: "missing required arguments"
         schema:
@@ -1374,15 +1387,15 @@ def category_photo_list(cid: int, dir: str, pid: int):
               example: 3
     """
     au = current_identity._get_current_object()
-    if au.usertype != usermgr.UserType.IISTAFF.value:
-        return make_response(jsonify({'msg': error.error_string('RESTRICTED_API')}), status.HTTP_403_FORBIDDEN)
+    # if au.usertype != usermgr.UserType.IISTAFF.value:
+    #     return make_response(jsonify({'msg': error.error_string('RESTRICTED_API')}), status.HTTP_403_FORBIDDEN)
 
     session = dbsetup.Session()
     try:
         cm = categorymgr.CategoryManager()
         pl = cm.category_photo_list(session, dir, pid, cid)
         d_photos = cm.photo_dict(pl)
-        rsp = make_response(jsonify(d_photos), status.HTTP_200_OK)
+        rsp = make_response(jsonify({'photos':d_photos}), status.HTTP_200_OK)
 
     except Exception as e:
         logger.exception(msg="[/photo/{0}/{1}/{2}".format(cid, dir, pid))
@@ -1431,6 +1444,12 @@ def photo_upload():
                 - JPEG
                 - JPG
               description: "Extension/filetype of uploaded image"
+            tags:
+              type: array
+              description: "List of tags associated with photo"
+              example: ["fluffy", "colorful", "rough", "crude"]
+              items:
+                type: string
             image:
               type: string
               description: "Base64 encoded image"
