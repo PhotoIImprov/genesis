@@ -370,7 +370,7 @@ class RewardManager():
         try:
             q = session.query(engagement.UserReward). \
                 filter(engagement.UserReward.user_id == self._user_id). \
-                filter(engagement.UserReward.rewardtype == str(self._rewardtype) )
+                filter(engagement.UserReward.rewardtype == str(engagement.RewardType.LIGHTBULB) )
             ur = q.one()
 
             if not ur.decrement_quantity(quantity=quantity):
@@ -378,6 +378,22 @@ class RewardManager():
             return ur
         except Exception as e:
             logger.exception(msg='[rewardmgr] error making award')
+            raise
+
+    def update_quantity(self, session, quantity: int, rewardtype: engagement.RewardType) -> engagement.UserReward:
+        try:
+            q = session.query(engagement.UserReward). \
+                filter(engagement.UserReward.user_id == self._user_id). \
+                filter(engagement.UserReward.rewardtype == str(rewardtype))
+            ur = q.one_or_none()
+            if ur is None:
+                ur = engagement.UserReward(user_id=self._user_id, rewardtype=rewardtype, quantity=quantity)
+                session.add(ur)
+            else:
+                ur.update_quantity(quantity=quantity)
+
+            return ur
+        except Exception as e:
             raise
 
     def award(self, session, quantity: int, dt_now = datetime.now()) -> engagement.UserReward:
@@ -390,8 +406,6 @@ class RewardManager():
             if ur is None:
                 ur = engagement.UserReward(user_id=self._user_id, rewardtype=self._rewardtype, quantity=quantity)
                 session.add(ur)
-            else:
-                ur.update_quantity(quantity=quantity)
 
             # now we need to create and/or update a Reward record
             q = session.query(engagement.Reward). \
@@ -407,6 +421,7 @@ class RewardManager():
             else:
                 r.quantity += quantity
 
+            ur = self.update_quantity(session, quantity=quantity, rewardtype=engagement.RewardType.LIGHTBULB)
             return ur
         except Exception as e:
             logger.exception(msg='[rewardmgr] error making award')
@@ -528,7 +543,7 @@ class RewardManager():
         day_span = engagement._REWARDS['span'][rewardtype]  # how many consecutive days of play
         try:
             q = session.query(engagement.UserReward).\
-                filter(engagement.UserReward.rewardtype == rewardtype.value).\
+                filter(engagement.UserReward.rewardtype == str(rewardtype) ) .\
                 filter(engagement.UserReward.user_id == au.id)
             ur = q.one_or_none()
             if ur is None:

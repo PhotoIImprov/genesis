@@ -92,13 +92,14 @@ class TestEngagement(DatabaseTest):
         session = dbsetup.Session()
         au = self.create_anon_user(session)
         rm = categorymgr.RewardManager(user_id=au.id, rewardtype=engagement.RewardType.TEST)
-        ur = rm.award(session, 5)
-        assert(ur.current_balance == 5)
+        ur = rm.award(session, engagement._REWARDS['amount'][engagement.RewardType.TEST])
+        assert(ur.current_balance == engagement._REWARDS['amount'][engagement.RewardType.TEST])
         session.commit()
 
         # now a second update
-        ur2 = rm.award(session, 10)
-        assert(ur2.current_balance == 15)
+        ur2 = rm.award(session, engagement._REWARDS['amount'][engagement.RewardType.TEST])
+        assert(ur2.current_balance == engagement._REWARDS['amount'][engagement.RewardType.TEST] + engagement._REWARDS['amount'][engagement.RewardType.TEST])
+
         session.commit()
         session.close()
         self.teardown()
@@ -108,19 +109,19 @@ class TestEngagement(DatabaseTest):
         session = dbsetup.Session()
         au = self.create_anon_user(session)
         rm = categorymgr.RewardManager(user_id=au.id, rewardtype=engagement.RewardType.TEST)
-        ur = rm.award(session, 5)
-        assert(ur.current_balance == 5)
+        ur = rm.award(session, engagement._REWARDS['amount'][engagement.RewardType.TEST])
+        assert(ur.current_balance == engagement._REWARDS['amount'][engagement.RewardType.TEST])
         session.commit()
 
         # now a second update
-        ur2 = rm.award(session, 10)
-        assert(ur2.current_balance == 15)
-        assert(ur2.total_balance == 15)
+        ur2 = rm.award(session, engagement._REWARDS['amount'][engagement.RewardType.TEST])
+        assert(ur2.current_balance == engagement._REWARDS['amount'][engagement.RewardType.TEST]*2)
+        assert(ur2.total_balance == engagement._REWARDS['amount'][engagement.RewardType.TEST]*2)
 
         # now a second update
         ur2 = rm.spend(session, 10)
-        assert(ur2.current_balance == 5)
-        assert(ur2.total_balance == 15)
+        assert(ur2.current_balance == engagement._REWARDS['amount'][engagement.RewardType.TEST]*2 - 10)
+        assert(ur2.total_balance == engagement._REWARDS['amount'][engagement.RewardType.TEST]*2)
 
         session.commit()
         session.close()
@@ -356,5 +357,7 @@ class TestEngagement(DatabaseTest):
         assert(d_rewards['upload7'])
         assert(not d_rewards['upload30'])
         assert(not d_rewards['upload100'])
+        assert(d_rewards['totalLightbulbs'] == engagement._REWARDS['amount'][engagement.RewardType.FIRSTPHOTO] + engagement._REWARDS['amount'][engagement.RewardType.DAYSPHOTO_7])
+        assert(d_rewards['unspentBulbs'] == engagement._REWARDS['amount'][engagement.RewardType.FIRSTPHOTO] + engagement._REWARDS['amount'][engagement.RewardType.DAYSPHOTO_7])
 
         self.teardown()

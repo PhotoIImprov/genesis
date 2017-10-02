@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.7.8' #our version string PEP 440
+__version__ = '1.7.9' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -229,23 +229,6 @@ def hello():
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
     htmlbody += "<ul>" \
-                "<li>v1.7.4</li>" \
-                "  <ul>" \
-                "    <li>add back thumbnail hash to meta data</li>" \
-                "  </ul>" \
-                "<li>v1.7.5</li>" \
-                "  <ul>" \
-                "    <li>badge accrual and tracking</li>" \
-                "  </ul>" \
-                "<li>v1.7.5.1</li>" \
-                "  <ul>" \
-                "    <li>Swagger specification for /photo update and /photos (get all photos) API</li>" \
-                "  </ul>" \
-                "<li>v1.7.6</li>" \
-                "  <ul>" \
-                "    <li>/photo GET now allows all user to query for photos</li>" \
-                "    <li>/badges, returns highest score even if no other rewards</li>" \
-                "  </ul>" \
                 "<li>v1.7.7</li>" \
                 "  <ul>" \
                 "    <li>UserReward now has two column PK (user_id/rewardtype)</li>" \
@@ -256,6 +239,10 @@ def hello():
                 "  <ul>" \
                 "    <li>stop overwriting high score photo in /badges</li>" \
                 "    <li>pass back 0's for balances in /badges</li>" \
+                "  </ul>" \
+                "<li>v1.7.9</li>" \
+                "  <ul>" \
+                "    <li>bug querying rewardtype, using enum integer value and not name</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
