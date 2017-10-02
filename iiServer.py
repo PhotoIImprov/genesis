@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.7.7' #our version string PEP 440
+__version__ = '1.7.8' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -251,6 +251,11 @@ def hello():
                 "    <li>UserReward now has two column PK (user_id/rewardtype)</li>" \
                 "    <li>rewardtype passed around as enum, .name used as string version</li>" \
                 "    <li>calculate consecutive day photos & 1st day rewards</li>" \
+                "  </ul>" \
+                "<li>v1.7.8</li>" \
+                "  <ul>" \
+                "    <li>stop overwriting high score photo in /badges</li>" \
+                "    <li>pass back 0's for balances in /badges</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"

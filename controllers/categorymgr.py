@@ -499,12 +499,19 @@ class RewardManager():
             ur_l = q.all()
             if ur_l is not None:
                 for ur in ur_l:
+                    total_bulbs = 0
+                    current_bulbs = 0
                     if ur.rewardtype == str(engagement.RewardType.LIGHTBULB):
-                        d_rewards = {'totalLightbulbs': ur.total_balance, 'unspentBulbs': ur.current_balance}
+                        total_bulbs = ur.total_balance
+                        current_bulbs = ur.current_balance
+                    d_rewards['totalLightbulbs'] = total_bulbs
+                    d_rewards['unspentBulbs'] = current_bulbs
 
                 max_reward = RewardManager.max_reward_day(session, type, au)
                 if max_reward is not None:
                     d_rewards['mostBulbsInADay'] = max_reward.quantity
+                else:
+                    d_rewards['mostBulbsInADay'] = 0
 
                 d_rewards = RewardManager.add_reward_types(ur_l, d_rewards)
 
