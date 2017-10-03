@@ -90,8 +90,7 @@ class Submissions():
                 cpl = []
                 for p in pl:
                     if p.category_id == c.id:
-                        p_element = {'pid': p.id, 'votes': p.times_voted, 'likes': p.likes, 'score': p.score,
-                                     'url': 'preview/{0}'.format(p.id)}
+                        p_element = p.to_dict()
                         cpl.append(p_element)
 
                 if cpl:

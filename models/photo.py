@@ -714,6 +714,15 @@ class Photo(Base):
         self._photometa.set_exif_data(d_exif)
         return
 
+    def to_dict(self) -> dict:
+        try:
+            d = {'pid': self.id, 'votes': self.times_voted, 'likes': self.likes, 'score': self.score, 'url': 'preview/{0}'.format(self.id)}
+            return d
+        except Exception as e:
+            if self.id is not None:
+                logger.exception(msg='photo.to_dict(), pid={0}'.format(self.id))
+            raise
+
 class PhotoMeta(Base):
     __tablename__ = 'photometa'
     __table_args__ = {'extend_existing':True}

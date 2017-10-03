@@ -199,6 +199,45 @@ class EventManager():
             self._cm_list.append(c)
 
     @staticmethod
+    def event_list(session, au: usermgr.AnonUser, dir: str, cid: int) -> dict:
+
+        try:
+            if dir == 'next':
+                q = session.query(event.Event). \
+                    join(event.EventUser, event.EventUser.event_id == event.Event.id). \
+                    join(event.EventCategory, event.EventCategory.event_id == event.Event.id). \
+                    filter(event.EventUser.user_id == au.id). \
+                    filter(event.EventCategory.category_id > cid)
+            else:
+                q = session.query(event.Event). \
+                    join(event.EventUser, event.EventUser.event_id == event.Event.id). \
+                    join(event.EventCategory, event.EventCategory.event_id == event.Event.id). \
+                    filter(event.EventUser.user_id == au.id). \
+                    filter(event.EventCategory.category_id < cid)
+        except Exception as e:
+            raise
+
+        el = q.all()
+        if el is None or len(el) == 0:
+            return None
+
+        # now get the categories for the event list
+        d_events = []
+        for e in el:
+            cl = e.read_categories(session)
+            d = e.to_dict(uid=au.id)
+            d_events.append(d)
+            d_cl = []
+            for c in d['categories']:
+                cpl = CategoryManager().category_photo_list(session, dir='next', pid=0, cid=c['id'])
+                pl = []
+                for p in cpl:
+                    pl.append(p.to_dict())
+                c['photos'] = pl
+
+        return {'events': d_events}
+
+    @staticmethod
     def join_event(session, accesskey: str, au: usermgr.AnonUser) -> event.Event:
         try:
             # q = session.query(event.Event).\

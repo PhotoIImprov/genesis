@@ -1,4 +1,3 @@
-
 from unittest import TestCase
 import initschema
 import datetime
@@ -12,7 +11,7 @@ from flask import Flask
 from test_REST_login import TestUser
 import uuid
 from controllers import categorymgr
-
+import json
 
 class TestEvent(DatabaseTest):
 
@@ -500,3 +499,43 @@ class TestEvent(DatabaseTest):
         e.id = 456
         eu = event.EventUser(user=u, event=e, active=True)
         assert(eu.user_id == 123 and eu.event_id == 456 and eu.active)
+
+
+    def create_event_categories(self, au: usermgr.AnonUser, num_events: int):
+        # now create an event with Categories
+        for i in range(0,num_events):
+            start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+            em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
+                                   name='EventList Test#{0}'.format(i), max_players=10, user=au, active=False)
+            e1 = em.create_event(self.session)
+            assert(len(em._cl) == 2)
+
+            # change the category state to reflect what state we are testing
+            for c in em._cl:
+                c.state = category.CategoryState.UPLOAD.value
+            self.session.commit()
+
+            # now upload photos to these categories
+            for c in em._cl:
+                for i in range(0, dbsetup.Configuration.UPLOAD_CATEGORY_PICS):
+                    self.write_photo_to_category(self.session, c, au)
+
+            # change the category state to reflect what state we are testing
+            for c in em._cl:
+                c.state = category.CategoryState.VOTING.value
+
+            self.session.commit()
+
+    def test_eventlist(self):
+        self.setup()
+
+        # create Event & categories filled with photos
+        au = self.create_anon_user(self.session, make_staff=False)
+        self.create_event_categories(au, num_events=3)
+
+        d_events = categorymgr.EventManager.event_list(self.session, au=au, dir='next', cid=0)
+        assert(d_events is not None)
+        assert(len(d_events['events']) == 3)
+        str_events = json.dumps(d_events)
+
+        self.teardown()

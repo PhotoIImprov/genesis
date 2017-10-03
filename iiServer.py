@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.7.9' #our version string PEP 440
+__version__ = '1.8.0' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -243,6 +243,10 @@ def hello():
                 "<li>v1.7.9</li>" \
                 "  <ul>" \
                 "    <li>bug querying rewardtype, using enum integer value and not name</li>" \
+                "  </ul>" \
+                "<li>v1.8.0</li>" \
+                "  <ul>" \
+                "    <li>/events provides a list of photos in events user is part of</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -2920,6 +2924,103 @@ def get_reward():
         return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_501_NOT_IMPLEMENTED)
+
+@app.route('/events/<string:dir>/<int:cid>')
+def event_photos(dir: str, cid: int):
+    """
+    Event Photos
+    Retrieve a pageable list of photos in events this user has joined
+    ---
+    tags:
+      - user
+    operationId: event-photos
+    consumes:
+      - text/html
+    produces:
+      - application/json
+    parameters:
+      - in: path
+        name: dir
+        description: "next/prev direction from specified category id for next page"
+        required: true
+        type: string
+        enum:
+          - next
+          - prev
+      - in: path
+        name: cid
+        description: "category id to start fetch from, if 0 fetch start of category list"
+        required: true
+        type: integer
+      - in: query
+        name: num_categories
+        description: "The number of categories to fetch in a single call, if not specified all will be fetched"
+        required: false
+        type: integer
+    security:
+      - JWT: []
+    responses:
+      200:
+        description: "page of event photos"
+        schema:
+          $ref: '#/definitions/EventList'
+      404:
+        description: "image not found"
+        schema:
+          $ref: '#/definitions/Error'
+    definitions:
+      - schema:
+          id: EventPhotos
+          properties:
+            id:
+              type: integer
+              description: "unique internal event identifier"
+              example: 1347
+            accesskey:
+              type: string
+              description: "key phrase used to join this event"
+              example: "able move"
+            name:
+              type: string
+              description: "name of this event"
+              example: "2017 Company Picnic"
+            created:
+              type: string
+              description: "date/time this event was created, UTC"
+              example: "2017-09-04 14:25"
+            max_players:
+              type: integer
+              description: "maximum number of players allowed in event"
+              example: 5
+            created_by:
+              type: string
+              description: "the user that created this event, or 'me' if the user making this call"
+              example: "someuser@gmail.com -or- Image Improv -or- me"
+            categories:
+              type: array
+              items:
+                $ref: '#/definitions/CategoryPhotos'
+      - schema:
+          id: EventList
+          properties:
+            events:
+              type: array
+              items:
+                $ref: '#/definitions/EventPhotos'
+    """
+    session = dbsetup.Session()
+    au = current_identity._get_current_object()
+    if dir != 'dir' and dir != 'prev':
+        return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
+    try:
+        d_events = categorymgr.EventManager.event_list(session, au, dir, cid)
+        if d_events is None:
+            return make_response('', status.HTTP_204_NO_CONTENT)
+        return make_response(jsonify(d_events), status.HTTP_200_OK)
+
+    except Exception as e:
+        return make_response(jsonify({'msg': error.error_string('UNKNOWN_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @app.route('/<string:campaign>')
 def default_path(campaign: str):

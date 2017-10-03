@@ -55,8 +55,9 @@ class Event(Base):
 
     def to_dict(self, uid: int) -> dict:
         d_cl = []
-        for c in self._cl:
-            d_cl.append(c.to_json())
+        if self._cl is not None:
+            for c in self._cl:
+                d_cl.append(c.to_json())
 
         if self._usertype == usermgr.UserType.IISTAFF.value:
             created_by = 'Image Improv'
