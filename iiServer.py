@@ -2925,7 +2925,7 @@ def get_reward():
 
     return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_501_NOT_IMPLEMENTED)
 
-@app.route('/events/<string:dir>/<int:cid>')
+@app.route('/events/<string:dir>/<int:cid>', methods=['GET'])
 def event_photos(dir: str, cid: int):
     """
     Event Photos
