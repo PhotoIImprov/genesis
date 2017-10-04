@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.8.1' #our version string PEP 440
+__version__ = '1.8.2' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -251,6 +251,10 @@ def hello():
                 "<li>v1.8.1</li>" \
                 "  <ul>" \
                 "    <li>/events fix argument check to dir -> next</li>" \
+                "  </ul>" \
+                "<li>v1.8.2</li>" \
+                "  <ul>" \
+                "    <li>/events add jwt() check and timeit()</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -2930,6 +2934,8 @@ def get_reward():
     return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_501_NOT_IMPLEMENTED)
 
 @app.route('/events/<string:dir>/<int:cid>', methods=['GET'])
+@jwt_required()
+@timeit()
 def event_photos(dir: str, cid: int):
     """
     Event Photos
