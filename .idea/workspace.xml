@@ -8,9 +8,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controllers/categorymgr.py" afterPath="$PROJECT_DIR$/controllers/categorymgr.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dbsetup.py" afterPath="$PROJECT_DIR$/dbsetup.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/iiServer.py" afterPath="$PROJECT_DIR$/iiServer.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/test_REST_login.py" afterPath="$PROJECT_DIR$/tests/test_REST_login.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -21,8 +20,8 @@
   </component>
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_voting_TestVoting_test_vote_counting_second_vote.coverage" NAME="Unittests for test_voting.TestVoting.test_vote_counting_second_vote Coverage Results" MODIFIED="1506375740220" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestCategoryFiltering_test_joinevent.coverage" NAME="Unittests for test_REST_login.TestCategoryFiltering.test_joinevent Coverage Results" MODIFIED="1504645774474" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_submissions_TestSubmissions_test_photos_for_categories_no_photos.coverage" NAME="Unittests for test_submissions.TestSubmissions.test_photos_for_categories_no_photos Coverage Results" MODIFIED="1505400621246" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestCategoryFiltering_test_joinevent.coverage" NAME="Unittests for test_REST_login.TestCategoryFiltering.test_joinevent Coverage Results" MODIFIED="1507153036451" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_engagement_TestEngagement_test_highest_rated_photo_none.coverage" NAME="Unittests for test_engagement.TestEngagement.test_highest_rated_photo_none Coverage Results" MODIFIED="1506629446350" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_user_TestUserMgr_test_authenticate_not_exist_not_DEBUG.coverage" NAME="Unittests for test_user.TestUserMgr.test_authenticate_not_exist_not_DEBUG Coverage Results" MODIFIED="1496851987352" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_REST_login.coverage" NAME="Unittests in test_REST_login Coverage Results" MODIFIED="1493750940525" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -148,6 +147,7 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_voting_TestVoting_test_leaderboard_invalid_category_nocheck.coverage" NAME="Unittests for test_voting.TestVoting.test_leaderboard_invalid_category_nocheck Coverage Results" MODIFIED="1498663118178" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_admin_TestCSRFevent_test_generate_csrf_token.coverage" NAME="Unittests for test_admin.TestCSRFevent.test_generate_csrf_token Coverage Results" MODIFIED="1502375113364" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_category_TestCategory_test_active_category_bad_user.coverage" NAME="Unittests for test_category.TestCategory.test_active_category_bad_user Coverage Results" MODIFIED="1504194491536" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestCategoryFiltering_test_joinevent_no_event.coverage" NAME="Unittests for test_REST_login.TestCategoryFiltering.test_joinevent_no_event Coverage Results" MODIFIED="1507152940118" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_category_TestCategory_test_empty_category_tag_list.coverage" NAME="Unittests for test_category.TestCategory.test_empty_category_tag_list Coverage Results" MODIFIED="1498504550778" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittest_TestLogin_test_auth.coverage" NAME="Unittest TestLogin.test_auth Coverage Results" MODIFIED="1490642236096" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_photo_TestPhoto_test_bad_exif_orientation.coverage" NAME="Unittests for test_photo.TestPhoto.test_bad_exif_orientation Coverage Results" MODIFIED="1501300505516" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -186,7 +186,7 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_submissions_TestSubmissions_test_user_likes_paging.coverage" NAME="Unittests for test_submissions.TestSubmissions.test_user_likes_paging Coverage Results" MODIFIED="1505944978319" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestMySubmissions.coverage" NAME="Unittests for test_REST_login.TestMySubmissions Coverage Results" MODIFIED="1502031162916" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_submissions_TestSubmissions_test_category_with_photos.coverage" NAME="Unittests for test_submissions.TestSubmissions.test_category_with_photos Coverage Results" MODIFIED="1502201256341" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/models" />
-    <SUITE FILE_PATH="coverage/genesis$Unittests_in_tests.coverage" NAME="Unittests in tests Coverage Results" MODIFIED="1507146614342" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_in_tests.coverage" NAME="Unittests in tests Coverage Results" MODIFIED="1507153067624" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_category_TestCategory_test_category_manager_vote_negative.coverage" NAME="Unittests for test_category.TestCategory.test_category_manager_vote_negative Coverage Results" MODIFIED="1504198163954" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestCategory_test_category_state.coverage" NAME="Unittests for test_REST_login.TestCategory.test_category_state Coverage Results" MODIFIED="1505141582377" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_photo.coverage" NAME="Unittests in test_photo Coverage Results" MODIFIED="1490029558190" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -319,34 +319,34 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/iiServer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="469">
-              <caret line="261" column="0" lean-forward="false" selection-start-line="261" selection-start-column="0" selection-end-line="261" selection-end-column="0" />
+            <state relative-caret-position="328">
+              <caret line="2548" column="0" lean-forward="false" selection-start-line="2548" selection-start-column="0" selection-end-line="2548" selection-end-column="0" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
-                <marker date="1507146614307" expanded="true" signature="11649:11674" ph="select * fro... event" />
+                <marker date="1507153036436" expanded="true" signature="11649:11674" ph="select * fro... event" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="helpers.py" pinned="false" current-in-tab="false">
-        <entry file="file:///usr/local/lib/python3.5/dist-packages/flask/helpers.py">
+      <file leaf-file-name="logsetup.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/logsetup.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="442">
-              <caret line="190" column="36" lean-forward="false" selection-start-line="190" selection-start-column="23" selection-end-line="190" selection-end-column="36" />
+            <state relative-caret-position="522">
+              <caret line="34" column="0" lean-forward="false" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="app.py" pinned="false" current-in-tab="false">
-        <entry file="file:///usr/local/lib/python3.5/dist-packages/flask_api/app.py">
+      <file leaf-file-name="test_REST_login.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/test_REST_login.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-8">
-              <caret line="41" column="8" lean-forward="false" selection-start-line="41" selection-start-column="8" selection-end-line="41" selection-end-column="8" />
+            <state relative-caret-position="347">
+              <caret line="1640" column="0" lean-forward="false" selection-start-line="1640" selection-start-column="0" selection-end-line="1640" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -355,8 +355,8 @@
       <file leaf-file-name="cursors.py" pinned="false" current-in-tab="false">
         <entry file="file:///usr/local/lib/python3.5/dist-packages/pymysql/cursors.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="321" column="18" lean-forward="false" selection-start-line="321" selection-start-column="13" selection-end-line="321" selection-end-column="18" />
+            <state relative-caret-position="167">
+              <caret line="165" column="0" lean-forward="false" selection-start-line="165" selection-start-column="0" selection-end-line="165" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -419,8 +419,8 @@
       <file leaf-file-name="categorymgr.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/controllers/categorymgr.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="261">
-              <caret line="479" column="70" lean-forward="true" selection-start-line="479" selection-start-column="70" selection-end-line="479" selection-end-column="70" />
+            <state relative-caret-position="279">
+              <caret line="251" column="59" lean-forward="true" selection-start-line="251" selection-start-column="47" selection-end-line="251" selection-end-column="62" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
               </folding>
@@ -442,9 +442,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>_REWARDS</find>
-      <find>spend(</find>
-      <find>spend</find>
       <find>1.7.</find>
       <find>HTTP_500</find>
       <find>current_identity</find>
@@ -470,8 +467,11 @@
       <find>jwt_required</find>
       <find>/events</find>
       <find>Warn</find>
-      <find>func.b</find>
       <find>1.8.</find>
+      <find>events</find>
+      <find>func.b</find>
+      <find>joinevent</find>
+      <find>accesskey</find>
     </findStrings>
     <replaceStrings>
       <replace>Photo</replace>
@@ -558,7 +558,6 @@
         <option value="$PROJECT_DIR$/models/traction.py" />
         <option value="$PROJECT_DIR$/models/voting.py" />
         <option value="$PROJECT_DIR$/tests/test_voting.py" />
-        <option value="$PROJECT_DIR$/tests/test_REST_login.py" />
         <option value="$PROJECT_DIR$/models/engagement.py" />
         <option value="$PROJECT_DIR$/tests/test_engagement.py" />
         <option value="$PROJECT_DIR$/models/photo.py" />
@@ -567,6 +566,7 @@
         <option value="$PROJECT_DIR$/tests/test_event.py" />
         <option value="$PROJECT_DIR$/dbsetup.py" />
         <option value="$PROJECT_DIR$/controllers/categorymgr.py" />
+        <option value="$PROJECT_DIR$/tests/test_REST_login.py" />
         <option value="$PROJECT_DIR$/iiServer.py" />
       </list>
     </option>
@@ -717,6 +717,36 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
+    <configuration name="Unittests for test_REST_login.TestCategoryFiltering.test_joinevent" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="iiServer" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_REST_login.TestCategoryFiltering.test_joinevent&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+    </configuration>
+    <configuration name="Unittests for test_REST_login.TestCategoryFiltering.test_joinevent_no_event" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="iiServer" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_REST_login.TestCategoryFiltering.test_joinevent_no_event&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+    </configuration>
     <configuration name="Unittests for test_engagement.TestEngagement.test_consecutive_7day_photo" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="-W error" />
       <option name="PARENT_ENVS" value="true" />
@@ -731,36 +761,6 @@
       <option name="_new_pattern" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
       <option name="_new_target" value="&quot;test_engagement.TestEngagement.test_consecutive_7day_photo&quot;" />
-      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
-    </configuration>
-    <configuration name="Unittests for test_event.TestEvent.test_eventlist" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="iiServer" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_event.TestEvent.test_eventlist&quot;" />
-      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
-    </configuration>
-    <configuration name="Unittests for test_event.TestEvent.test_eventuser_initialization" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="iiServer" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_event.TestEvent.test_eventuser_initialization&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
     </configuration>
     <configuration name="Unittests for test_photo.TestPhoto.test_iiServer_preview" type="tests" factoryName="Unittests" nameIsGenerated="true">
@@ -1081,18 +1081,18 @@
       <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests for test_photo.TestPhoto.test_iiServer_preview" />
       <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests in test_resource" />
       <item index="4" class="java.lang.String" itemvalue="Python tests.Unittests in tests" />
-      <item index="5" class="java.lang.String" itemvalue="Python tests.Unittests for test_event.TestEvent.test_eventlist" />
-      <item index="6" class="java.lang.String" itemvalue="Python tests.Unittests for test_event.TestEvent.test_eventuser_initialization" />
-      <item index="7" class="java.lang.String" itemvalue="Python tests.Unittests in test_engagement.py" />
-      <item index="8" class="java.lang.String" itemvalue="Python tests.Unittests for test_engagement.TestEngagement.test_consecutive_7day_photo" />
+      <item index="5" class="java.lang.String" itemvalue="Python tests.Unittests in test_engagement.py" />
+      <item index="6" class="java.lang.String" itemvalue="Python tests.Unittests for test_engagement.TestEngagement.test_consecutive_7day_photo" />
+      <item index="7" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TestCategoryFiltering.test_joinevent_no_event" />
+      <item index="8" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TestCategoryFiltering.test_joinevent" />
     </list>
     <recent_temporary>
       <list size="5">
         <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in tests" />
-        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests for test_engagement.TestEngagement.test_consecutive_7day_photo" />
-        <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests in test_engagement.py" />
-        <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests for test_event.TestEvent.test_eventuser_initialization" />
-        <item index="4" class="java.lang.String" itemvalue="Python tests.Unittests for test_event.TestEvent.test_eventlist" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TestCategoryFiltering.test_joinevent" />
+        <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TestCategoryFiltering.test_joinevent_no_event" />
+        <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests for test_engagement.TestEngagement.test_consecutive_7day_photo" />
+        <item index="4" class="java.lang.String" itemvalue="Python tests.Unittests in test_engagement.py" />
       </list>
     </recent_temporary>
   </component>
@@ -1212,23 +1212,17 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Unittests_for_test_engagement_TestEngagement_test_consecutive_7day_photo - 2017.10.04 at 15h 33m 55s.xml">
-      <configuration name="Unittests for test_engagement.TestEngagement.test_consecutive_7day_photo" configurationId="tests" />
+    <history-entry file="Unittests_for_test_REST_login_TestCategoryFiltering_test_joinevent - 2017.10.04 at 17h 35m 52s.xml">
+      <configuration name="Unittests for test_REST_login.TestCategoryFiltering.test_joinevent" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_for_test_engagement_TestEngagement_test_consecutive_7day_photo - 2017.10.04 at 15h 34m 54s.xml">
-      <configuration name="Unittests for test_engagement.TestEngagement.test_consecutive_7day_photo" configurationId="tests" />
+    <history-entry file="Unittests_for_test_REST_login_TestCategoryFiltering_test_joinevent - 2017.10.04 at 17h 36m 55s.xml">
+      <configuration name="Unittests for test_REST_login.TestCategoryFiltering.test_joinevent" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_for_test_engagement_TestEngagement_test_consecutive_7day_photo - 2017.10.04 at 15h 36m 30s.xml">
-      <configuration name="Unittests for test_engagement.TestEngagement.test_consecutive_7day_photo" configurationId="tests" />
+    <history-entry file="Unittests_for_test_REST_login_TestCategoryFiltering_test_joinevent - 2017.10.04 at 17h 37m 36s.xml">
+      <configuration name="Unittests for test_REST_login.TestCategoryFiltering.test_joinevent" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_for_test_engagement_TestEngagement_test_consecutive_7day_photo - 2017.10.04 at 15h 37m 40s.xml">
-      <configuration name="Unittests for test_engagement.TestEngagement.test_consecutive_7day_photo" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_test_engagement_TestEngagement_test_consecutive_7day_photo - 2017.10.04 at 15h 38m 03s.xml">
-      <configuration name="Unittests for test_engagement.TestEngagement.test_consecutive_7day_photo" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_test_engagement_TestEngagement_test_consecutive_7day_photo - 2017.10.04 at 15h 38m 38s.xml">
-      <configuration name="Unittests for test_engagement.TestEngagement.test_consecutive_7day_photo" configurationId="tests" />
+    <history-entry file="Unittests_for_test_REST_login_TestCategoryFiltering_test_joinevent_no_event - 2017.10.04 at 17h 35m 42s.xml">
+      <configuration name="Unittests for test_REST_login.TestCategoryFiltering.test_joinevent_no_event" configurationId="tests" />
     </history-entry>
     <history-entry file="Unittests_for_test_engagement_TestEngagement_test_consecutive_7day_photo - 2017.10.04 at 15h 39m 17s.xml">
       <configuration name="Unittests for test_engagement.TestEngagement.test_consecutive_7day_photo" configurationId="tests" />
@@ -1242,17 +1236,22 @@
     <history-entry file="Unittests_in_tests - 2017.10.04 at 15h 48m 20s.xml">
       <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
+    <history-entry file="Unittests_in_tests - 2017.10.04 at 15h 55m 12s.xml">
+      <configuration name="Unittests in tests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_tests - 2017.10.04 at 17h 42m 32s.xml">
+      <configuration name="Unittests in tests" configurationId="tests" />
+    </history-entry>
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="27" width="1920" height="1053" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3993576" sideWeight="0.5072917" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="REST Client" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32941177" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2955032" sideWeight="0.4953125" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2955032" sideWeight="0.4953125" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32916668" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14791666" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -1380,18 +1379,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_REST_login.py</url>
-          <line>1730</line>
+          <line>1740</line>
           <option name="timeStamp" value="1692" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_REST_login.py</url>
-          <line>1724</line>
+          <line>1734</line>
           <option name="timeStamp" value="1702" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tests/test_REST_login.py</url>
-          <line>1630</line>
-          <option name="timeStamp" value="1706" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_user.py</url>
@@ -1480,7 +1474,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_REST_login.py</url>
-          <line>1917</line>
+          <line>1927</line>
           <option name="timeStamp" value="1817" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1535,22 +1529,22 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_REST_login.py</url>
-          <line>1887</line>
+          <line>1897</line>
           <option name="timeStamp" value="1863" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>2935</line>
+          <line>2940</line>
           <option name="timeStamp" value="1865" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>2937</line>
+          <line>2942</line>
           <option name="timeStamp" value="1866" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>2928</line>
+          <line>2933</line>
           <option name="timeStamp" value="1867" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1575,7 +1569,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_REST_login.py</url>
-          <line>1855</line>
+          <line>1865</line>
           <option name="timeStamp" value="1889" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1585,7 +1579,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_REST_login.py</url>
-          <line>1856</line>
+          <line>1866</line>
           <option name="timeStamp" value="1897" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1619,11 +1613,6 @@
           <option name="timeStamp" value="1915" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file:///usr/local/lib/python3.5/dist-packages/pymysql/cursors.py</url>
-          <line>165</line>
-          <option name="timeStamp" value="1916" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/controllers/categorymgr.py</url>
           <line>486</line>
           <option name="timeStamp" value="1917" />
@@ -1639,7 +1628,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="1918" />
+      <option name="time" value="1919" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -1830,14 +1819,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/logsetup.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="313">
-          <caret line="34" column="0" lean-forward="false" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/models/usermgr.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-6885">
@@ -1974,14 +1955,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_REST_login.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18">
-          <caret line="569" column="0" lean-forward="false" selection-start-line="569" selection-start-column="0" selection-end-line="569" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/local/lib/python3.5/dist-packages/flask/helpers.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="442">
@@ -2002,14 +1975,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="203">
           <caret line="599" column="0" lean-forward="false" selection-start-line="599" selection-start-column="0" selection-end-line="599" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/local/lib/python3.5/dist-packages/pymysql/cursors.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="321" column="18" lean-forward="false" selection-start-line="321" selection-start-column="13" selection-end-line="321" selection-end-column="18" />
           <folding />
         </state>
       </provider>
@@ -2052,22 +2017,46 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/controllers/categorymgr.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="261">
-          <caret line="479" column="70" lean-forward="true" selection-start-line="479" selection-start-column="70" selection-end-line="479" selection-end-column="70" />
+        <state relative-caret-position="279">
+          <caret line="251" column="59" lean-forward="true" selection-start-line="251" selection-start-column="47" selection-end-line="251" selection-end-column="62" />
           <folding>
             <element signature="e#0#12#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file:///usr/local/lib/python3.5/dist-packages/pymysql/cursors.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="167">
+          <caret line="165" column="0" lean-forward="false" selection-start-line="165" selection-start-column="0" selection-end-line="165" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_REST_login.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="347">
+          <caret line="1640" column="0" lean-forward="false" selection-start-line="1640" selection-start-column="0" selection-end-line="1640" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/iiServer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="469">
-          <caret line="261" column="0" lean-forward="false" selection-start-line="261" selection-start-column="0" selection-end-line="261" selection-end-column="0" />
+        <state relative-caret-position="328">
+          <caret line="2548" column="0" lean-forward="false" selection-start-line="2548" selection-start-column="0" selection-end-line="2548" selection-end-column="0" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
-            <marker date="1507146614307" expanded="true" signature="11649:11674" ph="select * fro... event" />
+            <marker date="1507153036436" expanded="true" signature="11649:11674" ph="select * fro... event" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/logsetup.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="522">
+          <caret line="34" column="0" lean-forward="false" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>

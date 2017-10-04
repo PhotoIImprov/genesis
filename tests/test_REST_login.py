@@ -1623,6 +1623,16 @@ class TestCategoryFiltering(iiBaseUnitTest):
         assert(event_details is not None)
         session.close()
 
+    def test_joinevent_no_event(self):
+        session = dbsetup.Session()
+        # Step 1 - create test user
+        self.create_testuser_get_token(make_staff=False)
+
+        # Step 2 - join
+        query_string = urlencode({'accesskey': 'fake event'})
+        rsp = self.app.post(path='/joinevent', query_string=query_string, headers=self.get_header_html())
+        assert(rsp.status_code == 404)
+
     def test_joinevent(self):
         session = dbsetup.Session()
         event_details, open_cl = self.create_newevent_and_categories(session)

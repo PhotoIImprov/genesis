@@ -2543,11 +2543,16 @@ def join_event():
     try:
         accesskey = request.args.get('accesskey')
         e = categorymgr.EventManager.join_event(session, accesskey, current_identity._get_current_object())
+        logger.info(msg="[/joinevent]user #{0} successfully joined event #{1}".format(current_identity.id, e.id))
         d_el = categorymgr.EventManager.event_details(session, current_identity._get_current_object(), e.id)
         session.commit()
         return make_response(jsonify(d_el), status.HTTP_200_OK)
+    except Exception as e:
+        if e.args[0] == 'join_event' and e.args[1] == 'event not found':
+            return make_response(jsonify({'msg': 'event not found!'}),status.HTTP_404_NOT_FOUND)
     except KeyError:
         session.close()
+        logger.exception(msg="[/joinevent] error with inputs")
         return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)
 
     return make_response(jsonify({'msg': 'event not found or not categories'}), status.HTTP_500_INTERNAL_SERVER_ERROR)
