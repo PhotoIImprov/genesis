@@ -472,13 +472,13 @@ class RewardManager():
             # now get the highest rewards in a day
             q = session.query(func.max(engagement.Reward.quantity)). \
                 filter(engagement.Reward.user_id == au.id). \
-                filter(engagement.Reward.rewardtype == type.value)
+                filter(engagement.Reward.rewardtype == str(type) )
             max_score = q.scalar()
             if max_score is not None:
                 q = session.query(engagement.Reward). \
                     filter(engagement.Reward.user_id == au.id). \
                     filter(engagement.Reward.quantity == max_score). \
-                    filter(engagement.Reward.rewardtype == type.value)
+                    filter(engagement.Reward.rewardtype == str(type))
                 max_reward = q.first()
                 return max_reward
 

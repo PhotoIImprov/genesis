@@ -7,6 +7,7 @@ from flask import request
 from sqlalchemy import exc
 from sqlalchemy import event
 from sqlalchemy import select
+import warnings
 
 class ImageType(Enum):
     UNKNOWN = 0
@@ -114,6 +115,7 @@ Base     = declarative_base()
 metadata = Base.metadata
 metadata.create_all(bind=engine, checkfirst=True)
 _DEBUG   = False
+
 
 @event.listens_for(engine, "engine_connect")
 def ping_connection(connection, branch):
