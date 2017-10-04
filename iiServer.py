@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.8.0' #our version string PEP 440
+__version__ = '1.8.1' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -247,6 +247,10 @@ def hello():
                 "<li>v1.8.0</li>" \
                 "  <ul>" \
                 "    <li>/events provides a list of photos in events user is part of</li>" \
+                "  </ul>" \
+                "<li>v1.8.1</li>" \
+                "  <ul>" \
+                "    <li>/events fix argument check to dir -> next</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -3010,7 +3014,7 @@ def event_photos(dir: str, cid: int):
     """
     session = dbsetup.Session()
     au = current_identity._get_current_object()
-    if dir != 'dir' and dir != 'prev':
+    if dir != 'next' and dir != 'prev':
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
     try:
         d_events = categorymgr.EventManager.event_list(session, au, dir, cid)
