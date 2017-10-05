@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.8.3' #our version string PEP 440
+__version__ = '1.8.3.1' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -260,6 +260,10 @@ def hello():
                 "  <ul>" \
                 "    <li>fix data truncation error (LIGHTBULBS) in max reward day</li>" \
                 "  </ul>" \
+                "<li>v1.8.3.1</li>" \
+                "  <ul>" \
+                "    <li>REBUILD! - show events from imageimprov; </li>" \
+                "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
@@ -281,18 +285,19 @@ def hello():
 
     session = dbsetup.Session()
 
-    sql = text('select * from mysql.event;')
+#    sql = text('select * from mysql.event;')
+    sql = text('show events from imageimprov;')
     try:
         result = dbsetup.engine.execute(sql)
         htmlbody += "<h3>Scheduled Events</h3>"
         if result is not None:
             for row in result:
-                le = row['last_executed']
+                le = row['Execute at']
                 if le is None:
                     last_executed = "never"
                 else:
                     last_executed = le
-                h = "&nbsp&nbsp><b>name: </b>{}, every {} {}, last executed: {}, status: {}".format(row['name'], row['interval_value'], row['interval_field'], last_executed, row['status'])
+                h = "&nbsp&nbsp><b>name: </b>{}, every {} {}, last executed: {}, status: {}".format(row['Name'], row['Interval value'], row['Interval field'], last_executed, row['Status'])
                 htmlbody += h + "<br>"
         else:
             htmlbody += "<i>no events found</i><br>"
