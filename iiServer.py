@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.8.4' #our version string PEP 440
+__version__ = '1.8.5' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -267,6 +267,10 @@ def hello():
                 "<li>v1.8.4</li>" \
                 "  <ul>" \
                 "    <li>if no votable categories, return 204</li>" \
+                "  </ul>" \
+                "<li>v1.8.5</li>" \
+                "  <ul>" \
+                "    <li>more logging around photo & ballot</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -1160,6 +1164,7 @@ def return_ballot(session, uid, cid):
         if cid is None:
             cl = bm.active_voting_categories(session, uid)
             if cl is None or len(cl) == 0:
+                logger.info(msg="[return_ballot]no categories to vote from!")
                 return make_response(jsonify({'msg': error.error_string('NO_CATEGORY')}),
                                     status.HTTP_204_NO_CONTENT)
 
@@ -1172,6 +1177,7 @@ def return_ballot(session, uid, cid):
 
         ballots = bm.create_ballot(session, uid, c, allow_upload)
         if ballots is None:
+            logger.info(msg="[return_ballot]no ballots returned for category #{0}".format(c.id))
             rsp =  make_response(jsonify({'msg': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             ballots.read_photos_for_ballots(session)
@@ -1187,6 +1193,7 @@ def return_ballot(session, uid, cid):
     finally:
         session.close()
         if rsp is None:
+            logger.info(msg="[return_ballot]no ballots, weird error")
             rsp = make_response(jsonify({'msg': error.error_string('NO_BALLOT')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
         return rsp
 
@@ -1543,6 +1550,7 @@ def store_photo(pi: photo.PhotoImage, uid: int, cid: int):
     # a ballot for that category
     if rsp.status_code == status.HTTP_201_CREATED and num_photos_in_category > dbsetup.Configuration.UPLOAD_CATEGORY_PICS:
         try:
+            logger.info(msg="[store_photo]returning a ballot for category #{0}".format(cid))
             return return_ballot(dbsetup.Session(), uid, cid)
         except Exception as e:
             pass     # Note: If anything goes wrong, forget the return ballot and just return success for the upload

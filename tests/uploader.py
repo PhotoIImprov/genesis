@@ -128,15 +128,14 @@ if __name__ == '__main__':
 
     for c in cl:
         cid = c['id']
-        if cid != 25681:
+        if cid < 25683:
             continue
 
         theme = c['description']
         current_state = c['state']
         if current_state in ('VOTING', 'PENDING'):
-            status = setcategorystate(token, cid, category.CategoryState.UPLOAD.value)
-            # see if we have a folder with this name
             if folder_exists(theme, _rootdir):
+                status = setcategorystate(token, cid, category.CategoryState.UPLOAD.value)
                 upload_images(theme, _rootdir, cid)
 
             state = category.CategoryState.UNKNOWN.value
