@@ -84,6 +84,7 @@ d_ERROR_STRINGS = {'NO_JSON': "missing JSON data",
                    'BAD_DATEFORMAT' : "improperly formatted date string, should be YYYY-mm-dd HH:MM",
                    'TOO_EARLY': "date specified is too early",
                    'BAD_ARGS': "one or more arguments are in error",
+                   'NO_CATEGORY': "no category available for operation",
 
                    # this is if we don't map to anything
                    'UNKNOWN_ERROR': "unknown error ??"}

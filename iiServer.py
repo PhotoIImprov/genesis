@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.8.3.1' #our version string PEP 440
+__version__ = '1.8.4' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -264,6 +264,10 @@ def hello():
                 "  <ul>" \
                 "    <li>REBUILD! - show events from imageimprov; </li>" \
                 "  </ul>" \
+                "<li>v1.8.4</li>" \
+                "  <ul>" \
+                "    <li>if no votable categories, return 204</li>" \
+                "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
 
@@ -337,6 +341,8 @@ def hello():
 
     tm = categorymgr.TallyMan()
     au = usermgr.AnonUser.get_anon_user_by_id(session, 1)
+    if au is None:
+        htmlbody += "\n<br>No Anonymous User to work with (id=1)<br>"
     cl = category.Category.all_categories(session, au)
     if cl is None:
         htmlbody += "\n<br>No category information retrieved (ERROR)<br>"
@@ -820,6 +826,10 @@ def get_ballot():
          description: 'list of images to vote on with their originating category'
          schema:
            $ref: '#/definitions/CategoryBallots'
+      204:
+        description: 'no categories to vote on!'
+        schema:
+          $ref: '#/definitions/Error'
       400:
         description: 'missing required arguments'
         schema:
@@ -1149,6 +1159,10 @@ def return_ballot(session, uid, cid):
         bm = categorymgr.BallotManager()
         if cid is None:
             cl = bm.active_voting_categories(session, uid)
+            if cl is None or len(cl) == 0:
+                return make_response(jsonify({'msg': error.error_string('NO_CATEGORY')}),
+                                    status.HTTP_204_NO_CONTENT)
+
             shuffle(cl)
             c = cl[0]
         else:
