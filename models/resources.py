@@ -12,7 +12,7 @@ resource_map = None
 class Resource(Base):
     __tablename__ = 'resource'
 
-    resource_id     = Column(Integer,     primary_key=True, autoincrement=True, server_default='0') # identifier used to find relevant resource
+    resource_id     = Column(Integer,     primary_key=True, autoincrement=True) # identifier used to find relevant resource
     iso639_1        = Column(String(2),   primary_key=True) # language of resource, e.g. "EN" or "ES"
     resource_string = Column(String(500), nullable=False)                   # language-specific string
 
@@ -29,7 +29,7 @@ class Resource(Base):
     @staticmethod
     def load_resource_by_id(session, rid, lang):
         q = session.query(Resource).filter_by(resource_id = rid, iso639_1 = lang)
-        r = q.one()
+        r = q.one_or_none()
         return r
 
     @staticmethod
@@ -49,7 +49,7 @@ class Resource(Base):
 
     @staticmethod
     def find_resource_by_string(resource_string: str, lang: str, session):
-        q = session.query(Resource).filter_by(resource_string = func.binary(resource_string), iso639_1 = lang)
+        q = session.query(Resource).filter(Resource.resource_string==resource_string, Resource.iso639_1==lang)
         r = q.first()
         return r
 

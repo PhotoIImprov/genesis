@@ -1,11 +1,15 @@
 from unittest import TestCase
 import dbsetup
 from dbsetup import EnvironmentType
+import os
 
 class TestDBsetup(TestCase):
     def test_connection_string(self):
         cs = dbsetup.connection_string(EnvironmentType.DEV)
-        assert(cs == "mysql+pymysql://python:python@192.168.1.16:3306/imageimprov")
+        if os.name == 'nt': # ultraman
+            assert (cs == "mysql+pymysql://python:python@localhost:3306/imageimprov")
+        else:
+            assert(cs == "mysql+pymysql://python:python@192.168.1.16:3306/imageimprov")
         cs = dbsetup.connection_string(EnvironmentType.PROD)
         assert(cs == "mysql+pymysql://python:python@127.0.0.1:3306/imageimprov")
         cs = dbsetup.connection_string(EnvironmentType.UNKNOWN)
@@ -32,7 +36,10 @@ class TestDBsetup(TestCase):
 
     def test_image_store(self):
         str = dbsetup.image_store(EnvironmentType.DEV)
-        assert(str == '/mnt/image_files')
+        if os.name == 'nt': # ultraman
+            assert(str == 'c:/dev/image_files')
+        else:
+            assert(str == '/mnt/image_files')
         str = dbsetup.image_store(EnvironmentType.PROD)
         assert(str == '/mnt/gcs-photos')
         str = dbsetup.image_store(EnvironmentType.UNKNOWN)
@@ -43,7 +50,10 @@ class TestDBsetup(TestCase):
 
     def test_template_dir(self):
         template_dir = dbsetup.template_dir(dbsetup.EnvironmentType.DEV)
-        assert(template_dir == '/home/hcollins/dev/genesis/templates')
+        if os.name == 'nt':
+            assert (template_dir == 'c:/dev/genesis/templates')
+        else:
+            assert(template_dir == '/home/hcollins/dev/genesis/templates')
 
         template_dir = dbsetup.template_dir(dbsetup.EnvironmentType.PROD)
         assert(template_dir == '/home/bp100a/genesis/templates')

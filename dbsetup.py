@@ -29,16 +29,22 @@ class Configuration():
 
 def determine_environment(hostname):
     if hostname is None:
-        hostname = str.upper(os.uname()[1])
+        try:
+            hostname = str.upper(os.uname()[1])
+        except Exception as e:
+            hostname = str.upper(os.environ['COMPUTERNAME'])
+
     if "DEV" in hostname:
         return EnvironmentType.DEV
-    if "PROD" in hostname:
+    elif "ULTRAMAN" in hostname:
+        return EnvironmentType.DEV
+    elif "PROD" in hostname:
         return EnvironmentType.PROD
-    if "INSTANCE" in hostname:
+    elif "INSTANCE" in hostname:
         return EnvironmentType.PROD
-    if "STAGE" in hostname:
+    elif "STAGE" in hostname:
         return EnvironmentType.STAGE
-    if "QA" in hostname:
+    elif "QA" in hostname:
         return EnvironmentType.QA
 
     return EnvironmentType.UNKNOWN
@@ -48,7 +54,10 @@ def connection_string(environment):
     if environment is None:
         environment = determine_environment(None)
     if environment == EnvironmentType.DEV:
-        return 'mysql+pymysql://python:python@192.168.1.16:3306/imageimprov'
+        if os.name == 'nt': # ultraman
+            return 'mysql+pymysql://python:python@localhost:3306/imageimprov'
+        else:
+            return 'mysql+pymysql://python:python@192.168.1.16:3306/imageimprov'
 
     if environment == EnvironmentType.PROD:
         return 'mysql+pymysql://python:python@127.0.0.1:3306/imageimprov'
@@ -57,8 +66,10 @@ def connection_string(environment):
 
 def get_fontname(environment):
     if environment == EnvironmentType.DEV:
-        return '/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-B.ttf'
-
+        if os.name == 'nt': # ultraman
+            return 'c:/Windows/Boot/Fonts/segmono_boot.ttf'
+        else:
+            return '/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-B.ttf'
     if environment == EnvironmentType.PROD:
         return '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
 
@@ -66,8 +77,10 @@ def get_fontname(environment):
 
 def resource_files(environment):
     if environment == EnvironmentType.DEV:
-        return '/home/hcollins/dev/genesis/photos'
-
+        if os.name == 'nt': # ultraman
+            return 'c:/dev/genesis/photos'
+        else:
+            return '/home/hcollins/dev/genesis/photos'
     if environment == EnvironmentType.PROD:
         return '/home/bp100a/genesis/photos'
 
@@ -75,7 +88,10 @@ def resource_files(environment):
 
 def image_store(environment: EnvironmentType) -> str:
     if environment == EnvironmentType.DEV:
-        return '/mnt/image_files'
+        if os.name == 'nt': # ultraman
+            return 'c:/dev/image_files'
+        else:
+            return '/mnt/image_files'
 
     if environment == EnvironmentType.PROD:
         return '/mnt/gcs-photos'
@@ -88,7 +104,10 @@ def template_dir(environment: EnvironmentType) -> str:
         environment = determine_environment(None)
 
     if environment == EnvironmentType.DEV:
-        return '/home/hcollins/dev/genesis/templates'
+        if os.name == 'nt': # ultraman
+            return 'c:/dev/genesis/templates'
+        else:
+            return '/home/hcollins/dev/genesis/templates'
 
     if environment == EnvironmentType.PROD:
         return '/home/bp100a/genesis/templates'

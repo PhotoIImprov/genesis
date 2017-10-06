@@ -572,7 +572,14 @@ class TestPhotoUpload(iiBaseUnitTest):
         else:
             self.set_token(token) # use token passed in
 
-        cid = TestCategory().get_category_by_state(category.CategoryState.UPLOAD, token=self.get_token())
+        session = dbsetup.Session()
+        category_name = 'test_binary_upload()'
+        dt_start = categorymgr.CategoryManager.next_category_start(session)
+        start_date = dt_start.strftime("%Y-%m-%d %H:%M")
+        cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_name)
+        c = cm.create_category(session, category.CategoryType.OPEN.value)
+        c.state = category.CategoryState.UPLOAD.value
+        session.commit()
 
         # we have our user, now we need a photo to upload
         ft = open('../photos/TEST1.JPG', mode='rb')
@@ -580,31 +587,22 @@ class TestPhotoUpload(iiBaseUnitTest):
         ph = ft.read()
         ft.close()
         assert (ph is not None)
-        files = {'photo': ph}
+        rsp = self.app.post(path='/jpeg/{0}'.format(c.id), headers=self.get_header_authorization(), data=ph, content_type='image/jpeg')
 
-#        rsp = self.app.request(method='POST', url='/jpeg/{0}'.format(cid), files=files, headers=self.get_header_authorization())
-        rsp = self.app.post(path='/jpeg/{0}'.format(cid), headers=self.get_header_authorization(), data=ph, content_type='image/jpeg')
-
-        assert(rsp.status_code == 201 or rsp.status_code == 200)
+        assert(rsp.status_code == 201)
         data = json.loads(rsp.data.decode("utf-8"))
-        if rsp.status_code == 201:
-            filename = data['filename']
-            assert(filename is not None)
-            # let's read back the filename while we are here
-            rsp = self.app.get(path='/image', query_string=urlencode({'filename': filename}),
-                               headers=self.get_header_html())
+        filename = data['filename']
+        assert(filename is not None)
+        # let's read back the filename while we are here
+        rsp = self.app.get(path='/image', query_string=urlencode({'filename': filename}),
+                           headers=self.get_header_html())
 
-            assert (rsp.status_code == 200)
-            data = json.loads(rsp.data.decode("utf-8"))
-            b64_photo = data['image']
-            assert (len(b64_photo) == len(b64img))
-        else:
-            ballots = data['ballots']
-            if len(ballots) != 4:
-                assert (False)
-            assert (len(ballots) == 4)
+        assert (rsp.status_code == 200)
+        data = json.loads(rsp.data.decode("utf-8"))
+        b64_photo = data['image']
+        binary_photo = base64.b64decode(b64_photo)
+        assert (len(binary_photo) == len(ph))
 
-        self._cid = cid
         self.tearDown()
         return
 
@@ -739,7 +737,6 @@ class TesttVoting(iiBaseUnitTest):
 
     _uid = None
     def test_ballot_success(self):
-        self.get_ballot_by_token(None)
         return
 
     def ballot_response(self, rsp):
@@ -754,7 +751,10 @@ class TesttVoting(iiBaseUnitTest):
         for be_dict in ballots:
             bid = be_dict['bid']
             image = be_dict['image']
-            path = "/mnt/image_files/thumb{}.jpeg".format(bid)
+            if os.name == 'nt':  # ultraman
+                path = "c:/dev/image_files/thumb{}.jpeg".format(bid)
+            else:
+                path = "/mnt/image_files/thumb{}.jpeg".format(bid)
             thumbnail = base64.b64decode(image)
             fp = open(path, "wb")
             fp.write(thumbnail)
@@ -791,7 +791,7 @@ class TesttVoting(iiBaseUnitTest):
 
         rsp = self.app.get(path='/ballot', query_string=urlencode({'category_id':cid}),
                             headers=self.get_header_html())
-
+        assert(rsp.status_code == 200)
         return self.ballot_response(rsp)
 
     def test_ballot_invalid_category_id(self):
@@ -886,8 +886,14 @@ class TesttVoting(iiBaseUnitTest):
 
         self.create_testuser_get_token()
 
-        # first make sure we have an uploadable category
-        cid = TestCategory().get_category_by_state(category.CategoryState.UPLOAD, self.get_token())
+        # first create an upload-able category
+        session = dbsetup.Session()
+        start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72,
+                                         description="test_voting")
+        c = cm.create_category(session, category.CategoryType.OPEN.value)
+        session.commit()
+        session.close()
 
         ballots = self.get_ballot_by_token(self.get_token()) # read a ballot
         assert(ballots is not None)
@@ -905,7 +911,7 @@ class TesttVoting(iiBaseUnitTest):
         jvotes = json.dumps(dict({'votes':votes}))
 
         # now switch our category over to voting
-        TestCategory().set_category_state(cid, category.CategoryState.VOTING)
+        TestCategory().set_category_state(c.id, category.CategoryState.VOTING)
 
         rsp = self.app.post(path='/vote', data=jvotes, headers=self.get_header_json())
         assert(rsp.status_code == 200)

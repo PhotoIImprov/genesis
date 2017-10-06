@@ -16,8 +16,6 @@ import base64
 import dbsetup
 import iiServer
 from flask import Flask
-import cv2
-import numpy
 import subprocess
 from controllers import categorymgr
 
@@ -203,7 +201,7 @@ class TestPhoto(DatabaseTest):
         # first we need a resource
         r = resources.Resource.load_resource_by_id(self.session, rid=5555, lang='EN')
         if r is None:
-            r = resources.Resource.create_resource(rid=5555, lang='EN', resource_str='Kittens')
+            r = resources.Resource.create_resource(rid=5555, language='EN', resource_str='Kittens')
             resources.Resource.write_resource(self.session, r)
 
         # now create our category
@@ -407,7 +405,7 @@ class TestPhoto(DatabaseTest):
         waterdraw = ImageDraw.ImageDraw(watermark, "RGBA")
 
         # Place the text at (10, 10) in the upper left corner. Text will be white.
-        font_path = "/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-B.ttf"
+        font_path = dbsetup.get_fontname(dbsetup.determine_environment(hostname=None))
         font = ImageFont.truetype(font=font_path, size=20)
 
         im = Image.open(path + watermark_file)
@@ -543,9 +541,13 @@ class TestPhoto(DatabaseTest):
             p.create_thumb_PIL(fn)
 
             # use shell command to compare binary files
-            r_path = '/home/hcollins/dev/genesis/photos/results/pil_' + pic
             try:
-                command = ['cmp', '--verbose', fn, r_path]
+                if os.name == 'nt':  # ultraman
+                    r_path = 'c:/dev/genesis/photos/results/pil_' + pic
+                    command = ['fc', os.path.normpath(fn), os.path.normpath(r_path)]
+                else:
+                    r_path = '/home/hcollins/dev/genesis/photos/results/pil_' + pic
+                    command = ['cmp', '--verbose', fn, r_path]
                 status = subprocess.call(command, shell=False)
                 assert(status == 0)
             except Exception as e:

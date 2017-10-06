@@ -18,9 +18,11 @@ class TestBallot(DatabaseTest):
         # first we need a resource
         r = resources.Resource.load_resource_by_id(self.session, rid=5555, lang='EN')
         if r is None:
-            r = resources.Resource.create_resource(rid=5555, lang='EN', resource_str='Kittens')
-            resources.Resource.write_resource(self.session, r)
-
+            try:
+                r = resources.Resource.create_resource(rid=5555, language='EN', resource_str='Kittens')
+                resources.Resource.write_resource(self.session, r)
+            except Exception as e:
+                assert(False)
         # now create our category & the image indexer
         s_date = datetime.datetime.now()
         e_date =  s_date + datetime.timedelta(days=1)
@@ -53,7 +55,7 @@ class TestBallot(DatabaseTest):
         # first we need a resource
         r = resources.Resource.load_resource_by_id(self.session, rid=5555, lang='EN')
         if r is None:
-            r = resources.Resource.create_resource(rid=5555, lang='EN', resource_str='Kittens')
+            r = resources.Resource.create_resource(rid=5555, language='EN', resource_str='Kittens')
             resources.Resource.write_resource(self.session, r)
 
         # now create our category & the image indexer

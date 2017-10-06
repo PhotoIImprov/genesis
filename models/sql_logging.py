@@ -21,7 +21,10 @@ class Log(Base):
         self.level = level
         self.trace = trace
         self.msg = msg
-        self.host = str.upper(os.uname()[1])
+        try:
+            self.host = str.upper(os.uname()[1])
+        except Exception as e:
+            self.host = str.upper(os.environ['COMPUTERNAME'])
 
     def __unicode__(self):
         return self.__repr__()

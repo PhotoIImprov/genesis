@@ -125,7 +125,7 @@ class TestVoting(DatabaseTest):
         self.session.flush()
         return c
 
-    def create_user(self):
+    def create_user(self) -> (usermgr.User, usermgr.AnonUser):
         # create a user
         guid = str(uuid.uuid1())
         guid = guid.upper().translate({ord(c): None for c in '-'})
@@ -136,15 +136,16 @@ class TestVoting(DatabaseTest):
 
         return u, au
 
-    def upload_image(self, pi, c, u):
+    def upload_image(self, session, pi, c, u) -> photo.Photo:
         fo = photo.Photo()
         fo.category_id = c.id
 
         try:
-            fo.save_user_image(self.session, pi, u.id, c.id)
+            fo.save_user_image(session, pi, u.id, c.id)
         except BaseException as e:
             assert(e.args[0] == errno.EINVAL)
             assert(e.args[1] == "invalid user")
+        return fo
 
     def test_create_ballot_list_upload_category(self):
         # need to test when everything has been voted on max # of times
@@ -184,7 +185,7 @@ class TestVoting(DatabaseTest):
 
         _NUM_PHOTOS_UPLOADED = 40
         for i in range(0,_NUM_PHOTOS_UPLOADED):
-            self.upload_image(pi, c, u)
+            self.upload_image(self.session, pi, c, u)
 
         # switch category to voting state
         c.state = category.CategoryState.VOTING.value
@@ -276,25 +277,35 @@ class TestVoting(DatabaseTest):
         self.setup()
 
         # create a new category so we can add tags to it!
-        au = self.get_active_user()
+        u, au = self.create_user()
         category_description = 'test_ballot_entry_with_tags()'
         start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
         cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
         c = cm.create_category(self.session, category.CategoryType.OPEN.value)
+        c.state = category.CategoryState.UPLOAD.value
+        self.session.add(c)
+        self.session.commit()
 
         tag_list = category.CategoryTagList()
         for i in range(1,5):
             r = cm.create_resource(self.session,'tag{0}'.format(i))
             ctag = category.CategoryTag(category_id=c.id, resource_id = r.resource_id)
             self.session.add(ctag)
-
         self.session.commit()
 
         tag_list.read_category_tags(c.id, self.session)
 
-        # Now create a ballot entry for this category
-        pid = self.get_active_photo()
-        be = voting.BallotEntry(user_id=au.id, category_id=c.id, photo_id=pid)
+        # read our test file
+        ft = open('../photos/TEST6.JPG', 'rb')
+        pi = photo.PhotoImage()
+        pi._binary_image = ft.read()
+        pi._extension = 'JPEG'
+        ft.close()
+
+        p = self.upload_image(self.session, pi, c, u)
+        self.session.commit() # write the Photo object out
+
+        be = voting.BallotEntry(user_id=au.id, category_id=c.id, photo_id=p.id)
         be.bid = 1
         be.orientation = 6
         be.image = b'\x00\x00\0x1'
@@ -331,7 +342,7 @@ class TestVoting(DatabaseTest):
 
         _NUM_PHOTOS_UPLOADED = 4
         for i in range(0,_NUM_PHOTOS_UPLOADED):
-            self.upload_image(pi, c, u)
+            self.upload_image(self.session, pi, c, u)
 
         # switch category to voting state
         c.state = category.CategoryState.VOTING.value
@@ -378,7 +389,7 @@ class TestVoting(DatabaseTest):
 
         _NUM_PHOTOS_UPLOADED = 4
         for i in range(0, _NUM_PHOTOS_UPLOADED):
-            self.upload_image(pi, c, u)
+            self.upload_image(self.session, pi, c, u)
 
         # switch category to voting state
         c.state = category.CategoryState.VOTING.value
@@ -474,7 +485,7 @@ class TestVoting(DatabaseTest):
         pi._extension = 'JPEG'
 
         for i in range(0, num_images):
-            self.upload_image(pi, c, u)
+            self.upload_image(self.session, pi, c, u)
 
     def test_upload_ballot_return(self):
         '''

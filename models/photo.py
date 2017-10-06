@@ -118,22 +118,21 @@ class Photo(Base):
         # the path may not be created, so we try to write the file
         # catch the exception and try again
         try:
-            Photo.write_file(path_and_name, pi._binary_image)
+            Photo.write_file(os.path.normpath(path_and_name), pi._binary_image)
         except OSError as err:
             # see if this is our "no such dir error", if so we can try again, otherwise leave
             if err.errno != errno.ENOENT:
                 raise
             # okay, the directory doesn't exist, so make it
             try:
-                path_only = os.path.dirname(path_and_name)
-                Photo.mkdir_p(path_only)
+                path_only = os.path.dirname(os.path.normpath(path_and_name))
+                Photo.mkdir_p(os.path.normpath(path_only))
             except OSError as err:
                 if err.errno != errno.EEXIST:
                     raise
 
             # try writing again
-            Photo.write_file(path_and_name, pi._binary_image)
-
+            Photo.write_file(os.path.normpath(path_and_name), pi._binary_image)
         return
 
     def create_name(self) -> str:
@@ -241,7 +240,7 @@ class Photo(Base):
                 return b64_utf8
 
             t_fn = self.create_thumb_filename()
-            image = Image.open(t_fn)
+            image = Image.open(os.path.normpath(t_fn) )
 
             b = BytesIO()
             image.save(b, format='JPEG')  # , exif=exif_bytes)
@@ -473,9 +472,9 @@ class Photo(Base):
     @retry(wait_exponential_multiplier=100, wait_exponential_max=1000, stop_max_attempt_number=10)
     def gcs_save_image(self, pil_img: Image, fn: str, exif_bytes: bytes) -> None:
         if exif_bytes is None:
-            pil_img.save(fn)
+            pil_img.save(os.path.normpath(fn))
         else:
-            pil_img.save(fn, exif=exif_bytes)
+            pil_img.save(os.path.normpath(fn), exif=exif_bytes)
     #
     # @retry(wait_exponential_multiplier=100, wait_exponential_max=1000, stop_max_attempt_number=10)
     # def gcs_save_image_fast(self, img, fn: str, exif_bytes: bytes) -> bool:

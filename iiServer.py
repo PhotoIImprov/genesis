@@ -280,9 +280,11 @@ def hello():
     htmlbody += "\n<br>Flask instance path = \"" + app.instance_path + "\"\n"
     htmlbody += "\n<br>Flask root path = \"" + app.root_path + "\"\n"
 
-    hostname = os.uname()[1]
-    if hostname is None:
-        hostname = '<i>unknown</i>!'
+    hostname = 'unknown ??'
+    try:
+        hostname = os.uname()[1]
+    except AttributeError as e:
+        hostname = os.environ['COMPUTERNAME']
     htmlbody += "\n<br><b>hostname: </b>" + hostname
     htmlbody += "<br>\n"
 
@@ -1176,7 +1178,7 @@ def return_ballot(session, uid, cid):
         allow_upload = c.state == category.CategoryState.UPLOAD.value
 
         ballots = bm.create_ballot(session, uid, c, allow_upload)
-        if ballots is None:
+        if ballots is None or len(ballots._ballotentries) == 0:
             logger.info(msg="[return_ballot]no ballots returned for category #{0}".format(c.id))
             rsp =  make_response(jsonify({'msg': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
