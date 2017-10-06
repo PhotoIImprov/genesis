@@ -108,12 +108,18 @@ class TestPhoto(DatabaseTest):
 
     def test_read_thumbnail_image_no_file(self):
         p = photo.Photo()
-        p.filepath = "/mnt/image_files"
+        if os.name == 'nt':  #ultraman
+            p.filepath = "c:/dev/image_files"
+        else:
+            p.filepath = "/mnt/image_files"
         p.filename = "foobar.gif"
 
-        b64_utf8 = p.read_thumbnail_b64_utf8()
-        assert(b64_utf8 == None)
-
+        try:
+            b64_utf8 = p.read_thumbnail_b64_utf8()
+            assert(False)
+        except Exception as e:
+            assert(e.args[0] == errno.ENOENT)
+            assert(e.args[1] == 'No such file or directory')
     def test_set_exif_data(self):
         pm = photo.PhotoMeta(640, 480, 'hashstring substitute')
         pm.set_exif_data(None)

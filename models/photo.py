@@ -64,9 +64,16 @@ class Photo(Base):
         self.id = kwargs.get('pid')
 
     @staticmethod
-    def count_by_category(session, cid: int) -> int:
+    def count_by_category(session, cid: int, uid: int=None) -> int:
         # let's count how many photos are uploaded for this category
-        num_photos = session.query(Photo).filter_by(category_id = cid).count()
+        if uid is None:
+            num_photos = session.query(Photo).\
+                filter(Photo.category_id == cid).count()
+        else:
+            num_photos = session.query(Photo).\
+                filter(Photo.category_id == cid).\
+                filter(Photo.user_id != uid).count()
+
         return num_photos
 
     @staticmethod
@@ -252,9 +259,9 @@ class Photo(Base):
             return b64_utf8
 
         except Exception as e:
-            str_e = str(e)
             logger.exception(msg='error reading thumbnail image')
-            return None
+            raise
+#            return None
 
     # SaveUserImage()
     # ===============

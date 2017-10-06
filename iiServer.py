@@ -1536,7 +1536,7 @@ def store_photo(pi: photo.PhotoImage, uid: int, cid: int):
         if d['error'] is not None:
             rsp = make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
         else:
-            num_photos_in_category = photo.Photo.count_by_category(session, cid)
+            num_photos_in_category = photo.Photo.count_by_category(session, cid, uid)
             rsp = make_response(jsonify({'msg': error.error_string('PHOTO_UPLOADED'), 'filename': d['arg']}), status.HTTP_201_CREATED)
 
     except Exception as e:
