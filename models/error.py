@@ -85,6 +85,7 @@ d_ERROR_STRINGS = {'NO_JSON': "missing JSON data",
                    'TOO_EARLY': "date specified is too early",
                    'BAD_ARGS': "one or more arguments are in error",
                    'NO_CATEGORY': "no category available for operation",
+                   'BAD_PHOTO': "bad photo, cannot make thumbnail",
 
                    # this is if we don't map to anything
                    'UNKNOWN_ERROR': "unknown error ??"}

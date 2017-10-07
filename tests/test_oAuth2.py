@@ -62,7 +62,12 @@ class Test_oAuth2(DatabaseTest):
         assert(u is not None)
         self.teardown()
 
-    def test_facebook_with_good_token(self):
+    def HIDE_test_facebook_with_good_token(self):
+        '''
+        this requires a live internet connection since it
+        actually hits Facebook!
+        :return:
+        '''
         self.setup()
 
         token = 'EAAU953rqsQoBAAovb10RC4VO0lsAdkcXFsIkpaZAaDO1yAOpgvsG5Nq00qOXZBcTfIYbqhBbp7ZAZCHctO7ke2ZC6UN5myP2A3OOZAiRrXfLC91JRQ9JZB95XSrRra9oO1BE1CQhQbZA2iRVfKZBYsGJdykEgtwaMs0EZD'

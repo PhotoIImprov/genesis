@@ -526,7 +526,7 @@ class TestEvent(DatabaseTest):
 
             self.session.commit()
 
-    def test_eventlist(self):
+    def test_eventlist_next(self):
         self.setup()
 
         # create Event & categories filled with photos
@@ -536,6 +536,21 @@ class TestEvent(DatabaseTest):
         d_events = categorymgr.EventManager.event_list(self.session, au=au, dir='next', cid=0)
         assert(d_events is not None)
         assert(len(d_events['events']) == 3)
-        str_events = json.dumps(d_events)
+
+        d_events = categorymgr.EventManager.event_list(self.session, au=au, dir='prev', cid=d_events['events'][2]['categories'][1]['id'])
+        assert(d_events is not None)
+        assert(len(d_events['events']) == 3)
+
+        self.teardown()
+
+    def test_eventlist_prev(self):
+        self.setup()
+
+        # create Event & categories filled with photos
+        au = self.create_anon_user(self.session, make_staff=False)
+        self.create_event_categories(au, num_events=3)
+
+        d_events = categorymgr.EventManager.event_list(self.session, au=au, dir='prev', cid=0)
+        assert(d_events is None)
 
         self.teardown()

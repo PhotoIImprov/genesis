@@ -161,6 +161,19 @@ class TestCategory(DatabaseTest):
 
         self.teardown()
 
+    def test_category_manager_baddate(self):
+        self.setup()
+
+        guid = str(uuid.uuid1())
+        category_description = guid.upper().translate({ord(c): None for c in '-'})
+        start_date = datetime.datetime.now().strftime('%m-%Y-%d %H:%M')
+        try:
+            cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
+            assert(False)
+        except Exception as e:
+            assert('does not match format' in e.args[0])
+        self.teardown()
+
     def test_category_manager(self):
         self.setup()
 

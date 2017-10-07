@@ -361,3 +361,123 @@ class TestEngagement(DatabaseTest):
         assert(d_rewards['unspentBulbs'] == engagement._REWARDS['amount'][engagement.RewardType.FIRSTPHOTO] + engagement._REWARDS['amount'][engagement.RewardType.DAYSPHOTO_7])
 
         self.teardown()
+
+    def test_consecutive_30day_photo(self):
+        self.setup()
+        session = dbsetup.Session()
+        au = self.create_anon_user(session)
+        assert(au is not None)
+
+        # create a category we can test in
+        category_description = str(uuid.uuid1()).upper().translate({ord(c): None for c in '-'})
+        start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+
+        cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
+        c = cm.create_category(session, category.CategoryType.OPEN.value)
+        session.commit()
+
+        # now create photo & photometa data records
+        pl = []
+        day_span = 30
+        dt_now = datetime.datetime.now()
+        dt_start = dt_now - datetime.timedelta(days=day_span)
+        dt = dt_start
+        for i in range(0, day_span+1):
+            p = photo.Photo()
+            p.created_date = dt
+            pm = photo.PhotoMeta(height=0, width=0, th_hash=None)
+            pm.created_date = dt
+            p.user_id = au.id
+            p.category_id = c.id
+            p.filepath = 'boguspath'
+            p.filename = str(uuid.uuid1()).upper().translate({ord(c): None for c in '-'})
+            p.likes = 0
+            p.score = i
+            p.active = 1
+            p._photometa = pm
+            session.add(p)
+            pl.append(p)
+            dt += datetime.timedelta(days=1)
+
+        session.commit()
+
+        categorymgr.RewardManager().update_rewards_for_photo(session, au)
+
+        # now ask for the high scored photo
+        p = categorymgr.RewardManager.max_score_photo(session, au)
+        assert(p is not None)
+        assert(p.score == i)
+
+        d_rewards = categorymgr.RewardManager.rewards(session, engagement.RewardType.LIGHTBULB, au)
+        assert(d_rewards is not None)
+        assert(d_rewards['HighestRatedPhotoURL'] is not None)
+        assert(not d_rewards['vote30'])
+        assert(not d_rewards['vote100'])
+        assert(d_rewards['firstphoto'])
+        assert(d_rewards['upload7'])
+        assert(d_rewards['upload30'])
+        assert(not d_rewards['upload100'])
+        assert(d_rewards['totalLightbulbs'] == engagement._REWARDS['amount'][engagement.RewardType.FIRSTPHOTO] + engagement._REWARDS['amount'][engagement.RewardType.DAYSPHOTO_7]+engagement._REWARDS['amount'][engagement.RewardType.DAYSPHOTO_30])
+        assert(d_rewards['unspentBulbs'] == engagement._REWARDS['amount'][engagement.RewardType.FIRSTPHOTO] + engagement._REWARDS['amount'][engagement.RewardType.DAYSPHOTO_7]+ engagement._REWARDS['amount'][engagement.RewardType.DAYSPHOTO_30])
+
+        self.teardown()
+
+    def test_consecutive_100day_photo(self):
+        self.setup()
+        session = dbsetup.Session()
+        au = self.create_anon_user(session)
+        assert(au is not None)
+
+        # create a category we can test in
+        category_description = str(uuid.uuid1()).upper().translate({ord(c): None for c in '-'})
+        start_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+
+        cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_description)
+        c = cm.create_category(session, category.CategoryType.OPEN.value)
+        session.commit()
+
+        # now create photo & photometa data records
+        pl = []
+        day_span = 100
+        dt_now = datetime.datetime.now()
+        dt_start = dt_now - datetime.timedelta(days=day_span)
+        dt = dt_start
+        for i in range(0, day_span+1):
+            p = photo.Photo()
+            p.created_date = dt
+            pm = photo.PhotoMeta(height=0, width=0, th_hash=None)
+            pm.created_date = dt
+            p.user_id = au.id
+            p.category_id = c.id
+            p.filepath = 'boguspath'
+            p.filename = str(uuid.uuid1()).upper().translate({ord(c): None for c in '-'})
+            p.likes = 0
+            p.score = i
+            p.active = 1
+            p._photometa = pm
+            session.add(p)
+            pl.append(p)
+            dt += datetime.timedelta(days=1)
+
+        session.commit()
+
+        categorymgr.RewardManager().update_rewards_for_photo(session, au)
+
+        # now ask for the high scored photo
+        p = categorymgr.RewardManager.max_score_photo(session, au)
+        assert(p is not None)
+        assert(p.score == i)
+
+        d_rewards = categorymgr.RewardManager.rewards(session, engagement.RewardType.LIGHTBULB, au)
+        assert(d_rewards is not None)
+        assert(d_rewards['HighestRatedPhotoURL'] is not None)
+        assert(not d_rewards['vote30'])
+        assert(not d_rewards['vote100'])
+        assert(d_rewards['firstphoto'])
+        assert(d_rewards['upload7'])
+        assert(d_rewards['upload30'])
+        assert(d_rewards['upload100'])
+        assert(d_rewards['totalLightbulbs'] == engagement._REWARDS['amount'][engagement.RewardType.FIRSTPHOTO] + engagement._REWARDS['amount'][engagement.RewardType.DAYSPHOTO_7]+engagement._REWARDS['amount'][engagement.RewardType.DAYSPHOTO_30]+engagement._REWARDS['amount'][engagement.RewardType.DAYSPHOTO_100])
+        assert(d_rewards['unspentBulbs'] == engagement._REWARDS['amount'][engagement.RewardType.FIRSTPHOTO] + engagement._REWARDS['amount'][engagement.RewardType.DAYSPHOTO_7]+ engagement._REWARDS['amount'][engagement.RewardType.DAYSPHOTO_30]+ engagement._REWARDS['amount'][engagement.RewardType.DAYSPHOTO_100])
+
+        self.teardown()

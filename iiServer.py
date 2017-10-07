@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.8.5' #our version string PEP 440
+__version__ = '1.8.6' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -271,6 +271,12 @@ def hello():
                 "<li>v1.8.5</li>" \
                 "  <ul>" \
                 "    <li>more logging around photo & ballot</li>" \
+                "  </ul>" \
+                "<li>v1.8.6</li>" \
+                "  <ul>" \
+                "    <li>more logging around ballot</li>" \
+                "    <li>restructure try-except-finally logic</li>" \
+                "    <li>clean up testing</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -1151,15 +1157,16 @@ def cast_vote():
 
     return return_ballot(session, uid, None)
 
+
 def return_ballot(session, uid, cid):
-    '''
+    """
     If category passed in is in the UPLOAD state, then we'll
     allow voting on it.
     :param session:
     :param uid:
     :param cid:
     :return:
-    '''
+    """
     rsp = None
     try:
         bm = categorymgr.BallotManager()
@@ -1168,36 +1175,36 @@ def return_ballot(session, uid, cid):
             if cl is None or len(cl) == 0:
                 logger.info(msg="[return_ballot]no categories to vote from!")
                 return make_response(jsonify({'msg': error.error_string('NO_CATEGORY')}),
-                                    status.HTTP_204_NO_CONTENT)
-
+                                     status.HTTP_204_NO_CONTENT)
             shuffle(cl)
             c = cl[0]
         else:
             c = category.Category.read_category_by_id(cid, session)
 
         allow_upload = c.state == category.CategoryState.UPLOAD.value
-
         ballots = bm.create_ballot(session, uid, c, allow_upload)
         if ballots is None or len(ballots._ballotentries) == 0:
             logger.info(msg="[return_ballot]no ballots returned for category #{0}".format(c.id))
-            rsp =  make_response(jsonify({'msg': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
+            session.close()
+            return make_response(jsonify({'msg': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             ballots.read_photos_for_ballots(session)
             j_ballots = ballots.to_json()
             d = {'category': c.to_json(), 'ballots': j_ballots}
-            rsp = make_response(jsonify(d), status.HTTP_200_OK)
             session.commit()
             logger.info(msg=ballots.to_log())
+            session.close()
+            return make_response(jsonify(d), status.HTTP_200_OK)
     except BaseException as e:
         session.rollback()
-        str_e = str(e)
-        logger.exception(msg=str_e)
-    finally:
         session.close()
-        if rsp is None:
-            logger.info(msg="[return_ballot]no ballots, weird error")
-            rsp = make_response(jsonify({'msg': error.error_string('NO_BALLOT')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return rsp
+
+    if c is not None:
+        cid = c.id
+    else:
+        cid = 'None'
+    logger.info(msg="[return_ballot]no ballots, weird error, c.id ={}".format(cid))
+    return make_response(jsonify({'msg': error.error_string('NO_BALLOT')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @app.route("/image", methods=['GET'])
 @jwt_required()
@@ -1534,29 +1541,30 @@ def store_photo(pi: photo.PhotoImage, uid: int, cid: int):
         d = p.save_user_image(session, pi, uid, cid)
         session.commit()
         if d['error'] is not None:
-            rsp = make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
-        else:
-            num_photos_in_category = photo.Photo.count_by_category(session, cid, uid)
-            rsp = make_response(jsonify({'msg': error.error_string('PHOTO_UPLOADED'), 'filename': d['arg']}), status.HTTP_201_CREATED)
-
+            return make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
+        num_photos_in_category = photo.Photo.count_by_category(session, cid, uid)
+        rsp = make_response(jsonify({'msg': error.error_string('PHOTO_UPLOADED'), 'filename': d['arg']}), status.HTTP_201_CREATED)
     except Exception as e:
         session.rollback()
-        logger.exception(msg=str(e))
-    finally:
         session.close()
-        if rsp is None:
-            rsp = make_response(jsonify({'msg': error.error_string('UPLOAD_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+        logger.exception(msg=str(e))
+        if 'cannot identify image file' in e.args[0]:
+            return make_response(jsonify({'msg': error.error_string('BAD_PHOTO')}),
+                                 status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'msg': error.error_string('UPLOAD_ERROR')}),
+                             status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # if the user has successfully uploaded a picture, and there are
     # at least 50 images in this category, then let's send back
     # a ballot for that category
-    if rsp.status_code == status.HTTP_201_CREATED and num_photos_in_category > dbsetup.Configuration.UPLOAD_CATEGORY_PICS:
+    if num_photos_in_category > dbsetup.Configuration.UPLOAD_CATEGORY_PICS:
         try:
             logger.info(msg="[store_photo]returning a ballot for category #{0}".format(cid))
-            return return_ballot(dbsetup.Session(), uid, cid)
+            return return_ballot(session, uid, cid)
         except Exception as e:
             pass     # Note: If anything goes wrong, forget the return ballot and just return success for the upload
 
+    session.close()
     return rsp
 
 @app.route("/jpeg/<int:cid>", methods=['POST'])
@@ -1616,14 +1624,8 @@ def jpeg_photo_upload(cid: int):
         pi._extension = 'JPEG'
         u = current_identity
         uid = u.id
-    except KeyError:
-        uid = None
-        pass
     except BaseException as e:
         logger.exception(msg=str(e))
-        return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
-
-    if cid is None or uid is None or request.content_length < 100:
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     return store_photo(pi, uid, cid)
@@ -1748,13 +1750,13 @@ def log_event():
     return make_response(jsonify({'msg': 'OK'}), status.HTTP_200_OK)
 
 def register_anonuser(session, guid):
-    '''
+    """
     See if the specified anonymous user is in the system,
     if not create the acount.
     :param session:
     :param guid:
     :return:
-    '''
+    """
     foundAnonUser = usermgr.AnonUser.find_anon_user(session, guid)
     if foundAnonUser is not None:
         logger.info(msg="[/register] anonymous user already exists for {0}".format(guid))
@@ -1771,8 +1773,9 @@ def register_anonuser(session, guid):
 
     return None
 
+
 def register_legituser(session, emailaddress, password, guid):
-    '''
+    """
     See if the specified user is in the system, if not then create
     a new account.
     :param session:
@@ -1780,7 +1783,7 @@ def register_legituser(session, emailaddress, password, guid):
     :param password:
     :param guid:
     :return:
-    '''
+    """
     foundUser = usermgr.User.find_user_by_email(session, emailaddress)
     if foundUser is not None:
         logger.info(msg='[/register] User already exists {0}'.format(emailaddress))
@@ -2201,14 +2204,16 @@ def reset_password():
 
     return rsp
 
+
 @app.route('/submissions')
 @jwt_required()
 def my_submissions_tst():
-    '''
+    """
     needed to support /<campaign> route and testing
     :return:
-    '''
+    """
     return my_submissions(None, None)
+
 
 @app.route('/submissions/<string:dir>/<int:cid>')
 @jwt_required()
@@ -2342,14 +2347,16 @@ def my_submissions(dir: str, cid: int):
 
     return rsp
 
+
 @app.route('/update/photo', methods=['PUT'])
 def update_photometa2():
     return update_photometa(0)
 
+
 @app.route('/update/photo/<int:pid>', methods=['PUT'])
 @timeit()
 @jwt_required()
-def update_photometa(pid):
+def update_photometa(pid: int):
     """
     Update Photo Data
     Update information associated with an image
@@ -2399,7 +2406,6 @@ def update_photometa(pid):
     json_data = request.get_json()
     try:
         u = current_identity
-        uid = u.id
         like = json_data['like']
         offensive = json_data['flag']
         tags = json_data['tags']
@@ -2410,7 +2416,7 @@ def update_photometa(pid):
     session = dbsetup.Session()
     rsp = None
     try:
-        fbm = categorymgr.FeedbackManager(uid=uid, pid=pid, like=like, offensive=offensive, tags=tags)
+        fbm = categorymgr.FeedbackManager(uid=u.id, pid=pid, like=like, offensive=offensive, tags=tags)
         fbm.create_feedback(session)
         session.commit()
         rsp = make_response(jsonify({'msg': 'feedback updated'}), status.HTTP_200_OK)
@@ -2500,7 +2506,6 @@ def create_event():
     json_data = request.get_json()
     try:
         u = current_identity
-        uid = u.id
         eventname = json_data['event_name']
         numplayers = json_data['num_players']
         upload_duration = json_data['upload_duration']
@@ -2530,6 +2535,7 @@ def create_event():
         return make_response(jsonify({'msg': 'error creating event'}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return make_response(jsonify({'msg': 'something really bad happened...'}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @app.route('/joinevent', methods=['POST'])
 @jwt_required()
@@ -2585,6 +2591,7 @@ def join_event():
         return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)
 
     return make_response(jsonify({'msg': 'event not found or not categories'}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @app.route('/event', methods=['GET'])
 @jwt_required()
@@ -2658,6 +2665,7 @@ def event_status():
         return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)
 
     return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_501_NOT_IMPLEMENTED)
+
 
 @app.route('/event/<int:event_id>', methods=['GET'])
 @jwt_required()
@@ -2767,6 +2775,7 @@ def event_details(event_id):
         return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)
 
     return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_501_NOT_IMPLEMENTED)
+
 
 @app.route('/like/<string:dir>/<int:cid>', methods=['GET'])
 @jwt_required()
@@ -2884,6 +2893,7 @@ def mylikes(dir: str, cid: int):
 
     return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_501_NOT_IMPLEMENTED)
 
+
 @app.route('/badges', methods=['GET'])
 @jwt_required()
 @timeit()
@@ -2970,6 +2980,7 @@ def get_reward():
         return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return make_response(jsonify({'msg': error.error_string('NOT_IMPLEMENTED')}), status.HTTP_501_NOT_IMPLEMENTED)
+
 
 @app.route('/events/<string:dir>/<int:cid>', methods=['GET'])
 @jwt_required()
@@ -3074,11 +3085,13 @@ def event_photos(dir: str, cid: int):
 def default_path(campaign: str):
     return landingpage(campaign)
 
+
 @app.route('/')
 def root_path():
     o = urlparse(request.base_url)
     target_url = o.scheme + '://' + o.netloc + '/fun/index.html'
     return redirect(target_url, code=302)
+
 
 if __name__ == '__main__':
     dbsetup.metadata.create_all(bind=dbsetup.engine, checkfirst=True)

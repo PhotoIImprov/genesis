@@ -66,8 +66,6 @@ class CategoryManager():
 
         # look up resource, see if we already have it
         r = self.create_resource(session, self._description)
-        if r is None:
-            return None
 
         # we have stashed (or found) our name, time to create the category
         c = category.Category(upload_duration=self._duration_upload, vote_duration=self._duration_vote, start_date=self._start_date, rid=r.resource_id, type=type)
@@ -102,7 +100,7 @@ class CategoryManager():
                 filter(category.Category.state != category.CategoryState.CLOSED.value) . \
                 filter(event.EventUser.user_id == au.id)
 
-            event_cl  = q.all()
+            event_cl = q.all()
         except Exception as e:
             logger.exception(msg="error reading event category list for user:{}".format(u.id))
             raise
@@ -117,14 +115,14 @@ class CategoryManager():
 
     _PHOTOLIST_MAXSIZE = 100
     def category_photo_list(self, session, dir: str, pid: int, cid: int) -> list:
-        '''
+        """
         return a list of photos for the specified category
         :param session:
         :param pid: recent photo id to fetch from
         :param dir: "next" or "prev"
         :param cid: category identifier
         :return:
-        '''
+        """
         try:
             if (dir == 'next'):
                 q = session.query(photo.Photo). \
@@ -163,10 +161,10 @@ class CategoryManager():
 
     @staticmethod
     def copy_photos_from_previous_categories(session, cid: int) -> int:
-        '''
+        """
         Copy photo records from previous categories of the same name
         We'll call our stored procedure to do this work
-        '''
+        """
         stored_proc = 'CALL sp_CopyCategories(:cid)'
         results = session.execute(stored_proc, {'cid': cid})
 
@@ -270,8 +268,6 @@ class EventManager():
             logger.exception(msg='error joining event')
             raise
 
-        raise Exception('join_event', 'fatal error')
-
     def create_event(self, session) -> event.Event:
         passphrases = PassPhraseManager().select_passphrase(session)
         self._e.accesskey = passphrases
@@ -323,14 +319,12 @@ class EventManager():
             logger.exception(msg="error fetching event {0}".format(event_id))
             raise
 
-        return None
-
     @staticmethod
     def category_details(session, c: category.Category):
         try:
             num_photos = photo.Photo.count_by_category(session, c.id)
             num_users = photo.Photo.count_by_users(session, c.id)
-            return (num_photos, num_users)
+            return num_photos, num_users
         except Exception as e:
             raise
 
@@ -343,8 +337,6 @@ class EventManager():
                 join(category.Category, category.Category.id == event.EventCategory.category_id). \
                 filter(event.EventUser.user_id == au.id). \
                 filter(category.Category.state.in_([category.CategoryState.UPLOAD.value, category.CategoryState.VOTING.value, category.CategoryState.COUNTING.value, category.CategoryState.UNKNOWN.value]))
-
-#            q = session.query(event.EventUser).filter(event.EventUser.user_id == au.id)
             el = q.all()
 
             # for each event, read in the categories
@@ -375,7 +367,7 @@ class PassPhraseManager():
             return ak.passphrase
         except Exception as e:
             raise Exception('select_passphrase', 'no phrases!')
-
+# --- RewardManager ---
 class RewardManager():
     _user_id = None
     _rewardtype = None
@@ -535,11 +527,11 @@ class RewardManager():
 
     @staticmethod
     def rewards(session, type: engagement.RewardType, au: usermgr.AnonUser) -> dict:
-        '''
+        """
         read the user's current state of rewards
         :param session:
         :return:
-        '''
+        """
         d_rewards = {}
         try:
             highest_rated_photo = RewardManager.max_score_photo(session, au)
@@ -593,14 +585,14 @@ class RewardManager():
 
     @staticmethod
     def consecutive_voting_days(session, au: usermgr.AnonUser, day_span: int) -> bool:
-        '''
+        """
         given a span-of-days, will determine if the user has been voting consistently for that
         period of time and return 'True' if so.
         :param session:
         :param au:
         :param day_span:
         :return:
-        '''
+        """
         try:
             dt_now = datetime.now()
             early_date = dt_now - timedelta(hours=day_span*24 + 1)
@@ -618,7 +610,7 @@ class RewardManager():
             raise
 
     def check_consecutive_photo_day_rewards(self, session, au: usermgr.AnonUser, rewardtype: engagement.RewardType):
-        '''
+        """
         consecutive voting rewards are only awarded once, we track their state in the UserReward
         table, so before we incure the cost of the consecutive check query, do the quick check to
         see if the reward has already been issued.
@@ -626,7 +618,7 @@ class RewardManager():
         :param au:
         :param rewardtype:
         :return:
-        '''
+        """
         award_qty = engagement._REWARDS['amount'][rewardtype] # how many "lightbulbs" to award
         day_span = engagement._REWARDS['span'][rewardtype]  # how many consecutive days of play
         self._rewardtype = rewardtype
@@ -645,13 +637,13 @@ class RewardManager():
 
     @staticmethod
     def consecutive_photo_days(session, au: usermgr.AnonUser, day_span: int) -> bool:
-        '''
+        """
         check if the user has submitted a photo every day for a the specified span-of-days
         :param session:
         :param au:
         :param day_span:
         :return:
-        '''
+        """
         try:
             dt_now = datetime.now()
             early_date = dt_now - timedelta(hours=day_span*24 + 1)
@@ -684,12 +676,12 @@ class RewardManager():
             raise
 
     def update_rewards_for_photo(self, session, au: usermgr.AnonUser) -> None:
-        '''
+        """
         Update the rewards for photo uploading activity
         :param session:
         :param uid:
         :return:
-        '''
+        """
         # check out consecutive days of play...from
         try:
             self.first_photo(session, au)
@@ -795,7 +787,7 @@ class TallyMan():
         return str_lb
 
     def update_leaderboard(self, session, c: category.Category, p: photo.Photo, check_exist=True) -> None:
-        '''
+        """
         update_leaderboard():
         Everytime a vote is cast, we'll update the leaderboard if it exists,
         otherwise we'll be counting on the background task to keep it up to date
@@ -810,7 +802,7 @@ class TallyMan():
                             for non-voting categories in the event of a
                             Redis failure.
         :return:
-        '''
+        """
         try:
             lb = self.get_leaderboard_by_category(session, c, check_exist=True)
             lb.rank_member(p.user_id, p.score, str(p.id))
@@ -819,7 +811,7 @@ class TallyMan():
             raise
 
     def get_leaderboard_by_category(self, session, c: category.Category, check_exist=True):
-        '''
+        """
         this routine will return a leaderboard if it exists. Note, by
         instantiating the leaderboard object we will create a leaderboard
         entry in the Redis cache. Since leaderboard entries are created by
@@ -828,7 +820,7 @@ class TallyMan():
         :param session:
         :param c: category we are checking for
         :return: leaderboard object, empty if leaderboard hasn't been created
-        '''
+        """
         try:
             if check_exist and not self.leaderboard_exists(session, c):
                 None
@@ -865,7 +857,7 @@ class TallyMan():
             return None, None
 
     def fetch_leaderboard(self, session, uid: int, c: category.Category) -> list:
-        '''
+        """
         read the leaderboard object and construct a list of
         leaderboard dictionary elements for later jsonification
 
@@ -884,7 +876,7 @@ class TallyMan():
         :param uid: user requesting leaderboard
         :param c: category for which leaderboard is request
         :return: list of of leaderboard dictionary elements or None if leaderboard doesn't exist
-        '''
+        """
 
         if c is not None:
             logger.info(msg="retrieving leader board for category {}, \'{}\'".format(c.id, c.get_description()))
@@ -951,21 +943,21 @@ class TallyMan():
             raise
 
 class BallotManager:
-    '''
+    """
     Ballot Manager
     This class is responsible to creating our voting ballots
-    '''
+    """
 
     _ballot = None
 
     def string_key_to_boolean(self, d: dict, keyname: str) -> int:
-        '''
+        """
         if key is not present, return a '0'
         if key is any value other than '0', return '1'
         :param dict:
         :param keyname:
         :return: 0/1
-        '''
+        """
         if keyname in d.keys():
             str_val = d[keyname]
             if str_val != '0':
@@ -989,7 +981,6 @@ class BallotManager:
     def badges_for_votes(self, session, uid: int) -> (int, int):
         # let's determine if the user has earned any badges for this vote
         # (Note: the current vote hasn't been cast yet)
-
         try:
             q = session.query(func.count(voting.Ballot.user_id)).filter(voting.Ballot.user_id == uid)
             num_votes = q.scalar()
@@ -999,19 +990,19 @@ class BallotManager:
                 if threshold == num_votes:
                     return threshold, badge_award
                 if threshold > num_votes: # early exit
-                    return 0, 0
+                    break
             return 0, 0
 
         except Exception as e:
             raise
 
     def update_rewards_for_vote(self, session, au:usermgr.AnonUser) -> None:
-        '''
+        """
         Update the rewards information for this user as a result of this vote
         :param session:
         :param uid:
         :return:
-        '''
+        """
         threshold, badges = self.badges_for_votes(session, au.id)
         if badges > 0:
             try:
@@ -1030,14 +1021,14 @@ class BallotManager:
         return None
 
     def process_ballots(self, session, au: usermgr.AnonUser, c: category.Category, section: int, json_ballots: str) -> list:
-        '''
+        """
         take the JSON ballot entries and process the votes
         :param session:
         :param c: our category
         :param section: the section (if voting round #2) the ballot is in
         :param json_ballots: the ballotentries from the request
         :return: list of ballotentries, added to session, ready for commit
-        '''
+        """
         bel = []
         for j_be in json_ballots:
             bid = j_be['bid']
@@ -1066,7 +1057,6 @@ class BallotManager:
                 logger.exception(msg="error while updating photo with score")
                 raise
 
-
             try:
                 if like or offensive or tags is not None:
                     fbm = FeedbackManager(uid=au.id, pid=be.photo_id, like=like, offensive=offensive, tags=tags)
@@ -1090,14 +1080,14 @@ class BallotManager:
         return bel
 
     def tabulate_votes(self, session, au: usermgr.AnonUser, json_ballots: list) -> list:
-        '''
+        """
         We have a request with a ballot of votes. We need to parse out the
         JSON and tabulate the scores.
         :param session:
         :param au: the user
         :param json_ballots: ballot information from the request
         :return: list of ballot entries
-        '''
+        """
         # It's possible the ballotentries are from different sections, we'll
         # score based on the first ballotentry
         try:
@@ -1121,6 +1111,7 @@ class BallotManager:
         bel = self.process_ballots(session, au, c, section, json_ballots)
         return bel  # this is for testing only, no one else cares!
 
+
     def calculate_score(self, vote: int, round: int, section: int) -> int:
         if round == 0:
             score = voting._ROUND1_SCORING[0][vote - 1]
@@ -1129,7 +1120,7 @@ class BallotManager:
         return score
 
     def create_ballot(self, session, uid: int, c: category.Category, allow_upload=False) -> list:
-        '''
+        """
         Returns a ballot list containing the photos to be voted on.
 
         :param session:
@@ -1137,17 +1128,16 @@ class BallotManager:
         :param cid:
         :return: dictionary: error:<error string>
                              arg: ballots()
-        '''
-
+        """
         # Voting Rounds are stored in the category, 0= Round #1, 1= Round #2
         pl = self.create_ballot_list(session, uid, c, allow_upload)
         self.update_votinground(session, c, pl)
         return self.add_photos_to_ballot(session, uid, c, pl)
 
+
     def update_votinground(self, session, c, plist):
         if c.round == 0:
             return
-
         for p in plist:
             session.query(voting.VotingRound).filter(voting.VotingRound.photo_id == p.id).update(
                 {"times_voted": voting.VotingRound.times_voted + 1})
@@ -1165,9 +1155,9 @@ class BallotManager:
             session.add(be)
         return self._ballot
 
+
     def read_photos_by_ballots_round2(self, session, uid: int, c: category.Category, num_votes: int,
                                       count: int) -> list:
-
         # *****************************
         # **** CONFIGURATION ITEMS ****
         num_sections = voting._NUM_SECTONS_ROUND2  # the "stratification" of the photos that received votes or likes
@@ -1218,14 +1208,14 @@ class BallotManager:
     # if we can't get 'count' photos, then we are done
     # Round #1...
     def create_ballot_list(self, session, uid: int, c: category.Category, allow_upload: bool) -> list:
-        '''
+        """
 
         :param session:
         :param uid: the user asking for the ballot (so we can exclude their photos)
         :param c: category
         :return: a list of '_NUM_BALLOT_ENTRIES'. We ask for more than this,
                 shuffle the result and trim the list lenght, so we get some randomness
-        '''
+        """
         if c.state != category.CategoryState.VOTING.value and not allow_upload:
             if c is not None:
                 logger.error(msg='Category {0} for user {1} not in voting state'.format(json.dumps(c.to_json()), uid))
@@ -1280,7 +1270,7 @@ class BallotManager:
 
     def read_photos_by_ballots_round1(self, session, uid: int, c: category.Category, num_votes: int,
                                       count: int) -> list:
-        '''
+        """
         read_photos_by_ballots_round1()
         read a list of photos to construct our return ballot.
 
@@ -1290,7 +1280,7 @@ class BallotManager:
         :param num_votes: select photos with this # of votes
         :param count: how many photos to fetch
         :return: list of Photo objects
-        '''
+        """
 
         over_size = count * 20  # ask for a lot more so we can randomize a bit
         # if ballotentry has been voted on, exclude photos the user has already seen
@@ -1318,12 +1308,12 @@ class BallotManager:
         return pl
 
     def active_voting_categories(self, session, uid: int) -> list:
-        '''
+        """
         Only return categories that have photos that can be voted on
         :param session: database connection
         :param uid: user id, to filter the category list to only categories the user can access
         :return: <list> of categories available to the user for voting
-        '''
+        """
         q = session.query(category.Category).filter(category.Category.state == category.CategoryState.VOTING.value). \
             join(photo.Photo, photo.Photo.category_id == category.Category.id). \
             outerjoin(event.EventCategory, event.EventCategory.category_id == category.Category.id). \
@@ -1365,4 +1355,3 @@ class BallotManager:
                 cl.extend(set_list)
 
         return cl
-

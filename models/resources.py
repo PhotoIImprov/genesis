@@ -63,6 +63,4 @@ class Resource(Base):
         except Exception as e:
             logger.exception(msg="error creating new resource")
             session.close()
-
-        return None
-
+            raise

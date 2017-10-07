@@ -159,32 +159,39 @@ class TestCSRFevent(DatabaseTest):
         c.state = category.CategoryState.CLOSED.value;
         self.session.commit()
 
+        pl = cm.category_photo_list(self.session, 'next', 0, c.id)
+        for p in pl:
+            p.active = 0
+            self.session.add(p)
+        self.session.commit()
         self.teardown()
 
     @staticmethod
     def f_test_send_forgot_password_send_email(to_email:str, from_email: str, subject_email: str, body_email:str) -> int:
 
         assert(to_email == 'bp100a@hotmail.com')
-        assert(subject_email == 'Forgot Password <noreply@imageimprov.com>')
+        assert(from_email == 'Forgot Password <noreply@imageimprov.com>')
+        assert(subject_email == 'Password reset')
         return 200
 
     def test_send_forgot_password_email(self):
 
         emailaddress = 'bp100a@hotmail.com'
-        status = admin.Emailer(f_sendmail=TestCSRFevent.f_test_send_forgot_password_send_email).send_forgot_password_email(emailaddress, 'fake_csrftoken')
+        status = admin.Emailer(f_sendemail=TestCSRFevent.f_test_send_forgot_password_send_email).send_forgot_password_email(emailaddress, 'fake_csrftoken')
         assert(status == 200)
 
     @staticmethod
     def f_test_send_password_changed_send_email(to_email: str, from_email: str, subject_email: str,
                                               body_email: str) -> int:
 
-        assert (to_email == 'bp100a@hotmail.com')
-        assert (subject_email == 'Password Change <noreply@imageimprov.com>')
+        assert(to_email == 'bp100a@hotmail.com')
+        assert(from_email == 'Password Change <noreply@imageimprov.com>')
+        assert(subject_email == 'Password Change notification')
         return 200
 
     def test_send_password_changed_email(self):
 
         emailaddress = 'bp100a@hotmail.com'
-        status = admin.Emailer(f_sendmail=TestCSRFevent.f_test_send_password_changed_send_email).send_reset_password_notification_email(emailaddress)
+        status = admin.Emailer(f_sendemail=TestCSRFevent.f_test_send_password_changed_send_email).send_reset_password_notification_email(emailaddress)
         assert (status == 200)
 
