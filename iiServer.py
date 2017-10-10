@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.8.8' #our version string PEP 440
+__version__ = '1.8.9' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -246,6 +246,10 @@ def hello():
                 "<li>v1.8.8</li>" \
                 "  <ul>" \
                 "    <li>return pid in leaderboard, change internal interface</li>" \
+                "  </ul>" \
+                "<li>v1.8.9</li>" \
+                "  <ul>" \
+                "    <li>error seen in prod, c.id not bound to session when return ballot error on voting</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -1155,6 +1159,7 @@ def return_ballot(session, uid, cid):
 
         allow_upload = c.state == category.CategoryState.UPLOAD.value
         ballots = bm.create_ballot(session, uid, c, allow_upload)
+        cid = c.id
         if ballots is None or len(ballots._ballotentries) == 0:
             logger.info(msg="[return_ballot]no ballots returned for category #{0}".format(c.id))
             session.close()
@@ -1171,9 +1176,7 @@ def return_ballot(session, uid, cid):
         session.rollback()
         session.close()
 
-    if c is not None:
-        cid = c.id
-    else:
+    if cid is None:
         cid = 'None'
     logger.info(msg="[return_ballot]no ballots, weird error, c.id ={}".format(cid))
     return make_response(jsonify({'msg': error.error_string('NO_BALLOT')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
