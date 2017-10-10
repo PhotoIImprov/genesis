@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.8.6' #our version string PEP 440
+__version__ = '1.8.8' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -229,45 +229,6 @@ def hello():
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
     htmlbody += "<ul>" \
-                "<li>v1.7.7</li>" \
-                "  <ul>" \
-                "    <li>UserReward now has two column PK (user_id/rewardtype)</li>" \
-                "    <li>rewardtype passed around as enum, .name used as string version</li>" \
-                "    <li>calculate consecutive day photos & 1st day rewards</li>" \
-                "  </ul>" \
-                "<li>v1.7.8</li>" \
-                "  <ul>" \
-                "    <li>stop overwriting high score photo in /badges</li>" \
-                "    <li>pass back 0's for balances in /badges</li>" \
-                "  </ul>" \
-                "<li>v1.7.9</li>" \
-                "  <ul>" \
-                "    <li>bug querying rewardtype, using enum integer value and not name</li>" \
-                "  </ul>" \
-                "<li>v1.8.0</li>" \
-                "  <ul>" \
-                "    <li>/events provides a list of photos in events user is part of</li>" \
-                "  </ul>" \
-                "<li>v1.8.1</li>" \
-                "  <ul>" \
-                "    <li>/events fix argument check to dir -> next</li>" \
-                "  </ul>" \
-                "<li>v1.8.2</li>" \
-                "  <ul>" \
-                "    <li>/events add jwt() check and timeit()</li>" \
-                "  </ul>" \
-                "<li>v1.8.3</li>" \
-                "  <ul>" \
-                "    <li>fix data truncation error (LIGHTBULBS) in max reward day</li>" \
-                "  </ul>" \
-                "<li>v1.8.3.1</li>" \
-                "  <ul>" \
-                "    <li>REBUILD! - show events from imageimprov; </li>" \
-                "  </ul>" \
-                "<li>v1.8.4</li>" \
-                "  <ul>" \
-                "    <li>if no votable categories, return 204</li>" \
-                "  </ul>" \
                 "<li>v1.8.5</li>" \
                 "  <ul>" \
                 "    <li>more logging around photo & ballot</li>" \
@@ -277,6 +238,14 @@ def hello():
                 "    <li>more logging around ballot</li>" \
                 "    <li>restructure try-except-finally logic</li>" \
                 "    <li>clean up testing</li>" \
+                "  </ul>" \
+                "<li>v1.8.7</li>" \
+                "  <ul>" \
+                "    <li>cleanup up spacing</li>" \
+                "  </ul>" \
+                "<li>v1.8.8</li>" \
+                "  <ul>" \
+                "    <li>return pid in leaderboard, change internal interface</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -301,19 +270,18 @@ def hello():
 
     session = dbsetup.Session()
 
-#    sql = text('select * from mysql.event;')
-    sql = text('show events from imageimprov;')
+    sql = text('select * from information_schema.events;')
     try:
         result = dbsetup.engine.execute(sql)
         htmlbody += "<h3>Scheduled Events</h3>"
         if result is not None:
             for row in result:
-                le = row['Execute at']
+                le = row['LAST_EXECUTED']
                 if le is None:
                     last_executed = "never"
                 else:
                     last_executed = le
-                h = "&nbsp&nbsp><b>name: </b>{}, every {} {}, last executed: {}, status: {}".format(row['Name'], row['Interval value'], row['Interval field'], last_executed, row['Status'])
+                h = "&nbsp&nbsp><b>name: </b>{}, every {} {}, last executed: {}, status: {}".format(row['EVENT_NAME'], row['INTERVAL_VALUE'], row['INTERVAL_FIELD'], last_executed, row['STATUS'])
                 htmlbody += h + "<br>"
         else:
             htmlbody += "<i>no events found</i><br>"
@@ -369,7 +337,7 @@ def hello():
             num_photos = photo.Photo.count_by_category(session, c.get_id())
             htmlbody += "\n<br>number photos uploaded = <b>{}</b>".format(num_photos)
             if c.state == category.CategoryState.VOTING.value:
-                lb_list = tm.fetch_leaderboard(session, 0, c) # dummy user id
+                lb_list = tm.fetch_leaderboard(session, usermgr.AnonUser(uid=0), c) # dummy user id
                 htmlbody += "\n<br>round={0} (Voting Round #{1})".format(c.round, c.round+1)
                 num_voters = voting.Ballot.num_voters_by_category(session, c.get_id())
                 htmlbody += "\n<br>number users voting = <b>{}</b>".format(num_voters)
@@ -784,6 +752,10 @@ def get_leaderboard():
                 - 3
                 - 6
               description: "EXIF orientation of the image"
+            pid:
+              type: integer
+              description: "the identifying key for the photo"
+              exampe: 54732
             image:
               type: string
               description: "base64 encoded thumbnail image of entry"
@@ -796,13 +768,13 @@ def get_leaderboard():
         session = dbsetup.Session()
         cid = request.args.get('category_id')
         u = current_identity
-        uid = u.id
-        if cid is None or cid == 'None' or uid is None:
+        au = current_identity._get_current_object()
+        if cid is None or cid == 'None':
             rsp = make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
         else:
             tm = categorymgr.TallyMan()
             c = category.Category.read_category_by_id(cid, session)
-            lb_list = tm.fetch_leaderboard(session, uid, c)
+            lb_list = tm.fetch_leaderboard(session, au, c)
             if lb_list is not None:
                 rsp = make_response(jsonify(lb_list), 200)
             else:
@@ -1531,6 +1503,7 @@ def photo_upload():
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     return store_photo(pi, uid, cid)
+
 
 def store_photo(pi: photo.PhotoImage, uid: int, cid: int):
     rsp = None

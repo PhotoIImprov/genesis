@@ -39,6 +39,9 @@ class AnonUser(Base):
     usertype      = Column(Integer, default=UserType.PLAYER.value)
     created_date  = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
 
+    def __init__(self, *args, **kwargs):
+        self.id = kwargs.get('uid')
+
     @staticmethod
     def find_anon_user(session, m_guid):
         if session is None or m_guid is None:

@@ -1392,6 +1392,7 @@ class TestLeaderBoard(iiBaseUnitTest):
                 img = l['image']
                 rank = l['rank']
                 score = l['score']
+                pid = l['pid']
 
 
 class TestLastSubmission(iiBaseUnitTest):
