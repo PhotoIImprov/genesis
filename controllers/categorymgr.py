@@ -856,7 +856,7 @@ class TallyMan():
             logger.exception(msg='error reading thumbnail!')
             return None, None
 
-    def fetch_leaderboard(self, session, uid: int, c: category.Category) -> list:
+    def fetch_leaderboard(self, session, au: usermgr.AnonUser, c: category.Category) -> list:
         """
         read the leaderboard object and construct a list of
         leaderboard dictionary elements for later jsonification
@@ -873,7 +873,7 @@ class TallyMan():
               longer "voting" can be cached without all these checks as they won't change?
 
         :param session: database
-        :param uid: user requesting leaderboard
+        :param au: user requesting leaderboard
         :param c: category for which leaderboard is request
         :return: list of of leaderboard dictionary elements or None if leaderboard doesn't exist
         """
@@ -920,19 +920,20 @@ class TallyMan():
                 if b64_utf8 is None:
                     continue
 
-                lb_dict = {'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'orientation': self._orientation}
+                lb_dict = {'username': lb_name, 'score': lb_score, 'rank': lb_rank, 'pid': lb_pid, 'orientation': self._orientation, 'pid': lb_pid}
                 lb_dict['votes'] = p.times_voted
                 lb_dict['likes'] = p.likes
-                if lb_uid == uid:
+                if lb_uid == au.id:
                     lb_dict['you'] = True
                 else:
-                    lb_dict['isfriend'] = usermgr.Friend.is_friend(session, uid, lb_uid)
+                    lb_dict['isfriend'] = usermgr.Friend.is_friend(session, au.id, lb_uid)
 
                 lb_dict['image'] = b64_utf8
                 lb_list.append(lb_dict)
 
             # Wow! That was a lot of work, so let's stuff it in the cache and use it for 5 minutes
             _expiry_cache.put(thumbnail_key, lb_list, ttl=ttl_leaderboard)
+            logger.info(msg="[fetch_leaderboard]caching leaderboard for category #{0}".format(c.id))
             return lb_list
         except Exception as e:
             logger.exception(msg="error fetching leaderboard")

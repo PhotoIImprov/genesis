@@ -4,14 +4,23 @@
     <option name="SCOPE_TYPE" value="3" />
   </component>
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/models/usermgr.py" line="119" mnemonic="1" />
+    <bookmark url="file://$PROJECT_DIR$/models/usermgr.py" line="124" mnemonic="1" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/iiServer.iml" afterPath="$PROJECT_DIR$/.idea/iiServer.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controllers/categorymgr.py" afterPath="$PROJECT_DIR$/controllers/categorymgr.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dbsetup.py" afterPath="$PROJECT_DIR$/dbsetup.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/iiServer.py" afterPath="$PROJECT_DIR$/iiServer.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/admin.py" afterPath="$PROJECT_DIR$/models/admin.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/category.py" afterPath="$PROJECT_DIR$/models/category.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/engagement.py" afterPath="$PROJECT_DIR$/models/engagement.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/photo.py" afterPath="$PROJECT_DIR$/models/photo.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/usermgr.py" afterPath="$PROJECT_DIR$/models/usermgr.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/userprofile.py" afterPath="$PROJECT_DIR$/models/userprofile.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/test_REST_login.py" afterPath="$PROJECT_DIR$/tests/test_REST_login.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/test_admin.py" afterPath="$PROJECT_DIR$/tests/test_admin.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/test_voting.py" afterPath="$PROJECT_DIR$/tests/test_voting.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -45,6 +54,7 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestUserLikes_test_user_likes_none.coverage" NAME="Unittests for test_REST_login.TestUserLikes.test_user_likes_none Coverage Results" MODIFIED="1505831979478" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestPhotoUpload_test_binary_upload_no_image.coverage" NAME="Unittests for test_REST_login.TestPhotoUpload.test_binary_upload_no_image Coverage Results" MODIFIED="1501868515100" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_voting_TestVoting_test_create_ballot_list_upload_category.coverage" NAME="Unittests for test_voting.TestVoting.test_create_ballot_list_upload_category Coverage Results" MODIFIED="1500558295169" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_admin_TestCSRFevent_test_bad_template_name.coverage" NAME="Unittests for test_admin.TestCSRFevent.test_bad_template_name Coverage Results" MODIFIED="1507741352373" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_event_TestEvent_test_read_pass_phrase.coverage" NAME="Unittests for test_event.TestEvent.test_read_pass_phrase Coverage Results" MODIFIED="1504287069362" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$test_resource.coverage" NAME="test_resource Coverage Results" MODIFIED="1489614740297" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_oAuth2_Test_oAuth2_test_google_invalid_token.coverage" NAME="Unittests for test_oAuth2.Test_oAuth2.test_google_invalid_token Coverage Results" MODIFIED="1499777265144" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -189,7 +199,7 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_submissions_TestSubmissions_test_user_likes_paging.coverage" NAME="Unittests for test_submissions.TestSubmissions.test_user_likes_paging Coverage Results" MODIFIED="1505944978319" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestMySubmissions.coverage" NAME="Unittests for test_REST_login.TestMySubmissions Coverage Results" MODIFIED="1502031162916" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_submissions_TestSubmissions_test_category_with_photos.coverage" NAME="Unittests for test_submissions.TestSubmissions.test_category_with_photos Coverage Results" MODIFIED="1502201256341" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/models" />
-    <SUITE FILE_PATH="coverage/genesis$Unittests_in_tests.coverage" NAME="Unittests in tests Coverage Results" MODIFIED="1507561761162" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_in_tests.coverage" NAME="Unittests in tests Coverage Results" MODIFIED="1507741899966" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestCategory_test_category_state.coverage" NAME="Unittests for test_REST_login.TestCategory.test_category_state Coverage Results" MODIFIED="1505141582377" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_category_TestCategory_test_category_manager_vote_negative.coverage" NAME="Unittests for test_category.TestCategory.test_category_manager_vote_negative Coverage Results" MODIFIED="1504198163954" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_in_test_photo.coverage" NAME="Unittests in test_photo Coverage Results" MODIFIED="1490029558190" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -325,70 +335,44 @@
       <file leaf-file-name="iiServer.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/iiServer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="18">
-              <caret line="230" column="0" lean-forward="false" selection-start-line="230" selection-start-column="0" selection-end-line="230" selection-end-column="0" />
+            <state relative-caret-position="-594">
+              <caret line="467" column="49" lean-forward="true" selection-start-line="467" selection-start-column="49" selection-end-line="467" selection-end-column="49" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
-                <marker date="1507561761146" expanded="true" signature="11244:11283" ph="select * fro... events" />
+                <marker date="1507741899946" expanded="true" signature="11335:11374" ph="select * fro... events" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="categorymgr.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/controllers/categorymgr.py">
+      <file leaf-file-name="admin.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/models/admin.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="47">
-              <caret line="116" column="8" lean-forward="false" selection-start-line="116" selection-start-column="8" selection-end-line="116" selection-end-column="8" />
+            <state relative-caret-position="443">
+              <caret line="104" column="0" lean-forward="false" selection-start-line="104" selection-start-column="0" selection-end-line="104" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test_admin.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/test_admin.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="695">
+              <caret line="202" column="44" lean-forward="false" selection-start-line="202" selection-start-column="44" selection-end-line="202" selection-end-column="44" />
               <folding>
-                <element signature="e#0#12#0" expanded="true" />
+                <element signature="e#0#29#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="voting.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/voting.py">
+      <file leaf-file-name="usermgr.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/models/usermgr.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1296">
-              <caret line="72" column="5" lean-forward="false" selection-start-line="72" selection-start-column="5" selection-end-line="72" selection-end-column="5" />
-              <folding>
-                <element signature="e#0#85#0" expanded="true" />
-                <marker date="1505935346456" expanded="true" signature="880:1756" ph="..." />
-                <marker date="1505935346456" expanded="true" signature="1657:1666" ph="..." />
-                <marker date="1505935346456" expanded="true" signature="2437:2439" ph="..." />
-                <marker date="1505935346456" expanded="true" signature="2533:2535" ph="..." />
-                <marker date="1505935346456" expanded="true" signature="2689:2707" ph="..." />
-                <marker date="1505935346456" expanded="true" signature="2968:2970" ph="..." />
-                <marker date="1505935346456" expanded="true" signature="3320:3322" ph="..." />
-                <marker date="1505935346456" expanded="true" signature="3517:3521" ph="..." />
-                <marker date="1505935346456" expanded="true" signature="5434:5436" ph="..." />
-                <marker date="1505935346456" expanded="true" signature="7923:7925" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="dbsetup.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/dbsetup.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="584">
-              <caret line="59" column="34" lean-forward="false" selection-start-line="59" selection-start-column="34" selection-end-line="59" selection-end-column="34" />
-              <folding>
-                <element signature="e#0#43#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="test_REST_login.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_REST_login.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="326">
-              <caret line="225" column="0" lean-forward="false" selection-start-line="225" selection-start-column="0" selection-end-line="225" selection-end-column="0" />
-              <folding>
-                <element signature="e#0#9#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="378">
+              <caret line="199" column="23" lean-forward="true" selection-start-line="199" selection-start-column="23" selection-end-line="199" selection-end-column="23" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -407,8 +391,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>create_anon</find>
-      <find>self._u</find>
       <find>methods</find>
       <find>b64img</find>
       <find>1.8.1</find>
@@ -437,6 +419,8 @@
       <find>/photo</find>
       <find>show event</find>
       <find>1.8.</find>
+      <find>'''</find>
+      <find>1.8.9</find>
     </findStrings>
     <replaceStrings>
       <replace>Photo</replace>
@@ -461,12 +445,16 @@
       <replace>event.Event</replace>
       <replace>categorymgr.BallotManager</replace>
       <replace>categorymgr.TallyMan</replace>
+      <replace>&quot;&quot;&quot;</replace>
     </replaceStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$/models</dir>
       <dir>/usr/local/lib/python3.5/dist-packages/sqlalchemy</dir>
       <dir>$PROJECT_DIR$</dir>
     </dirStrings>
+  </component>
+  <component name="Git.Rebase.Settings">
+    <option name="ONTO" value="refs/heads/master" />
   </component>
   <component name="Git.Settings">
     <option name="PREVIOUS_COMMIT_AUTHORS">
@@ -479,6 +467,11 @@
     <option name="PUSH_TAGS">
       <GitPushTagMode />
     </option>
+  </component>
+  <component name="GithubProjectSettings">
+    <option name="CREATE_PULL_REQUEST_DEFAULT_BRANCH" value="master" />
+    <option name="CREATE_PULL_REQUEST_DEFAULT_REPO_USER" value="PhotoIImprov" />
+    <option name="CREATE_PULL_REQUEST_DEFAULT_REPO_NAME" value="genesis" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -507,32 +500,32 @@
         <option value="$PROJECT_DIR$/handlers/sql_handler.py" />
         <option value="$PROJECT_DIR$/tests/__init__.py" />
         <option value="$PROJECT_DIR$/models/resources.py" />
-        <option value="$PROJECT_DIR$/models/usermgr.py" />
         <option value="$PROJECT_DIR$/templates/email/password_changed.html" />
         <option value="$PROJECT_DIR$/tests/test_user.py" />
-        <option value="$PROJECT_DIR$/models/admin.py" />
-        <option value="$PROJECT_DIR$/tests/test_admin.py" />
         <option value="$PROJECT_DIR$/www/en-US/user/resetpassword.html" />
         <option value="$PROJECT_DIR$/tests/test_category.py" />
-        <option value="$PROJECT_DIR$/models/category.py" />
         <option value="$PROJECT_DIR$/tests/test_ballot.py" />
         <option value="$PROJECT_DIR$/daemon/sync_leaderboard.py" />
         <option value="$PROJECT_DIR$/tests/test_submissions.py" />
         <option value="$PROJECT_DIR$/models/traction.py" />
         <option value="$PROJECT_DIR$/models/voting.py" />
         <option value="$PROJECT_DIR$/tests/test_voting.py" />
-        <option value="$PROJECT_DIR$/models/engagement.py" />
         <option value="$PROJECT_DIR$/tests/test_engagement.py" />
-        <option value="$PROJECT_DIR$/models/photo.py" />
-        <option value="$PROJECT_DIR$/models/userprofile.py" />
         <option value="$PROJECT_DIR$/models/event.py" />
         <option value="$PROJECT_DIR$/tests/test_event.py" />
         <option value="$PROJECT_DIR$/dbsetup.py" />
-        <option value="$PROJECT_DIR$/controllers/categorymgr.py" />
         <option value="$PROJECT_DIR$/models/error.py" />
         <option value="$PROJECT_DIR$/tests/uploader.py" />
         <option value="$PROJECT_DIR$/tests/test_photo.py" />
         <option value="$PROJECT_DIR$/tests/test_REST_login.py" />
+        <option value="$PROJECT_DIR$/models/photo.py" />
+        <option value="$PROJECT_DIR$/models/admin.py" />
+        <option value="$PROJECT_DIR$/models/category.py" />
+        <option value="$PROJECT_DIR$/models/userprofile.py" />
+        <option value="$PROJECT_DIR$/models/engagement.py" />
+        <option value="$PROJECT_DIR$/controllers/categorymgr.py" />
+        <option value="$PROJECT_DIR$/tests/test_admin.py" />
+        <option value="$PROJECT_DIR$/models/usermgr.py" />
         <option value="$PROJECT_DIR$/iiServer.py" />
       </list>
     </option>
@@ -566,6 +559,7 @@
     </navigator>
     <panes>
       <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -625,7 +619,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -747,6 +740,21 @@
       <option name="_new_target" value="&quot;test_REST_login.TesttVoting.test_voting&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
     </configuration>
+    <configuration name="Unittests for test_admin.TestCSRFevent.test_bad_template_name" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="iiServer" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_admin.TestCSRFevent.test_bad_template_name&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+    </configuration>
     <configuration name="Unittests for test_photo.TestPhoto.test_iiServer_preview" type="tests" factoryName="Unittests" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -761,21 +769,6 @@
       <option name="_new_pattern" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
       <option name="_new_target" value="&quot;test_photo.TestPhoto.test_iiServer_preview&quot;" />
-      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
-    </configuration>
-    <configuration name="Unittests for test_photo.TestPhoto.test_thumbnail_rotation_pil" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="iiServer" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_photo.TestPhoto.test_thumbnail_rotation_pil&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
     </configuration>
     <configuration name="Unittests in test_resource" type="tests" factoryName="Unittests">
@@ -1065,18 +1058,18 @@
       <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests for test_photo.TestPhoto.test_iiServer_preview" />
       <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests in test_resource" />
       <item index="4" class="java.lang.String" itemvalue="Python tests.Unittests for /home/hcollins/dev/genesis/tests" />
-      <item index="5" class="java.lang.String" itemvalue="Python tests.Unittests for test_photo.TestPhoto.test_thumbnail_rotation_pil" />
-      <item index="6" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TesttVoting.test_voting" />
-      <item index="7" class="java.lang.String" itemvalue="Python tests.Unittests in tests" />
-      <item index="8" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TestUpdatePhoto.test_update_photo_meta" />
+      <item index="5" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TesttVoting.test_voting" />
+      <item index="6" class="java.lang.String" itemvalue="Python tests.Unittests in tests" />
+      <item index="7" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TestUpdatePhoto.test_update_photo_meta" />
+      <item index="8" class="java.lang.String" itemvalue="Python tests.Unittests for test_admin.TestCSRFevent.test_bad_template_name" />
     </list>
     <recent_temporary>
       <list size="5">
         <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in tests" />
-        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TestUpdatePhoto.test_update_photo_meta" />
-        <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests for /home/hcollins/dev/genesis/tests" />
-        <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TesttVoting.test_voting" />
-        <item index="4" class="java.lang.String" itemvalue="Python tests.Unittests for test_photo.TestPhoto.test_thumbnail_rotation_pil" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests for test_admin.TestCSRFevent.test_bad_template_name" />
+        <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TestUpdatePhoto.test_update_photo_meta" />
+        <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests for /home/hcollins/dev/genesis/tests" />
+        <item index="4" class="java.lang.String" itemvalue="Python tests.Unittests for test_REST_login.TesttVoting.test_voting" />
       </list>
     </recent_temporary>
   </component>
@@ -1196,26 +1189,11 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Unittests_for_test_REST_login_TestUpdatePhoto_test_update_photo_meta - 2017.10.05 at 21h 04m 48s.xml">
-      <configuration name="Unittests for test_REST_login.TestUpdatePhoto.test_update_photo_meta" configurationId="tests" />
+    <history-entry file="Unittests_for_test_admin_TestCSRFevent_test_bad_template_name - 2017.10.11 at 13h 01m 20s.xml">
+      <configuration name="Unittests for test_admin.TestCSRFevent.test_bad_template_name" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_for_test_REST_login_TesttVoting_test_voting - 2017.10.05 at 20h 23m 01s.xml">
-      <configuration name="Unittests for test_REST_login.TesttVoting.test_voting" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_test_REST_login_TesttVoting_test_voting - 2017.10.05 at 20h 26m 06s.xml">
-      <configuration name="Unittests for test_REST_login.TesttVoting.test_voting" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_test_REST_login_TesttVoting_test_voting - 2017.10.05 at 20h 27m 32s.xml">
-      <configuration name="Unittests for test_REST_login.TesttVoting.test_voting" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_test_REST_login_TesttVoting_test_voting - 2017.10.05 at 20h 29m 32s.xml">
-      <configuration name="Unittests for test_REST_login.TesttVoting.test_voting" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_in_tests - 2017.10.05 at 20h 56m 38s.xml">
-      <configuration name="Unittests in tests" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_in_tests - 2017.10.05 at 21h 05m 32s.xml">
-      <configuration name="Unittests in tests" configurationId="tests" />
+    <history-entry file="Unittests_for_test_admin_TestCSRFevent_test_bad_template_name - 2017.10.11 at 13h 02m 35s.xml">
+      <configuration name="Unittests for test_admin.TestCSRFevent.test_bad_template_name" configurationId="tests" />
     </history-entry>
     <history-entry file="Unittests_in_tests - 2017.10.05 at 21h 09m 10s.xml">
       <configuration name="Unittests in tests" configurationId="tests" />
@@ -1226,36 +1204,64 @@
     <history-entry file="Unittests_in_tests - 2017.10.09 at 11h 13m 01s.xml">
       <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
+    <history-entry file="Unittests_in_tests - 2017.10.10 at 17h 14m 48s.xml">
+      <configuration name="Unittests in tests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_tests - 2017.10.11 at 09h 24m 23s.xml">
+      <configuration name="Unittests in tests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_tests - 2017.10.11 at 10h 28m 59s.xml">
+      <configuration name="Unittests in tests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_tests - 2017.10.11 at 13h 09m 37s.xml">
+      <configuration name="Unittests in tests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_tests - 2017.10.11 at 13h 15m 30s.xml">
+      <configuration name="Unittests in tests" configurationId="tests" />
+    </history-entry>
   </component>
   <component name="ToolWindowManager">
     <frame x="201" y="38" width="1920" height="1053" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39828694" sideWeight="0.509375" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32869378" sideWeight="0.49791667" order="14" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.29443255" sideWeight="0.49010417" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32916668" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19947916" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32762313" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39828694" sideWeight="0.490625" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.29443255" sideWeight="0.5078125" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32869378" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39828694" sideWeight="0.49270833" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="REST Client" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="File Transfer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32941177" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32869378" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.29443255" sideWeight="0.4921875" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14739583" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39828694" sideWeight="0.49270833" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32869378" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="REST Client" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="File Transfer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32941177" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32916668" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32762313" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Concurrent Activities Diagram" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32941177" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
     </layout>
     <layout-to-restore>
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -1348,7 +1354,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>2551</line>
+          <line>2557</line>
           <option name="timeStamp" value="1671" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1363,12 +1369,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_REST_login.py</url>
-          <line>1810</line>
+          <line>1811</line>
           <option name="timeStamp" value="1692" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_REST_login.py</url>
-          <line>1804</line>
+          <line>1805</line>
           <option name="timeStamp" value="1702" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1378,17 +1384,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>2297</line>
+          <line>2303</line>
           <option name="timeStamp" value="1714" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_REST_login.py</url>
-          <line>1591</line>
+          <line>1592</line>
           <option name="timeStamp" value="1720" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>2154</line>
+          <line>2160</line>
           <option name="timeStamp" value="1721" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1403,18 +1409,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>575</line>
+          <line>577</line>
           <option name="timeStamp" value="1751" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>2316</line>
+          <line>2322</line>
           <option name="timeStamp" value="1752" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/controllers/categorymgr.py</url>
-          <line>347</line>
-          <option name="timeStamp" value="1758" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_submissions.py</url>
@@ -1438,27 +1439,27 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_REST_login.py</url>
-          <line>1994</line>
+          <line>1995</line>
           <option name="timeStamp" value="1817" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>1520</line>
+          <line>1526</line>
           <option name="timeStamp" value="1823" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>1113</line>
+          <line>1119</line>
           <option name="timeStamp" value="1825" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/controllers/categorymgr.py</url>
-          <line>832</line>
+          <line>834</line>
           <option name="timeStamp" value="1828" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>782</line>
+          <line>788</line>
           <option name="timeStamp" value="1829" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1473,37 +1474,37 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/controllers/categorymgr.py</url>
-          <line>1103</line>
+          <line>1106</line>
           <option name="timeStamp" value="1851" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_voting.py</url>
-          <line>562</line>
+          <line>561</line>
           <option name="timeStamp" value="1861" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_REST_login.py</url>
-          <line>1966</line>
+          <line>1967</line>
           <option name="timeStamp" value="1863" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>2951</line>
+          <line>2957</line>
           <option name="timeStamp" value="1865" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>2953</line>
+          <line>2959</line>
           <option name="timeStamp" value="1866" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>2944</line>
+          <line>2950</line>
           <option name="timeStamp" value="1867" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_voting.py</url>
-          <line>585</line>
+          <line>584</line>
           <option name="timeStamp" value="1871" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1523,7 +1524,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_REST_login.py</url>
-          <line>1934</line>
+          <line>1935</line>
           <option name="timeStamp" value="1889" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1533,7 +1534,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_REST_login.py</url>
-          <line>1935</line>
+          <line>1936</line>
           <option name="timeStamp" value="1897" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1568,7 +1569,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>275</line>
+          <line>279</line>
           <option name="timeStamp" value="1919" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1593,13 +1594,18 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>885</line>
+          <line>891</line>
           <option name="timeStamp" value="1939" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_REST_login.py</url>
           <line>224</line>
           <option name="timeStamp" value="1940" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/models/admin.py</url>
+          <line>104</line>
+          <option name="timeStamp" value="1941" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
@@ -1612,34 +1618,11 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="1941" />
+      <option name="time" value="1942" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/www/en-US/user/passwordchanged.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-162">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/www/en-US/user/resetpassword.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="119" column="41" lean-forward="false" selection-start-line="119" selection-start-column="41" selection-end-line="119" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_admin.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/local/lib/python3.5/dist-packages/sqlalchemy/sql/functions.py" />
     <entry file="file://$PROJECT_DIR$/tests/initialize_data.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="157">
@@ -1691,14 +1674,6 @@
     <entry file="file:///usr/local/lib/python3.5/dist-packages/sqlalchemy/orm/query.py" />
     <entry file="file:///usr/local/lib/python3.5/dist-packages/sqlalchemy/orm/loading.py" />
     <entry file="file:///usr/local/lib/python3.5/dist-packages/sqlalchemy/orm/attributes.py" />
-    <entry file="file://$PROJECT_DIR$/models/usermgr.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-6885">
-          <caret line="54" column="0" lean-forward="false" selection-start-line="54" selection-start-column="0" selection-end-line="54" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tests/test_category.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="203">
@@ -1717,26 +1692,6 @@
     </entry>
     <entry file="file:///usr/local/lib/python3.5/dist-packages/pymysql/converters.py" />
     <entry file="file:///usr/local/lib/python3.5/dist-packages/sqlalchemy/orm/state.py" />
-    <entry file="file://$PROJECT_DIR$/models/engagement.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="220">
-          <caret line="93" column="6" lean-forward="false" selection-start-line="93" selection-start-column="6" selection-end-line="93" selection-end-column="6" />
-          <folding>
-            <element signature="e#0#83#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/models/userprofile.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="343">
-          <caret line="98" column="0" lean-forward="false" selection-start-line="97" selection-start-column="0" selection-end-line="98" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#24#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tests/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="385">
@@ -1746,14 +1701,6 @@
     </entry>
     <entry file="file:///usr/lib/python3.5/unittest/suite.py" />
     <entry file="file:///usr/lib/python3.5/unittest/runner.py" />
-    <entry file="file://$PROJECT_DIR$/models/event.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
-          <caret line="61" column="18" lean-forward="false" selection-start-line="61" selection-start-column="11" selection-end-line="61" selection-end-column="18" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tests/test_event.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="235">
@@ -1761,14 +1708,6 @@
           <folding>
             <element signature="e#0#29#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/models/resources.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="284">
-          <caret line="55" column="17" lean-forward="true" selection-start-line="55" selection-start-column="17" selection-end-line="55" selection-end-column="17" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1796,23 +1735,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/models/photo.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15252">
-          <caret line="267" column="8" lean-forward="false" selection-start-line="267" selection-start-column="8" selection-end-line="267" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/lib/python3/dist-packages/apport_python_hook.py" />
-    <entry file="file://$PROJECT_DIR$/models/category.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2914">
-          <caret line="59" column="16" lean-forward="false" selection-start-line="59" selection-start-column="16" selection-end-line="59" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tests/uploader.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="7502">
@@ -1843,7 +1766,7 @@
     <entry file="file://C:/Python/Python36/Lib/site-packages/flask/app.py" />
     <entry file="file://$PROJECT_DIR$/models/voting.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1296">
+        <state relative-caret-position="1008">
           <caret line="72" column="5" lean-forward="false" selection-start-line="72" selection-start-column="5" selection-end-line="72" selection-end-column="5" />
           <folding>
             <element signature="e#0#85#0" expanded="true" />
@@ -1863,41 +1786,216 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/tests/test_REST_login.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="326">
+        <state relative-caret-position="3708">
           <caret line="225" column="0" lean-forward="false" selection-start-line="225" selection-start-column="0" selection-end-line="225" selection-end-column="0" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
+            <marker date="1507669868939" expanded="true" signature="46234:52667" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="50506:52667" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="52499:52667" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="52566:52667" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="52742:54297" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="52794:53118" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="53155:54297" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="54042:54182" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="54339:55793" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="54385:54800" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="54841:55297" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="55074:55240" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="55337:55793" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="55570:55736" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="55826:57328" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="55863:56336" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="55872:56011" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1507669868939" expanded="true" signature="56374:57328" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="56383:56482" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1507669868939" expanded="true" signature="57365:60518" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="57393:57543" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="57577:57691" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="57736:57844" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="57895:58088" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="58139:58332" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="58383:58576" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="58620:58745" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="58792:59066" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="59119:59304" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="59356:60518" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="60564:69830" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="60641:61129" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="60700:61085" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="61180:61423" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="61468:63318" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="61477:61570" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1507669868939" expanded="true" signature="62072:62208" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="63391:64949" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="63400:63578" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1507669868939" expanded="true" signature="63912:64163" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="64979:65150" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="65190:65551" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="65582:66393" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="66425:66858" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="66893:67717" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="67779:68426" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="67789:67867" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="68468:69830" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="68868:68984" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="69010:69095" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="69205:69474" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="69280:69474" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="69868:71283" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="69913:71283" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="70600:70943" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="71322:73173" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="71359:71596" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="71637:73173" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="71646:71968" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="72364:72523" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="72396:72523" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="72945:73148" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="73053:73148" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="73213:75754" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="73260:73382" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="73418:73746" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="73784:75754" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="75213:75348" ph="..." />
+            <marker date="1507669868939" expanded="true" signature="76342:76568" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/dbsetup.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="584">
-          <caret line="59" column="34" lean-forward="false" selection-start-line="59" selection-start-column="34" selection-end-line="59" selection-end-column="34" />
+        <state relative-caret-position="954">
+          <caret line="62" column="34" lean-forward="false" selection-start-line="62" selection-start-column="34" selection-end-line="62" selection-end-column="34" />
           <folding>
             <element signature="e#0#43#0" expanded="true" />
+            <marker date="1507669868935" expanded="true" signature="3574:3669" ph="..." />
+            <marker date="1507669868935" expanded="true" signature="3998:5492" ph="..." />
+            <marker date="1507669868935" expanded="true" signature="4013:4143" ph="..." />
+            <marker date="1507669868935" expanded="true" signature="4022:4128" ph="..." />
+            <marker date="1507669868935" expanded="true" signature="4149:4279" ph="..." />
+            <marker date="1507669868935" expanded="true" signature="4409:4612" ph="..." />
+            <marker date="1507669868935" expanded="true" signature="4418:4573" ph="..." />
+            <marker date="1507669868935" expanded="true" signature="4646:5365" ph="..." />
+            <marker date="1507669868935" expanded="true" signature="4655:4964" ph="..." />
+            <marker date="1507669868935" expanded="true" signature="5003:5333" ph="..." />
+            <marker date="1507669868935" expanded="true" signature="5016:5290" ph="..." />
+            <marker date="1507669868935" expanded="true" signature="5378:5492" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/photo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-577">
+          <caret line="358" column="0" lean-forward="true" selection-start-line="358" selection-start-column="0" selection-end-line="358" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/category.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="154">
+          <caret line="266" column="11" lean-forward="false" selection-start-line="266" selection-start-column="11" selection-end-line="266" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/userprofile.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="76">
+          <caret line="107" column="0" lean-forward="true" selection-start-line="107" selection-start-column="0" selection-end-line="107" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/engagement.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="191">
+          <caret line="118" column="46" lean-forward="true" selection-start-line="118" selection-start-column="46" selection-end-line="118" selection-end-column="46" />
+          <folding>
+            <element signature="e#0#83#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/controllers/categorymgr.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="47">
-          <caret line="116" column="8" lean-forward="false" selection-start-line="116" selection-start-column="8" selection-end-line="116" selection-end-column="8" />
+        <state relative-caret-position="-378">
+          <caret line="371" column="0" lean-forward="false" selection-start-line="371" selection-start-column="0" selection-end-line="371" selection-end-column="0" />
           <folding>
             <element signature="e#0#12#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/models/sql_logging.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-120">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#35#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/event.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="37" column="18" lean-forward="false" selection-start-line="37" selection-start-column="18" selection-end-line="37" selection-end-column="18" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/resources.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="50" column="14" lean-forward="true" selection-start-line="50" selection-start-column="14" selection-end-line="50" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/admin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="443">
+          <caret line="104" column="0" lean-forward="false" selection-start-line="104" selection-start-column="0" selection-end-line="104" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.PyCharm2017.2/system/python_stubs/-1247971764/errno.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="106" column="12" lean-forward="true" selection-start-line="106" selection-start-column="12" selection-end-line="106" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_admin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="695">
+          <caret line="202" column="44" lean-forward="false" selection-start-line="202" selection-start-column="44" selection-end-line="202" selection-end-column="44" />
+          <folding>
+            <element signature="e#0#29#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/usermgr.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="378">
+          <caret line="199" column="23" lean-forward="true" selection-start-line="199" selection-start-column="23" selection-end-line="199" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/iiServer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18">
-          <caret line="230" column="0" lean-forward="false" selection-start-line="230" selection-start-column="0" selection-end-line="230" selection-end-column="0" />
+        <state relative-caret-position="-594">
+          <caret line="467" column="49" lean-forward="true" selection-start-line="467" selection-start-column="49" selection-end-line="467" selection-end-column="49" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
-            <marker date="1507561761146" expanded="true" signature="11244:11283" ph="select * fro... events" />
+            <marker date="1507741899946" expanded="true" signature="11335:11374" ph="select * fro... events" />
           </folding>
         </state>
       </provider>

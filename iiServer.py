@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.8.7' #our version string PEP 440
+__version__ = '1.8.9.1' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -229,14 +229,6 @@ def hello():
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
     htmlbody += "<ul>" \
-                "<li>v1.8.3.1</li>" \
-                "  <ul>" \
-                "    <li>REBUILD! - show events from imageimprov; </li>" \
-                "  </ul>" \
-                "<li>v1.8.4</li>" \
-                "  <ul>" \
-                "    <li>if no votable categories, return 204</li>" \
-                "  </ul>" \
                 "<li>v1.8.5</li>" \
                 "  <ul>" \
                 "    <li>more logging around photo & ballot</li>" \
@@ -249,7 +241,19 @@ def hello():
                 "  </ul>" \
                 "<li>v1.8.7</li>" \
                 "  <ul>" \
-                "    <li>Event status uses minimal privileges</li>" \
+                "    <li>cleanup up spacing</li>" \
+                "  </ul>" \
+                "<li>v1.8.8</li>" \
+                "  <ul>" \
+                "    <li>return pid in leaderboard, change internal interface</li>" \
+                "  </ul>" \
+                "<li>v1.8.9</li>" \
+                "  <ul>" \
+                "    <li>error seen in prod, c.id not bound to session when return ballot error on voting</li>" \
+                "  </ul>" \
+                "<li>v1.8.9.1</li>" \
+                "  <ul>" \
+                "    <li>increase test coverage</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -274,8 +278,6 @@ def hello():
 
     session = dbsetup.Session()
 
-#    sql = text('select * from mysql.event;')
-#    sql = text('show events from imageimprov;')
     sql = text('select * from information_schema.events;')
     try:
         result = dbsetup.engine.execute(sql)
@@ -343,7 +345,7 @@ def hello():
             num_photos = photo.Photo.count_by_category(session, c.get_id())
             htmlbody += "\n<br>number photos uploaded = <b>{}</b>".format(num_photos)
             if c.state == category.CategoryState.VOTING.value:
-                lb_list = tm.fetch_leaderboard(session, 0, c) # dummy user id
+                lb_list = tm.fetch_leaderboard(session, usermgr.AnonUser(uid=0), c) # dummy user id
                 htmlbody += "\n<br>round={0} (Voting Round #{1})".format(c.round, c.round+1)
                 num_voters = voting.Ballot.num_voters_by_category(session, c.get_id())
                 htmlbody += "\n<br>number users voting = <b>{}</b>".format(num_voters)
@@ -758,6 +760,10 @@ def get_leaderboard():
                 - 3
                 - 6
               description: "EXIF orientation of the image"
+            pid:
+              type: integer
+              description: "the identifying key for the photo"
+              exampe: 54732
             image:
               type: string
               description: "base64 encoded thumbnail image of entry"
@@ -770,13 +776,13 @@ def get_leaderboard():
         session = dbsetup.Session()
         cid = request.args.get('category_id')
         u = current_identity
-        uid = u.id
-        if cid is None or cid == 'None' or uid is None:
+        au = current_identity._get_current_object()
+        if cid is None or cid == 'None':
             rsp = make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
         else:
             tm = categorymgr.TallyMan()
             c = category.Category.read_category_by_id(cid, session)
-            lb_list = tm.fetch_leaderboard(session, uid, c)
+            lb_list = tm.fetch_leaderboard(session, au, c)
             if lb_list is not None:
                 rsp = make_response(jsonify(lb_list), 200)
             else:
@@ -1157,6 +1163,7 @@ def return_ballot(session, uid, cid):
 
         allow_upload = c.state == category.CategoryState.UPLOAD.value
         ballots = bm.create_ballot(session, uid, c, allow_upload)
+        cid = c.id
         if ballots is None or len(ballots._ballotentries) == 0:
             logger.info(msg="[return_ballot]no ballots returned for category #{0}".format(c.id))
             session.close()
@@ -1173,9 +1180,7 @@ def return_ballot(session, uid, cid):
         session.rollback()
         session.close()
 
-    if c is not None:
-        cid = c.id
-    else:
+    if cid is None:
         cid = 'None'
     logger.info(msg="[return_ballot]no ballots, weird error, c.id ={}".format(cid))
     return make_response(jsonify({'msg': error.error_string('NO_BALLOT')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -1505,6 +1510,7 @@ def photo_upload():
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     return store_photo(pi, uid, cid)
+
 
 def store_photo(pi: photo.PhotoImage, uid: int, cid: int):
     rsp = None

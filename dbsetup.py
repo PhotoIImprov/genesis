@@ -24,8 +24,10 @@ class EnvironmentType(Enum):
     STAGE   = 3
     PROD    = 4
 
+
 class Configuration():
     UPLOAD_CATEGORY_PICS = 4
+
 
 def determine_environment(hostname):
     if hostname is None:
@@ -49,6 +51,7 @@ def determine_environment(hostname):
 
     return EnvironmentType.UNKNOWN
 
+
 def connection_string(environment):
 
     if environment is None:
@@ -64,6 +67,7 @@ def connection_string(environment):
 
     return None
 
+
 def get_fontname(environment):
     if environment == EnvironmentType.DEV:
         if os.name == 'nt': # ultraman
@@ -74,6 +78,7 @@ def get_fontname(environment):
         return '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
 
     return None
+
 
 def resource_files(environment):
     if environment == EnvironmentType.DEV:
@@ -86,6 +91,7 @@ def resource_files(environment):
 
     return None
 
+
 def image_store(environment: EnvironmentType) -> str:
     if environment == EnvironmentType.DEV:
         if os.name == 'nt': # ultraman
@@ -97,6 +103,7 @@ def image_store(environment: EnvironmentType) -> str:
         return '/mnt/gcs-photos'
 
     return None
+
 
 def template_dir(environment: EnvironmentType) -> str:
 
@@ -114,6 +121,7 @@ def template_dir(environment: EnvironmentType) -> str:
 
     return None
 
+
 def root_url(environment: EnvironmentType) -> str:
     if environment is None:
         environment = determine_environment(None)
@@ -123,6 +131,7 @@ def root_url(environment: EnvironmentType) -> str:
 
     if environment == EnvironmentType.PROD:
         return 'https://api.imageimprov.com'
+
 
 def is_gunicorn():
     _is_gunicorn = "gunicorn" in os.environ.get("SERVER_SOFTWARE", "")

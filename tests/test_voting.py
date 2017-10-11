@@ -45,7 +45,7 @@ class TestVoting(DatabaseTest):
         self.setup()
         tm = categorymgr.TallyMan()
         try:
-            r = tm.fetch_leaderboard(self.session, 1, None)
+            r = tm.fetch_leaderboard(self.session, usermgr.AnonUser(uid=1), None)
         except Exception as e:
 #            assert(e.args[0] == errno.EINVAL and e.args[1] == 'cannot create leaderboard name')
             return
@@ -68,7 +68,7 @@ class TestVoting(DatabaseTest):
         # we have a leaderboard for this category, create an empty key
         lb.rank_member('0', 0, '0') # member, score, member_data
         try:
-            d = tm.fetch_leaderboard(self.session, 1, c)
+            d = tm.fetch_leaderboard(self.session, usermgr.AnonUser(uid=1), c)
             assert(d is not None)
             assert(len(d) == 0)
         except Exception as e:
@@ -80,8 +80,7 @@ class TestVoting(DatabaseTest):
         tm = categorymgr.TallyMan()
         c = category.Category()
         c.id = 0
-
-        dl = tm.fetch_leaderboard(self.session, 0, c)
+        dl = tm.fetch_leaderboard(self.session, usermgr.AnonUser(uid=0), c)
         assert(dl is not None)
         assert(len(dl) == 0)
 
