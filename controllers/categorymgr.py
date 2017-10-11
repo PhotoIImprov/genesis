@@ -367,6 +367,8 @@ class PassPhraseManager():
             return ak.passphrase
         except Exception as e:
             raise Exception('select_passphrase', 'no phrases!')
+
+
 # --- RewardManager ---
 class RewardManager():
     _user_id = None
