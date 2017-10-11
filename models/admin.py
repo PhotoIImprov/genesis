@@ -52,10 +52,10 @@ class CSRFevent(Base):
         self.csrf = self.generate_csrf_token()
 
     def generate_csrf_token(self) -> str:
-        '''
+        """
         A random string of bytes that can be safely encoded in a URL
         :return:
-        '''
+        """
         csrf = str(uuid4()).upper().translate({ord(c): None for c in '-'})
         url_safe_csrf = urllib.parse.quote_plus(csrf)
         return url_safe_csrf
@@ -70,11 +70,11 @@ class CSRFevent(Base):
         self.been_used = True
 
     def isvalid(self)-> bool:
-        '''
+        """
         we have a CSRFevent object from the database, is it still valid?
 
         :return:
-        '''
+        """
         if self.been_used or self.expiration_date < datetime.now():
             return False
 
@@ -89,11 +89,11 @@ class Emailer():
         self._send_email = kwargs.get('f_sendemail', self.send_email)
 
     def read_template(self, template_name: str) -> str:
-        '''
+        """
         read the named template in as string
         :param template_name:
         :return:
-        '''
+        """
         base_dir = dbsetup.template_dir(environment=None)
         fname = base_dir + '/' + template_name
         try:
@@ -151,26 +151,26 @@ class Emailer():
     #                               "to": emailaddress,
     #                               "subject": "Password Change notification",
     #                               "html": mail_body})
-    #     '''
+    #     """
     #         200 - Everything work as expected
     #         400 - Bad Request - often missing required parameter
     #         401 - Unauthorized - No valid API key provided
     #         402 - Request failed - parameters were valid but request failed
     #         404 - Not found - requested item doesn't exist
     #         500, 502, 503, 504 - Server Errors - something wrong on Mailgun's end
-    #     '''
+    #     """
     #     return res.status_code
 
     @staticmethod
     def send_email(to_email:str, from_email: str, subject_email: str, body_email:str) -> int:
-        '''
+        """
         Sends an email via an external emailing service
         :param to_email:
         :param from_email:
         :param subject_email:
         :param body_email:
         :return:
-        '''
+        """
         mailgun_APIkey = 'key-6896c65db1a821c6e15ae34ae2ad94e9'  # shh! this is a secret
         #    mailgun_SMTPpwd = 'e2b0c198a98ebf1f1a338bb4046352a1'
         mailgun_baseURL = 'https://api.mailgun.net/v3/api.imageimprov.com/messages'
@@ -182,12 +182,12 @@ class Emailer():
                                   "to": to_email,
                                   "subject": subject_email,
                                   "html": body_email})
-        '''
+        """
             200 - Everything work as expected
             400 - Bad Request - often missing required parameter
             401 - Unauthorized - No valid API key provided
             402 - Request failed - parameters were valid but request failed
             404 - Not found - requested item doesn't exist
             500, 502, 503, 504 - Server Errors - something wrong on Mailgun's end
-        '''
+        """
         return res.status_code

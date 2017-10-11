@@ -4,11 +4,11 @@ import dbsetup
 from models import category, usermgr, photo
 from models import engagement, voting
 
-'''
+"""
 User Profile 
 ------------
 All the user profile models are here
-'''
+"""
 _MAX_PHOTOS_TO_RETURN = 50 # of photos that likes list will return
 
 
@@ -102,14 +102,14 @@ class Submissions():
 
     @staticmethod
     def get_user_likes(session, au: usermgr.AnonUser, dir: str, cid: int) -> list:
-        '''
+        """
         returns a list of the photos a user "likes" as list of
         jsonifyable dictionary elements
 
         dir - next/prev direction from specified photo_id (pid)
         cid - category to start next/prev search, non-inclusive
         :return:
-        '''
+        """
         if dir == 'next':
             q = session.query(photo.Photo).filter(photo.Photo.category_id > cid). \
                 join(engagement.Feedback, engagement.Feedback.photo_id == photo.Photo.id). \

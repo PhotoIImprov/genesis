@@ -31,6 +31,7 @@ class UserType(Enum):
             return "iiSTAFF"
         return "INVALID"
 
+
 class AnonUser(Base):
     __tablename__ = "anonuser"
     id            = Column(Integer, primary_key = True, autoincrement=True)
@@ -111,6 +112,7 @@ class AnonUser(Base):
             return True
 
         return False
+
 
 class User(Base):
 
@@ -232,13 +234,14 @@ def auth_response_handler(access_token, identity):
     else:
         return jsonify({'access_token': access_token.decode('utf-8')})
 
+
 #================================= o A u t h 2  =================================================
 class UserAuth(Base):
-    '''
+    """
     A UserAuth record is tied to the AnonUser. There can be multiple UserAuth records, but only
     one per service provider. The presence of this record indicates that the service provider's
     associating to this user record has been validated.
-    '''
+    """
     __tablename__ = 'userauth'
 
     id = Column(Integer, ForeignKey("anonuser.id", name="fk_userauth_id"), primary_key = True)  # ties us back to our anon_user record
@@ -381,6 +384,7 @@ class UserAuth(Base):
             session.rollback()
             return None
 
+
 #================================= F R I E N D - L I S T ========================================
 class Friend(Base):
 
@@ -463,4 +467,3 @@ class FriendRequest(Base):
 
         session.add(new_friend)
         return
-

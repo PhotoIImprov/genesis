@@ -117,13 +117,13 @@ class Feedback(Base):
         self.offensive = kwargs.get('offensive', self._old_offensive)
 
     def update_photo(self, session, pid: int):
-        '''
+        """
         update the # likes on the photo depending on how this user's
         like has changed things
         :param session:
         :param pid:
         :return:
-        '''
+        """
         if self.like == self._old_like and self.offensive == self._old_offensive:
             return
 

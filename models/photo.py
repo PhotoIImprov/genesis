@@ -234,12 +234,12 @@ class Photo(Base):
             logger.exception(msg="Error with EXIF data parsing for file {0}/{1}".format(self.filepath, self.filename))
 
     def read_thumbnail_b64_utf8(self) -> str:
-        '''
+        """
         Reads a thumbnail image, checking the cache first.
         The cache expiration is pretty long, could be an issue
         once we have lots & lots of users.
         :return: base64 encoded thumbnail as a string
-        '''
+        """
         try:
             b64_utf8 = _expiry_cache.get(self.filename)
             if b64_utf8 is not None:
@@ -296,12 +296,12 @@ class Photo(Base):
 
 
     def compute_scalefactor(self, height: int, width: int) -> float:
-        '''
+        """
         :param height:
         :param width: 
         :return: a scaling factor such that the result is no dimension larger than _MAX_HEIGHT and _MAX_WIDTH
          yet retain aspect ratio
-        '''
+        """
         _MAX_HEIGHT = 720
         _MAX_WIDTH = 720
         if height > width:
@@ -359,13 +359,13 @@ class Photo(Base):
 
     @timeit()
     def create_thumb_PIL(self, fn: str) -> None:
-        '''
+        """
         We will "normalize" the thumbnail to an orientation of '1' to
         simplify any downstream processing. The orientation & exif data in
         photometa are for the hi-res image, which we don't mess with.
 
         :return: nothing
-        '''
+        """
         if self._photoimage is None or self._photoimage._binary_image is None:
             raise BaseException(errno.EINVAL, "no raw image")
 
@@ -411,13 +411,13 @@ class Photo(Base):
 
     # @timeit()
     # def create_thumb_OpenCV(self, fn=None) -> None:
-    #     '''
+    #     """
     #     We will "normalize" the thumbnail to an orientation of '1' to
     #     simplify any downstream processing. The orientation & exif data in
     #     photometa are for the hi-res image, which we don't mess with.
     #
     #     :return: nothing
-    #     '''
+    #     """
     #     if self._photoimage is None or self._photoimage._binary_image is None:
     #         raise BaseException(errno.EINVAL, "no raw image")
     #
@@ -454,13 +454,13 @@ class Photo(Base):
     #     return
 
     # def rotate_flip_scale(self, img, rotate_cw: int, flip: bool, scale: int):
-    #     '''
+    #     """
     #     :param img: hi-res image
     #     :param rotate_cw: 0 or 90 degrees CW
     #     :param flip: 0 = flip X-axis, 1 = flip Y-axis, -1 = flip both axis
     #     :param scale: scale factor to scale down by
     #     :return: scaled, rotated & flipped image
-    #     '''
+    #     """
     #     ret_img = cv2.resize(img, None,fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
     #
     #
@@ -514,12 +514,12 @@ class Photo(Base):
         return exif_dict
 
     def read_photo_to_b64(self) -> bytes:
-        '''
+        """
         read_photo_to_b64()
         called infrequently when we need to return the full, hi-res image
         :return:
          bytes
-        '''
+        """
         b64_img = None
         f = None
         try:

@@ -259,12 +259,12 @@ class CategoryTagList():
     _tags = None
 
     def read_category_tags(self, cid: int, session) -> list:
-        '''
+        """
         read the tags from the resource table
         :param cid:
         :param session:
         :return:
-        '''
+        """
         try:
             q = session.query(resources.Resource).\
                 join(CategoryTag, CategoryTag.resource_id == resources.Resource.resource_id).\
