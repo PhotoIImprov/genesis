@@ -1,4 +1,3 @@
-
 from unittest import TestCase
 from models import admin
 from models import usermgr, category, photo
@@ -7,6 +6,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import func
 from controllers import categorymgr
 import uuid
+import errno
 
 class TestBaseURL(DatabaseTest):
     def test_default_url(self):
@@ -195,3 +195,9 @@ class TestCSRFevent(DatabaseTest):
         status = admin.Emailer(f_sendemail=TestCSRFevent.f_test_send_password_changed_send_email).send_reset_password_notification_email(emailaddress)
         assert (status == 200)
 
+    def test_bad_template_name(self):
+        try:
+            admin.Emailer().read_template('bogustemplatename')
+            assert(False)
+        except Exception as e:
+            assert(e.args[0] == errno.ENOENT and e.args[1] == 'No such file or directory')
