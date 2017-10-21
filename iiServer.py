@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.8.9.1' #our version string PEP 440
+__version__ = '1.9.0' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -254,6 +254,10 @@ def hello():
                 "<li>v1.8.9.1</li>" \
                 "  <ul>" \
                 "    <li>increase test coverage</li>" \
+                "  </ul>" \
+                "<li>v1.9.0</li>" \
+                "  <ul>" \
+                "    <li>tests for tags keyword in /update/photo</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -2388,7 +2392,7 @@ def update_photometa(pid: int):
         u = current_identity
         like = json_data['like']
         offensive = json_data['flag']
-        tags = json_data['tags']
+        tags = json_data.get('tags', None)
     except KeyError as ke:
         logger.exception(msg='error with reading JSON input')
         return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)
