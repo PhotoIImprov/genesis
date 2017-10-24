@@ -1156,6 +1156,12 @@ class BallotManager:
             be = voting.BallotEntry(user_id=p.user_id, category_id=c.id, photo_id=p.id)
             self._ballot.append_ballotentry(be)
             session.add(be)
+            # see if the user has "liked" this photo
+            fb = engagement.Feedback.get_feedback(session, pid=p.id, uid=uid)
+            if fb is not None:
+                be.like = fb.like
+                be.offensive = fb.offensive
+
         return self._ballot
 
 
@@ -1216,8 +1222,8 @@ class BallotManager:
         :param session:
         :param uid: the user asking for the ballot (so we can exclude their photos)
         :param c: category
-        :return: a list of '_NUM_BALLOT_ENTRIES'. We ask for more than this,
-                shuffle the result and trim the list lenght, so we get some randomness
+        :return: a list of photos, '_NUM_BALLOT_ENTRIES' long. We ask for more than this,
+                shuffle the result and trim the list length, so we get some randomness
         """
         if c.state != category.CategoryState.VOTING.value and not allow_upload:
             if c is not None:

@@ -134,6 +134,17 @@ class Feedback(Base):
             p.likes = p.likes - 1
         session.add(p)
 
+    @staticmethod
+    def get_feedback(session, pid: int, uid: int):
+        try:
+            q = session.query(Feedback).filter(Feedback.user_id == uid).\
+                filter(Feedback.photo_id == pid)
+            fb = q.one_or_none()
+            return fb
+        except Exception as e:
+            raise
+
+
 class FeedbackTag(Base):
     __tablename__ = 'feedbacktag'
 
