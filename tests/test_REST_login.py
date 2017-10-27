@@ -835,7 +835,7 @@ class TestVoting(iiBaseUnitTest):
         self.create_anon_testuser_get_token(make_staff=True)
 
         # create category information
-        start_date = (datetime.datetime.now() - datetime.timedelta(days=1) ).strftime("%Y-%m-%d %H:%M")
+        start_date = (datetime.datetime.now() - datetime.timedelta(days=1) ).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         d_data = {'start_date': start_date, 'upload': 24, 'voting': 72, 'name': 'CreateCategoryEarlyDate'}
         j_category = json.dumps(d_data)
         rsp = self.app.post(path='/category', data=j_category,headers=self.get_header_json())
@@ -847,7 +847,7 @@ class TestVoting(iiBaseUnitTest):
         self.create_anon_testuser_get_token(make_staff=True)
 
         # create category information
-        start_date = (datetime.datetime.now() + datetime.timedelta(days=1) ).strftime("%Y-%m-%d %H:%M")
+        start_date = (datetime.datetime.now() + datetime.timedelta(days=1) ).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         d_data = {'start_date': start_date, 'upload': 24, 'voting': 72, 'name': 'CreateCategoryGoodDate'}
         j_category = json.dumps(d_data)
         rsp = self.app.post(path='/category', data=j_category,headers=self.get_header_json())
@@ -1212,9 +1212,11 @@ class TestCategory(iiBaseUnitTest):
         assert(len(cl) != 0)
 
         # verify that all keys are in the dictionary returned
-        keylist = ('state', 'round', 'start', 'end', 'id', 'theme')
+        keylist = ('state', 'round', 'start', 'end', 'id', 'description', 'upload_duration', 'vote_duration')
         for key in keylist:
-            assert(key not in cl)
+            for c in cl:
+                assert(key in c)
+                assert(len(keylist) == len(c))
         return
 
 class TestLeaderBoard(iiBaseUnitTest):

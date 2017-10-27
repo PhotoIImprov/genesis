@@ -107,7 +107,7 @@ class Category(Base):
             _end_date = self.start_date + timedelta(hours=(self.duration_upload + self.duration_vote))
             json_end_date   = "{}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}Z".format(_end_date.year, _end_date.month, _end_date.day, _end_date.hour, _end_date.minute, _end_date.second)
             json_state = CategoryState.to_str(self.state)
-            d = dict({'id':self.id, 'description':category_description, 'start':json_start_date, 'end':json_end_date, 'state':json_state, 'round': str(self.round)})
+            d = dict({'id':self.id, 'description':category_description, 'start':json_start_date, 'end':json_end_date, 'state':json_state, 'round': str(self.round), 'upload_duration': self.duration_upload, 'vote_duration': self.duration_vote})
             return d
         except Exception as e:
             logger.exception(msg="error json category values")

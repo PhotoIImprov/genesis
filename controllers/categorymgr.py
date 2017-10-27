@@ -997,6 +997,7 @@ class BallotManager:
             return 0, 0
 
         except Exception as e:
+            logger.exception(msg="error getting badges for votes for user {}".format(uid))
             raise
 
     def update_rewards_for_vote(self, session, au:usermgr.AnonUser) -> None:

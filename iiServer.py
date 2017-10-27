@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.9.1' #our version string PEP 440
+__version__ = '1.9.3' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -229,20 +229,6 @@ def hello():
 
     htmlbody += "<h2>Version {}</h2><br>".format(__version__)
     htmlbody += "<ul>" \
-                "<li>v1.8.5</li>" \
-                "  <ul>" \
-                "    <li>more logging around photo & ballot</li>" \
-                "  </ul>" \
-                "<li>v1.8.6</li>" \
-                "  <ul>" \
-                "    <li>more logging around ballot</li>" \
-                "    <li>restructure try-except-finally logic</li>" \
-                "    <li>clean up testing</li>" \
-                "  </ul>" \
-                "<li>v1.8.7</li>" \
-                "  <ul>" \
-                "    <li>cleanup up spacing</li>" \
-                "  </ul>" \
                 "<li>v1.8.8</li>" \
                 "  <ul>" \
                 "    <li>return pid in leaderboard, change internal interface</li>" \
@@ -262,6 +248,19 @@ def hello():
                 "<li>v1.9.1</li>" \
                 "  <ul>" \
                 "    <li>read feedback and return in ballotentry for /ballot</li>" \
+                "  </ul>" \
+                "<li>v1.9.1.1</li>" \
+                "  <ul>" \
+                "    <li>update Swagger for create category interface</li>" \
+                "  </ul>" \
+                "<li>v1.9.2</li>" \
+                "  <ul>" \
+                "    <li>create category takes RFC3339 date format (YYYY-mm-ddTHH:MM:SS.mmmZ)</li>" \
+                "  </ul>" \
+                "<li>v1.9.3</li>" \
+                "  <ul>" \
+                "    <li>return duration of upload & voting in /category, update tests</li>" \
+                "    <li>more logging with /update/photo</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -535,6 +534,32 @@ def create_category():
       - application/json
     security:
       - JWT: []
+    parameters:
+      - in: body
+        name: arguments
+        schema:
+          id: category_create
+          required:
+            - upload
+            - voting
+            - name
+          properties:
+            upload:
+              type: integer
+              example: 24
+              description: "The duration, in hours, the category will accept photos"
+            voting:
+              type: integer
+              example: 72
+              description: "The duration, in hours, the category will accept voting after the upload period"
+            name:
+              type: string
+              example: "Round"
+              description: "The theme/category name prompt for the photos being taken"
+            start_date:
+              type: string
+              example: "2017-11-23T16:30:00.000Z"
+              description: "The starting date & time of the category, formatted RFC339 (YYYY-mm-DDTHH:MM:SS.mmmZ), UTC time"
     produces:
       - application/json
     responses:
@@ -574,11 +599,12 @@ def create_category():
         if start_date == 'next':
             dt_start = categorymgr.CategoryManager.next_category_start(session)
             if dt_start is None:
-                start_date = dt_now.strftime("%Y-%m-%d %H:%M")
+                start_date = dt_now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
             else:
-                start_date = dt_start.strftime("%Y-%m-%d %H:%M")
+                start_date = dt_start.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         try:
-            dt_start = datetime.datetime.strptime(start_date, '%Y-%m-%d %H:%M')
+            dt_start = datetime.datetime.strptime(start_date, '%Y-%m-%dT%H:%M:%S.%fZ')
+            start_date = dt_start.strftime("%Y-%m-%d %H:%M")
         except Exception as e:
             return make_response(jsonify({'msg': error.error_string('BAD_DATEFORMAT')}), status.HTTP_400_BAD_REQUEST)
 
@@ -673,6 +699,14 @@ def get_category():
               type: integer
               description: "Which round of voting the category is in."
               example: 1
+            vote_duration:
+              type: integer
+              description: "how long voting lasts in hours"
+              example: 24
+            upload_duration:
+              type: integer
+              description: "how long uploading lasts in hours"
+              example: 72
     """
     rsp = None
     try:
@@ -1098,7 +1132,7 @@ def cast_vote():
           properties:
             bid:
               type: integer
-              description: "ballot identifier"
+              description: "ballot entry identifier"
             vote:
               type: integer
               description: "ranking in ballot"
@@ -2409,7 +2443,9 @@ def update_photometa(pid: int):
         session.commit()
         rsp = make_response(jsonify({'msg': 'feedback updated'}), status.HTTP_200_OK)
     except Exception as e:
-        logger.exception(msg="[/update] error updating photo metadata")
+        if pid is None:
+            pid = 'None'
+        logger.exception(msg="[/update] error updating photo metadata (uid={0}, pid={1}".format(u.id, pid))
         rsp = make_response('image not found', status.HTTP_404_NOT_FOUND)
     finally:
         session.close()
