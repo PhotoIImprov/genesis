@@ -23,6 +23,7 @@ _SCHEDULED_TIME_SECONDS_DEV = 5
 _SCHEDULED_TIME_SECONDS_PROD = 60 * 5 # 5 minutes for testing
 _PAGE_SIZE_PHOTOS = 1000
 _THROTTLE_UPDATES_SECONDS = 0.010 # 10 milliseconds between '_PAGE_SIZE_PHOTOS' record updates
+_LEADERBOARD_SIZE = 10 # there should be at least 10 entries in the leaderboard
 
 class sync_daemon(myDaemon):
 
@@ -83,7 +84,7 @@ class sync_daemon(myDaemon):
             tm._redis_conn = self._redis_conn
 
         for c in cl:
-            self.scored_photos_by_category(session, tm, c)
+            self.all_photos_by_category(session, tm, c)
 
     def read_all_categories(self, session):
         '''
@@ -138,16 +139,15 @@ class sync_daemon(myDaemon):
         lb_exists = self._redis_conn.exists(self._current_lbname) == 1
         return lb_exists
 
-    def scored_photos_by_category(self, session, tm, c):
+    def all_photos_by_category(self, session, tm, c):
         '''
         if a category doesn't have a leaderboard, we'll read in
-        the photos that have scores and rank them in the leaderboard
+        the photos ordered by scoring and put them in the leaderboard
         :param session: database access
         :param tm: our TallyMan(), our handle to leaderboard functions
-        :param c: category we are focused on 
-        :return: 
+        :param c: category we are focused on
+        :return:
         '''
-        # there could be millions of records, so we need to page
         if self.leaderboard_exists(session, tm, c):
             return
 
@@ -155,27 +155,53 @@ class sync_daemon(myDaemon):
         lb = tm.get_leaderboard_by_category(session, c, check_exist=False)
         self.create_key(lb)
 
-        more_photos = True
-        max_pid = 0
-        total_records_processed = 0
-        while more_photos:
-            q = session.query(photo.Photo).filter(photo.Photo.category_id == c.id).\
-                filter(photo.Photo.score > 0).\
-                filter(photo.Photo.active == 1).\
-                filter(photo.Photo.id > max_pid).order_by(photo.Photo.id.asc()).limit(_PAGE_SIZE_PHOTOS)
-            pl = q.all()
-            more_photos = (len(pl) == _PAGE_SIZE_PHOTOS)
-            logger.info("read {} records".format(len(pl)))
-            if len(pl) > 0:
-                max_pid = pl[-1].id # last element is max photo_id for this pageset
-                for p in pl:
-                    tm.update_leaderboard(session, c, p, check_exist=False)
-                total_records_processed += len(pl)
+        q = session.query(photo.Photo).filter(photo.Photo.category_id == c.id).\
+            filter(photo.Photo.active == 1).order_by(photo.Photo.score.desc()).limit(_LEADERBOARD_SIZE)
+        pl = q.all()
+        logger.info("read {} records".format(len(pl)))
+        if len(pl) > 0:
+            for p in pl:
+                tm.update_leaderboard(session, c, p, check_exist=False)
+        time.sleep(_THROTTLE_UPDATES_SECONDS) # brief pause so machine can catch it's breath
 
-            time.sleep(_THROTTLE_UPDATES_SECONDS) # brief pause so machine can catch it's breath
-
-        logger.info("...{} total records processed".format(total_records_processed))
-
+    # def scored_photos_by_category(self, session, tm, c):
+    #     '''
+    #     if a category doesn't have a leaderboard, we'll read in
+    #     the photos that have scores and rank them in the leaderboard
+    #     :param session: database access
+    #     :param tm: our TallyMan(), our handle to leaderboard functions
+    #     :param c: category we are focused on
+    #     :return:
+    #     '''
+    #     # there could be millions of records, so we need to page
+    #     if self.leaderboard_exists(session, tm, c):
+    #         return
+    #
+    #     logger.info("processing category {0} \'{1}\'".format(c.id, c.get_description()))
+    #     lb = tm.get_leaderboard_by_category(session, c, check_exist=False)
+    #     self.create_key(lb)
+    #
+    #     more_photos = True
+    #     max_pid = 0
+    #     total_records_processed = 0
+    #     while more_photos:
+    #         q = session.query(photo.Photo).filter(photo.Photo.category_id == c.id).\
+    #             filter(photo.Photo.score > 0).\
+    #             filter(photo.Photo.active == 1).\
+    #             filter(photo.Photo.id > max_pid).order_by(photo.Photo.id.asc()).limit(_PAGE_SIZE_PHOTOS)
+    #         pl = q.all()
+    #         more_photos = (len(pl) == _PAGE_SIZE_PHOTOS)
+    #         logger.info("read {} records".format(len(pl)))
+    #         if len(pl) > 0:
+    #             max_pid = pl[-1].id # last element is max photo_id for this pageset
+    #             for p in pl:
+    #                 tm.update_leaderboard(session, c, p, check_exist=False)
+    #             total_records_processed += len(pl)
+    #
+    #         time.sleep(_THROTTLE_UPDATES_SECONDS) # brief pause so machine can catch it's breath
+    #
+    #     logger.info("...{} total records processed".format(total_records_processed))
+    #
 # ================================================================================================================
 
 _PIDFILE = '/var/run/synchronize_iiDaemon.pid'
