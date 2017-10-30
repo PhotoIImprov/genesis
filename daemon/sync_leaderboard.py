@@ -3,11 +3,11 @@
 import sys
 import time
 import os
-from controllers import categorymgr
 
 lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
 
+from controllers import categorymgr
 from python_daemon import myDaemon
 import redis
 from models import category, usermgr, photo, voting
