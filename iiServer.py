@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.9.4' #our version string PEP 440
+__version__ = '1.9.5' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -265,6 +265,10 @@ def hello():
                 "<li>v1.9.4</li>" \
                 "  <ul>" \
                 "    <li>redis service will pre-populate leaderboard with top 10 photos ranked by score</li>" \
+                "  </ul>" \
+                "<li>v1.9.5</li>" \
+                "  <ul>" \
+                "    <li>return pid with the /photo upload response</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
@@ -922,6 +926,9 @@ def get_ballot():
       - schema:
           id: CategoryBallots
           properties:
+            pid:
+              type: int
+              description: "optional, returns the photo identifier that uniquetly identifies the photo just saved"
             category:
               $ref: '#/definitions/Category'
             ballots:
@@ -935,7 +942,7 @@ def get_ballot():
         cid = request.args.get('category_id')
 
     session = dbsetup.Session()
-    return return_ballot(session, uid, cid)
+    return return_ballot(session, uid=uid, cid=cid, pid=None)
 
 @app.route("/acceptfriendrequest", methods=['POST'])
 @jwt_required()
@@ -1181,10 +1188,10 @@ def cast_vote():
         session.close()
         return make_response(jsonify({'msg': error.error_string('TABULATE_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    return return_ballot(session, uid, None)
+    return return_ballot(session, uid=uid, cid=None, pid=None)
 
 
-def return_ballot(session, uid, cid):
+def return_ballot(session, uid: int, cid: int, pid=None):
     """
     If category passed in is in the UPLOAD state, then we'll
     allow voting on it.
@@ -1219,6 +1226,8 @@ def return_ballot(session, uid, cid):
             j_ballots = ballots.to_json()
             d = {'category': c.to_json(), 'ballots': j_ballots}
             session.commit()
+            if pid is not None:
+                d['pid'] = pid
             logger.info(msg=ballots.to_log())
             session.close()
             return make_response(jsonify(d), status.HTTP_200_OK)
@@ -1521,6 +1530,10 @@ def photo_upload():
           properties:
             filename:
               type: string
+              description: "The filename. This is a unique (GUID) generated name"
+            pid:
+              type: int
+              description: "The photo identifier, uniquely identifies the photo record in the db"
       400:
         description: "missing required arguments"
         schema:
@@ -1569,7 +1582,8 @@ def store_photo(pi: photo.PhotoImage, uid: int, cid: int):
         if d['error'] is not None:
             return make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
         num_photos_in_category = photo.Photo.count_by_category(session, cid, uid)
-        rsp = make_response(jsonify({'msg': error.error_string('PHOTO_UPLOADED'), 'filename': d['arg']}), status.HTTP_201_CREATED)
+        rsp = make_response(jsonify({'msg': error.error_string('PHOTO_UPLOADED'), 'filename': d['arg'], 'pid':p.id}), status.HTTP_201_CREATED)
+
     except Exception as e:
         session.rollback()
         session.close()
@@ -1586,7 +1600,7 @@ def store_photo(pi: photo.PhotoImage, uid: int, cid: int):
     if num_photos_in_category > dbsetup.Configuration.UPLOAD_CATEGORY_PICS:
         try:
             logger.info(msg="[store_photo]returning a ballot for category #{0}".format(cid))
-            return return_ballot(session, uid, cid)
+            return return_ballot(session, uid=uid, cid=cid, pid=p.id)
         except Exception as e:
             pass     # Note: If anything goes wrong, forget the return ballot and just return success for the upload
 
