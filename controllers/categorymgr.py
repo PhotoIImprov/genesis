@@ -156,7 +156,10 @@ class CategoryManager():
             filter(category.Category.type == category.CategoryType.OPEN.value)
 
         last_date = q.all()
-        dt_last = datetime.strptime(last_date[0][0], '%Y-%m-%d %H:%M:%S')
+        if last_date[0][0] is None:
+            dt_last = datetime.now()
+        else:
+            dt_last = datetime.strptime(last_date[0][0], '%Y-%m-%d %H:%M:%S')
         return dt_last
 
     @staticmethod
@@ -807,7 +810,7 @@ class TallyMan():
         """
         try:
             lb = self.get_leaderboard_by_category(session, c, check_exist=True)
-            lb.rank_member(p.user_id, p.score, str(p.id))
+            lb.rank_member(p.id, p.score, str(p.user_id))
         except Exception as e:
             logger.exception(msg="error updating the leaderboard")
             raise
@@ -897,7 +900,7 @@ class TallyMan():
             if cached_dl == dl and dl is not None:
                 lb_list = _expiry_cache.get(thumbnail_key)
                 if lb_list is not None:
-                    logger.info(msg="cache hit for leaderboard{0}".format(c.id))
+                    logger.info(msg="cache hit for leaderboard, category_id ={0}".format(c.id))
                     return lb_list
 
             _expiry_cache.put(list_key, dl, ttl=ttl_leaderboard) # 1 hour expiration of the non-photo list
@@ -906,9 +909,9 @@ class TallyMan():
 
             lb_list = []
             for d in dl:
-                lb_uid = int(str(d['member'], 'utf-8'))         # anonuser.id / userlogin.id
+                lb_pid = int(str(d['member'], 'utf-8'))     # photo.id
                 try:
-                    lb_pid = int(str(d['member_data'], 'utf-8'))    # photo.id
+                    lb_uid = int(str(d['member_data'], 'utf-8')) # anonuser.id / userlogin.id
                 except Exception as e:
                     continue
 

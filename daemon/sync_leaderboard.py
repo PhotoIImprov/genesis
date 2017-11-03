@@ -8,7 +8,7 @@ lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
 
 from controllers import categorymgr
-from python_daemon import myDaemon
+from daemon import python_daemon
 import redis
 from models import category, usermgr, photo, voting
 import dbsetup
@@ -25,7 +25,7 @@ _PAGE_SIZE_PHOTOS = 1000
 _THROTTLE_UPDATES_SECONDS = 0.010 # 10 milliseconds between '_PAGE_SIZE_PHOTOS' record updates
 _LEADERBOARD_SIZE = 10 # there should be at least 10 entries in the leaderboard
 
-class sync_daemon(myDaemon):
+class sync_daemon(python_daemon.myDaemon):
 
     _pidf = None
     _logf = None

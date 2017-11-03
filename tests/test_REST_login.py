@@ -18,6 +18,8 @@ from tests import DatabaseTest
 from models import photo
 from sqlalchemy import func, text
 from controllers import categorymgr
+from daemon import sync_leaderboard
+
 
 class TestUser:
     _u = None   # username
@@ -224,6 +226,8 @@ class iiBaseUnitTest(unittest.TestCase):
         rsp = self.app.post(path='/photo', data=json.dumps(dict(category_id=c.id, extension=ext, image=b64img)),
                             headers=self.get_header_json())
         assert(rsp.status_code == 201 or rsp.status_code == 200)
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert('pid' in data.keys())
 
     def create_test_categories_with_photos(self, session, num_categories: int, num_photos: int) -> (list, list):
         u_staff = self.create_testuser_get_token(make_staff=True)  # get a user so we can use the API
@@ -1289,6 +1293,10 @@ class TestLeaderBoard(iiBaseUnitTest):
         if rsp.status_code != 201 and rsp.status_code != 200:
             assert(False)
         assert (rsp.status_code == 201 or rsp.status_code == 200)
+
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert('pid' in data.keys())
+
         return
 
     def get_ballot_by_user(self, tu):
@@ -1390,6 +1398,63 @@ class TestLeaderBoard(iiBaseUnitTest):
         # now let's get the leaderboard
         for tu in user_list:
             lb = self.get_leaderboard(tu)
+            for l in lb:
+                img = l['image']
+                rank = l['rank']
+                score = l['score']
+                pid = l['pid']
+
+    def test_leaderboard_noscores(self):
+        self.setUp()
+
+        # okay, this will get complex. We have to do the following:
+
+        # setup a category for Uploading
+        # register a bunch of users
+        # upload photos for those users
+        # download ballots for some of the users
+        # vote a bunch of times
+        # download the leaderboard
+        # okay, we're going to create users & upload photos
+        session = dbsetup.Session()
+        category_name = 'test_leaderboard()'
+        dt_start = datetime.datetime.now() #categorymgr.CategoryManager.next_category_start(session)
+        start_date = dt_start.strftime("%Y-%m-%d %H:%M")
+        cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72, description=category_name)
+        c = cm.create_category(session, category.CategoryType.OPEN.value)
+        c.state = category.CategoryState.UPLOAD.value
+        session.commit()
+
+        user_list = []
+        for i in range(0,3):
+            tu = self.create_testuser_get_token()
+            tu.set_cid(c.id)
+            user_list.append(tu)
+
+        # only upload a single photo in the category
+        # for each user
+        for tu in user_list:
+            for i in range(1,5):
+                self.upload_photo(tu, 'TestPic.JPG')
+
+        # okay we've uploaded a bunch of users and gave them photos
+        # set the category to VOTING
+        TestCategory().set_category_state(c.id, category.CategoryState.VOTING)
+
+        # we need to create the leaderboard
+        tm = categorymgr.TallyMan()
+        session = dbsetup.Session()
+
+        sd = sync_leaderboard.sync_daemon()
+
+        #populate the leaderboard
+        sd.all_photos_by_category(session, tm, c)
+
+        # now let's get the leaderboard
+        for tu in user_list:
+            tu.set_cid(c.id)
+            lb = self.get_leaderboard(tu)
+            assert(len(lb) == 10)
             for l in lb:
                 img = l['image']
                 rank = l['rank']
@@ -1783,6 +1848,8 @@ class TestCategoryFiltering(iiBaseUnitTest):
         b64img = img.decode("utf-8")
         rsp = self.app.post(path='/photo', data=json.dumps(dict(category_id=c.id, extension=ext, image=b64img)),
                             headers=self.get_header_json())
+        data = json.loads(rsp.data.decode("utf-8"))
+        assert('pid' in data.keys())
 
 
     def test_event_category_list(self):

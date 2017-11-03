@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'imageimprove3077b47'
 
 is_gunicorn = False
 
-__version__ = '1.9.5' #our version string PEP 440
+__version__ = '1.9.6' #our version string PEP 440
 
 
 def fix_jwt_decode_handler(token):
@@ -269,6 +269,10 @@ def hello():
                 "<li>v1.9.5</li>" \
                 "  <ul>" \
                 "    <li>return pid with the /photo upload response</li>" \
+                "  </ul>" \
+                "<li>v1.9.6</li>" \
+                "  <ul>" \
+                "    <li>track photo_id/score now in leaderboard so user can have as many photos in the leaderboard as they get</li>" \
                 "  </ul>" \
                 "</ul>"
     htmlbody += "<img src=\"/static/python_small.png\"/>\n"
