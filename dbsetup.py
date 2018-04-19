@@ -29,14 +29,23 @@ class Configuration():
     UPLOAD_CATEGORY_PICS = 4
 
 
+def determine_host():
+    hostname = 'unknown'
+    try:
+        hostname = str.upper(os.uname()[1])
+    except AttributeError as e:
+        hostname = str.upper(os.environ['COMPUTERNAME'])
+
+    return hostname
+
+
 def determine_environment(hostname):
     if hostname is None:
-        try:
-            hostname = str.upper(os.uname()[1])
-        except Exception as e:
-            hostname = str.upper(os.environ['COMPUTERNAME'])
+        hostname = determine_host()
 
     if "DEV" in hostname:
+        return EnvironmentType.DEV
+    elif "4KOFFICE":
         return EnvironmentType.DEV
     elif "ULTRAMAN" in hostname:
         return EnvironmentType.DEV
@@ -57,7 +66,7 @@ def connection_string(environment):
     if environment is None:
         environment = determine_environment(None)
     if environment == EnvironmentType.DEV:
-        if os.name == 'nt': # ultraman
+        if os.name == 'nt': # ultraman or 4KOFFICE
             return 'mysql+pymysql://python:python@localhost:3306/imageimprov'
         else:
             return 'mysql+pymysql://python:python@192.168.1.16:3306/imageimprov'
@@ -70,7 +79,7 @@ def connection_string(environment):
 
 def get_fontname(environment):
     if environment == EnvironmentType.DEV:
-        if os.name == 'nt': # ultraman
+        if os.name == 'nt': # ultraman or 4KOFFICE
             return 'c:/Windows/Boot/Fonts/segmono_boot.ttf'
         else:
             return '/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-B.ttf'
@@ -108,11 +117,14 @@ def image_store(environment: EnvironmentType) -> str:
 def template_dir(environment: EnvironmentType) -> str:
 
     if environment is None:
-        environment = determine_environment(None)
+        hostname = determine_host()
+        environment = determine_environment(hostname)
 
     if environment == EnvironmentType.DEV:
-        if os.name == 'nt': # ultraman
+        if hostname == 'ULTRAMAN':
             return 'c:/dev/genesis/templates'
+        elif hostname == '4KOFFICE':
+            return 'C:/Users/bp100/PycharmProjects/genesis/templates'
         else:
             return '/home/hcollins/dev/genesis/templates'
 
@@ -207,5 +219,6 @@ QUOTES = (
     ('Beer is proof that God loves us and wants us to be happy', 'Benjamin Franklin'),
     ('You can\'t be a real country unless you have a beer and an airline - it helps if you have some kind of football team, or some nuclear weapons, but in the very least you need a beer', 'Frank Zappa'),
     ('The best beer in the world is the one in my hand', 'Charles Papazian'),
-    ('Give my people plenty of beer, good beer, and cheap beer, and you will have no revolution among them', 'Queen Victoria')
+    ('Give my people plenty of beer, good beer, and cheap beer, and you will have no revolution among them', 'Queen Victoria'),
+    ('Keep your libraries, your penal institutions, your insane asylums… give me beer. You think man needs rule, he needs beer. The world does not need morals, it needs beer… The souls of men have been fed with  indigestibles, but the soul could make use of beer.', 'Henry Miller')
 )
