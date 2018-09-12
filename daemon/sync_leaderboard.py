@@ -208,7 +208,7 @@ _PIDFILE = '/var/run/synchronize_iiDaemon.pid'
 _LOGFILE = '/var/log/synchronize_iiDaemon.log'
 
 def start_daemon():
-    dbsetup.metadata.create_all(bind=dbsetup.engine, checkfirst=True)
+    dbsetup.metadata.create_all(bind=dbsetup.ENGINE, checkfirst=True)
 
     redis_host_ip = None
     redis_host_port = None

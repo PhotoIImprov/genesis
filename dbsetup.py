@@ -1,35 +1,41 @@
+"""This contains miscellaneous setup, particularly related to the database"""
+import os
+from enum import Enum
 from sqlalchemy        import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm    import sessionmaker
-from enum import Enum
-import os
-from flask import request
 from sqlalchemy import exc
 from sqlalchemy import event
 from sqlalchemy import select
-import warnings
+
 
 class ImageType(Enum):
+    """the type of the image so we can process it"""
     UNKNOWN = 0
-    JPEG    = 1
-    PNG     = 2
-    BITMAP  = 3
-    TIFF    = 4
+    JPEG = 1
+    PNG = 2
+    BITMAP = 3
+    TIFF = 4
+
 
 class EnvironmentType(Enum):
-    NOTSET  = -1
+    """shorthand for the types of environments we might run in"""
+    NOTSET = -1
     UNKNOWN = 0
-    DEV     = 1
-    QA      = 2
-    STAGE   = 3
-    PROD    = 4
+    DEV = 1
+    QA = 2
+    STAGE = 3
+    PROD = 4
 
 
 class Configuration():
+    """a class to wrap up our configuration information"""
     UPLOAD_CATEGORY_PICS = 4
 
 
 def determine_host():
+    """get our computer host name, in a Windows & Linux
+    compatible manner"""
     hostname = 'unknown'
     try:
         hostname = str.upper(os.uname()[1])
@@ -40,36 +46,37 @@ def determine_host():
 
 
 def determine_environment(hostname):
+    """figure out what environment we are running in"""
     if hostname is None:
         hostname = determine_host()
 
     if "DEV" in hostname:
         return EnvironmentType.DEV
-    elif "4KOFFICE" in hostname:
+    if "4KOFFICE" in hostname:
         return EnvironmentType.DEV
-    elif "ULTRAMAN" in hostname:
+    if "ULTRAMAN" in hostname:
         return EnvironmentType.DEV
-    elif "PROD" in hostname:
+    if "PROD" in hostname:
         return EnvironmentType.PROD
-    elif "INSTANCE" in hostname:
+    if "INSTANCE" in hostname:
         return EnvironmentType.PROD
-    elif "STAGE" in hostname:
+    if "STAGE" in hostname:
         return EnvironmentType.STAGE
-    elif "QA" in hostname:
+    if "QA" in hostname:
         return EnvironmentType.QA
 
     return EnvironmentType.UNKNOWN
 
 
 def connection_string(environment):
-
+    """create the connection string to the database
+    this is environment & machine dependent"""
     if environment is None:
         environment = determine_environment(None)
     if environment == EnvironmentType.DEV:
         if os.name == 'nt': # ultraman or 4KOFFICE
             return 'mysql+pymysql://python:python@localhost:3306/imageimprov'
-        else:
-            return 'mysql+pymysql://python:python@192.168.1.16:3306/imageimprov'
+        return 'mysql+pymysql://python:python@192.168.1.16:3306/imageimprov'
 
     if environment == EnvironmentType.PROD:
         return 'mysql+pymysql://python:python@127.0.0.1:3306/imageimprov'
@@ -78,11 +85,12 @@ def connection_string(environment):
 
 
 def get_fontname(environment):
+    """get the name of the font to use, environment specific"""
     if environment == EnvironmentType.DEV:
         if os.name == 'nt': # ultraman or 4KOFFICE
             return 'c:/Windows/Boot/Fonts/segmono_boot.ttf'
-        else:
-            return '/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-B.ttf'
+        return '/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-B.ttf'
+
     if environment == EnvironmentType.PROD:
         return '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
 
@@ -90,15 +98,16 @@ def get_fontname(environment):
 
 
 def resource_files(environment):
+    """get environment specific location of resource images"""
     host = determine_host()
     if environment == EnvironmentType.DEV:
         if os.name == 'nt': # ultraman
             if host == 'ULTRAMAN':
                 return 'c:/dev/genesis/photos'
-            elif host == '4KOFFICE':
+            if host == '4KOFFICE':
                 return 'c:/Users/bp100/PycharmProjects/genesis/photos'
-        else:
-            return '/home/hcollins/dev/genesis/photos'
+        return '/home/hcollins/dev/genesis/photos'
+
     if environment == EnvironmentType.PROD:
         return '/home/bp100a/genesis/photos'
 
@@ -106,14 +115,14 @@ def resource_files(environment):
 
 
 def image_store(environment: EnvironmentType) -> str:
+    """find out where we should store images, it's environment dependent"""
     host = determine_host()
     if environment is None:
         environment = determine_environment(hostname=host)
     if environment == EnvironmentType.DEV:
         if os.name == 'nt': # ultraman
             return 'c:/dev/image_files'
-        else:
-            return '/mnt/image_files'
+        return '/mnt/image_files'
 
     if environment == EnvironmentType.PROD:
         return '/mnt/gcs-photos'
@@ -121,6 +130,7 @@ def image_store(environment: EnvironmentType) -> str:
     return None
 
 def photo_dir(environment: EnvironmentType) -> str:
+    """find out where we find our photo data, environment dependent"""
     hostname = determine_host()
     if environment is None:
         environment = determine_environment(hostname)
@@ -128,10 +138,9 @@ def photo_dir(environment: EnvironmentType) -> str:
     if environment == EnvironmentType.DEV:
         if hostname == 'ULTRAMAN':
             return 'c:/dev/genesis/photos'
-        elif hostname == '4KOFFICE':
+        if hostname == '4KOFFICE':
             return 'C:/Users/bp100/PycharmProjects/genesis/photos'
-        else:
-            return '/home/hcollins/dev/genesis/photos'
+        return '/home/hcollins/dev/genesis/photos'
 
     if environment == EnvironmentType.PROD:
         return '/home/bp100a/genesis/photos'
@@ -139,7 +148,7 @@ def photo_dir(environment: EnvironmentType) -> str:
     return None
 
 def template_dir(environment: EnvironmentType) -> str:
-
+    """find out where we read our templates from, environment dependent"""
     hostname = determine_host()
     if environment is None:
         environment = determine_environment(hostname)
@@ -147,10 +156,9 @@ def template_dir(environment: EnvironmentType) -> str:
     if environment == EnvironmentType.DEV:
         if hostname == 'ULTRAMAN':
             return 'c:/dev/genesis/templates'
-        elif hostname == '4KOFFICE':
+        if hostname == '4KOFFICE':
             return 'C:/Users/bp100/PycharmProjects/genesis/templates'
-        else:
-            return '/home/hcollins/dev/genesis/templates'
+        return '/home/hcollins/dev/genesis/templates'
 
     if environment == EnvironmentType.PROD:
         return '/home/bp100a/genesis/templates'
@@ -159,6 +167,7 @@ def template_dir(environment: EnvironmentType) -> str:
 
 
 def root_url(environment: EnvironmentType) -> str:
+    """return the rootl url for the REST API entry point"""
     if environment is None:
         environment = determine_environment(None)
 
@@ -168,21 +177,24 @@ def root_url(environment: EnvironmentType) -> str:
     if environment == EnvironmentType.PROD:
         return 'https://api.imageimprov.com'
 
+    return None
 
-def is_gunicorn():
+def is_gunicorn() -> bool:
+    """determine if we are running under gunicorn"""
     _is_gunicorn = "gunicorn" in os.environ.get("SERVER_SOFTWARE", "")
     return _is_gunicorn
 
-engine   = create_engine(connection_string(None), echo=False, pool_recycle=3600)
-Session  = sessionmaker(bind=engine)
-Base     = declarative_base()
-metadata = Base.metadata
-metadata.create_all(bind=engine, checkfirst=True)
-_DEBUG   = False
+ENGINE = create_engine(connection_string(None), echo=False, pool_recycle=3600)
+Session = sessionmaker(bind=ENGINE)
+Base = declarative_base()
+METADATA = Base.metadata
+METADATA.create_all(bind=ENGINE, checkfirst=True)
+_DEBUG = False
 
 
-@event.listens_for(engine, "engine_connect")
+@event.listens_for(ENGINE, "engine_connect")
 def ping_connection(connection, branch):
+    """this listens for SQLAlchemy events and manages connections"""
     if branch:
         # "branch" refers to a sub-connection of a connection,
         # we don't want to bother pinging on these.

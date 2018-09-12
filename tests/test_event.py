@@ -14,6 +14,7 @@ from controllers import categorymgr
 import json
 from tests.utilities import get_photo_fullpath
 
+
 class TestEvent(DatabaseTest):
 
     def write_photo_to_category(self, session, c: category.Category, au:usermgr.AnonUser) -> photo.Photo:
@@ -29,7 +30,7 @@ class TestEvent(DatabaseTest):
 
         fo.category_id = c.id
         d = fo.save_user_image(session, pi, au.id, c.id)
-        assert(d['error'] is None)
+        assert d['error'] is None
         fn = fo.filename
         session.commit() # Photo & PhotoMeta should be written out
 

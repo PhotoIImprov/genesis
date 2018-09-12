@@ -7,17 +7,14 @@
     <bookmark url="file://$PROJECT_DIR$/models/usermgr.py" line="127" mnemonic="1" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="- fix up function names since testing looks for anything with &quot;test&quot; in it, hence &quot;create_test_user()&quot; will cause problems.">
-      <change afterPath="$PROJECT_DIR$/tests/utilities.py" afterDir="false" />
+    <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="- fix importing of tests.utilities">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/initialize_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/initialize_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/daemon/sync_leaderboard.py" beforeDir="false" afterPath="$PROJECT_DIR$/daemon/sync_leaderboard.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbsetup.py" beforeDir="false" afterPath="$PROJECT_DIR$/dbsetup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/iiServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/iiServer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test_REST_login.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_REST_login.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test_REST_voting.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_REST_voting.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_engagement.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_engagement.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test_event.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_event.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_oAuth2.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_oAuth2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_photo.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_photo.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test_voting.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_voting.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -258,7 +255,7 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestLogin_test_anon_authentication.coverage" NAME="Unittests for test_REST_login.TestLogin.test_anon_authentication Coverage Results" MODIFIED="1504201356551" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestUserRewards_test_user_firstreward.coverage" NAME="Unittests for test_REST_login.TestUserRewards.test_user_firstreward Coverage Results" MODIFIED="1506708686093" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_user_TestUserMgr_test_authenticate_not_exist.coverage" NAME="Unittests for test_user.TestUserMgr.test_authenticate_not_exist Coverage Results" MODIFIED="1496345134148" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/genesis$all_unit_tests.coverage" NAME="all unit tests Coverage Results" MODIFIED="1536774148317" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/genesis$all_unit_tests.coverage" NAME="all unit tests Coverage Results" MODIFIED="1536781944968" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_photo_TestPhoto_test_safe_write_file.coverage" NAME="Unittests for test_photo.TestPhoto.test_safe_write_file Coverage Results" MODIFIED="1501253296006" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_admin_TestCSRFevent_test_forgot_password.coverage" NAME="Unittests for test_admin.TestCSRFevent.test_forgot_password Coverage Results" MODIFIED="1502375967366" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_event_TestEvent_test_event_init.coverage" NAME="Unittests for test_event.TestEvent.test_event_init Coverage Results" MODIFIED="1504550164064" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -347,21 +344,23 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="conf" value="545" />
-          <entry key="py" value="4710" />
-          <entry key="txt" value="582" />
+          <entry key="dummy" value="7" />
+          <entry key="py" value="5910" />
+          <entry key="txt" value="717" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="1127" />
-          <entry key="Python" value="4710" />
+          <entry key="PLAIN_TEXT" value="1269" />
+          <entry key="Python" value="5910" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="HTML" value="2" />
           <entry key="PLAIN_TEXT" value="11" />
-          <entry key="Python" value="37" />
+          <entry key="Python" value="48" />
+          <entry key="SQL" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.js.language.service.starts" />
@@ -369,8 +368,9 @@
         <counts>
           <entry key="conf" value="2" />
           <entry key="html" value="2" />
-          <entry key="py" value="37" />
+          <entry key="py" value="48" />
           <entry key="sh" value="4" />
+          <entry key="sql" value="2" />
           <entry key="txt" value="5" />
         </counts>
       </usages-collector>
@@ -378,113 +378,51 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_admin.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="460">
-              <caret line="117" column="28" selection-start-line="117" selection-start-column="28" selection-end-line="117" selection-end-column="28" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_oAuth2.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1364">
-              <caret line="76" column="18" lean-forward="true" selection-start-line="76" selection-start-column="18" selection-end-line="76" selection-end-column="18" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_REST_login.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="531">
-              <caret line="1268" lean-forward="true" selection-start-line="1258" selection-end-line="1268" />
-              <folding>
-                <element signature="e#0#9#0" expanded="true" />
-                <marker date="1536773231306" expanded="true" signature="32855:32915" ph="update photo... " />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/utilities.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="242">
-              <caret line="11" selection-start-line="11" selection-end-line="11" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_engagement.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="707">
-              <caret line="64" column="36" selection-start-line="64" selection-start-column="36" selection-end-line="64" selection-end-column="36" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/tests/initialize_data.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="418">
-              <caret line="28" selection-start-line="28" selection-end-line="28" />
-              <folding>
-                <element signature="e#0#9#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tests/test_voting.py">
           <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1792">
+              <caret line="235" column="28" lean-forward="true" selection-start-line="235" selection-start-column="28" selection-end-line="235" selection-end-column="28" />
+              <folding>
+                <element signature="e#0#29#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/controllers/categorymgr.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-85">
+              <caret line="1030" column="8" selection-start-line="1030" selection-start-column="8" selection-end-line="1030" selection-end-column="8" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/dbsetup.py">
+          <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="311">
-              <caret line="480" column="49" selection-start-line="480" selection-start-column="49" selection-end-line="480" selection-end-column="49" />
+              <caret line="121" column="42" selection-start-line="121" selection-start-column="42" selection-end-line="121" selection-end-column="42" />
               <folding>
-                <element signature="e#0#29#0" expanded="true" />
+                <element signature="e#7#16#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_event.py">
+        <entry file="file://$PROJECT_DIR$/SQL scripts/Round 2 Voting.sql">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="264">
-              <caret line="25" selection-start-line="25" selection-end-line="25" />
-              <folding>
-                <element signature="e#0#29#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="388">
+              <caret line="177" column="41" selection-start-line="177" selection-start-column="41" selection-end-line="177" selection-end-column="41" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_REST_voting.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="284">
-              <caret line="163" selection-start-line="163" selection-end-line="163" />
-              <folding>
-                <element signature="e#0#9#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_photo.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="462">
-              <caret line="21" lean-forward="true" selection-start-line="20" selection-end-line="21" />
-              <folding>
-                <element signature="e#0#29#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
+        <entry file="file://$PROJECT_DIR$/SQL scripts/Round2 Transition.sql">
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
     </leaf>
@@ -501,10 +439,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>is_guni</find>
-      <find>fun</find>
-      <find>/fun</find>
-      <find>mock</find>
       <find>kwarg</find>
       <find>cache</find>
       <find>test_leaderboard_nosco</find>
@@ -531,6 +465,10 @@
       <find>get_pho</find>
       <find>..</find>
       <find>../</find>
+      <find>from util</find>
+      <find>from test_</find>
+      <find>TestUser</find>
+      <find>elif</find>
     </findStrings>
     <replaceStrings>
       <replace>Photo</replace>
@@ -619,7 +557,6 @@
         <option value="$PROJECT_DIR$/models/userprofile.py" />
         <option value="$PROJECT_DIR$/models/engagement.py" />
         <option value="$PROJECT_DIR$/controllers/categorymgr.py" />
-        <option value="$PROJECT_DIR$/dbsetup.py" />
         <option value="$PROJECT_DIR$/iiServer.py" />
         <option value="D:/Program Files/nginx-1.15.2/conf/nginx.conf" />
         <option value="$PROJECT_DIR$/tests/test_dbsetup.py" />
@@ -635,10 +572,11 @@
         <option value="$PROJECT_DIR$/tests/test_engagement.py" />
         <option value="$PROJECT_DIR$/tests/utilities.py" />
         <option value="$PROJECT_DIR$/tests/test_photo.py" />
-        <option value="$PROJECT_DIR$/tests/test_voting.py" />
-        <option value="$PROJECT_DIR$/tests/test_event.py" />
         <option value="$PROJECT_DIR$/tests/test_REST_voting.py" />
         <option value="$PROJECT_DIR$/tests/initialize_data.py" />
+        <option value="$PROJECT_DIR$/tests/test_event.py" />
+        <option value="$PROJECT_DIR$/dbsetup.py" />
+        <option value="$PROJECT_DIR$/tests/test_voting.py" />
       </list>
     </option>
   </component>
@@ -649,8 +587,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1410" />
-    <option name="y" value="391" />
+    <option name="x" value="984" />
+    <option name="y" value="394" />
     <option name="width" value="2329" />
     <option name="height" value="1527" />
   </component>
@@ -676,12 +614,7 @@
             <path>
               <item name="genesis" type="b2602c69:ProjectViewProjectNode" />
               <item name="genesis" type="462c0819:PsiDirectoryNode" />
-              <item name="models" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="genesis" type="b2602c69:ProjectViewProjectNode" />
-              <item name="genesis" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="SQL scripts" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -1203,19 +1136,31 @@
       <option name="project" value="LOCAL" />
       <updated>1536772601476</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="- for tests added a centralized file path to replace ../photos">
+      <created>1536774181364</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1536774181364</updated>
+    </task>
+    <task id="LOCAL-00027" summary="- fix importing of tests.utilities">
+      <created>1536775127625</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1536775127625</updated>
+    </task>
+    <task id="LOCAL-00028" summary="- fix up import of local test">
+      <created>1536775624238</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1536775624238</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="all_unit_tests - 2018.09.12 at 13h 13m 04s.xml">
-      <configuration name="all unit tests" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_in_test_admin_py - 2018.09.12 at 13h 13m 52s.xml">
-      <configuration name="Unittests in test_admin.py" configurationId="tests" />
-    </history-entry>
-    <history-entry file="all_unit_tests - 2018.09.12 at 13h 15m 36s.xml">
-      <configuration name="all unit tests" configurationId="tests" />
-    </history-entry>
     <history-entry file="all_unit_tests - 2018.09.12 at 13h 18m 23s.xml">
       <configuration name="all unit tests" configurationId="tests" />
     </history-entry>
@@ -1237,9 +1182,18 @@
     <history-entry file="all_unit_tests - 2018.09.12 at 13h 40m 31s.xml">
       <configuration name="all unit tests" configurationId="tests" />
     </history-entry>
+    <history-entry file="all_unit_tests - 2018.09.12 at 13h 45m 07s.xml">
+      <configuration name="all unit tests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="all_unit_tests - 2018.09.12 at 14h 01m 09s.xml">
+      <configuration name="all unit tests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="all_unit_tests - 2018.09.12 at 15h 52m 06s.xml">
+      <configuration name="all unit tests" configurationId="tests" />
+    </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1410" y="391" width="2329" height="1527" extended-state="0" />
+    <frame x="984" y="394" width="2329" height="1527" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.26443368" />
@@ -1247,12 +1201,12 @@
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32711622" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4921875" visible="true" weight="0.2934003" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49184662" visible="true" weight="0.2934003" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49270833" weight="0.39741752" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5078125" side_tool="true" weight="0.29443255" />
+      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5081534" side_tool="true" weight="0.2934003" />
       <window_info anchor="bottom" id="Docker" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Inspection Results" order="10" weight="0.32869378" />
@@ -1311,9 +1265,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="just saving some items. Have CR of CRUD working for user object." />
-    <MESSAGE value="Now have C-R-U of CRUD implemented. &#10;Fixed problem with datetime stamps, all server side defaults now.&#10;" />
-    <MESSAGE value="Can authenticate against a user in the database! using PostMan to generate the request. Send email @ and password, password compared with hashed in DB, token returned" />
     <MESSAGE value="Have C-R-U working for User login. can authenticate against database, can also create a new users via a REST call." />
     <MESSAGE value="need this to go into the Google cloud" />
     <MESSAGE value="default &quot;Hello World!&quot; and using port 80" />
@@ -1336,7 +1287,10 @@
     <MESSAGE value="- update Jinja2 version" />
     <MESSAGE value="- add waitress to requirements" />
     <MESSAGE value="- fix up function names since testing looks for anything with &quot;test&quot; in it, hence &quot;create_test_user()&quot; will cause problems." />
-    <option name="LAST_COMMIT_MESSAGE" value="- fix up function names since testing looks for anything with &quot;test&quot; in it, hence &quot;create_test_user()&quot; will cause problems." />
+    <MESSAGE value="- for tests added a centralized file path to replace ../photos" />
+    <MESSAGE value="- fix importing of tests.utilities" />
+    <MESSAGE value="- fix up import of local test" />
+    <option name="LAST_COMMIT_MESSAGE" value="- fix up import of local test" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1438,7 +1392,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_photo.py</url>
-          <line>539</line>
+          <line>540</line>
           <option name="timeStamp" value="1960" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1448,7 +1402,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_photo.py</url>
-          <line>385</line>
+          <line>386</line>
           <option name="timeStamp" value="1964" />
         </line-breakpoint>
       </breakpoints>
@@ -1479,15 +1433,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/logsetup.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="404">
-          <caret line="37" selection-start-line="37" selection-end-line="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python/Python36/Lib/site-packages/flask_jwt/__init__.py" />
-    <entry file="file://C:/Python/Python36/Lib/site-packages/flask/app.py" />
     <entry file="file://$PROJECT_DIR$/models/userprofile.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="76">
@@ -1578,13 +1523,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="745">
           <caret line="283" selection-start-line="283" selection-end-line="283" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/controllers/categorymgr.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="263">
-          <caret line="1107" selection-start-line="1107" selection-end-line="1107" />
         </state>
       </provider>
     </entry>
@@ -1701,7 +1639,7 @@
         <state relative-caret-position="328">
           <caret line="27" column="34" selection-start-line="27" selection-start-column="27" selection-end-line="27" selection-end-column="34" />
           <folding>
-            <marker date="1533572666126" expanded="true" signature="12339:12378" ph="select * fro... events" />
+            <marker date="1536781400881" expanded="true" signature="12339:12378" ph="select * fro... events" />
           </folding>
         </state>
       </provider>
@@ -1728,16 +1666,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dbsetup.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="176" column="7" selection-start-line="176" selection-start-column="7" selection-end-line="176" selection-end-column="7" />
-          <folding>
-            <element signature="e#0#43#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tests/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="440">
@@ -1755,17 +1683,28 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_oAuth2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1364">
-          <caret line="76" column="18" lean-forward="true" selection-start-line="76" selection-start-column="18" selection-end-line="76" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tests/test_engagement.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="707">
           <caret line="64" column="36" selection-start-line="64" selection-start-column="36" selection-end-line="64" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_REST_login.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="531">
+          <caret line="1268" lean-forward="true" selection-start-line="1258" selection-end-line="1268" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+            <marker date="1536781400797" expanded="true" signature="32855:32915" ph="update photo... " />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_oAuth2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1364">
+          <caret line="76" column="18" lean-forward="true" selection-start-line="76" selection-start-column="18" selection-end-line="76" selection-end-column="18" />
         </state>
       </provider>
     </entry>
@@ -1776,70 +1715,93 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_REST_login.py">
+    <entry file="file://$PROJECT_DIR$/tests/initialize_data.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="531">
-          <caret line="1268" lean-forward="true" selection-start-line="1258" selection-end-line="1268" />
+        <state relative-caret-position="484">
+          <caret line="22" column="48" lean-forward="true" selection-start-line="22" selection-start-column="48" selection-end-line="22" selection-end-column="48" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
-            <marker date="1536773231306" expanded="true" signature="32855:32915" ph="update photo... " />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/utilities.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="242">
-          <caret line="11" selection-start-line="11" selection-end-line="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_photo.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="462">
-          <caret line="21" lean-forward="true" selection-start-line="20" selection-end-line="21" />
-          <folding>
-            <element signature="e#0#29#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_voting.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="311">
-          <caret line="480" column="49" selection-start-line="480" selection-start-column="49" selection-end-line="480" selection-end-column="49" />
-          <folding>
-            <element signature="e#0#29#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_event.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
-          <caret line="25" selection-start-line="25" selection-end-line="25" />
-          <folding>
-            <element signature="e#0#29#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/tests/test_REST_voting.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="284">
-          <caret line="163" selection-start-line="163" selection-end-line="163" />
+        <state relative-caret-position="22">
+          <caret line="1" selection-start-line="1" selection-end-line="1" />
           <folding>
-            <element signature="e#0#9#0" expanded="true" />
+            <element signature="e#399#414#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/initialize_data.py">
+    <entry file="file://$PROJECT_DIR$/tests/test_photo.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="418">
-          <caret line="28" selection-start-line="28" selection-end-line="28" />
+        <state relative-caret-position="484">
+          <caret line="22" selection-start-line="22" selection-end-line="22" />
           <folding>
-            <element signature="e#0#9#0" expanded="true" />
+            <element signature="e#0#29#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/utilities.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="44">
+          <caret line="2" selection-start-line="2" selection-end-line="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://D:/Python/Python36-32/Lib/site-packages/sqlalchemy/pool.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1485">
+          <caret line="767" column="20" lean-forward="true" selection-start-line="767" selection-start-column="20" selection-end-line="767" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_event.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="52" column="47" lean-forward="true" selection-start-line="52" selection-start-column="47" selection-end-line="52" selection-end-column="47" />
+          <folding>
+            <element signature="e#0#29#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SQL scripts/Round 2 Voting.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="388">
+          <caret line="177" column="41" selection-start-line="177" selection-start-column="41" selection-end-line="177" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SQL scripts/Round2 Transition.sql">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/controllers/categorymgr.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-85">
+          <caret line="1030" column="8" selection-start-line="1030" selection-start-column="8" selection-end-line="1030" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dbsetup.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="311">
+          <caret line="121" column="42" selection-start-line="121" selection-start-column="42" selection-end-line="121" selection-end-column="42" />
+          <folding>
+            <element signature="e#7#16#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_voting.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1792">
+          <caret line="235" column="28" lean-forward="true" selection-start-line="235" selection-start-column="28" selection-end-line="235" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#29#0" expanded="true" />
           </folding>
         </state>
       </provider>

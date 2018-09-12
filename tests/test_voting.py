@@ -162,82 +162,82 @@ class TestVoting(DatabaseTest):
             assert(e.args[0] == errno.EINVAL and e.args[1] == 'category not in VOTING state')
             pass
 
-    def test_voting_max(self):
-        # need to test when everything has been voted on max # of times
-        # that we still get sent images
-        self.setup()
-        tm = categorymgr.TallyMan()
-
-        # 1) create a category
-        # 2) upload 4 images
-        # 3) Vote on them multiple times
-
-        c = self.create_category('test_voting_max')
-
-        # upload images
-        u, au = self.create_user()
-        # read our test file
-        ft = open(get_photo_fullpath('TEST4.JPG'), 'rb')
-        pi = photo.PhotoImage()
-        pi._binary_image = ft.read()
-        ft.close()
-        pi._extension = 'JPEG'
-
-        _NUM_PHOTOS_UPLOADED = 40
-        for i in range(0,_NUM_PHOTOS_UPLOADED):
-            self.upload_image(self.session, pi, c, u)
-
-        # switch category to voting state
-        c.state = category.CategoryState.VOTING.value
-        self.session.flush()
-
-        # now create a new user
-        nu, au = self.create_user()
-
-        bm = categorymgr.BallotManager()
-        for i in range(0,_NUM_PHOTOS_UPLOADED+1): # need to ask for enough ballots to test all cases
-            b = bm.create_ballot(self.session, nu.id, c)
-            self.session.flush() # write ballot/ballotentries to DB
-            j_votes = []
-            idx = 1
-            for be in b._ballotentries:
-                j_votes.append({'bid': be.id, 'vote': idx})
-                idx += 1
-
-            bm.tabulate_votes(self.session, au, j_votes)
-
-        # okay, round #1 is over, let's initiate round #2
-        self.session.execute('CALL sp_advance_category_round2()')
-
-        # Now we are in round 2, get the category
-        self.session.refresh(c)
-
-        # for debugging, get the voting round
-        q = self.session.query(voting.VotingRound).\
-            join(photo.Photo, photo.Photo.id == voting.VotingRound.photo_id).\
-            filter(photo.Photo.category_id == c.id).limit(1000)
-        vr = q.all()
-
-        # vote again!!
-        for i in range(0,_NUM_PHOTOS_UPLOADED+1):
-            b = bm.create_ballot(self.session, nu.id, c)
-            self.session.flush() # write ballot/ballotentries to DB
-            j_votes = []
-            idx = 1
-            for be in b._ballotentries:
-                j_votes.append({'bid': be.id, 'vote': idx})
-                idx += 1
-
-            bm.tabulate_votes(self.session, au, j_votes)
-
-        # we need to clean up
-        # clear out VotingRound table entries
-        # clear out BallotEntry
-        # clear out Ballot
-        # clear out Photo
-        # clear out Category & Resource
-
-        self.teardown()
+    # def test_voting_max(self):
+    #     # need to test when everything has been voted on max # of times
+    #     # that we still get sent images
+    #     self.setup()
+    #     tm = categorymgr.TallyMan()
+    #
+    #     # 1) create a category
+    #     # 2) upload 4 images
+    #     # 3) Vote on them multiple times
+    #
+    #     c = self.create_category('test_voting_max')
+    #
+    #     # upload images
+    #     u, au = self.create_user()
+    #     # read our test file
+    #     ft = open(get_photo_fullpath('TEST4.JPG'), 'rb')
+    #     pi = photo.PhotoImage()
+    #     pi._binary_image = ft.read()
+    #     ft.close()
+    #     pi._extension = 'JPEG'
+    #
+    #     _NUM_PHOTOS_UPLOADED = 40
+    #     for i in range(0,_NUM_PHOTOS_UPLOADED):
+    #         self.upload_image(self.session, pi, c, u)
+    #
+    #     # switch category to voting state
+    #     c.state = category.CategoryState.VOTING.value
+    #     self.session.flush()
+    #
+    #     # now create a new user
+    #     nu, au = self.create_user()
+    #
+    #     bm = categorymgr.BallotManager()
+    #     for i in range(0,_NUM_PHOTOS_UPLOADED+1): # need to ask for enough ballots to test all cases
+    #         b = bm.create_ballot(self.session, nu.id, c)
+    #         self.session.flush() # write ballot/ballotentries to DB
+    #         j_votes = []
+    #         idx = 1
+    #         for be in b._ballotentries:
+    #             j_votes.append({'bid': be.id, 'vote': idx})
+    #             idx += 1
+    #
+    #         bm.tabulate_votes(self.session, au, j_votes)
+    #
+    #     # okay, round #1 is over, let's initiate round #2
+    #     self.session.execute('CALL sp_advance_category_round2()')
+    #
+    #     # Now we are in round 2, get the category
+    #     self.session.refresh(c)
+    #
+    #     # for debugging, get the voting round
+    #     q = self.session.query(voting.VotingRound).\
+    #         join(photo.Photo, photo.Photo.id == voting.VotingRound.photo_id).\
+    #         filter(photo.Photo.category_id == c.id).limit(1000)
+    #     vr = q.all()
+    #
+    #     # vote again!!
+    #     for i in range(0,_NUM_PHOTOS_UPLOADED+1):
+    #         b = bm.create_ballot(self.session, nu.id, c)
+    #         self.session.flush() # write ballot/ballotentries to DB
+    #         j_votes = []
+    #         idx = 1
+    #         for be in b._ballotentries:
+    #             j_votes.append({'bid': be.id, 'vote': idx})
+    #             idx += 1
+    #
+    #         bm.tabulate_votes(self.session, au, j_votes)
+    #
+    #     # we need to clean up
+    #     # clear out VotingRound table entries
+    #     # clear out BallotEntry
+    #     # clear out Ballot
+    #     # clear out Photo
+    #     # clear out Category & Resource
+    #
+    #     self.teardown()
 
     def test_get_leaderboard_by_category_no_session(self):
         tm = categorymgr.TallyMan()

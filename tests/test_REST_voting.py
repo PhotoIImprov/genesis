@@ -239,7 +239,7 @@ class TestVotingRounds(unittest.TestCase):
     def setup_round2(self, cid):
         # need to execute stored proc in DB to switch to round 2
 #        results = dbsetup.engine.execute('sp_initialize_round2 :p1, :p2', {'p1':self._NUM_SECTIONS_ROUND2, 'p2': cid})
-        connection = dbsetup.engine.raw_connection()
+        connection = dbsetup.ENGINE.raw_connection()
         cursor = connection.cursor()
         results = cursor.callproc("sp_initialize_round2", [self._NUM_SECTIONS_ROUND2, cid])
         cursor.close()

@@ -300,7 +300,7 @@ def hello():
 
     sql = text('select * from information_schema.events;')
     try:
-        result = dbsetup.engine.execute(sql)
+        result = dbsetup.ENGINE.execute(sql)
         htmlbody += "<h3>Scheduled Events</h3>"
         if result is not None:
             for row in result:
@@ -3141,7 +3141,7 @@ def root_path():
 
 
 if __name__ == '__main__':
-    dbsetup.metadata.create_all(bind=dbsetup.engine, checkfirst=True)
+    dbsetup.metadata.create_all(bind=dbsetup.ENGINE, checkfirst=True)
     if not dbsetup.is_gunicorn():
         if "DEBUG" in os.environ:
             if os.environ.get('DEBUG', '0') == '1':

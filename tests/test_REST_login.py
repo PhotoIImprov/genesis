@@ -893,7 +893,7 @@ class TestVoting(iiBaseUnitTest):
 
         # let's cleanup the DB photos
         sql = text("update photo set active=1 where filepath like('%boguspath%')")
-        result = dbsetup.engine.execute(sql)
+        result = dbsetup.ENGINE.execute(sql)
 
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         cm = categorymgr.CategoryManager(start_date=start_date, upload_duration=24, vote_duration=72,
