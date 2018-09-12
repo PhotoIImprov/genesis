@@ -2,8 +2,7 @@
 import datetime
 from unittest import TestCase
 from sqlalchemy.engine import create_engine
-from sqlalchemy.orm.session import Session
-from flask import Flask, jsonify
+from flask import Flask
 import initschema
 from dbsetup import Base, connection_string, Session
 
