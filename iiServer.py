@@ -142,15 +142,6 @@ def spec():
                                       'tags':['user']}
                               }
 
-#    Definitions
-    # [START securityDef]
-#    securityDefinitions:
-      # This section configures basic authentication with an API key.
-#      api_key:
-#        type: "apiKey"
-#        name: "key"
-#        in: "query"
-    # [END securityDef]
     swag['securityDefinitions'] = {'api_key': {'type': 'apiKey', 'name': 'key', 'in': 'query'}}
     swag['securityDefinitions'] = {'JWT': {'type': 'apiKey', 'name': 'access_token', 'in': 'header'}}
 #    swag['definitions'] = {'Error': {'properties': {'msg':{'type':'string'}}}}
@@ -388,15 +379,15 @@ def hello():
                     htmlbody += "\n<br>found leaderboard"
 
             if c.state == category.CategoryState.UPLOAD.value:
-                q = session.query(photo.Photo.user_id).distinct().filter(photo.Photo.category_id == c.get_id())
-                n = q.count()
+                query = session.query(photo.Photo.user_id).distinct().filter(photo.Photo.category_id == c.get_id())
+                n = query.count()
                 htmlbody += "\n<br>number users uploading = <b>{}</b>".format(n)
                 end_of_uploading = c.start_date + timedelta(hours=c.duration_upload)
                 htmlbody += "\n, uploading ends @{}".format(end_of_uploading)
             else:
                 # let's get # of votes and average vote/photo
-                q = session.query(voting.BallotEntry).filter(voting.BallotEntry.category_id == c.get_id())
-                total_votes = q.count()
+                query = session.query(voting.BallotEntry).filter(voting.BallotEntry.category_id == c.get_id())
+                total_votes = query.count()
                 htmlbody += "\n<br>Total votes for category = <b>{}</b>".format(total_votes)
                 htmlbody += "\n<br>Average votes per photo = "
                 if num_photos != 0:
@@ -1674,68 +1665,6 @@ def jpeg_photo_upload(cid: int):
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     return store_photo(pi, uid, cid)
-
-# @app.route("/file/<int:cid>", methods=['POST'])
-# @jwt_required()
-# @timeit()
-# def upload_file():
-#     """
-#     Upload file
-#     ---
-#     tags:
-#       - image
-#     description: "upload a binary image to the site"
-#     operationId: upload-image
-#     consumes:
-#       - image/jpeg
-#     produces:
-#       - text/html
-#     parameters:
-#       - in: path
-#         name: cid
-#         description: "The id of the category to upload the file to"
-#         required: true
-#         type: integer
-#     security:
-#       - JWT: []
-#     responses:
-#       201:
-#         description: "The image was properly uploaded!"
-#         schema:
-#           id: filename
-#           properties:
-#             filename:
-#               type: string
-#       404:
-#         description: "image not found"
-#         schema:
-#           $ref: '#/definitions/Error'
-#     """
-#     rsp = None
-#     session = dbsetup.Session()
-#     try:
-#         uid = current_identity
-#         if 'file' not in request.files:
-#             rsp = make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
-#         else:
-#             file = request.files['file']
-#             pi = photo.PhotoImage()
-#             pi._binary_image = file
-#             pi._extension = file.filename.rsplit('.',1)[1].upper() # extract extension
-#             p = photo.Photo()
-#             d = p.save_user_image(session, pi, uid, cid)
-#             if d['error'] is not None:
-#                 rsp = make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), error.iiServerErrors.http_status(d['error']))
-#             else:
-#                 session.commit()
-#                 rsp = make_response(jsonify({'msg': error.error_string('PHOTO_UPLOADED'), 'filename': d['arg']}), status.HTTP_201_CREATED)
-#     except Exception as e:
-#         logger.exception(msg=str(e))
-#         rsp = make_response(jsonify({'msg': error.error_string('UPLOAD_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
-#     finally:
-#         session.close()
-#
-#     return rsp
 
 @app.route("/log", methods=['POST'])
 @jwt_required()

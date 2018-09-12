@@ -72,7 +72,7 @@ class CategoryManager():
         session.add(c)
         return c
 
-    def active_categories_for_user(self, session, au):
+    def active_categories_for_user(self, session, anonymous_user: usermgr.AnonUser) -> list:
         """
         ActiveCategoriesForUser()
         return a list of "active" categories for this user.
@@ -84,7 +84,7 @@ class CategoryManager():
         :param u: an AnonUser object
         :return: <list> of categories
         """
-        open_cl = category.Category.all_categories(session, au)
+        open_category_list = category.Category.all_categories(session, anonymous_user)
         try:
             # q = session.query(category.Category). \
             #     join(event.EventCategory,event.EventCategory.category_id == category.Category.id). \
@@ -94,24 +94,24 @@ class CategoryManager():
             #     filter(event.EventCategory.active == True). \
             #     filter(event.EventUser.user_id == au.id)
 
-            q = session.query(category.Category). \
-                join(event.EventCategory,event.EventCategory.category_id == category.Category.id). \
+            query = session.query(category.Category). \
+                join(event.EventCategory, event.EventCategory.category_id == category.Category.id). \
                 join(event.EventUser, event.EventUser.event_id == event.EventCategory.event_id). \
                 filter(category.Category.state != category.CategoryState.CLOSED.value) . \
-                filter(event.EventUser.user_id == au.id)
+                filter(event.EventUser.user_id == anonymous_user.id)
 
-            event_cl = q.all()
+            event_category_list = query.all()
         except Exception as e:
-            logger.exception(msg="error reading event category list for user:{}".format(u.id))
+            logger.exception(msg="error reading event category list for user:{}".format(anonymous_user.id))
             raise
 
-        if event_cl is None or len(event_cl) == 0:
-            return open_cl
+        if event_category_list is None or len(event_category_list) == 0:
+            return open_category_list
 
         # need to combine our lists
-        combined_cl = open_cl + event_cl
+        combined_category_list = open_category_list + event_category_list
 
-        return combined_cl
+        return combined_category_list
 
     _PHOTOLIST_MAXSIZE = 100
     def category_photo_list(self, session, dir: str, pid: int, cid: int) -> list:
@@ -135,16 +135,16 @@ class CategoryManager():
                     filter(photo.Photo.id < pid). \
                     order_by(photo.Photo.id.desc())
 
-            pl = q.all()
+            photo_list = q.all()
         except Exception as e:
             raise
 
-        return pl[:self._PHOTOLIST_MAXSIZE]
+        return photo_list[:self._PHOTOLIST_MAXSIZE]
 
-    def photo_dict(self, pl: list) -> list:
+    def photo_dict(self, photo_list: list) -> list:
         d_photos = []
-        for p in pl:
-            d_photos.append(p.to_dict())
+        for photo in photo_list:
+            d_photos.append(photo.to_dict())
 
         return d_photos
 
@@ -385,14 +385,19 @@ class RewardManager():
 
     def create_reward(self, session, quantity: int) -> None:
         try:
-            r = engagement.Reward(user_id=self._user_id, rewardtype=self._rewardtype, quantity=quantity)
+            r = engagement\
+                .Reward(user_id=self._user_id, rewardtype=self._rewardtype, quantity=quantity)
             session.add(r)
 
-            ur_l = session.query(engagement.UserReward).filter(engagement.UserReward.user_id == self._user_id).filter(engagement.UserReward.rewardtype == str(self._rewardtype) ).all()
+            ur_l = session.query(engagement.UserReward)\
+                .filter(engagement.UserReward.user_id == self._user_id)\
+                .filter(engagement.UserReward.rewardtype == str(self._rewardtype) )\
+                .all()
             if ur_l is not None and len(ur_l) > 0:
                 ur = ur_l[0]
             else:
-                ur = engagement.UserReward(user_id=self._user_id, rewardtype=self._rewardtype, quantity=0)
+                ur = engagement\
+                    .UserReward(user_id=self._user_id, rewardtype=self._rewardtype, quantity=0)
 
             ur.update_quantity(quantity)
             session.add(ur)

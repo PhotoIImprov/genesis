@@ -86,10 +86,6 @@ class Photo(Base):
     def set_orientation(self, orientation: int) -> None:
         self._orientation = orientation
 
-    def to_dict(self) -> dict:
-        d = {"id": self.id, "active": self.active, "likes":self.likes, "created_date": self.created_date, "score": self.score, "votes": self.times_voted}
-        return d
-
     # okay, if the directory hasn't been created this will fail!
     @staticmethod
     @timeit()
@@ -100,11 +96,11 @@ class Photo(Base):
         # okay we have a path and a filename, so let's try to create it
         fp = open(path_and_name, "wb")
         if fp is None:
-            raise Exception(errno.EBADFD)
+            raise Exception(errno.EBADF)
 
         bytes_written = fp.write(fdata)
         if (bytes_written != len(fdata)):
-            raise Exception(errno.EBADFD)
+            raise Exception(errno.EBADF)
         fp.close()
         return
 
@@ -719,6 +715,11 @@ class Photo(Base):
         self._photometa = PhotoMeta(height, width, th_hash)
         self._photometa.set_exif_data(d_exif)
         return
+
+    # def to_dict(self) -> dict:
+    #     d = {"id": self.id, "active": self.active, "likes":self.likes, "created_date": self.created_date, "score": self.score, "votes": self.times_voted}
+    #     return d
+    #
 
     def to_dict(self) -> dict:
         try:

@@ -28,7 +28,7 @@ class BaseURL(Base):
 
     @staticmethod
     def default_url() -> str:
-        """just a simpel default URL for our base URL"""
+        """just a simple default URL for our base URL"""
         return 'https://api.imageimprov.com/'
 
     @staticmethod

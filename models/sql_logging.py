@@ -1,9 +1,9 @@
+import os
 from sqlalchemy import Column, text
 from sqlalchemy.types import DateTime, Integer, String
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
 from dbsetup import Base
-import os
 
 class Log(Base):
     __tablename__ = 'logs'

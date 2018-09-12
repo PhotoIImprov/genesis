@@ -69,33 +69,33 @@ class Submissions():
 
     def get_user_submissions(self, session, dir: str, cid: int, num_categories: int) -> dict:
         if self._uid is None:
-            raise
+            raise Exception("no user specified")
 
         # we need to construct a dictionary of the user's
         # submitted photos (just ids, not image data)
 
-        au = usermgr.AnonUser.get_anon_user_by_id(session, self._uid)
-        if au is None:
-            raise
+        anonymous_user = usermgr.AnonUser.get_anon_user_by_id(session, self._uid)
+        if anonymous_user is None:
+            raise Exception("anonymous user cannot be found for uid={0}".format(self._uid))
 
-        user_info = {'id': self._uid, 'created_date': str(au.created_date)}
+        user_info = {'id': self._uid, 'created_date': str(anonymous_user.created_date)}
         return_dict = {'user': user_info}
 
         # get all the categories we care about
-        cl = self._categories_with_user_photos(session, dir, cid, num_categories)
-        if cl is not None:
-            pl = self._photos_for_categories(session, dir, cid)
-            for c in cl:
+        category_list = self._categories_with_user_photos(session, dir, cid, num_categories)
+        if category_list is not None:
+            photo_list = self._photos_for_categories(session, dir, cid)
+            for c in category_list:
                 # create category's photo list
-                cpl = []
-                for p in pl:
-                    if p.category_id == c.id:
-                        p_element = p.to_dict()
-                        cpl.append(p_element)
+                category_photo_list = []
+                for photo in photo_list:
+                    if photo.category_id == c.id:
+                        p_element = photo.to_dict()
+                        category_photo_list.append(p_element)
 
-                if cpl:
+                if category_photo_list:
                     category_dict = {'id':c.id, 'description':c.get_description(), 'end': str(c.end_date), 'start': str(c.start_date), 'state': category.CategoryState.to_str(c.state)}
-                    category_submission = {'category': category_dict, 'photos': cpl}
+                    category_submission = {'category': category_dict, 'photos': category_photo_list}
                     return_dict.setdefault('submissions',[]).append(category_submission)
 
         return return_dict
