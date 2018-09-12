@@ -35,6 +35,7 @@ import uuid
 from models import userprofile
 from flask_cors import CORS, cross_origin
 from controllers import categorymgr
+from waitress import serve
 
 app = Flask(__name__)
 app.debug = True
@@ -520,7 +521,7 @@ def set_category_state():
             else:
                 c = d['arg']
                 if c is not None:
-                   rsp = make_response(jsonify({'msg': error.error_string('CATEGORY_STATE')}),status.HTTP_200_OK)
+                    rsp = make_response(jsonify({'msg': error.error_string('CATEGORY_STATE')}),status.HTTP_200_OK)
     except Exception as e:
         logger.exception(msg=str(e))
         rsp = make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -3146,4 +3147,5 @@ if __name__ == '__main__':
             if os.environ.get('DEBUG', '0') == '1':
                 dbsetup._DEBUG = 1
 
-        app.run(host='0.0.0.0', port=8080)
+ #       app.run(host='0.0.0.0', port=8080)
+        serve(app, listen='*:8081')

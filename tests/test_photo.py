@@ -443,7 +443,8 @@ class TestPhoto(DatabaseTest):
         # Paste the watermark (with alpha layer) onto the original image and save it
         main.paste(im=watermark, box=None, mask=watermark)
         main.paste(im=im, box=(im_x, im_y), mask=im_mask)
-        main.save("/mnt/image_files/" + "with_watermark", format="JPEG", exif=exif_bytes)
+        mnt_img = dbsetup.image_store(environment=None)
+        main.save(mnt_img + "/with_watermark", format="JPEG", exif=exif_bytes)
 
     def test_read_thumbnail_by_id_with_watermark_invalid_pid(self):
         p = photo.Photo()
@@ -548,11 +549,10 @@ class TestPhoto(DatabaseTest):
 
             # use shell command to compare binary files
             try:
-                if os.name == 'nt':  # ultraman
-                    r_path = 'c:/dev/genesis/photos/results/pil_' + pic
+                r_path = dbsetup.photo_dir(environment=None) + '/results/pil_' + pic
+                if os.name == 'nt':  # Windows system
                     command = ['fc', os.path.normpath(fn), os.path.normpath(r_path)]
                 else:
-                    r_path = '/home/hcollins/dev/genesis/photos/results/pil_' + pic
                     command = ['cmp', '--verbose', fn, r_path]
                 status = subprocess.call(command, shell=False)
                 assert(status == 0)

@@ -1265,24 +1265,33 @@ class TestLeaderBoard(iiBaseUnitTest):
 
         return rsp
 
-    def upload_photo(self, tu, photo_name):
-
+    @staticmethod
+    def get_photo_fullpath(photo_file_name: str) -> str:
+        """return a fully specified path & name for the photos folder"""
         dir_path = os.path.dirname(os.path.realpath(__file__))
         cwd = os.getcwd()
+        if 'tests' in cwd:
+            photo_dir = cwd.replace('tests', 'photos')
+        else:
+            photo_dir = cwd + "/photos"
 
+        return photo_dir + '/' + photo_file_name
+
+    def upload_photo(self, tu, photo_name):
+        """upload the specified photo (in the photos dir) to the site"""
+        file_name = self.get_photo_fullpath(photo_name)
         # we have our user, now we need a photo to upload
-        fn = '../photos/' + photo_name
-        ft = open(fn, 'rb')
-        assert (ft is not None)
-        ph = ft.read()
-        assert (ph is not None)
-        ft.close()
+        file_pointer = open(file_name, 'rb')
+        assert file_pointer is not None
+        photo_bytes = file_pointer.read()
+        assert photo_bytes is not None
+        file_pointer.close()
 
         # okay, we need to post this
         cid = tu.get_cid()
         self.set_token(tu.get_token())
         ext = 'JPEG'
-        img = base64.standard_b64encode(ph)
+        img = base64.standard_b64encode(photo_bytes)
         b64img = img.decode("utf-8")
         rsp = self.app.post(path='/photo', data=json.dumps(dict(category_id=cid, extension=ext, image=b64img)),
                             headers=self.get_header_json())
@@ -1291,28 +1300,28 @@ class TestLeaderBoard(iiBaseUnitTest):
                                 headers=self.get_header_json())
 
         if rsp.status_code != 201 and rsp.status_code != 200:
-            assert(False)
-        assert (rsp.status_code == 201 or rsp.status_code == 200)
+            assert False
+        assert rsp.status_code == 201 or rsp.status_code == 200
 
         data = json.loads(rsp.data.decode("utf-8"))
-        assert('pid' in data.keys())
-
+        assert 'pid' in data.keys()
         return
 
     def get_ballot_by_user(self, tu):
-        assert(tu is not None)
-        assert(tu.get_token() is not None)
+        """retrieve a ballot for the user"""
+        assert tu is not None
+        assert tu.get_token() is not None
         self.set_token(tu.get_token())
         rsp = self.app.get(path='/ballot', query_string=urlencode({'category_id':tu.get_cid()}),
                             headers=self.get_header_html())
 
         data = json.loads(rsp.data.decode("utf-8"))
         if rsp.status_code != 200:
-            assert(rsp.status_code == 200)
+            assert rsp.status_code == 200
 
-        assert(rsp.status_code == 200)
+        assert rsp.status_code == 200
         ballots = data['ballots']
-        assert(len(ballots) < 5)
+        assert len(ballots) < 5
         return ballots
 
     def vote_ballot(self, tu, ballots):

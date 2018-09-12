@@ -102,7 +102,7 @@ class Emailer():
             fp.close()
             return template
         except Exception as e:
-            logger.exception(msg="problem openning template")
+            logger.exception(msg="problem opening template")
             raise
 
     def send_forgot_password_email(self, emailaddress: str, csrf: str) -> int:

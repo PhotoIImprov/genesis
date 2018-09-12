@@ -45,7 +45,7 @@ def determine_environment(hostname):
 
     if "DEV" in hostname:
         return EnvironmentType.DEV
-    elif "4KOFFICE":
+    elif "4KOFFICE" in hostname:
         return EnvironmentType.DEV
     elif "ULTRAMAN" in hostname:
         return EnvironmentType.DEV
@@ -90,9 +90,13 @@ def get_fontname(environment):
 
 
 def resource_files(environment):
+    host = determine_host()
     if environment == EnvironmentType.DEV:
         if os.name == 'nt': # ultraman
-            return 'c:/dev/genesis/photos'
+            if host == 'ULTRAMAN':
+                return 'c:/dev/genesis/photos'
+            elif host == '4KOFFICE':
+                return 'c:/Users/bp100/PycharmProjects/genesis/photos'
         else:
             return '/home/hcollins/dev/genesis/photos'
     if environment == EnvironmentType.PROD:
@@ -102,6 +106,9 @@ def resource_files(environment):
 
 
 def image_store(environment: EnvironmentType) -> str:
+    host = determine_host()
+    if environment is None:
+        environment = determine_environment(hostname=host)
     if environment == EnvironmentType.DEV:
         if os.name == 'nt': # ultraman
             return 'c:/dev/image_files'
@@ -113,11 +120,28 @@ def image_store(environment: EnvironmentType) -> str:
 
     return None
 
+def photo_dir(environment: EnvironmentType) -> str:
+    hostname = determine_host()
+    if environment is None:
+        environment = determine_environment(hostname)
+
+    if environment == EnvironmentType.DEV:
+        if hostname == 'ULTRAMAN':
+            return 'c:/dev/genesis/photos'
+        elif hostname == '4KOFFICE':
+            return 'C:/Users/bp100/PycharmProjects/genesis/photos'
+        else:
+            return '/home/hcollins/dev/genesis/photos'
+
+    if environment == EnvironmentType.PROD:
+        return '/home/bp100a/genesis/photos'
+
+    return None
 
 def template_dir(environment: EnvironmentType) -> str:
 
+    hostname = determine_host()
     if environment is None:
-        hostname = determine_host()
         environment = determine_environment(hostname)
 
     if environment == EnvironmentType.DEV:

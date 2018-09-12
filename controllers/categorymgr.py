@@ -824,6 +824,7 @@ class TallyMan():
         via Redis directly.
         :param session:
         :param c: category we are checking for
+        :param check_exist - check if the leaderboard exists
         :return: leaderboard object, empty if leaderboard hasn't been created
         """
         try:

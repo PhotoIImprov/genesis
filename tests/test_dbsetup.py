@@ -50,8 +50,12 @@ class TestDBsetup(TestCase):
 
     def test_template_dir(self):
         template_dir = dbsetup.template_dir(dbsetup.EnvironmentType.DEV)
+        hostname = dbsetup.determine_host()
         if os.name == 'nt':
-            assert (template_dir == 'c:/dev/genesis/templates')
+            if (hostname == 'ULTRAMAN'):
+                assert (template_dir == 'c:/dev/genesis/templates')
+            elif (hostname == '4KOFFICE'):
+                assert(template_dir == 'C:/Users/bp100/PycharmProjects/genesis/templates')
         else:
             assert(template_dir == '/home/hcollins/dev/genesis/templates')
 
