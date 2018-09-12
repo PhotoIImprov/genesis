@@ -1,16 +1,18 @@
 """User Manager. Contains classes to manage the user accounts, including login and creation"""
-from passlib.hash      import pbkdf2_sha256
-from sqlalchemy        import Column, Integer, String, DateTime, text, ForeignKey
-from dbsetup           import Session, Base
+from typing import Type
 import hashlib
-from logsetup import logger
-from oauth2client import client
-import httplib2
 import json
 import uuid
+from enum import Enum
+from passlib.hash import pbkdf2_sha256
+from sqlalchemy import Column, Integer, String, DateTime, text, ForeignKey, orm
+from oauth2client import client
+import httplib2
 from flask import jsonify
 from models import admin
-from enum import Enum
+from dbsetup import Session, Base
+from logsetup import logger
+
 
 class UserType(Enum):
     """We have 3 types of users, players are the most common,
@@ -45,31 +47,31 @@ class AnonUser(Base):
         self.id = kwargs.get('uid')
 
     @staticmethod
-    def find_anon_user(session, m_guid):
+    def find_anon_user(session: orm.Session, m_guid: str):
         if session is None or m_guid is None:
             return None
 
         m_guid = m_guid.upper().translate({ord(c): None for c in '-'})
-        au = None
+        anonymous_user = None
         try:
-            au = session.query(AnonUser).filter_by(guid = m_guid).first()
+            anonymous_user = session.query(AnonUser).filter_by(guid = m_guid).first()
         except Exception as e:
             logger.exception(msg='error finding anonymous user {}'.format(m_guid))
             raise
         finally:
-            return au
+            return anonymous_user
 
     @staticmethod
-    def get_anon_user_by_id(session, anon_id):
-        if session is None or anon_id is None:
+    def get_anon_user_by_id(session: orm.Session, anonymous_user_id: int):
+        if session is None or anonymous_user_id is None:
             return None
 
         # okay, use the supplied id to lookup the Anon User record
-        au = session.query(AnonUser).filter_by(id = anon_id).first()
-        return au
+        anonymous_user = session.query(AnonUser).filter_by(id = anonymous_user_id).first()
+        return anonymous_user
 
     @staticmethod
-    def create_anon_user(session, m_guid):
+    def create_anon_user(session: orm.Session, m_guid: str):
 
         if session is None or m_guid is None:
             return False
@@ -78,19 +80,19 @@ class AnonUser(Base):
         m_guid = m_guid.upper().translate({ord(c): None for c in '-'})
 
         # First check if guid exists in the database
-        au = AnonUser.find_anon_user(session, m_guid)
-        if au is not None:
-            return au
+        anonymous_user = AnonUser.find_anon_user(session, m_guid)
+        if anonymous_user is not None:
+            return anonymous_user
 
         # this guid doesn't exist, so create the record
-        au = AnonUser()
-        au.guid = m_guid
+        anonymous_user = AnonUser()
+        anonymous_user.guid = m_guid
 
-        session.add(au)
-        return au
+        session.add(anonymous_user)
+        return anonymous_user
 
     @staticmethod
-    def get_baseurl(session, uid: int) -> str:
+    def get_baseurl(session: orm.Session, uid: int) -> str:
         au = AnonUser.get_anon_user_by_id(session, uid)
 
         if au is not None and au.base_id is not None:
@@ -104,7 +106,7 @@ class AnonUser(Base):
         return self.id
 
     @staticmethod
-    def is_guid(m_guid, m_hash):
+    def is_guid(m_guid: str, m_hash: str) -> bool:
         # okay we have a suspected guid/hash combination
         # let's figure out if this is a guid by checking the
         # hash
@@ -119,32 +121,32 @@ class User(Base):
 
     __tablename__ = 'userlogin'
 
-    id           = Column(Integer, ForeignKey("anonuser.id", name="fk_userlogin_id"), primary_key = True)  # ties us back to our anon_user record
-    hashedPWD    = Column(String(200), nullable=False)
+    id = Column(Integer, ForeignKey("anonuser.id", name="fk_userlogin_id"), primary_key = True)  # ties us back to our anon_user record
+    hashedPWD = Column(String(200), nullable=False)
     emailaddress = Column(String(200), nullable=False, unique=True)
-    screenname   = Column(String(100), nullable=True, unique=True)
+    screenname = Column(String(100), nullable=True, unique=True)
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 
     @staticmethod
-    def find_user_by_id(session, m_id):
-        q = session.query(User).filter_by(id = m_id)
-        u = q.first()
-        return u
+    def find_user_by_id(session: orm.Session, m_id: int):
+        query = session.query(User).filter_by(id = m_id)
+        user = query.first()
+        return user
 
     @staticmethod
-    def find_user_by_email(session, m_emailaddress):
+    def find_user_by_email(session: orm.Session, m_emailaddress: str):
         # Does the user already exist?
-        u = None
+        user = None
         try:
-            q = session.query(User).filter_by(emailaddress = m_emailaddress)
-            u = q.first()
+            query = session.query(User).filter_by(emailaddress = m_emailaddress)
+            user = query.first()
         except Exception as e:
             return None
 
-        return u
+        return user
 
-    def change_password(self, session, password: str) -> None:
+    def change_password(self, session: orm.Session, password: str) -> None:
         self.hashedPWD = pbkdf2_sha256.hash(password, rounds=1000, salt_size=16)
 
     # def forgot_password(self, session) -> int:
@@ -164,28 +166,30 @@ class User(Base):
     #         return http_status
 
     @staticmethod
-    def create_user(session, guid, username, password):
-        # first need to see if user (emailaddress) already exists
+    def create_user(session: orm.Session, guid: str, username: str, password: str):
+        """create a known user, so check to see if the username
+        supplied is an email address. if there's an anonymous
+        account already, then link that to the email account"""
 
         # quick & dirty validation of the email
         if '@' not in username:
             return None
 
         # Find the anon account associated with this
-        au = AnonUser.find_anon_user(session, guid)
-        if au is None:
-            au = AnonUser.create_anon_user(session, guid)
+        anonymous_user = AnonUser.find_anon_user(session, guid)
+        if anonymous_user is None:
+            anonymous_user = AnonUser.create_anon_user(session, guid)
 
         # first lets see if this user already exists
-        u_exists = User.find_user_by_email(session, username)
-        if u_exists is not None:
-            return u_exists # this shouldn't happen! (probably should delete anon user if we just created one - transaction!)
+        user_exists = User.find_user_by_email(session, username)
+        if user_exists is not None:
+            return user_exists # this shouldn't happen! (probably should delete anon user if we just created one - transaction!)
 
         # okay, we can create a new UserLogin entry
         new_user = User()
         new_user.hashedPWD = pbkdf2_sha256.hash(password, rounds=1000, salt_size=16)
         new_user.emailaddress = username
-        new_user.id = au.get_id()
+        new_user.id = anonymous_user.get_id()
 
         # Now write the new users to the database
         session.add(new_user)
@@ -195,7 +199,17 @@ class User(Base):
 # JWT Callbacks
 #
 # This is where all authentication calls come, we need to validate the user
-def authenticate(username, password):
+def authenticate(username: str, password: str):
+    """authenticate the user via username/pasword
+    we check for the method of authentication
+
+    oAuth2 - if user is in the oAuth table then that is how
+            we authenticate them.
+    Anonymous User - these users only supply a UUID as their username
+                    which we determine by comparing it to the hashed pwd
+    Known User - these users have email address as the username and a
+                real password
+    """
     # use the username (email) to lookup the passowrd and compare
     # after we hash the one we were sent
     session = Session()
@@ -210,24 +224,26 @@ def authenticate(username, password):
         session.close()
         return foundAnonUser
     else:
-        foundUser = User.find_user_by_email(session, username)
+        found_user = User.find_user_by_email(session, username)
         session.close()
-        if foundUser is not None:
-            if pbkdf2_sha256.verify(password, foundUser.hashedPWD):
-                return foundUser
+        if found_user is not None:
+            if pbkdf2_sha256.verify(password, found_user.hashedPWD):
+                return found_user
 
     logger.debug(msg="[/auth] login failed for u:{0}, p:{1}".format(username, password))
     return None
 
 # subsequent calls with JWT payload call here to confirm identity
-def identity(payload):
+def identity(payload: dict):
+    """extract the user identifier from the JWT payload and find
+    our user account"""
     # called with decrypted payload to establish identity
     # based on a user id
     user_id = payload['identity']
     session = Session()
-    au = AnonUser.get_anon_user_by_id(session, user_id)
+    anonymous_user = AnonUser.get_anon_user_by_id(session, user_id)
     session.close()
-    return au
+    return anonymous_user
 
 def auth_response_handler(access_token, identity):
     if isinstance(identity, User):
@@ -257,7 +273,7 @@ class UserAuth(Base):
     _valid_serviceproviders = ('GOOGLE', 'FACEBOOK', 'FAKESERVICEPROVIDER')
 
     @staticmethod
-    def is_oAuth2(username, password):
+    def is_oAuth2(username: str, password: str) -> bool:
         """
         determine if the username/password is really a serviceprovider/token
         :param username:
@@ -281,7 +297,7 @@ class UserAuth(Base):
         self.version = kwargs.get('version')
         self.sid = kwargs.get('serviceprovider_id')
 
-    def authenticate_user(self, session, oauth2_accesstoken, serviceprovider, debug_json=None):
+    def authenticate_user(self, session: orm.Session, oauth2_accesstoken, serviceprovider, debug_json=None):
         """
 
         :param session:
@@ -386,33 +402,34 @@ class UserAuth(Base):
             return None
 
 
-#================================= F R I E N D - L I S T ========================================
 class Friend(Base):
-
+    """our class to manage tell-a-friend'"""
     __tablename__ = 'friend'
 
-    user_id      = Column(Integer, ForeignKey("anonuser.id", name="fk_friend_user_id"),     primary_key = True)  # ties us back to our user record
+    user_id = Column(Integer, ForeignKey("anonuser.id", name="fk_friend_user_id"),     primary_key = True)  # ties us back to our user record
     myfriend_id  = Column(Integer, ForeignKey("anonuser.id", name="fk_friend_myfriend_id"), primary_key = True)  # ties us back to our user record
-    active       = Column(Integer, nullable=False, default=1)
+    active = Column(Integer, nullable=False, default=1)
 
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 
     @staticmethod
-    def is_friend(session, uid, maybe_friend_uid):
+    def is_friend(session: orm.Session, uid: int, maybe_friend_uid: int) -> bool:
         # lookup and see if this person is a friend!
-        q = session.query(Friend).filter(Friend.user_id == uid).filter(Friend.myfriend_id == maybe_friend_uid).filter(Friend.active == 1)
-        f = q.one_or_none()
-        return f is not None
+        query = session.query(Friend).filter(Friend.user_id == uid)\
+            .filter(Friend.myfriend_id == maybe_friend_uid)\
+            .filter(Friend.active == 1)
+        friend_request = query.one_or_none()
+        return friend_request is not None
 
 class FriendRequest(Base):
-
+    """the actual friend request so we can track if the friend has accepted"""
     __tablename__ = 'friendrequest'
 
-    id                  = Column(Integer, primary_key = True, autoincrement=True)
-    asking_friend_id    = Column(Integer, ForeignKey("anonuser.id", name="fk_askingfriend_id"), nullable=False)  # ties us back to our user record
+    id = Column(Integer, primary_key = True, autoincrement=True)
+    asking_friend_id = Column(Integer, ForeignKey("anonuser.id", name="fk_askingfriend_id"), nullable=False)  # ties us back to our user record
     notifying_friend_id = Column(Integer, ForeignKey("anonuser.id", name="fk_notifyingfriend_id"), nullable=True)  # ties us back to our user record (if exists)
-    friend_email        = Column(String(200), nullable=False)
+    friend_email = Column(String(200), nullable=False)
 
     # declined  accepted
     # NULL      NULL        waiting for response
@@ -420,50 +437,53 @@ class FriendRequest(Base):
     # NULL/0     1          friendship accepted
     #   x        0          friendship not accepted
 
-    declined             = Column(Integer, nullable=True)
-    accepted             = Column(Integer, nullable=True)
+    declined = Column(Integer, nullable=True)
+    accepted = Column(Integer, nullable=True)
 
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
     last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 
     def get_id(self):
+        """simple getter with current user id"""
         return self.id
 
-    def __init__(self, uid, f_email):
-        self.friend_email = f_email
-        self.asking_friend_id = uid
+    def __init__(self, user_id: int, friend_email: str):
+        self.friend_email = friend_email
+        self.asking_friend_id = user_id
 
-    def find_notifying_friend(self, session):
+    def find_notifying_friend(self, session: orm.Session) -> None:
+        """see if we sent out a friendship notification"""
         # see if the email of the friend is in our system
-        fu = User.find_user_by_email(session, self.friend_email)
-        if fu is not None:
-            self.notifying_friend_id = fu.id
+        found_user = User.find_user_by_email(session, self.friend_email)
+        if found_user is not None:
+            self.notifying_friend_id = found_user.id
 
     @staticmethod
-    def update_friendship(session, uid, fid, accept):
-        if fid is None or session is None or uid is None:
+    def update_friendship(session, user_id: int, friend_request_id: int, accept: bool) -> None:
+        """update the friendshipt request"""
+        if friend_request_id is None or session is None or user_id is None:
             return
 
         # okay, get the friendship record..
-        q = session.query(FriendRequest).filter_by(id= fid)
-        fr = q.first()
-        if fr is None:
-            raise
+        query = session.query(FriendRequest).filter_by(id=friend_request_id)
+        friend_request = query.first()
+        if friend_request is None:
+            raise Exception("No Friend Request!")
 
-        if fr.notifying_friend_id is not None and fr.notifying_friend_id == uid:
-            raise # something wrong!!
+        if friend_request.notifying_friend_id is not None and friend_request.notifying_friend_id == user_id:
+            raise Exception("poorly structured friend request fid={0}".format(friend_request_id))
 
         if accept:
-            fr.accepted = True
-            fr.declined = False
+            friend_request.accepted = True
+            friend_request.declined = False
         else:
-            fr.declined = True
-            fr.accepted = False
+            friend_request.declined = True
+            friend_request.accepted = False
 
         # let's create a record in the Friend table!
         new_friend = Friend()
-        new_friend.user_id = fr.asking_friend_id
-        new_friend.myfriend_id = uid
+        new_friend.user_id = friend_request.asking_friend_id
+        new_friend.myfriend_id = user_id
         new_friend.active = 1
 
         session.add(new_friend)
