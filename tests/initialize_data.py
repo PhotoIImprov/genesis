@@ -8,6 +8,7 @@ from models import category
 from werkzeug.datastructures import Headers
 import _thread
 import time
+from utilities import get_photo_fullpath
 
 # ************************************************************************
 # ************************************************************************
@@ -25,16 +26,8 @@ class PhotoCache():
     _b64img = None
 
     def __init__(self, photo_name):
-        cwd = os.getcwd()
-
-        # we have our user, now we need a photo to upload
-        if 'tests' in cwd:
-            fn = '../photos/' + photo_name
-        else:
-            fn = cwd + '/photos/' + photo_name
-
         try:
-            ft = open(fn, 'rb')
+            ft = open(get_photo_fullpath(photo_name), 'rb')
             assert (ft is not None)
             ph = ft.read()
             assert (ph is not None)
@@ -317,7 +310,7 @@ class InitEnvironment(unittest.TestCase):
 
         _thread.exit()
 
-    def register_test_users(self):
+    def register_tst_users(self):
         user_list = []
         for uname in self._users:
             tu = test_REST_login.TestUser()
@@ -336,7 +329,7 @@ class InitEnvironment(unittest.TestCase):
 
         return self.massive_photo_upload()
 
-        user_list = self.register_test_users()
+        user_list = self.register_tst_users()
 
         # get the uploading category
         cid = self.get_category_by_state(category.CategoryState.UPLOAD, tu.get_token())

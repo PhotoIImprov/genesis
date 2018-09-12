@@ -55,38 +55,38 @@ class Test_oAuth2(DatabaseTest):
         assert(not usermgr.UserAuth.is_oAuth2('Twitter', 'token') )
         assert(not usermgr.UserAuth.is_oAuth2('hcollins@hotmail.com', 'pa55w0rd') )
 
-    def HIDE_test_authenticate(self):
-        self.setup()
-        token = 'ya29.GluFBB1Wn8JP9p4yEUM3FZ2ieCetp9yFCe1gcJbIPg6dJGXVvdn3QZCzXv1EKnUlelEYlVaH7rd9U1JKnfNrCyN5craemsExlnKEhYXy98WdIfebEA-wlpDlQBZ1'
-        u = usermgr.authenticate('Google', token)
-        assert(u is not None)
-        self.teardown()
-
-    def HIDE_test_facebook_with_good_token(self):
-        '''
-        this requires a live internet connection since it
-        actually hits Facebook!
-        :return:
-        '''
-        self.setup()
-
-        token = 'EAAU953rqsQoBAAovb10RC4VO0lsAdkcXFsIkpaZAaDO1yAOpgvsG5Nq00qOXZBcTfIYbqhBbp7ZAZCHctO7ke2ZC6UN5myP2A3OOZAiRrXfLC91JRQ9JZB95XSrRra9oO1BE1CQhQbZA2iRVfKZBYsGJdykEgtwaMs0EZD'
-        o = usermgr.UserAuth()
-
-        u = o.authenticate_user(self.session, token, 'Facebook')
-        assert (u is not None)
-        self.teardown()
-
-    def HIDE_test_google_with_good_token(self):
-        self.setup()
-
-        token = 'ya29.GluFBB1Wn8JP9p4yEUM3FZ2ieCetp9yFCe1gcJbIPg6dJGXVvdn3QZCzXv1EKnUlelEYlVaH7rd9U1JKnfNrCyN5craemsExlnKEhYXy98WdIfebEA-wlpDlQBZ1'
-        o = usermgr.UserAuth()
-
-        u = o.authenticate_user(self.session, token, 'Google')
-        assert(u is not None)
-        self.teardown()
-
+    # def HIDE_test_authenticate(self):
+    #     self.setup()
+    #     token = 'ya29.GluFBB1Wn8JP9p4yEUM3FZ2ieCetp9yFCe1gcJbIPg6dJGXVvdn3QZCzXv1EKnUlelEYlVaH7rd9U1JKnfNrCyN5craemsExlnKEhYXy98WdIfebEA-wlpDlQBZ1'
+    #     u = usermgr.authenticate('Google', token)
+    #     assert(u is not None)
+    #     self.teardown()
+    #
+    # def HIDE_test_facebook_with_good_token(self):
+    #     '''
+    #     this requires a live internet connection since it
+    #     actually hits Facebook!
+    #     :return:
+    #     '''
+    #     self.setup()
+    #
+    #     token = 'EAAU953rqsQoBAAovb10RC4VO0lsAdkcXFsIkpaZAaDO1yAOpgvsG5Nq00qOXZBcTfIYbqhBbp7ZAZCHctO7ke2ZC6UN5myP2A3OOZAiRrXfLC91JRQ9JZB95XSrRra9oO1BE1CQhQbZA2iRVfKZBYsGJdykEgtwaMs0EZD'
+    #     o = usermgr.UserAuth()
+    #
+    #     u = o.authenticate_user(self.session, token, 'Facebook')
+    #     assert (u is not None)
+    #     self.teardown()
+    #
+    # def HIDE_test_google_with_good_token(self):
+    #     self.setup()
+    #
+    #     token = 'ya29.GluFBB1Wn8JP9p4yEUM3FZ2ieCetp9yFCe1gcJbIPg6dJGXVvdn3QZCzXv1EKnUlelEYlVaH7rd9U1JKnfNrCyN5craemsExlnKEhYXy98WdIfebEA-wlpDlQBZ1'
+    #     o = usermgr.UserAuth()
+    #
+    #     u = o.authenticate_user(self.session, token, 'Google')
+    #     assert(u is not None)
+    #     self.teardown()
+    #
     def test_google_with_expired_token(self):
         self.setup()
 

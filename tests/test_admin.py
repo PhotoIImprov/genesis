@@ -167,7 +167,7 @@ class TestCSRFevent(DatabaseTest):
         self.teardown()
 
     @staticmethod
-    def f_test_send_forgot_password_send_email(to_email:str, from_email: str, subject_email: str, body_email:str) -> int:
+    def f_tst_send_forgot_password_send_email(to_email:str, from_email: str, subject_email: str, body_email:str) -> int:
 
         assert to_email == 'bp100a@hotmail.com'
         assert from_email == 'Forgot Password <noreply@imageimprov.com>'
@@ -177,12 +177,12 @@ class TestCSRFevent(DatabaseTest):
     def test_send_forgot_password_email(self):
 
         emailaddress = 'bp100a@hotmail.com'
-        status = admin.Emailer(f_sendemail=TestCSRFevent.f_test_send_forgot_password_send_email).send_forgot_password_email(emailaddress, 'fake_csrftoken')
+        status = admin.Emailer(f_sendemail=TestCSRFevent.f_tst_send_forgot_password_send_email).send_forgot_password_email(emailaddress, 'fake_csrftoken')
         assert(status == 200)
 
     @staticmethod
-    def f_test_send_password_changed_send_email(to_email: str, from_email: str, subject_email: str,
-                                              body_email: str) -> int:
+    def f_tst_send_password_changed_send_email(to_email: str, from_email: str, subject_email: str,
+                                               body_email: str) -> int:
 
         assert to_email == 'bp100a@hotmail.com'
         assert from_email == 'Password Change <noreply@imageimprov.com>'
@@ -192,7 +192,7 @@ class TestCSRFevent(DatabaseTest):
     def test_send_password_changed_email(self):
 
         emailaddress = 'bp100a@hotmail.com'
-        status = admin.Emailer(f_sendemail=TestCSRFevent.f_test_send_password_changed_send_email).send_reset_password_notification_email(emailaddress)
+        status = admin.Emailer(f_sendemail=TestCSRFevent.f_tst_send_password_changed_send_email).send_reset_password_notification_email(emailaddress)
         assert (status == 200)
 
     def test_bad_template_name(self):

@@ -18,6 +18,7 @@ import iiServer
 from flask import Flask
 import subprocess
 from controllers import categorymgr
+from utilities import get_photo_fullpath
 
 class TestPhoto(DatabaseTest):
 
@@ -25,7 +26,7 @@ class TestPhoto(DatabaseTest):
         # create a bunch of test photos for the specified category
 
         # read our test file
-        ft = open('../photos/SAMSUNG2.jpg', 'rb')
+        ft = open(get_photo_fullpath('SAMSUNG2.jpg'), 'rb')
         pi = photo.PhotoImage()
         pi._extension = 'JPEG'
         pi._binary_image = ft.read()
@@ -139,12 +140,7 @@ class TestPhoto(DatabaseTest):
         pi._extension = 'JPEG'
 
         # read our test file
-        cwd = os.getcwd()
-        if 'tests' in cwd:
-            path = '../photos/SAMSUNG2.JPG' #'../photos/Cute_Puppy.jpg'
-        else:
-            path = cwd + '/photos/SAMSUNG2.JPG' #'/photos/Cute_Puppy.jpg'
-        ft = open(path, 'rb')
+        ft = open(get_photo_fullpath('SAMSUNG2.JPG'), 'rb')
         pi._binary_image = ft.read()
         ft.close()
 
@@ -196,7 +192,7 @@ class TestPhoto(DatabaseTest):
         assert (fo is not None)
 
         # read our test file
-        ft = open('../photos/TEST4.JPG', 'rb')
+        ft = open(get_photo_fullpath('TEST4.JPG'), 'rb')
         assert (ft is not None)
 
         pi = photo.PhotoImage()
@@ -235,7 +231,7 @@ class TestPhoto(DatabaseTest):
         pi = photo.PhotoImage()
 
         # read our test file
-        ft = open('../photos/TEST1.JPG', 'rb')
+        ft = open(get_photo_fullpath('TEST1.JPG'), 'rb')
         pi._binary_image = ft.read()
         ft.close()
         pi._extension = 'JPEG'
@@ -338,7 +334,7 @@ class TestPhoto(DatabaseTest):
         assert(sf == 1.5)
 
     def test_bad_exif_orientation(self):
-        ft = open('../photos/SAMSUNG_EXIF.JPG', 'rb')
+        ft = open(get_photo_fullpath('SAMSUNG_EXIF.JPG'), 'rb')
         pi = photo.PhotoImage()
         pi._extension = 'JPEG'
         pi._binary_image = ft.read()
@@ -361,7 +357,7 @@ class TestPhoto(DatabaseTest):
         assert(exif_data_orientation == exif_dict_orientation)
 
     def test_exif_no_orientation(self):
-        ft = open('../photos/bad_exif.jpg', 'rb')
+        ft = open(get_photo_fullpath('bad_exif.jpg'), 'rb')
         pi = photo.PhotoImage()
         pi._extension = 'JPEG'
         pi._binary_image = ft.read()
@@ -387,13 +383,7 @@ class TestPhoto(DatabaseTest):
         file_to_watermark = "no_watermark.jpg"
         watermark_file = "ii_mainLogo_72.png"
 
-        cwd = os.getcwd()
-        if 'tests' in cwd:
-            path = '../photos/'
-        else:
-            path = cwd + '/photos/'
-
-        main = Image.open(path + file_to_watermark)
+        main = Image.open(get_photo_fullpath(file_to_watermark))
         info = main._getexif()
         exif_dict = piexif.load(main.info["exif"])
         exif_bytes = piexif.dump(exif_dict)
@@ -414,7 +404,7 @@ class TestPhoto(DatabaseTest):
         font_path = dbsetup.get_fontname(dbsetup.determine_environment(hostname=None))
         font = ImageFont.truetype(font=font_path, size=20)
 
-        im = Image.open(path + watermark_file)
+        im = Image.open(get_photo_fullpath(watermark_file))
         im = im.convert("L")
         width, height = main.size
         im_width, im_height = im.size
@@ -475,12 +465,7 @@ class TestPhoto(DatabaseTest):
         pi._extension = 'JPEG'
 
         # read our test file
-        cwd = os.getcwd()
-        if 'tests' in cwd:
-            path = '../photos/SAMSUNG2.JPG' #'../photos/Cute_Puppy.jpg'
-        else:
-            path = cwd + '/photos/SAMSUNG2.JPG' #'/photos/Cute_Puppy.jpg'
-        ft = open(path, 'rb')
+        ft = open(get_photo_fullpath('SAMSUNG2.JPG'), 'rb')
         pi._binary_image = ft.read()
         ft.close()
 
@@ -523,11 +508,6 @@ class TestPhoto(DatabaseTest):
 
     def test_thumbnail_rotation_pil(self):
         self.setup()
-        cwd = os.getcwd()
-        if 'tests' in cwd:
-            path = '../photos/'
-        else:
-            path = cwd + '/photos/'
 
         mnt_point = dbsetup.image_store(dbsetup.determine_environment(None)) # get the mount point
 
@@ -535,7 +515,7 @@ class TestPhoto(DatabaseTest):
                          'Landscape_1.jpg', 'Landscape_2.jpg','Landscape_3.jpg','Landscape_4.jpg','Landscape_5.jpg','Landscape_6.jpg','Landscape_7.jpg','Landscape_8.jpg',]
 
         for pic in exif_pictures:
-            full_path = path + pic
+            full_path = get_photo_fullpath(pic)
             fr = open(full_path, 'rb')
             p = photo.Photo()
             pi = photo.PhotoImage()

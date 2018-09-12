@@ -42,7 +42,7 @@ class TestEngagement(DatabaseTest):
         fm = categorymgr.FeedbackManager()
         assert(fm is not None)
 
-    def get_test_photo(self, session) -> photo.Photo:
+    def get_tst_photo(self, session) -> photo.Photo:
         # get a user_id we can use for testing
         pids = session.query(func.max(photo.Photo.id)).first()
         pid = pids[0]
@@ -52,7 +52,7 @@ class TestEngagement(DatabaseTest):
 
     def test_feedbackmgr_with_photo(self):
         self.setup()
-        p = self.get_test_photo(self.session)
+        p = self.get_tst_photo(self.session)
         assert(p is not None)
 
         fm = categorymgr.FeedbackManager(uid=p.user_id, pid=p.id, like=True, offensive=True, tags=['tag1', 'tag2', 'tag3'])

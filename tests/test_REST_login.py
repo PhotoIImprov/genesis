@@ -1629,39 +1629,39 @@ class TestTraction(iiBaseUnitTest):
         rsp = self.app.get(path='/forgotpwd', query_string=urlencode({'email':bogusemail}))
         assert(rsp.status_code == 404)
 
-    def HIDE_test_forgotpassword_legit_email(self):
-
-        tu = self.create_tstuser_get_token()
-        rsp = self.app.get(path='/forgotpwd', query_string=urlencode({'email':tu.get_username()}))
-        assert(rsp.status_code == 200)
-
-    def HIDE_test_resetpassword_legit_email(self):
-        tu = self.create_tstuser_get_token()
-        rsp = self.app.get(path='/forgotpwd', query_string=urlencode({'email':tu.get_username()}))
-        assert(rsp.status_code == 200)
-
-        # okay a password link has been sent out, go to the database and get the CSRF token
-        session = dbsetup.Session()
-        u = usermgr.User.find_user_by_email(session, tu.get_username())
-        assert(u is not None)
-        q = session.query(admin.CSRFevent).filter(admin.CSRFevent.user_id == u.id).filter(admin.CSRFevent.been_used == False)
-        csrf_list = q.all()
-        assert(csrf_list is not None)
-        assert(len(csrf_list) > 0)
-        csrf = csrf_list[0]
-        assert(csrf is not None)
-
-        old_password = u.hashedPWD
-
-        rsp = self.app.post(path='/resetpwd', query_string=urlencode({'pwd': 'pa55w0rd', 'token': csrf.csrf}))
-        assert(rsp.status_code == 200)
-
-        session.close()
-        session = dbsetup.Session()
-        # refetch the user (.expire & .refresh didn't seem to work ??)
-        u = usermgr.User.find_user_by_email(session, tu.get_username())
-        assert(u.hashedPWD != old_password)
-        session.close()
+    # def HIDE_test_forgotpassword_legit_email(self):
+    #
+    #     tu = self.create_tstuser_get_token()
+    #     rsp = self.app.get(path='/forgotpwd', query_string=urlencode({'email':tu.get_username()}))
+    #     assert(rsp.status_code == 200)
+    #
+    # def HIDE_test_resetpassword_legit_email(self):
+    #     tu = self.create_tstuser_get_token()
+    #     rsp = self.app.get(path='/forgotpwd', query_string=urlencode({'email':tu.get_username()}))
+    #     assert(rsp.status_code == 200)
+    #
+    #     # okay a password link has been sent out, go to the database and get the CSRF token
+    #     session = dbsetup.Session()
+    #     u = usermgr.User.find_user_by_email(session, tu.get_username())
+    #     assert(u is not None)
+    #     q = session.query(admin.CSRFevent).filter(admin.CSRFevent.user_id == u.id).filter(admin.CSRFevent.been_used == False)
+    #     csrf_list = q.all()
+    #     assert(csrf_list is not None)
+    #     assert(len(csrf_list) > 0)
+    #     csrf = csrf_list[0]
+    #     assert(csrf is not None)
+    #
+    #     old_password = u.hashedPWD
+    #
+    #     rsp = self.app.post(path='/resetpwd', query_string=urlencode({'pwd': 'pa55w0rd', 'token': csrf.csrf}))
+    #     assert(rsp.status_code == 200)
+    #
+    #     session.close()
+    #     session = dbsetup.Session()
+    #     # refetch the user (.expire & .refresh didn't seem to work ??)
+    #     u = usermgr.User.find_user_by_email(session, tu.get_username())
+    #     assert(u.hashedPWD != old_password)
+    #     session.close()
 
 class TestCategoryFiltering(iiBaseUnitTest):
 

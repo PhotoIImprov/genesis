@@ -12,6 +12,7 @@ from test_REST_login import TestUser
 import uuid
 from controllers import categorymgr
 import json
+from utilities import get_photo_fullpath
 
 class TestEvent(DatabaseTest):
 
@@ -22,12 +23,7 @@ class TestEvent(DatabaseTest):
         pi._extension = 'JPEG'
 
         # read our test file
-        cwd = os.getcwd()
-        if 'tests' in cwd:
-            path = '../photos/TestPic.JPG' #'../photos/Cute_Puppy.jpg'
-        else:
-            path = cwd + '/photos/TestPic.JPG' #'/photos/Cute_Puppy.jpg'
-        ft = open(path, 'rb')
+        ft = open(get_photo_fullpath('TestPic.JPG'), 'rb')
         pi._binary_image = ft.read()
         ft.close()
 

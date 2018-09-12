@@ -14,6 +14,7 @@ from models import error
 from urllib.parse import urlencode
 from werkzeug.datastructures import Headers
 from random import shuffle
+from utilities import get_photo_fullpath
 
 '''
 test_REST_voting.py
@@ -160,13 +161,7 @@ class TestVotingRounds(unittest.TestCase):
         return headers
 
     def upload_photo(self, tu, cid, photo_name):
-        cwd = os.getcwd()
-        if 'tests' in cwd:
-            path = '../photos/' + photo_name
-        else:
-            path = cwd + '/photos/' + photo_name
-
-        ft = open(path, 'rb')
+        ft = open(get_photo_fullpath(photo_name), 'rb')
         assert (ft is not None)
         ph = ft.read()
         assert (ph is not None)

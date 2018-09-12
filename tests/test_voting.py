@@ -15,6 +15,7 @@ from flask import Flask, jsonify
 import json
 import dbsetup
 from controllers import categorymgr
+from utilities import get_photo_fullpath
 
 class TestVoting(DatabaseTest):
 
@@ -176,7 +177,7 @@ class TestVoting(DatabaseTest):
         # upload images
         u, au = self.create_user()
         # read our test file
-        ft = open('../photos/TEST4.JPG', 'rb')
+        ft = open(get_photo_fullpath('TEST4.JPG'), 'rb')
         pi = photo.PhotoImage()
         pi._binary_image = ft.read()
         ft.close()
@@ -295,7 +296,7 @@ class TestVoting(DatabaseTest):
         tag_list.read_category_tags(c.id, self.session)
 
         # read our test file
-        ft = open('../photos/TEST6.JPG', 'rb')
+        ft = open(get_photo_fullpath('TEST6.JPG'), 'rb')
         pi = photo.PhotoImage()
         pi._binary_image = ft.read()
         pi._extension = 'JPEG'
@@ -333,7 +334,7 @@ class TestVoting(DatabaseTest):
         # upload images
         u, au = self.create_user()
         # read our test file
-        ft = open('../photos/TEST3.JPG', 'rb')
+        ft = open(get_photo_fullpath('TEST3.JPG'), 'rb')
         pi = photo.PhotoImage()
         pi._binary_image = ft.read()
         ft.close()
@@ -380,7 +381,7 @@ class TestVoting(DatabaseTest):
         # upload images
         u, au = self.create_user()
         # read our test file
-        ft = open('../photos/TEST6.JPG', 'rb')
+        ft = open(get_photo_fullpath('TEST6.JPG'), 'rb')
         pi = photo.PhotoImage()
         pi._binary_image = ft.read()
         pi._extension = 'JPEG'
@@ -477,7 +478,7 @@ class TestVoting(DatabaseTest):
     #     assert(is_shuffled)
 
     def upload_images(self, num_images, u, c):
-        ft = open('../photos/TEST1.JPG', 'rb')
+        ft = open(get_photo_fullpath('TEST1.JPG'), 'rb')
         pi = photo.PhotoImage()
         pi._binary_image = ft.read()
         ft.close()
