@@ -8,7 +8,7 @@ from sqlalchemy import func
 import dbsetup
 import iiServer
 from flask import Flask
-from test_REST_login import TestUser
+from tests.test_REST_login import TestUser
 import uuid
 from controllers import categorymgr
 import json
