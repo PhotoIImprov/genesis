@@ -143,11 +143,11 @@ class TestSubmissions(DatabaseTest):
         self.session.commit()
         return au
 
-    def create_submissions_test_data(self, num_categories: int, num_photos: int)-> int:
+    def create_submissions_tst_data(self, num_categories: int, num_photos: int)-> int:
         au = self.create_anon_user()
         self._cl = self.create_category_list(num_categories)
-        assert(self._cl is not None)
-        assert(len(self._cl) == num_categories)
+        assert self._cl is not None
+        assert len(self._cl) == num_categories
 
         for c in self._cl:
             self.create_photos_for_category(au.id, c, num_photos)
@@ -161,13 +161,13 @@ class TestSubmissions(DatabaseTest):
 
         num_categories = 10
         num_photos = 5
-        uid = self.create_submissions_test_data(num_categories=num_categories, num_photos=num_photos)
+        uid = self.create_submissions_tst_data(num_categories=num_categories, num_photos=num_photos)
         profile = userprofile.Submissions(uid=uid)
         d = profile.get_user_submissions(self.session, 'next', 0, None)
-        assert(d is not None)
-        assert(len(d) == 2)
+        assert d is not None
+        assert len(d) == 2
         submissions = d['submissions']
-        assert(len(submissions) == num_categories)
+        assert len(submissions) == num_categories
         json_d = json.dumps(d)
 
         submission_length = num_categories
@@ -176,13 +176,13 @@ class TestSubmissions(DatabaseTest):
             cid = c['id']
             submission_length = submission_length - 1
             d_next = profile.get_user_submissions(self.session, 'next', cid, None)
-            assert(d_next is not None)
+            assert d_next is not None
             if submission_length > 0:
                 c_submissions = d_next['submissions']
-                assert(c_submissions is not None)
-                assert(len(c_submissions) == submission_length)
+                assert c_submissions is not None
+                assert len(c_submissions) == submission_length
             else:
-                assert(not 'submissions' in d_next)
+                assert not 'submissions' in d_next
 
         submission_length = 0
         for submission in submissions:
@@ -192,10 +192,10 @@ class TestSubmissions(DatabaseTest):
             assert(d_next is not None)
             if submission_length > 0:
                 c_submissions = d_next['submissions']
-                assert(c_submissions is not None)
-                assert(len(c_submissions) == submission_length)
+                assert c_submissions is not None
+                assert len(c_submissions) == submission_length
             else:
-                assert(not 'submissions' in d_next)
+                assert not 'submissions' in d_next
 
             submission_length = submission_length + 1
 
@@ -232,7 +232,7 @@ class TestSubmissions(DatabaseTest):
         self.setup()
 
         num_categories = 10
-        uid = self.create_submissions_test_data(num_categories=num_categories, num_photos=5)
+        uid = self.create_submissions_tst_data(num_categories=num_categories, num_photos=5)
         profile = userprofile.Submissions(uid=uid)
         d = profile.get_user_submissions(self.session, 'next', 0, num_categories//2)
         assert(d is not None)
@@ -247,7 +247,7 @@ class TestSubmissions(DatabaseTest):
         self.setup()
 
         num_categories = 10
-        uid = self.create_submissions_test_data(num_categories=num_categories, num_photos=5)
+        uid = self.create_submissions_tst_data(num_categories=num_categories, num_photos=5)
         c = self._cl[num_categories//2]
         cid = c.id
         profile = userprofile.Submissions(uid=uid)
@@ -274,7 +274,7 @@ class TestSubmissions(DatabaseTest):
 
         # Step #1
         num_categories = 5
-        self.create_submissions_test_data(num_categories=num_categories, num_photos=5)
+        self.create_submissions_tst_data(num_categories=num_categories, num_photos=5)
 
         # Step #2 - create users
         num_users = 5
@@ -340,7 +340,7 @@ class TestSubmissions(DatabaseTest):
 
         # Step #1
         num_categories = 5
-        self.create_submissions_test_data(num_categories=num_categories, num_photos=0)
+        self.create_submissions_tst_data(num_categories=num_categories, num_photos=0)
 
         # Step #2 - create users
         num_users = 5

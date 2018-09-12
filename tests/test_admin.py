@@ -169,9 +169,9 @@ class TestCSRFevent(DatabaseTest):
     @staticmethod
     def f_test_send_forgot_password_send_email(to_email:str, from_email: str, subject_email: str, body_email:str) -> int:
 
-        assert(to_email == 'bp100a@hotmail.com')
-        assert(from_email == 'Forgot Password <noreply@imageimprov.com>')
-        assert(subject_email == 'Password reset')
+        assert to_email == 'bp100a@hotmail.com'
+        assert from_email == 'Forgot Password <noreply@imageimprov.com>'
+        assert subject_email == 'Password reset'
         return 200
 
     def test_send_forgot_password_email(self):
@@ -184,9 +184,9 @@ class TestCSRFevent(DatabaseTest):
     def f_test_send_password_changed_send_email(to_email: str, from_email: str, subject_email: str,
                                               body_email: str) -> int:
 
-        assert(to_email == 'bp100a@hotmail.com')
-        assert(from_email == 'Password Change <noreply@imageimprov.com>')
-        assert(subject_email == 'Password Change notification')
+        assert to_email == 'bp100a@hotmail.com'
+        assert from_email == 'Password Change <noreply@imageimprov.com>'
+        assert subject_email == 'Password Change notification'
         return 200
 
     def test_send_password_changed_email(self):

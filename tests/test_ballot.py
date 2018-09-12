@@ -40,16 +40,25 @@ class TestBallot(DatabaseTest):
         # we need to clean up
         self.teardown()
 
+    @staticmethod
+    def create_photo_fullpath(photo_name : str) -> str:
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        cwd = os.getcwd()
+        if 'tests' in dir_path:
+            photo_fullpath = dir_path.replace('tests', 'photos') + '/' + photo_name
+        else:
+            photo_fullpath = dir_path + '/' + photo_name
+            
+        return photo_fullpath
+    
     def test_create_ballot(self):
         self.setup()
 
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        cwd = os.getcwd()
-        ft = open('../photos/TEST7.JPG', 'rb')
-        pi = photo.PhotoImage()
-        pi._binary_image = ft.read()
-        pi._extension = 'JPEG'
-        ft.close()
+        file_pointer = open(self.create_photo_fullpath('TEST7.JPG'), 'rb')
+        photo_image = photo.PhotoImage()
+        photo_image._binary_image = file_pointer.read()
+        photo_image._extension = 'JPEG'
+        file_pointer.close()
 
         # first we need a resource
         # first we need a resource
@@ -67,22 +76,22 @@ class TestBallot(DatabaseTest):
         # create a user
         for idx in range(10):
             guid = 'AFA3540CCDD24B8686E3DDD75D84EF' + '{0:02d}'.format(idx)
-            au = usermgr.AnonUser.create_anon_user(self.session, guid)
-            if au is not None:
+            anonymous_user = usermgr.AnonUser.create_anon_user(self.session, guid)
+            if anonymous_user is not None:
                 email = 'testlb_{}@gmail.com'.format(idx)
-                u = usermgr.User.create_user(self.session, au.guid, email, 'pa55w0rd')
+                known_user = usermgr.User.create_user(self.session, anonymous_user.guid, email, 'pa55w0rd')
                 # Now add a photo for this user
                 # read our test file
                 fo = photo.Photo()
                 fo.category_id = c.id
-                fo.save_user_image(self.session, pi, au.id, c.id)
+                fo.save_user_image(self.session, photo_image, anonymous_user.id, c.id)
 
         # now set this category to voting
         c.state = category.CategoryState.VOTING.value
         self.session.flush()
 
         # Now let's created a ballot
-        b = categorymgr.BallotManager().create_ballot(self.session, u.id, c)
+        b = categorymgr.BallotManager().create_ballot(self.session, known_user.id, c)
         assert(b is not None)
         json_string = b.to_json()
         json_size = len(json_string)
