@@ -126,7 +126,7 @@ class TestVotingRounds(unittest.TestCase):
     def setUp(self):
         self.app = iiServer.app.test_client()
 
-    def create_test_users(self):
+    def create_tst_users(self):
         # okay we'll create anonymous and known test users
         for i in range(self._NUM_ANON_USERS):
             tu = TestUser()
@@ -255,7 +255,7 @@ class TestVotingRounds(unittest.TestCase):
 
     def MAIN_setup_users(self):
         self.setUp()
-        self.create_test_users()
+        self.create_tst_users()
         self._tu = TestUser()
         self._tu.create_anon_user()
         self._tu.register_user()

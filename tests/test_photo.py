@@ -21,7 +21,7 @@ from controllers import categorymgr
 
 class TestPhoto(DatabaseTest):
 
-    def create_test_photos(self, cid, num=50):
+    def create_tst_photos(self, cid, num=50):
         # create a bunch of test photos for the specified category
 
         # read our test file

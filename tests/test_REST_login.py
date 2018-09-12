@@ -158,7 +158,7 @@ class iiBaseUnitTest(unittest.TestCase):
         session.commit()
         session.close()
 
-    def create_testuser_get_token(self, make_staff=True):
+    def create_tstuser_get_token(self, make_staff=True):
         # first create a user
         tu = TestUser()
         tu.create_user()
@@ -211,12 +211,8 @@ class iiBaseUnitTest(unittest.TestCase):
 
         # we have our user, now we need a photo to upload
         # read our test file
-        cwd = os.getcwd()
-        if 'tests' in cwd:
-            path = '../photos/TestPic.JPG' #'../photos/Cute_Puppy.jpg'
-        else:
-            path = cwd + '/photos/TestPic.JPG' #'/photos/Cute_Puppy.jpg'
-        ft = open(path, 'rb')
+        photo_full_name = TestLeaderBoard.get_photo_fullpath('TestPic.JPG')
+        ft = open(photo_full_name, 'rb')
         ph = ft.read()
         ft.close()
 
@@ -229,8 +225,8 @@ class iiBaseUnitTest(unittest.TestCase):
         data = json.loads(rsp.data.decode("utf-8"))
         assert('pid' in data.keys())
 
-    def create_test_categories_with_photos(self, session, num_categories: int, num_photos: int) -> (list, list):
-        u_staff = self.create_testuser_get_token(make_staff=True)  # get a user so we can use the API
+    def create_tst_categories_with_photos(self, session, num_categories: int, num_photos: int) -> (list, list):
+        u_staff = self.create_tstuser_get_token(make_staff=True)  # get a user so we can use the API
 
         open_cl = []
         for i in range(0, num_categories):
@@ -399,14 +395,14 @@ class TestLogin(iiBaseUnitTest):
         return tu
 
     def test_ballot_no_args(self):
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         hd=self.get_header_html()
         rsp = self.app.get(path='/ballot', headers=hd)
         assert(rsp.status_code == 200)
         return rsp
 
     def test_vote_not_json(self):
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.post(path='/vote', headers=self.get_header_html())
         data = json.loads(rsp.data.decode("utf-8"))
         emsg = data['msg']
@@ -414,7 +410,7 @@ class TestLogin(iiBaseUnitTest):
         return rsp
 
     def test_photo_not_json(self):
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.post(path='/photo', headers=self.get_header_html())
         data = json.loads(rsp.data.decode("utf-8"))
         emsg = data['msg']
@@ -429,7 +425,7 @@ class TestLogin(iiBaseUnitTest):
         return rsp
 
     def test_photo_missing_args(self):
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.post(path='/photo', data=json.dumps(dict(image=None, extension=None, category_id=None, user_id=None) ), headers=self.get_header_json())
         data = json.loads(rsp.data.decode("utf-8"))
         emsg = data['msg']
@@ -442,7 +438,7 @@ class TestLogin(iiBaseUnitTest):
         return rsp
 
     def test_register_missing_args(self):
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.post(path='/register', data=json.dumps(dict(username=None, password='pa55w0rd') ), headers=self.get_header_json())
         data = json.loads(rsp.data.decode("utf-8"))
         emsg = data['msg']
@@ -463,8 +459,8 @@ class TestLogin(iiBaseUnitTest):
         assert(rsp.status_code == 200)
 
     def test_vote_missing_args(self):
-        self.create_testuser_get_token()
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.post(path='/vote', data=json.dumps(dict(user_id=None, votes=None) ), headers=self.get_header_json())
         data = json.loads(rsp.data.decode("utf-8"))
         emsg = data['msg']
@@ -509,12 +505,12 @@ class TestPhotoUpload(iiBaseUnitTest):
         cwd = os.getcwd()
         self.setUp()
         if token is None:
-            self.create_testuser_get_token() # force token creation
+            self.create_tstuser_get_token() # force token creation
         else:
             self.set_token(token) # use token passed in
 
         # we have our user, now we need a photo to upload
-        ft = open('../photos/TEST1.JPG', 'rb')
+        ft = open(TestLeaderBoard.get_photo_fullpath('TEST1.JPG'), 'rb')
         assert (ft is not None)
         ph = ft.read()
         ft.close()
@@ -551,7 +547,7 @@ class TestPhotoUpload(iiBaseUnitTest):
     def test_binary_upload_no_image(self, token=None):
         self.setUp()
         if token is None:
-            self.create_testuser_get_token() # force token creation
+            self.create_tstuser_get_token() # force token creation
         else:
             self.set_token(token) # use token passed in
 
@@ -582,7 +578,7 @@ class TestPhotoUpload(iiBaseUnitTest):
 
         self.setUp()
         if token is None:
-            self.create_testuser_get_token() # force token creation
+            self.create_tstuser_get_token() # force token creation
         else:
             self.set_token(token) # use token passed in
 
@@ -596,7 +592,7 @@ class TestPhotoUpload(iiBaseUnitTest):
         session.commit()
 
         # we have our user, now we need a photo to upload
-        ft = open('../photos/TEST1.JPG', mode='rb')
+        ft = open(TestLeaderBoard.get_photo_fullpath('TEST1.JPG'), mode='rb')
         assert (ft is not None)
         ph = ft.read()
         ft.close()
@@ -626,7 +622,7 @@ class TestPhotoUpload(iiBaseUnitTest):
 
     def test_image_no_such_file(self):
         self.setUp()
-        self.create_testuser_get_token() # force token creation
+        self.create_tstuser_get_token() # force token creation
         filename = uuid.uuid1()
         rsp = self.app.get(path='/image', query_string=urlencode({'filename':filename}),
                            headers=self.get_header_html())
@@ -638,7 +634,7 @@ class TestPhotoUpload(iiBaseUnitTest):
 
     def test_image_no_file(self):
         self.setUp()
-        self.create_testuser_get_token()  # force token creation
+        self.create_tstuser_get_token()  # force token creation
         filename = uuid.uuid1()
         rsp = self.app.get(path='/image', query_string=urlencode({'filename': None}),
                            headers=self.get_header_html())
@@ -650,7 +646,7 @@ class TestPhotoUpload(iiBaseUnitTest):
 
     def test_image_no_args(self):
         self.setUp()
-        self.create_testuser_get_token()  # force token creation
+        self.create_tstuser_get_token()  # force token creation
         filename = uuid.uuid1()
         rsp = self.app.get(path='/image', headers=self.get_header_html())
         assert (rsp.status_code == 400)
@@ -681,13 +677,7 @@ class TestImages(iiBaseUnitTest):
         pi = photo.PhotoImage()
         pi._extension = 'JPEG'
 
-        # read our test file
-        cwd = os.getcwd()
-        if 'tests' in cwd:
-            path = '../photos/SAMSUNG2.JPG' #'../photos/Cute_Puppy.jpg'
-        else:
-            path = cwd + '/photos/SAMSUNG2.JPG' #'/photos/Cute_Puppy.jpg'
-        ft = open(path, 'rb')
+        ft = open(TestLeaderBoard.get_photo_fullpath('SAMSUNG2.JPG'), 'rb')
         pi._binary_image = ft.read()
         ft.close()
 
@@ -739,7 +729,7 @@ class TestImages(iiBaseUnitTest):
 class TestLogging(iiBaseUnitTest):
 
     def test_log_event(self):
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.post(path='/log', data=json.dumps(dict(msg='Test logging message')), headers=self.get_header_json())
 
         data = json.loads(rsp.data.decode("utf-8"))
@@ -775,7 +765,7 @@ class TestVoting(iiBaseUnitTest):
     def get_ballot_by_token(self, token, c: category.Category):
         # let's create a user
         if token is None:
-            self.create_testuser_get_token(make_staff=True)
+            self.create_tstuser_get_token(make_staff=True)
         else:
             self.set_token(token)
 
@@ -803,7 +793,7 @@ class TestVoting(iiBaseUnitTest):
 
     def test_ballot_invalid_category_id(self):
         # let's create a user
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.get(path='/ballot', query_string=urlencode({'category_id':0}),
                            headers=self.get_header_html())
 
@@ -896,7 +886,7 @@ class TestVoting(iiBaseUnitTest):
         return self.ballot_response(rsp)
 
     def test_voting(self):
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
 
         # first create an upload-able category
         session = dbsetup.Session()
@@ -935,7 +925,7 @@ class TestVoting(iiBaseUnitTest):
 
     def test_voting_one_vote(self):
 
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
 
         # first make sure we have an uploadable category
         session = dbsetup.Session()
@@ -966,7 +956,7 @@ class TestVoting(iiBaseUnitTest):
         return self.ballot_response(rsp)
 
     def test_voting_too_many(self):
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         session = dbsetup.Session()
         category_name = 'test_binary_upload()'
         dt_start = categorymgr.CategoryManager.next_category_start(session)
@@ -997,7 +987,7 @@ class TestVoting(iiBaseUnitTest):
 
     def test_friend_request(self):
         # let's create a user
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.post(path='/friendrequest', data=json.dumps(dict(friend="bp100a@hotmail.com")),
                            headers=self.get_header_json())
 
@@ -1008,7 +998,7 @@ class TestVoting(iiBaseUnitTest):
 
     def test_friend_request_no_arg(self):
         # let's create a user
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.post(path='/friendrequest', data=json.dumps(dict(dummy="bp100a@hotmail.com")),
                            headers=self.get_header_json())
 
@@ -1018,7 +1008,7 @@ class TestVoting(iiBaseUnitTest):
 
     def test_friend_request_no_json(self):
         # let's create a user
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.post(path='/friendrequest', data="no json - no json",
                            headers=self.get_header_html())
 
@@ -1028,7 +1018,7 @@ class TestVoting(iiBaseUnitTest):
 
     def test_friend_request_current_user(self):
         # let's create a user
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         f = TestLogin()
         f.setUp()
         fu = f.test_login()  # this will register (create) and login an user, returning the UID
@@ -1046,7 +1036,7 @@ class TestVoting(iiBaseUnitTest):
 
     def test_friend_request_accepted(self):
 
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         d = self.test_friend_request_current_user()    # create a request
         rid = d['request_id']
 
@@ -1061,7 +1051,7 @@ class TestVoting(iiBaseUnitTest):
 
     def test_friend_request_bogus_accepted(self):
 
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         d = self.test_friend_request_current_user()    # create a request
         rid = d['request_id']
 
@@ -1076,7 +1066,7 @@ class TestVoting(iiBaseUnitTest):
 
     def test_friend_request_accepted_no_json(self):
 
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.post(path='/acceptfriendrequest',
                             data="no json -- no json",
                             headers=self.get_header_html())
@@ -1106,7 +1096,7 @@ class TestCategory(iiBaseUnitTest):
 
     def test_category_state_no_json(self):
 
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.post(path='/setcategorystate', data='not json - not json',
                             headers=self.get_header_html())
 
@@ -1115,7 +1105,7 @@ class TestCategory(iiBaseUnitTest):
         assert(data['msg'] == error.d_ERROR_STRINGS['NO_JSON'])
 
     def test_category_state_no_cid(self):
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         cstate = category.CategoryState.UPLOAD.value
         rsp = self.app.post(path='/setcategorystate', data=json.dumps(dict(state=cstate)),
                             headers=self.get_header_json())
@@ -1125,7 +1115,7 @@ class TestCategory(iiBaseUnitTest):
         assert(data['msg'] == error.d_ERROR_STRINGS['MISSING_ARGS'])
 
     def test_category_state_bad_cid(self):
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.post(path='/setcategorystate', data=json.dumps(dict(category_id=0, state=category.CategoryState.UPLOAD.value)),
                             headers=self.get_header_json())
         assert (rsp.status_code == 500)
@@ -1134,7 +1124,7 @@ class TestCategory(iiBaseUnitTest):
 
     def test_category_state_valid_category(self):
         # let's create a user
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
 
         # create a category for us to use
         session = dbsetup.Session()
@@ -1167,7 +1157,7 @@ class TestCategory(iiBaseUnitTest):
 
     def set_category_state(self, cid, target_state):
         # let's create a user
-        tu = self.create_testuser_get_token()
+        tu = self.create_tstuser_get_token()
 
         rsp = iiServer.app.test_client().post(path='/setcategorystate', data=json.dumps(dict(category_id=cid, state=target_state.value)),
                             headers=self.get_header_json())
@@ -1176,7 +1166,7 @@ class TestCategory(iiBaseUnitTest):
     def read_category(self, token):
         # let's create a user
         if token is None:
-            tu = self.create_testuser_get_token()
+            tu = self.create_tstuser_get_token()
         else:
             self.set_token(token)
 
@@ -1207,7 +1197,7 @@ class TestCategory(iiBaseUnitTest):
 
     def test_category(self):
         # let's create a user
-        tu = self.create_testuser_get_token()
+        tu = self.create_tstuser_get_token()
 
         rsp = self.app.get(path='/category', headers=self.get_header_html())
         assert(rsp.status_code == 200)
@@ -1248,7 +1238,7 @@ class TestLeaderBoard(iiBaseUnitTest):
     _base_url = None
 
     def test_leaderboard_no_args(self):
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.get(path='/leaderboard', headers=self.get_header_html())
         data = json.loads(rsp.data.decode("utf-8"))
         emsg = data['msg']
@@ -1257,7 +1247,7 @@ class TestLeaderBoard(iiBaseUnitTest):
         return rsp
 
     def test_leaderboard_missing_args(self):
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.get(path='/leaderboard', query_string=urlencode({'category_id':None}), headers=self.get_header_html())
         data = json.loads(rsp.data.decode("utf-8"))
         emsg = data['msg']
@@ -1378,7 +1368,7 @@ class TestLeaderBoard(iiBaseUnitTest):
 
         user_list = []
         for i in range(0,3):
-            tu = self.create_testuser_get_token()
+            tu = self.create_tstuser_get_token()
             tu.set_cid(c.id)
             user_list.append(tu)
 
@@ -1436,7 +1426,7 @@ class TestLeaderBoard(iiBaseUnitTest):
 
         user_list = []
         for i in range(0,3):
-            tu = self.create_testuser_get_token()
+            tu = self.create_tstuser_get_token()
             tu.set_cid(c.id)
             user_list.append(tu)
 
@@ -1475,14 +1465,14 @@ class TestLastSubmission(iiBaseUnitTest):
 
     def test_last_submission_no_submissions(self):
         self.setUp()
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.get(path='/lastsubmission', headers=self.get_header_html())
         data = json.loads(rsp.data.decode("utf-8"))
         assert (json.loads(rsp.data.decode("utf-8"))['msg'] == error.error_string('NO_SUBMISSION') and rsp.status_code == 200)
 
     def test_last_submission(self):
         self.setUp()
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         tp = TestPhotoUpload()
         session = dbsetup.Session()
         category_name = 'test_last_submission()'
@@ -1513,7 +1503,7 @@ class TestLastSubmission(iiBaseUnitTest):
 class TestMySubmissions(iiBaseUnitTest):
 
     def test_mysubmissions_bad_format(self):
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.get(path='/submissions', headers=self.get_header_html())
         assert (rsp.status_code == 400)
 
@@ -1525,7 +1515,7 @@ class TestMySubmissions(iiBaseUnitTest):
 
 
     def test_mysubmissions_next(self):
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.get(path='/submissions/next/0', headers=self.get_header_html())
         assert (rsp.status_code == 200)
         data = json.loads(rsp.data.decode("utf-8"))
@@ -1537,7 +1527,7 @@ class TestMySubmissions(iiBaseUnitTest):
             assert(False)
 
     def test_mysubmissions_prev(self):
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.get(path='/submissions/prev/0', headers=self.get_header_html())
         assert (rsp.status_code == 200)
         data = json.loads(rsp.data.decode("utf-8"))
@@ -1555,7 +1545,7 @@ class TestBase(iiBaseUnitTest):
         this is a new user with no mapping...
         :return:
         """
-        self.create_testuser_get_token()
+        self.create_tstuser_get_token()
         rsp = self.app.get(path='/base', headers=self.get_header_html())
         assert (rsp.status_code == 200)
         assert (rsp.content_type == 'application/json')
@@ -1569,7 +1559,7 @@ class TestBase(iiBaseUnitTest):
         """
         self.setUp()
 
-        tu = self.create_testuser_get_token()
+        tu = self.create_tstuser_get_token()
         b = admin.BaseURL()
         b.url = 'http://172.21.3.54:8080/'
         session = dbsetup.Session()
@@ -1641,12 +1631,12 @@ class TestTraction(iiBaseUnitTest):
 
     def HIDE_test_forgotpassword_legit_email(self):
 
-        tu = self.create_testuser_get_token()
+        tu = self.create_tstuser_get_token()
         rsp = self.app.get(path='/forgotpwd', query_string=urlencode({'email':tu.get_username()}))
         assert(rsp.status_code == 200)
 
     def HIDE_test_resetpassword_legit_email(self):
-        tu = self.create_testuser_get_token()
+        tu = self.create_tstuser_get_token()
         rsp = self.app.get(path='/forgotpwd', query_string=urlencode({'email':tu.get_username()}))
         assert(rsp.status_code == 200)
 
@@ -1699,7 +1689,7 @@ class TestCategoryFiltering(iiBaseUnitTest):
         create new events with errors in the input arguments
         :return:
         """
-        tu = self.create_testuser_get_token(make_staff=False)
+        tu = self.create_tstuser_get_token(make_staff=False)
 
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         new_categories = ['Team', 'Success', 'Fun']
@@ -1743,7 +1733,7 @@ class TestCategoryFiltering(iiBaseUnitTest):
 
         # Step 1 - create test user (if not passed in)
         if tu is None:
-            tu = self.create_testuser_get_token(make_staff=False)
+            tu = self.create_tstuser_get_token(make_staff=False)
         else:
             self.set_token(tu.get_token())
 
@@ -1777,7 +1767,7 @@ class TestCategoryFiltering(iiBaseUnitTest):
     def test_joinevent_no_event(self):
         session = dbsetup.Session()
         # Step 1 - create test user
-        self.create_testuser_get_token(make_staff=False)
+        self.create_tstuser_get_token(make_staff=False)
 
         # Step 2 - join
         query_string = urlencode({'accesskey': 'fake event'})
@@ -1794,7 +1784,7 @@ class TestCategoryFiltering(iiBaseUnitTest):
         assert(len(accesskey) == 9)
 
         # Step 1 - create test user
-        self.create_testuser_get_token(make_staff=False)
+        self.create_tstuser_get_token(make_staff=False)
 
         # Step 2 - join
         query_string = urlencode({'accesskey': accesskey})
@@ -1809,7 +1799,7 @@ class TestCategoryFiltering(iiBaseUnitTest):
 
         # okay, we need to create an event and get it back
         session = dbsetup.Session()
-        tu = self.create_testuser_get_token()
+        tu = self.create_tstuser_get_token()
         self.create_newevent_and_categories(session, tu)
         session.close()
         rsp = self.app.get(path='/event', headers=self.get_header_html())
@@ -1820,7 +1810,7 @@ class TestCategoryFiltering(iiBaseUnitTest):
     def test_event_details(self):
 
         # okay, we need to create an event and get it back
-        tu = self.create_testuser_get_token()
+        tu = self.create_tstuser_get_token()
         session = dbsetup.Session()
         self.create_newevent_and_categories(session, tu)
         session.close()
@@ -1843,14 +1833,10 @@ class TestCategoryFiltering(iiBaseUnitTest):
 
         # we have our user, now we need a photo to upload
         # read our test file
-        cwd = os.getcwd()
-        if 'tests' in cwd:
-            path = '../photos/TestPic.JPG' #'../photos/Cute_Puppy.jpg'
-        else:
-            path = cwd + '/photos/TestPic.JPG' #'/photos/Cute_Puppy.jpg'
-        ft = open(path, 'rb')
-        ph = ft.read()
-        ft.close()
+        photo_full_name = TestLeaderBoard.get_photo_fullpath('TestPic.JPG')
+        file_pointer = open(photo_full_name, mode='rb')
+        ph = file_pointer.read()
+        file_pointer.close()
 
         ext = 'JPEG'
         img = base64.standard_b64encode(ph)
@@ -1863,8 +1849,8 @@ class TestCategoryFiltering(iiBaseUnitTest):
 
     def test_event_category_list(self):
 
-        tu1 = self.create_testuser_get_token()  # get a user so we can use the API
-        tu2 = self.create_testuser_get_token()
+        tu1 = self.create_tstuser_get_token()  # get a user so we can use the API
+        tu2 = self.create_tstuser_get_token()
         session = dbsetup.Session()
         event_details, open_cl = self.create_newevent_and_categories(session, tu1) # create an Event with categories (in PENDING state, also closes all other categories)
         category_list = event_details['categories']
@@ -1896,7 +1882,7 @@ class TestCategoryFiltering(iiBaseUnitTest):
 class TestAdminAPIs(iiBaseUnitTest):
 
     def test_category_photolist_next(self):
-        tu = self.create_testuser_get_token()
+        tu = self.create_tstuser_get_token()
 
         session = dbsetup.Session()
         q = session.query(usermgr.User).filter(usermgr.User.emailaddress == tu.get_username())
@@ -1938,7 +1924,7 @@ class TestAdminAPIs(iiBaseUnitTest):
 class TestUserLikes(iiBaseUnitTest):
 
     def test_user_likes_none(self):
-        tu = self.create_testuser_get_token(make_staff=False)
+        tu = self.create_tstuser_get_token(make_staff=False)
         path = '/like/next/0'
         rsp = self.app.get(path=path, headers=self.get_header_html())
         assert(rsp.status_code == 204)
@@ -1953,9 +1939,9 @@ class TestUserLikes(iiBaseUnitTest):
         # Step #5 - have user request list of likes
         # Step #6 - validate list
         session = dbsetup.Session()
-        me = self.create_testuser_get_token(make_staff=False)
+        me = self.create_tstuser_get_token(make_staff=False)
         me._uid = self.get_user_id(session, me)
-        pl, cl = self.create_test_categories_with_photos(session, num_categories=3, num_photos=5)
+        pl, cl = self.create_tst_categories_with_photos(session, num_categories=3, num_photos=5)
         assert(pl is not None)
         assert(len(pl) > 0)
         session.commit()
@@ -1997,7 +1983,7 @@ class TestUserRewards(iiBaseUnitTest):
     def test_user_norewards(self):
 
         session = dbsetup.Session()
-        me = self.create_testuser_get_token(make_staff=False)
+        me = self.create_tstuser_get_token(make_staff=False)
         me._uid = self.get_user_id(session, me)
 
         self.set_token(me.get_token())
@@ -2008,17 +1994,17 @@ class TestUserRewards(iiBaseUnitTest):
         session = dbsetup.Session()
 
         # create a category and put some photos in it
-        pl, cl = self.create_test_categories_with_photos(session, num_categories=1, num_photos=25)
+        pl, cl = self.create_tst_categories_with_photos(session, num_categories=1, num_photos=25)
 
         # now create a user that will vote on these photo
-        me = self.create_testuser_get_token(make_staff=True)
+        me = self.create_tstuser_get_token(make_staff=True)
 
         # we haven't voted yet, so no content
         self.set_token(me.get_token())
         rsp = self.app.get(path='/badges', headers=self.get_header_html(), content_type='image/jpeg')
         assert(rsp.status_code == 200)
 
-        pl, cl = self.create_test_categories_with_photos(session, num_categories=1, num_photos=10)
+        pl, cl = self.create_tst_categories_with_photos(session, num_categories=1, num_photos=10)
         assert(pl is not None)
         assert(len(pl) == 10)
         session.close()
@@ -2057,16 +2043,16 @@ class TestUpdatePhoto(iiBaseUnitTest):
 
     def test_update_photo_meta(self):
 
-        me = self.create_testuser_get_token(make_staff=False)
+        me = self.create_tstuser_get_token(make_staff=False)
         session = dbsetup.Session()
         me._uid = self.get_user_id(session, me)
-        pl, cl = self.create_test_categories_with_photos(session, num_categories=1, num_photos=5)
+        pl, cl = self.create_tst_categories_with_photos(session, num_categories=1, num_photos=5)
         assert(pl is not None)
         assert(len(pl) > 0)
         session.commit()
 
         # now update the likes with a new user
-        nu = self.create_testuser_get_token(make_staff=False)
+        nu = self.create_tstuser_get_token(make_staff=False)
         nu._uid = self.get_user_id(session, me)
         for p in pl:
             rsp = self.app.put(path='/update/photo/{0}'.format(p.id), headers=self.get_header_json(), data=json.dumps(dict({'like': True, 'flag': False, 'tags': ['tag1', 'tag2']})) )
