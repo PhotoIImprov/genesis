@@ -1,23 +1,21 @@
+"""User Manager. Contains classes to manage the user accounts, including login and creation"""
 from passlib.hash      import pbkdf2_sha256
 from sqlalchemy        import Column, Integer, String, DateTime, text, ForeignKey
 from dbsetup           import Session, Base
 import hashlib
-import pymysql
 from logsetup import logger
 from oauth2client import client
-import oauth2client
 import httplib2
 import json
 import uuid
 from flask import jsonify
-import string
-import random
-import requests
 from models import admin
 from enum import Enum
 
 class UserType(Enum):
-    PLAYER  = 0
+    """We have 3 types of users, players are the most common,
+    but reserved type for staff so we can filter out for analytics"""
+    PLAYER = 0
     IIKNOWN = 1        # someone that imageimprov staff knows and doesn't want counted in reports
     IISTAFF = 2        # an imageimprove staff member that has special powers
 
@@ -33,12 +31,15 @@ class UserType(Enum):
 
 
 class AnonUser(Base):
+    """Users do not have to provide any information to register
+    we have anonymous play. All users have a anonymous account that
+    can be *upgraded* to a full user"""
     __tablename__ = "anonuser"
-    id            = Column(Integer, primary_key = True, autoincrement=True)
-    guid          = Column(String(32), nullable=False, unique=True)
-    base_id       = Column(Integer, ForeignKey("baseurl.id", name="fk_anonuser_base_id"), nullable=True)
-    usertype      = Column(Integer, default=UserType.PLAYER.value)
-    created_date  = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
+    id  = Column(Integer, primary_key= True, autoincrement=True)
+    guid = Column(String(32), nullable=False, unique=True)
+    base_id = Column(Integer, ForeignKey("baseurl.id", name="fk_anonuser_base_id"), nullable=True)
+    usertype = Column(Integer, default=UserType.PLAYER.value)
+    created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
 
     def __init__(self, *args, **kwargs):
         self.id = kwargs.get('uid')
@@ -444,7 +445,7 @@ class FriendRequest(Base):
             return
 
         # okay, get the friendship record..
-        q = session.query(FriendRequest).filter_by(id = fid)
+        q = session.query(FriendRequest).filter_by(id= fid)
         fr = q.first()
         if fr is None:
             raise
