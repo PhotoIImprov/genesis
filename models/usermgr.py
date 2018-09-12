@@ -406,12 +406,13 @@ class Friend(Base):
     """our class to manage tell-a-friend'"""
     __tablename__ = 'friend'
 
-    user_id = Column(Integer, ForeignKey("anonuser.id", name="fk_friend_user_id"),     primary_key = True)  # ties us back to our user record
-    myfriend_id  = Column(Integer, ForeignKey("anonuser.id", name="fk_friend_myfriend_id"), primary_key = True)  # ties us back to our user record
+    user_id = Column(Integer, ForeignKey("anonuser.id", name= "fk_friend_user_id"), primary_key= True)  # ties us back to our user record
+    myfriend_id  = Column(Integer, ForeignKey("anonuser.id", name= "fk_friend_myfriend_id"), primary_key= True)  # ties us back to our user record
     active = Column(Integer, nullable=False, default=1)
-
-    created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
-    last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
+    created_date = Column(DateTime,
+                          server_default=text('CURRENT_TIMESTAMP'), nullable=False)
+    last_updated = Column(DateTime, nullable=True,
+                          server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 
     @staticmethod
     def is_friend(session: orm.Session, uid: int, maybe_friend_uid: int) -> bool:

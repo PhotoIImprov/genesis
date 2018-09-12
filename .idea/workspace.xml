@@ -7,10 +7,9 @@
     <bookmark url="file://$PROJECT_DIR$/models/usermgr.py" line="127" mnemonic="1" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="- pylint cleanup&#10;- Jinja2 requirement">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/daemon/test_sync_daemon.py" beforeDir="false" />
+    <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="- pylint cleanup">
       <change beforePath="$PROJECT_DIR$/models/usermgr.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/usermgr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -339,21 +338,21 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="conf" value="545" />
-          <entry key="py" value="4108" />
-          <entry key="txt" value="341" />
+          <entry key="py" value="4119" />
+          <entry key="txt" value="358" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="886" />
-          <entry key="Python" value="4108" />
+          <entry key="PLAIN_TEXT" value="903" />
+          <entry key="Python" value="4119" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="HTML" value="2" />
           <entry key="PLAIN_TEXT" value="10" />
-          <entry key="Python" value="22" />
+          <entry key="Python" value="23" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.js.language.service.starts" />
@@ -361,7 +360,7 @@
         <counts>
           <entry key="conf" value="2" />
           <entry key="html" value="2" />
-          <entry key="py" value="22" />
+          <entry key="py" value="23" />
           <entry key="sh" value="4" />
           <entry key="txt" value="4" />
         </counts>
@@ -382,18 +381,30 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models/usermgr.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="394">
-              <caret line="456" column="18" selection-start-line="456" selection-start-column="18" selection-end-line="456" selection-end-column="18" />
+            <state relative-caret-position="619">
+              <caret line="422" column="19" selection-start-line="422" selection-start-column="19" selection-end-line="422" selection-end-column="19" />
               <folding>
                 <element signature="e#95#118#0" expanded="true" />
-                <marker date="1536770440945" expanded="true" signature="846:850" ph="..." />
-                <marker date="1536770440945" expanded="true" signature="1294:3693" ph="..." />
-                <marker date="1536770440945" expanded="true" signature="3402:3406" ph="..." />
-                <marker date="1536770440945" expanded="true" signature="4115:5379" ph="..." />
-                <marker date="1536770440945" expanded="true" signature="5284:5288" ph="..." />
+                <marker date="1536770735632" expanded="true" signature="846:850" ph="..." />
+                <marker date="1536770735632" expanded="true" signature="1294:3693" ph="..." />
+                <marker date="1536770735632" expanded="true" signature="3402:3406" ph="..." />
+                <marker date="1536770735632" expanded="true" signature="4115:5379" ph="..." />
+                <marker date="1536770735632" expanded="true" signature="5284:5288" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/__init__.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="462">
+              <caret line="21" column="51" selection-start-line="21" selection-start-column="51" selection-end-line="21" selection-end-column="51" />
+              <folding>
+                <element signature="e#27#70#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -411,11 +422,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/requirements.txt">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="396">
-              <caret line="18" column="1" selection-start-line="18" selection-start-column="1" selection-end-line="18" selection-end-column="1" />
+              <caret line="18" column="7" selection-start-line="18" selection-start-column="7" selection-end-line="18" selection-end-column="7" />
             </state>
           </provider>
         </entry>
@@ -568,9 +579,9 @@
         <option value="$PROJECT_DIR$/tests/test_ballot.py" />
         <option value="$PROJECT_DIR$/tests/test_admin.py" />
         <option value="$PROJECT_DIR$/tests/test_submissions.py" />
-        <option value="$PROJECT_DIR$/requirements.txt" />
         <option value="$PROJECT_DIR$/models/admin.py" />
         <option value="$PROJECT_DIR$/models/usermgr.py" />
+        <option value="$PROJECT_DIR$/requirements.txt" />
       </list>
     </option>
   </component>
@@ -581,8 +592,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1590" />
-    <option name="y" value="657" />
+    <option name="x" value="1359" />
+    <option name="y" value="392" />
     <option name="width" value="2329" />
     <option name="height" value="1527" />
   </component>
@@ -1072,13 +1083,17 @@
       <option name="project" value="LOCAL" />
       <updated>1536767517109</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="- pylint cleanup">
+      <created>1536770478851</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1536770478851</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="all_unit_tests - 2018.09.12 at 10h 32m 56s.xml">
-      <configuration name="all unit tests" configurationId="tests" />
-    </history-entry>
     <history-entry file="all_unit_tests - 2018.09.12 at 10h 35m 36s.xml">
       <configuration name="all unit tests" configurationId="tests" />
     </history-entry>
@@ -1106,17 +1121,20 @@
     <history-entry file="all_unit_tests - 2018.09.12 at 12h 32m 12s.xml">
       <configuration name="all unit tests" configurationId="tests" />
     </history-entry>
+    <history-entry file="all_unit_tests - 2018.09.12 at 12h 43m 19s.xml">
+      <configuration name="all unit tests" configurationId="tests" />
+    </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1590" y="657" width="2329" height="1527" extended-state="0" />
+    <frame x="1359" y="392" width="2329" height="1527" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.26443368" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.26443368" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32711622" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4921875" visible="true" weight="0.2934003" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4921875" visible="true" weight="0.2934003" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49270833" weight="0.39741752" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -1196,7 +1214,8 @@
     <MESSAGE value="- upgrade SQLAlchemy" />
     <MESSAGE value="- just cleanup for Jenkins" />
     <MESSAGE value="- pylint cleanup&#10;- Jinja2 requirement" />
-    <option name="LAST_COMMIT_MESSAGE" value="- pylint cleanup&#10;- Jinja2 requirement" />
+    <MESSAGE value="- pylint cleanup" />
+    <option name="LAST_COMMIT_MESSAGE" value="- pylint cleanup" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1334,7 +1353,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file:///usr/lib/python3.5/warnings.py" />
     <entry file="file:///usr/local/lib/python3.5/dist-packages/pymysql/cursors.py" />
     <entry file="file://$PROJECT_DIR$/models/error.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -1621,13 +1639,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/requirements.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="18" column="1" selection-start-line="18" selection-start-column="1" selection-end-line="18" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/daemon/test_sync_daemon.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -1653,16 +1664,33 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/models/usermgr.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="394">
-          <caret line="456" column="18" selection-start-line="456" selection-start-column="18" selection-end-line="456" selection-end-column="18" />
+        <state relative-caret-position="619">
+          <caret line="422" column="19" selection-start-line="422" selection-start-column="19" selection-end-line="422" selection-end-column="19" />
           <folding>
             <element signature="e#95#118#0" expanded="true" />
-            <marker date="1536770440945" expanded="true" signature="846:850" ph="..." />
-            <marker date="1536770440945" expanded="true" signature="1294:3693" ph="..." />
-            <marker date="1536770440945" expanded="true" signature="3402:3406" ph="..." />
-            <marker date="1536770440945" expanded="true" signature="4115:5379" ph="..." />
-            <marker date="1536770440945" expanded="true" signature="5284:5288" ph="..." />
+            <marker date="1536770735632" expanded="true" signature="846:850" ph="..." />
+            <marker date="1536770735632" expanded="true" signature="1294:3693" ph="..." />
+            <marker date="1536770735632" expanded="true" signature="3402:3406" ph="..." />
+            <marker date="1536770735632" expanded="true" signature="4115:5379" ph="..." />
+            <marker date="1536770735632" expanded="true" signature="5284:5288" ph="..." />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="462">
+          <caret line="21" column="51" selection-start-line="21" selection-start-column="51" selection-end-line="21" selection-end-column="51" />
+          <folding>
+            <element signature="e#27#70#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/requirements.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="396">
+          <caret line="18" column="7" selection-start-line="18" selection-start-column="7" selection-end-line="18" selection-end-column="7" />
         </state>
       </provider>
     </entry>
