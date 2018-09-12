@@ -1,5 +1,6 @@
 import os
 
+
 def get_photo_fullpath(photo_file_name: str) -> str:
     """return a fully specified path & name for the photos folder"""
     dir_path = os.path.dirname(os.path.realpath(__file__))

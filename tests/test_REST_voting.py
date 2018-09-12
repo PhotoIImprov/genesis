@@ -1,4 +1,18 @@
-import os
+"""
+test_REST_voting.py
+===================
+We will test the voting API via the REST interface. We need to do the following:
+
+    1) Register test users
+        a) both anonymous and email accounts
+    2) Upload photos to a category
+    3) Switch category to voting state (round 1)
+    4) Vote
+    5) Switch category to voting state (round 2)
+    6) Vote
+    7) Close out category, see results
+
+"""
 import unittest
 import uuid
 import hashlib
@@ -14,23 +28,7 @@ from models import error
 from urllib.parse import urlencode
 from werkzeug.datastructures import Headers
 from random import shuffle
-from utilities import get_photo_fullpath
-
-'''
-test_REST_voting.py
-===================
-We will test the voting API via the REST interface. We need to do the following:
-
-    1) Register test users
-        a) both anonymous and email accounts
-    2) Upload photos to a category
-    3) Switch category to voting state (round 1)
-    4) Vote 
-    5) Switch category to voting state (round 2)
-    6) Vote
-    7) Close out category, see results
-
-'''
+from tests.utilities import get_photo_fullpath
 
 class TestUser:
     _u = None   # username

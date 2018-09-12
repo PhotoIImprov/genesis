@@ -12,7 +12,7 @@ from test_REST_login import TestUser
 import uuid
 from controllers import categorymgr
 import json
-from utilities import get_photo_fullpath
+from tests.utilities import get_photo_fullpath
 
 class TestEvent(DatabaseTest):
 

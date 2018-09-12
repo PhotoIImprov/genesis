@@ -15,7 +15,7 @@ from flask import Flask, jsonify
 import json
 import dbsetup
 from controllers import categorymgr
-from utilities import get_photo_fullpath
+from tests.utilities import get_photo_fullpath
 
 class TestVoting(DatabaseTest):
 

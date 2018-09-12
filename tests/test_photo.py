@@ -18,7 +18,8 @@ import iiServer
 from flask import Flask
 import subprocess
 from controllers import categorymgr
-from utilities import get_photo_fullpath
+from tests.utilities import get_photo_fullpath
+
 
 class TestPhoto(DatabaseTest):
 

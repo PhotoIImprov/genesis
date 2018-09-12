@@ -8,7 +8,7 @@ from models import category
 from werkzeug.datastructures import Headers
 import _thread
 import time
-from utilities import get_photo_fullpath
+from tests.utilities import get_photo_fullpath
 
 # ************************************************************************
 # ************************************************************************
