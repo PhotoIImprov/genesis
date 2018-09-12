@@ -1,11 +1,11 @@
 # Unit Test initialization
+import datetime
+from unittest import TestCase
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm.session import Session
+from flask import Flask, jsonify
 import initschema
 from dbsetup import Base, connection_string, Session
-from unittest import TestCase
-import datetime
-from flask import Flask, jsonify
 
 # specify the JWT package's call backs for authentication of username/password
 # and subsequent identity from the payload in the token
