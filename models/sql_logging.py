@@ -1,11 +1,11 @@
+"""provides our logging interface to My SQL database"""
 import os
 from sqlalchemy import Column, text
 from sqlalchemy.types import DateTime, Integer, String
-from sqlalchemy.sql import func
-from sqlalchemy.ext.declarative import declarative_base
 from dbsetup import Base
 
 class Log(Base):
+    """defines our table for log entries"""
     __tablename__ = 'logs'
     id = Column(Integer, primary_key=True, autoincrement=True)
     host = Column(String(100), index=True, nullable=False)
@@ -22,8 +22,8 @@ class Log(Base):
         self.trace = trace
         self.msg = msg
         try:
-            self.host = str.upper(os.uname()[1])
-        except Exception as e:
+            self.host = str.upper(os.uname()[1]) #pylint: disable=E1101
+        except AttributeError: # if attribute doesn't exist, then we are on a Windows machine
             self.host = str.upper(os.environ['COMPUTERNAME'])
 
     def __unicode__(self):
@@ -31,4 +31,3 @@ class Log(Base):
 
     def __repr__(self):
         return "<Log: %s - %s>" % (self.created_date.strftime('%m/%d/%Y-%H:%M:%S'), self.msg[:50])
-
