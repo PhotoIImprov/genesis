@@ -1,12 +1,23 @@
+import os
 import datetime
+from datetime import timedelta
 import base64
-
 from flask import Flask, jsonify
 from flask     import request, redirect, make_response, current_app
 from flask_jwt import JWT, jwt_required, current_identity
-import jwt
 from flask_api import status
-from flask import send_from_directory
+from flask_cors import CORS, cross_origin
+from flask_swagger import swagger
+from urllib.parse import urlparse
+import uuid
+from waitress import serve
+import random
+from random import shuffle
+import logging
+import jwt
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+from leaderboard.leaderboard import Leaderboard
 
 import initschema
 import dbsetup
@@ -19,23 +30,10 @@ from models import traction
 from models import admin
 from models import engagement
 from models import event
-from flask_swagger import swagger
-from leaderboard.leaderboard import Leaderboard
-import random
-import logging
-import os
-from sqlalchemy import text
-from sqlalchemy.orm import Session
-from random import shuffle
-from datetime import timedelta
+from models import userprofile
 
 from logsetup import logger, client_logger, timeit
-from urllib.parse import urlparse
-import uuid
-from models import userprofile
-from flask_cors import CORS, cross_origin
 from controllers import categorymgr
-from waitress import serve
 
 app = Flask(__name__)
 app.debug = True
@@ -284,7 +282,7 @@ def hello():
 
     # display current connection string, without username/password!
     cs = dbsetup.connection_string(None)
-    cs2 = cs.split("@",1)
+    cs2 = cs.split("@", 1)
     htmlbody += "<h3>connection string:<span>" + cs2[1] + "</span></h3><br>\n"
 
     session = dbsetup.Session()
@@ -300,7 +298,12 @@ def hello():
                     last_executed = "never"
                 else:
                     last_executed = le
-                h = "&nbsp&nbsp><b>name: </b>{}, every {} {}, last executed: {}, status: {}".format(row['EVENT_NAME'], row['INTERVAL_VALUE'], row['INTERVAL_FIELD'], last_executed, row['STATUS'])
+                h = "&nbsp&nbsp><b>name: </b>{}, every {} {}, last executed: {}, status: {}"\
+                    .format(row['EVENT_NAME'],
+                            row['INTERVAL_VALUE'],
+                            row['INTERVAL_FIELD'],
+                            last_executed,
+                            row['STATUS'])
                 htmlbody += h + "<br>"
         else:
             htmlbody += "<i>no events found</i><br>"
@@ -512,7 +515,7 @@ def set_category_state():
             else:
                 c = d['arg']
                 if c is not None:
-                    rsp = make_response(jsonify({'msg': error.error_string('CATEGORY_STATE')}),status.HTTP_200_OK)
+                    rsp = make_response(jsonify({'msg': error.error_string('CATEGORY_STATE')}), status.HTTP_200_OK)
     except Exception as e:
         logger.exception(msg=str(e))
         rsp = make_response(jsonify({'msg': error.iiServerErrors.error_message(d['error'])}), status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -599,7 +602,8 @@ def create_category():
     session = dbsetup.Session()
     try:
         # create current timestamp to minute resolution
-        dt_now = datetime.datetime.strptime(datetime.datetime.now().strftime("%Y-%m-%d %H:%M"), '%Y-%m-%d %H:%M')
+        dt_now = datetime.datetime.strptime(datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+                                            '%Y-%m-%d %H:%M')
         if start_date == 'next':
             dt_start = categorymgr.CategoryManager.next_category_start(session)
             if dt_start is None:
@@ -610,12 +614,17 @@ def create_category():
             dt_start = datetime.datetime.strptime(start_date, '%Y-%m-%dT%H:%M:%S.%fZ')
             start_date = dt_start.strftime("%Y-%m-%d %H:%M")
         except Exception as e:
-            return make_response(jsonify({'msg': error.error_string('BAD_DATEFORMAT')}), status.HTTP_400_BAD_REQUEST)
+            return make_response(jsonify({'msg': error.error_string('BAD_DATEFORMAT')}),
+                                 status.HTTP_400_BAD_REQUEST)
 
         if dt_start < dt_now:
-            return make_response(jsonify({'msg': error.error_string('TOO_EARLY')}), status.HTTP_400_BAD_REQUEST)
+            return make_response(jsonify({'msg': error.error_string('TOO_EARLY')}),
+                                 status.HTTP_400_BAD_REQUEST)
 
-        cm = categorymgr.CategoryManager(description=category_name, start_date=start_date, upload_duration=upload_duration, vote_duration=vote_duration)
+        cm = categorymgr.CategoryManager(description=category_name,
+                                         start_date=start_date,
+                                         upload_duration=upload_duration,
+                                         vote_duration=vote_duration)
         c = cm.create_category(session, type=category.CategoryType.OPEN.value)
         session.commit()
         session.add(c)
@@ -1216,7 +1225,8 @@ def return_ballot(session, uid: int, cid: int, pid=None):
         if ballots is None or len(ballots._ballotentries) == 0:
             logger.info(msg="[return_ballot]no ballots returned for category #{0}".format(c.id))
             session.close()
-            return make_response(jsonify({'msg': error.error_string('NO_BALLOT')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return make_response(jsonify({'msg': error.error_string('NO_BALLOT')}),
+                                 status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             ballots.read_photos_for_ballots(session)
             j_ballots = ballots.to_json()
@@ -1282,14 +1292,16 @@ def image_download():
           $ref: '#/definitions/Error'
     """
     if not request.args:
-        return make_response(jsonify({'msg': error.error_string('NO_ARGS')}),status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'msg': error.error_string('NO_ARGS')}),
+                             status.HTTP_400_BAD_REQUEST)
 
     u = current_identity
     uid = u.id
     filename = request.args.get('filename')
 
     if uid is None or filename is None or filename == 'None':
-        return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),
+                             status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
     try:
@@ -1300,7 +1312,8 @@ def image_download():
         str_e = str(e)
         logger.exception(msg=str_e)
         session.rollback()
-        rsp = make_response(jsonify({'msg':error.error_string('ERROR_PHOTO')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+        rsp = make_response(jsonify({'msg':error.error_string('ERROR_PHOTO')}),
+                            status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         session.close()
         return rsp
@@ -1349,22 +1362,26 @@ def last_submission():
     try:
         d = photo.Photo.last_submitted_photo(session, uid)
         if d['arg'] is None:
-            rsp = make_response(jsonify({'msg': error.error_string('NO_SUBMISSION')}), status.HTTP_200_OK)
+            rsp = make_response(jsonify({'msg': error.error_string('NO_SUBMISSION')}),
+                                status.HTTP_200_OK)
         else:
             darg = d['arg']
             c = darg['category']
             i = darg['image']
 
-            rsp = make_response(jsonify({'image':i.decode("utf-8"), 'category':c.to_json()}), status.HTTP_200_OK)
+            rsp = make_response(jsonify({'image':i.decode("utf-8"), 'category':c.to_json()}),
+                                status.HTTP_200_OK)
         session.commit()
     except Exception as e:
         session.rollback()
         logger.exception(msg=str(e))
-        rsp = make_response(jsonify({'msg': error.error_string('NO_SUBMISSION')}),status.HTTP_500_INTERNAL_SERVER_ERROR)
+        rsp = make_response(jsonify({'msg': error.error_string('NO_SUBMISSION')}),
+                            status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         session.close()
         if rsp is None:
-            rsp = make_response(jsonify({'msg': error.error_string('NO_SUBMISSION')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+            rsp = make_response(jsonify({'msg': error.error_string('NO_SUBMISSION')}),
+                                status.HTTP_500_INTERNAL_SERVER_ERROR)
         return rsp
 
 @app.route("/photo/<int:cid>/<string:dir>/<int:pid>", methods=['GET'])
@@ -1767,7 +1784,7 @@ def register_legituser(session, emailaddress, password, guid):
     if newUser is None:
         logger.error(msg="[/register] error creating user, emailaddress = {0}".format(emailaddress))
         return make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}),
-                            status.HTTP_500_INTERNAL_SERVER_ERROR)
+                             status.HTTP_500_INTERNAL_SERVER_ERROR)
     session.commit()
     logger.info(msg="[/register] created user, emailaddress = {0}".format(emailaddress))
     return make_response(jsonify({'msg': error.error_string('ACCOUNT_CREATED')}), 201)
@@ -1832,8 +1849,8 @@ def register():
 
     try:
         emailaddress = request.json['username']
-        password     = request.json['password']
-        guid         = request.json['guid']
+        password = request.json['password']
+        guid = request.json['guid']
         logger.info(msg='[/register] registering username {0}, password {1}'.format(emailaddress, password))
         if guid is None or guid == "":
             guid = str(uuid.uuid1())
@@ -1845,7 +1862,8 @@ def register():
 
     if emailaddress is None or password is None:
         logger.error(msg='[/register] missing arguments')
-        return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),
+                             status.HTTP_400_BAD_REQUEST)
 
     session = dbsetup.Session()
     rsp = None
@@ -1857,12 +1875,14 @@ def register():
     except:
         session.rollback()
         logger.exception(msg='[/register] registering user')
-        rsp = make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+        rsp = make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}),
+                            status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         if rsp is None:
             logger.error(msg='[/register] response is empty!!')
             logger.error(msg="[/register] content ={0}".format(request.data.decode('utf-8')))
-            rsp = make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+            rsp = make_response(jsonify({'msg': error.error_string('USER_CREATE_ERROR')}),
+                                status.HTTP_500_INTERNAL_SERVER_ERROR)
         session.close()
         return rsp
 
@@ -1983,7 +2003,7 @@ def base_url():
     finally:
         session.close()
 
-    logger.info(msg="[/base] url = {0}, for user {1}".format(url, uid) )
+    logger.info(msg="[/base] url = {0}, for user {1}".format(url, uid))
     return make_response(jsonify({'base': url}), status.HTTP_200_OK)
 
 @app.route('/forgotpwd')
@@ -2025,24 +2045,29 @@ def forgot_password():
             if cev is not None:
                 session.add(cev)
                 cev.generate_csrf_token()
-                http_status = admin.Emailer().send_forgot_password_email(u.emailaddress, cev.csrf)
+                http_status = admin.Emailer().\
+                    send_forgot_password_email(u.emailaddress, cev.csrf)
                 session.commit()
                 rsp = make_response('new password sent via email', status.HTTP_200_OK)
             else:
                 msg = "error creating csrf token"
                 logger.error(msg=msg)
-                rsp = make_response(jsonify({'msg': msg}),status.HTTP_500_INTERNAL_SERVER_ERROR)
+                rsp = make_response(jsonify({'msg': msg}),
+                                    status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             logger.error(msg="email address not found")
-            rsp = make_response(jsonify({'msg': error.error_string('EMAIL_NOT_FOUND')}), status.HTTP_404_NOT_FOUND)
+            rsp = make_response(jsonify({'msg': error.error_string('EMAIL_NOT_FOUND')}),
+                                status.HTTP_404_NOT_FOUND)
     except Exception as e:
         session.rollback()
         logger.exception(msg='[/forgotpwd]')
-        rsp = make_response(jsonify({'msg': '[/forgotpwd] error'}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+        rsp = make_response(jsonify({'msg': '[/forgotpwd] error'}),
+                            status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         session.close()
         if rsp is None:
-            rsp = make_response(jsonify({'msg': 'weird error'}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+            rsp = make_response(jsonify({'msg': 'weird error'}),
+                                status.HTTP_500_INTERNAL_SERVER_ERROR)
         return rsp
 
 @app.route('/cors_auth', methods=['POST'])
@@ -2558,15 +2583,18 @@ def join_event():
         d_el = categorymgr.EventManager.event_details(session, current_identity._get_current_object(), e.id)
         session.commit()
         return make_response(jsonify(d_el), status.HTTP_200_OK)
-    except Exception as e:
-        if e.args[0] == 'join_event' and e.args[1] == 'event not found':
-            return make_response(jsonify({'msg': 'event not found!'}),status.HTTP_404_NOT_FOUND)
-    except KeyError:
+    except KeyError as ke:
         session.close()
         logger.exception(msg="[/joinevent] error with inputs")
-        return make_response(jsonify({'msg': 'input argument error'}), status.HTTP_400_BAD_REQUEST)
+        return make_response(jsonify({'msg': 'input argument error'}),
+                             status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        if e.args[0] == 'join_event' and e.args[1] == 'event not found':
+            return make_response(jsonify({'msg': 'event not found!'}),
+                                 status.HTTP_404_NOT_FOUND)
 
-    return make_response(jsonify({'msg': 'event not found or not categories'}), status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return make_response(jsonify({'msg': 'event not found or not categories'}),
+                         status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @app.route('/event', methods=['GET'])
@@ -3070,7 +3098,7 @@ def root_path():
 
 
 if __name__ == '__main__':
-    dbsetup.metadata.create_all(bind=dbsetup.ENGINE, checkfirst=True)
+    dbsetup.METADATA.create_all(bind=dbsetup.ENGINE, checkfirst=True)
     if not dbsetup.is_gunicorn():
         if "DEBUG" in os.environ:
             if os.environ.get('DEBUG', '0') == '1':
