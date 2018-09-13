@@ -1886,15 +1886,21 @@ def register():
         session.close()
         return rsp
 
+
 @app.route('/beta1')
 def beta1():
     return landingpage('beta1')
+
+
 @app.route('/beta2')
 def beta2():
     return landingpage('beta2')
+
+
 @app.route('/beta3')
 def beta3():
     return landingpage('beta3')
+
 
 @app.route('/play/<string:campaign>')
 @app.route('/play')
@@ -1909,8 +1915,10 @@ def landingpage(campaign=None):
     try:
         str_header = str(request.headers)
         str_referer = request.referrer
-        tl = traction.TractionLog(campaign=campaign, header=str_header, referer=str_referer)
-        session.add(tl)
+        traction_log_entry = traction.TractionLog(campaign=campaign,
+                                                  header=str_header,
+                                                  referer=str_referer)
+        session.add(traction_log_entry)
         session.commit()
     except Exception as e:
         logger.exception(msg='error in traction logging')
@@ -1918,6 +1926,7 @@ def landingpage(campaign=None):
     finally:
         session.close()
         return redirect(target_url, code=302)
+
 
 @app.route('/preview/<int:pid>', methods=['GET'])
 @cross_origin(origins='*')
@@ -1966,6 +1975,7 @@ def download_photo(pid):
 
     return rsp
 
+
 @app.route('/base')
 @jwt_required()
 @timeit()
@@ -2005,6 +2015,7 @@ def base_url():
 
     logger.info(msg="[/base] url = {0}, for user {1}".format(url, uid))
     return make_response(jsonify({'base': url}), status.HTTP_200_OK)
+
 
 @app.route('/forgotpwd')
 @timeit()
@@ -2069,6 +2080,7 @@ def forgot_password():
             rsp = make_response(jsonify({'msg': 'weird error'}),
                                 status.HTTP_500_INTERNAL_SERVER_ERROR)
         return rsp
+
 
 @app.route('/cors_auth', methods=['POST'])
 @cross_origin(origins='*')
@@ -2428,6 +2440,7 @@ def update_photometa(pid: int):
         session.close()
 
     return rsp
+
 
 @app.route('/newevent', methods=['POST'])
 @jwt_required()
@@ -3104,5 +3117,5 @@ if __name__ == '__main__':
             if os.environ.get('DEBUG', '0') == '1':
                 dbsetup._DEBUG = 1
 
- #       app.run(host='0.0.0.0', port=8080)
+        # app.run(host='0.0.0.0', port=8080)
         serve(app, listen='*:8081')

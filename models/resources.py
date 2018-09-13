@@ -1,65 +1,76 @@
+""" for language mapping"""
 from sqlalchemy import Column, Integer, String, DateTime, text
-from dbsetup import Base
-from pymysql import OperationalError, IntegrityError
-import sys
-from sqlalchemy.sql.expression import insert, select
-from sqlalchemy import func
 from logsetup import logger
-from sqlalchemy import func
+from dbsetup import Base
 
-resource_map = None
+RESOURCE_MAP = None
+
 
 class Resource(Base):
+    """manages language mapping"""
     __tablename__ = 'resource'
 
-    resource_id     = Column(Integer,     primary_key=True, autoincrement=True) # identifier used to find relevant resource
-    iso639_1        = Column(String(2),   primary_key=True) # language of resource, e.g. "EN" or "ES"
-    resource_string = Column(String(500), nullable=False)                   # language-specific string
+    resource_id = Column(Integer,
+                         primary_key=True, autoincrement=True)
+    iso639_1 = Column(String(2),
+                      primary_key=True) # language of resource, e.g. "EN" or "ES"
+    resource_string = Column(String(500),
+                             nullable=False) # language-specific string
 
-    created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
-    last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+    created_date = Column(DateTime,
+                          server_default=text('CURRENT_TIMESTAMP'), nullable=False)
+    last_updated = Column(DateTime,
+                          nullable=True,
+                          server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
-# ======================================================================================================
     def __init__(self, rid, language, resource_str):
         self.resource_string = resource_str
-        self.resource_id     = rid
-        self.iso639_1        = language
-        return
+        self.resource_id = rid
+        self.iso639_1 = language
 
     @staticmethod
     def load_resource_by_id(session, rid, lang):
-        q = session.query(Resource).filter_by(resource_id = rid, iso639_1 = lang)
-        r = q.one_or_none()
-        return r
+        """get a specific resource (string) by id & language"""
+        query = session.query(Resource).\
+            filter_by(resource_id=rid, iso639_1=lang)
+        resource = query.one_or_none()
+        return resource
 
     @staticmethod
     def load_resources(session):
+        """load resources. get it all (probably for caching)"""
         # let's read the entire table in
-        resource_map = session.query(Resource).all()
+        global RESOURCE_MAP
+        RESOURCE_MAP = session.query(Resource).all()
 
     @staticmethod
-    def create_resource(rid, language, resource_str):
-        r = Resource(rid, language, resource_str)
-        return r
+    def create_resource(rid: int, language: str, resource_str: str):
+        """create a resource object, not written to db"""
+        resource = Resource(rid, language, resource_str)
+        return resource
 
     @staticmethod
-    def write_resource(session, r):
-        session.add(r)
+    def write_resource(session, resource) -> None:
+        """create a resource"""
+        session.add(resource)
         session.flush()
 
     @staticmethod
     def find_resource_by_string(resource_string: str, lang: str, session):
-        q = session.query(Resource).filter(Resource.resource_string==resource_string, Resource.iso639_1==lang)
-        r = q.first()
-        return r
+        """returns a resource by name & language"""
+        query = session.query(Resource).filter(Resource.resource_string == resource_string,
+                                               Resource.iso639_1 == lang)
+        resource = query.first()
+        return resource
 
     @staticmethod
     def create_new_resource(session, lang: str, resource_str: str):
+        """create a new resource"""
         try:
-            r = Resource(None, lang, resource_str)
-            session.add(r)
+            resource = Resource(None, lang, resource_str)
+            session.add(resource)
             session.commit()
-            return r
+            return resource
         except Exception as e:
             logger.exception(msg="error creating new resource")
             session.close()

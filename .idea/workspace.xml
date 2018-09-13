@@ -7,9 +7,11 @@
     <bookmark url="file://$PROJECT_DIR$/models/usermgr.py" line="127" mnemonic="1" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="- more pylint cleanup - real errors found!">
+    <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="- clean up errors for Linux-only attribute error">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/iiServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/iiServer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/resources.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/resources.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/traction.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/traction.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -249,7 +251,7 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestLogin_test_anon_authentication.coverage" NAME="Unittests for test_REST_login.TestLogin.test_anon_authentication Coverage Results" MODIFIED="1504201356551" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestUserRewards_test_user_firstreward.coverage" NAME="Unittests for test_REST_login.TestUserRewards.test_user_firstreward Coverage Results" MODIFIED="1506708686093" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_user_TestUserMgr_test_authenticate_not_exist.coverage" NAME="Unittests for test_user.TestUserMgr.test_authenticate_not_exist Coverage Results" MODIFIED="1496345134148" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/genesis$all_unit_tests.coverage" NAME="all unit tests Coverage Results" MODIFIED="1536862892654" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/genesis$all_unit_tests.coverage" NAME="all unit tests Coverage Results" MODIFIED="1536863418559" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_photo_TestPhoto_test_safe_write_file.coverage" NAME="Unittests for test_photo.TestPhoto.test_safe_write_file Coverage Results" MODIFIED="1501253296006" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_admin_TestCSRFevent_test_forgot_password.coverage" NAME="Unittests for test_admin.TestCSRFevent.test_forgot_password Coverage Results" MODIFIED="1502375967366" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_event_TestEvent_test_event_init.coverage" NAME="Unittests for test_event.TestEvent.test_event_init Coverage Results" MODIFIED="1504550164064" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -339,21 +341,21 @@
         <counts>
           <entry key="conf" value="545" />
           <entry key="dummy" value="7" />
-          <entry key="py" value="6361" />
-          <entry key="txt" value="823" />
+          <entry key="py" value="7198" />
+          <entry key="txt" value="876" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="1375" />
-          <entry key="Python" value="6361" />
+          <entry key="PLAIN_TEXT" value="1428" />
+          <entry key="Python" value="7198" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="HTML" value="2" />
           <entry key="PLAIN_TEXT" value="11" />
-          <entry key="Python" value="55" />
+          <entry key="Python" value="57" />
           <entry key="SQL" value="2" />
         </counts>
       </usages-collector>
@@ -362,7 +364,7 @@
         <counts>
           <entry key="conf" value="2" />
           <entry key="html" value="2" />
-          <entry key="py" value="55" />
+          <entry key="py" value="57" />
           <entry key="sh" value="4" />
           <entry key="sql" value="2" />
           <entry key="txt" value="5" />
@@ -372,14 +374,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/iiServer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="201">
-              <caret line="2048" column="20" selection-start-line="2048" selection-start-column="20" selection-end-line="2048" selection-end-column="20" />
+            <state relative-caret-position="1536">
+              <caret line="3119" column="10" lean-forward="true" selection-start-line="3119" selection-start-column="10" selection-end-line="3119" selection-end-column="10" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
-                <marker date="1536862892620" expanded="true" signature="12056:12095" ph="select * fro... events" />
+                <marker date="1536863890598" expanded="true" signature="12056:12095" ph="select * fro... events" />
               </folding>
             </state>
           </provider>
@@ -419,24 +421,36 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/sql_logging.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="572">
-              <caret line="26" column="18" selection-start-line="26" selection-start-column="18" selection-end-line="26" selection-end-column="18" />
-              <folding>
-                <element signature="e#0#9#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models/admin.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="660">
               <caret line="30" column="24" selection-start-line="30" selection-start-column="24" selection-end-line="30" selection-end-column="24" />
               <folding>
                 <element signature="e#31#71#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/models/traction.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="132">
+              <caret line="6" column="14" lean-forward="true" selection-start-line="6" selection-start-column="14" selection-end-line="6" selection-end-column="14" />
+              <folding>
+                <element signature="e#0#35#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/models/resources.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="726">
+              <caret line="60" column="47" selection-start-line="60" selection-start-column="47" selection-end-line="60" selection-end-column="47" />
+              <folding>
+                <element signature="e#6#68#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -468,7 +482,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>opencv_t</find>
       <find>assert</find>
       <find>test_send_</find>
       <find>create_subm</find>
@@ -498,6 +511,7 @@
       <find>: E</find>
       <find>def to_dict</find>
       <find>2</find>
+      <find>TractionLog</find>
     </findStrings>
     <replaceStrings>
       <replace>Photo</replace>
@@ -528,8 +542,8 @@
       <dir>$PROJECT_DIR$/models</dir>
       <dir>/usr/local/lib/python3.5/dist-packages/sqlalchemy</dir>
       <dir>$PROJECT_DIR$</dir>
-      <dir>C:\Users\bp100\PycharmProjects\genesis</dir>
       <dir>C:\Users\bp100\PycharmProjects\genesis\tests</dir>
+      <dir>C:\Users\bp100\PycharmProjects\genesis</dir>
     </dirStrings>
   </component>
   <component name="Git.Rebase.Settings">
@@ -569,13 +583,11 @@
         <option value="$PROJECT_DIR$/models/test_submissions.py" />
         <option value="/etc/nginx/nginx.conf" />
         <option value="$PROJECT_DIR$/handlers/sql_handler.py" />
-        <option value="$PROJECT_DIR$/models/resources.py" />
         <option value="$PROJECT_DIR$/templates/email/password_changed.html" />
         <option value="$PROJECT_DIR$/tests/test_user.py" />
         <option value="$PROJECT_DIR$/www/en-US/user/resetpassword.html" />
         <option value="$PROJECT_DIR$/tests/test_category.py" />
         <option value="$PROJECT_DIR$/daemon/sync_leaderboard.py" />
-        <option value="$PROJECT_DIR$/models/traction.py" />
         <option value="$PROJECT_DIR$/models/voting.py" />
         <option value="$PROJECT_DIR$/models/event.py" />
         <option value="$PROJECT_DIR$/models/error.py" />
@@ -603,9 +615,11 @@
         <option value="$PROJECT_DIR$/controllers/categorymgr.py" />
         <option value="$PROJECT_DIR$/models/photo.py" />
         <option value="$PROJECT_DIR$/models/userprofile.py" />
-        <option value="$PROJECT_DIR$/models/sql_logging.py" />
         <option value="$PROJECT_DIR$/models/admin.py" />
+        <option value="$PROJECT_DIR$/models/sql_logging.py" />
+        <option value="$PROJECT_DIR$/models/traction.py" />
         <option value="$PROJECT_DIR$/iiServer.py" />
+        <option value="$PROJECT_DIR$/models/resources.py" />
       </list>
     </option>
   </component>
@@ -649,11 +663,6 @@
               <item name="genesis" type="b2602c69:ProjectViewProjectNode" />
               <item name="genesis" type="462c0819:PsiDirectoryNode" />
               <item name="models" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="genesis" type="b2602c69:ProjectViewProjectNode" />
-              <item name="genesis" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -1210,22 +1219,24 @@
       <option name="project" value="LOCAL" />
       <updated>1536784041177</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary="- more pylint cleanup - real errors found!">
+      <created>1536862925919</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1536862925919</updated>
+    </task>
+    <task id="LOCAL-00032" summary="- clean up errors for Linux-only attribute error">
+      <created>1536863471391</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1536863471391</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Unittests_in_test_photo_py - 2018.09.12 at 13h 35m 25s.xml">
-      <configuration name="Unittests in test_photo.py" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_test_photo_TestPhoto_test_watermark_application - 2018.09.12 at 13h 37m 15s.xml">
-      <configuration name="Unittests for test_photo.TestPhoto.test_watermark_application" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_test_photo_TestPhoto_test_watermark_application - 2018.09.12 at 13h 37m 36s.xml">
-      <configuration name="Unittests for test_photo.TestPhoto.test_watermark_application" configurationId="tests" />
-    </history-entry>
-    <history-entry file="all_unit_tests - 2018.09.12 at 13h 40m 31s.xml">
-      <configuration name="all unit tests" configurationId="tests" />
-    </history-entry>
     <history-entry file="all_unit_tests - 2018.09.12 at 13h 45m 07s.xml">
       <configuration name="all unit tests" configurationId="tests" />
     </history-entry>
@@ -1244,10 +1255,21 @@
     <history-entry file="all_unit_tests - 2018.09.12 at 16h 28m 52s.xml">
       <configuration name="all unit tests" configurationId="tests" />
     </history-entry>
+    <history-entry file="all_unit_tests - 2018.09.13 at 14h 23m 44s.xml">
+      <configuration name="all unit tests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="all_unit_tests - 2018.09.13 at 14h 29m 50s.xml">
+      <configuration name="all unit tests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="all_unit_tests - 2018.09.13 at 14h 30m 16s.xml">
+      <configuration name="all unit tests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="all_unit_tests - 2018.09.13 at 14h 30m 24s.xml">
+      <configuration name="all unit tests" configurationId="tests" />
+    </history-entry>
   </component>
   <component name="ToolWindowManager">
     <frame x="1333" y="356" width="2329" height="1527" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.26443368" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -1318,7 +1340,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="default &quot;Hello World!&quot; and using port 80" />
     <MESSAGE value="Create" />
     <MESSAGE value="adding Ballot and Category class.&#10;Add some sample photos for unit tests&#10;Unit Test operation the OpenCV image library&#10;" />
     <MESSAGE value="clean up schema initialization&#10;" />
@@ -1343,14 +1364,15 @@
     <MESSAGE value="- fix up import of local test" />
     <MESSAGE value="- commment out failing test&#10;- pylint cleanup on dbsetup" />
     <MESSAGE value="- more pylint cleanup - real errors found!" />
-    <option name="LAST_COMMIT_MESSAGE" value="- more pylint cleanup - real errors found!" />
+    <MESSAGE value="- clean up errors for Linux-only attribute error" />
+    <option name="LAST_COMMIT_MESSAGE" value="- clean up errors for Linux-only attribute error" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/resources.py</url>
-          <line>63</line>
+          <line>73</line>
           <option name="timeStamp" value="1520" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1365,12 +1387,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>2258</line>
-          <option name="timeStamp" value="1714" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>2115</line>
+          <line>2127</line>
           <option name="timeStamp" value="1721" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1385,11 +1402,6 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>2277</line>
-          <option name="timeStamp" value="1752" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/iiServer.py</url>
           <line>1535</line>
           <option name="timeStamp" value="1823" />
         </line-breakpoint>
@@ -1397,21 +1409,6 @@
           <url>file://$PROJECT_DIR$/iiServer.py</url>
           <line>789</line>
           <option name="timeStamp" value="1829" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>2915</line>
-          <option name="timeStamp" value="1865" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>2917</line>
-          <option name="timeStamp" value="1866" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/iiServer.py</url>
-          <line>2908</line>
-          <option name="timeStamp" value="1867" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/uploader.py</url>
@@ -1457,6 +1454,11 @@
           <url>file://$PROJECT_DIR$/tests/test_photo.py</url>
           <line>386</line>
           <option name="timeStamp" value="1964" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/models/sql_logging.py</url>
+          <line>26</line>
+          <option name="timeStamp" value="1966" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
@@ -1506,20 +1508,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/models/engagement.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="191">
-          <caret line="118" column="46" lean-forward="true" selection-start-line="118" selection-start-column="46" selection-end-line="118" selection-end-column="46" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/models/resources.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="50" column="14" lean-forward="true" selection-start-line="50" selection-start-column="14" selection-end-line="50" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.PyCharm2017.2/system/python_stubs/-1247971764/errno.py" />
     <entry file="file://D:/Python/Python36-32/Lib/site-packages/sqlalchemy/engine/strategies.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -1843,20 +1831,30 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/models/userprofile.py">
+    <entry file="file://$PROJECT_DIR$/tests/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="267">
-          <caret line="75" lean-forward="true" selection-start-line="75" selection-end-line="75" />
+        <state relative-caret-position="440">
+          <caret line="26" selection-start-line="26" selection-end-line="26" />
+          <folding>
+            <element signature="e#27#42#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/models/sql_logging.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="572">
-          <caret line="26" column="18" selection-start-line="26" selection-start-column="18" selection-end-line="26" selection-end-column="18" />
+        <state relative-caret-position="352">
+          <caret line="16" column="40" lean-forward="true" selection-start-line="16" selection-start-column="40" selection-end-line="16" selection-end-column="40" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/userprofile.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="267">
+          <caret line="75" lean-forward="true" selection-start-line="75" selection-end-line="75" />
         </state>
       </provider>
     </entry>
@@ -1870,23 +1868,33 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/__init__.py">
+    <entry file="file://$PROJECT_DIR$/iiServer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="440">
-          <caret line="26" selection-start-line="26" selection-end-line="26" />
+        <state relative-caret-position="1536">
+          <caret line="3119" column="10" lean-forward="true" selection-start-line="3119" selection-start-column="10" selection-end-line="3119" selection-end-column="10" />
           <folding>
-            <element signature="e#27#42#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
+            <marker date="1536863890598" expanded="true" signature="12056:12095" ph="select * fro... events" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/iiServer.py">
+    <entry file="file://$PROJECT_DIR$/models/traction.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="201">
-          <caret line="2048" column="20" selection-start-line="2048" selection-start-column="20" selection-end-line="2048" selection-end-column="20" />
+        <state relative-caret-position="132">
+          <caret line="6" column="14" lean-forward="true" selection-start-line="6" selection-start-column="14" selection-end-line="6" selection-end-column="14" />
           <folding>
-            <element signature="e#0#9#0" expanded="true" />
-            <marker date="1536862892620" expanded="true" signature="12056:12095" ph="select * fro... events" />
+            <element signature="e#0#35#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/resources.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="726">
+          <caret line="60" column="47" selection-start-line="60" selection-start-column="47" selection-end-line="60" selection-end-column="47" />
+          <folding>
+            <element signature="e#6#68#0" expanded="true" />
           </folding>
         </state>
       </provider>
