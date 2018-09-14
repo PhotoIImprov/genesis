@@ -1,64 +1,65 @@
-import sqlalchemy
-from sqlalchemy.schema import DDL
-from sqlalchemy        import Column, Integer, String, DateTime, text, ForeignKey, exc
-from sqlalchemy.orm import relationship
-import uuid
-from dbsetup           import Base
+"""classes we use to manage photo images"""
 import os, os.path, errno
-import dbsetup
-from models import category
-import pymysql
+import uuid
 import base64
-import sys
-from models import error
+import hashlib
+from io import BytesIO
+import json
+import sqlalchemy
+from sqlalchemy import Column, Integer, String, DateTime, text, ForeignKey
+from sqlalchemy.orm import relationship
 from PIL import Image, ImageDraw, ImageFont
 from PIL.ExifTags import TAGS, GPSTAGS
-from io import BytesIO
 import piexif
 from retrying import retry
-import json
-import hashlib
 from logsetup import logger, timeit
 from cache.ExpiryCache import _expiry_cache
-#import cv2
-#import numpy
+from dbsetup import Base
+import dbsetup
+from models import category
+from models import error
+
 
 class PhotoImage():
+    """simple class to encapulate the image data"""
     _binary_image = None
     _extension = None
     def __init__(self):
         pass
 
-class Photo(Base):
 
+class Photo(Base):
+    """our photo object, knows how to save photos"""
     __tablename__ = 'photo'
     __table_args__ = {'extend_existing':True}
 
-    id           = Column(Integer, primary_key = True, autoincrement=True)
-    user_id      = Column(Integer, ForeignKey("anonuser.id", name="fk_photo_user_id"), nullable=False, index=True)
-    category_id  = Column(Integer, ForeignKey("category.id",  name="fk_photo_category_id"), nullable=False, index=True)
-    filepath     = Column(String(500), nullable=False)         # e.g. '/mnt/images/49269d/394f9/d431'
-    filename     = Column(String(100), nullable=False)         # e.g. '970797dfd9f149269d394f9d43179d64.jpeg'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("anonuser.id", name="fk_photo_user_id"),
+                     nullable=False, index=True)
+    category_id = Column(Integer, ForeignKey("category.id",
+                                             name="fk_photo_category_id"), nullable=False, index=True)
+    filepath = Column(String(500), nullable=False)         # e.g. '/mnt/images/49269d/394f9/d431'
+    filename = Column(String(100), nullable=False)         # e.g. '970797dfd9f149269d394f9d43179d64.jpeg'
     times_voted  = Column(Integer, nullable=False, default=0)  # number of votes on this photo
-    score        = Column(Integer, nullable=False, default=0)  # calculated score based on ballot returns
-    likes        = Column(Integer, nullable=False, default=0)  # number of "likes" given this photo
-    active       = Column(Integer, nullable=False, default=1)  # if =0, then ignore the photo as if it didn't exist
-    sqlalchemy.UniqueConstraint('filename', 'category_id', name='uix_photo_filename_cid')
+    score = Column(Integer, nullable=False, default=0)  # calculated score based on ballot returns
+    likes = Column(Integer, nullable=False, default=0)  # number of "likes" given this photo
+    active = Column(Integer, nullable=False, default=1)  # if =0, then ignore the photo as if it didn't exist
+    sqlalchemy.UniqueConstraint('filename', 'category_id',
+                                name='uix_photo_filename_cid')
 
     created_date = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'), nullable=False)
-    last_updated = Column(DateTime, nullable=True, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
+    last_updated = Column(DateTime, nullable=True,
+                          server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') )
 
-    _photometa = relationship("PhotoMeta", uselist=False, backref="photo", cascade="all, delete-orphan")
+    _photometa = relationship("PhotoMeta", uselist=False,
+                              backref="photo", cascade="all, delete-orphan")
 
-# ======================================================================================================
-
-    _uuid          = None
-    _sub_path      = None
+    _uuid = None
+    _sub_path = None
     _full_filename = None
-    _mnt_point     = None   # "root path" to prefix, where folders are to be created
-    _orientation   = None   # orientation of the photo/thumbnail image
-    _photoimage    = None
-# ======================================================================================================
+    _mnt_point = None   # "root path" to prefix, where folders are to be created
+    _orientation = None   # orientation of the photo/thumbnail image
+    _photoimage = None
 
     def __init__(self, *args, **kwargs):
         self.id = kwargs.get('pid')
@@ -89,19 +90,19 @@ class Photo(Base):
     # okay, if the directory hasn't been created this will fail!
     @staticmethod
     @timeit()
-    def write_file(path_and_name: str, fdata: bytes) -> None:
-        if fdata is None or path_and_name is None:
+    def write_file(path_and_name: str, file_data: bytes) -> None:
+        if file_data is None or path_and_name is None:
             raise Exception(errno.EINVAL)
 
         # okay we have a path and a filename, so let's try to create it
-        fp = open(path_and_name, "wb")
-        if fp is None:
+        file_pointer = open(path_and_name, "wb")
+        if file_pointer is None:
             raise Exception(errno.EBADF)
 
-        bytes_written = fp.write(fdata)
-        if (bytes_written != len(fdata)):
+        bytes_written = file_pointer.write(file_data)
+        if bytes_written != len(file_data):
             raise Exception(errno.EBADF)
-        fp.close()
+        file_pointer.close()
         return
 
     @staticmethod
@@ -139,12 +140,13 @@ class Photo(Base):
         return
 
     def create_name(self) -> str:
+        """create the filename for our photo"""
         self._uuid = uuid.uuid1()
         self.filename = str(self._uuid)
         return self.filename
 
-
     def create_sub_path(self) -> None:
+        """create a path based on the guid value"""
         # paths are generated from filenames
         # paths are designed to hold no more 1000 entries,
         # so must be 10 bits in length. Three levels should give us 1 billion!
@@ -162,10 +164,10 @@ class Photo(Base):
         # our filename is a uuid, we need to convert it back to one
 
         assert isinstance(self._uuid, object)
-        dir1 = ( (self._uuid.time_low >> 29) & 0x7) + ((self._uuid.time_mid << 3) & 0x3F8)
-        dir2 = ( (self._uuid.time_mid >> 3) & 0x3FF)
-        dir3 = ( (self._uuid.time_mid >> 13) & 0x3FF)
-        self._sub_path = '{:03}/{:03}/{:03}'.format( dir3, dir2, dir1)
+        dir1 = ((self._uuid.time_low >> 29) & 0x7) + ((self._uuid.time_mid << 3) & 0x3F8)
+        dir2 = ((self._uuid.time_mid >> 3) & 0x3FF)
+        dir3 = ((self._uuid.time_mid >> 13) & 0x3FF)
+        self._sub_path = '{:03}/{:03}/{:03}'.format(dir3, dir2, dir1)
 
         # The rest of the path needs to come from our configuration
         # The file name is the input UUID from which we generated the
@@ -174,17 +176,19 @@ class Photo(Base):
         # <configuration root path>/<generated path>/<uuid>.<filetype>
         #
 
-    def create_full_path(self, rpath: str) -> None:
+    def create_full_path(self, relative_path: str) -> None:
+        """create full path for the file"""
         # we should have our sub_path calculated. Now we need to
         # append the root to fully specify where the file shall go
-        if rpath is None:
+        if relative_path is None:
             self.filepath = self._sub_path
         else:
-            self.filepath = rpath + "/" + self._sub_path
+            self.filepath = relative_path + "/" + self._sub_path
 
         return
 
     def create_full_filename(self, extension: str) -> str:
+        """create full filename for the photo, including the path"""
         self._full_filename = self.filepath + "/" + self.filename + "." + extension
         return self._full_filename
 
@@ -195,12 +199,12 @@ class Photo(Base):
         self.create_full_path(self._mnt_point) # put it all together
         return self.create_full_filename(extension)
 
-
     def create_thumb_filename(self) -> str:
         thumb_filename = self.filepath + "/th_" + self.filename + ".jpg"
         return thumb_filename
 
     def samsung_fix(self, exif_dict: dict, exif_data: list) -> None:
+        """code to fix an EXIF bug in specifi Samsung phone images"""
         try:
             if 'Make' not in exif_data or 'Orientation' not in exif_data:
                 return
@@ -268,6 +272,7 @@ class Photo(Base):
     # Note: We also create the thumbnail file as well
     @timeit()
     def save_user_image(self, session, pi: PhotoImage, uid: int, cid: int) -> dict:
+        """everything we need to save a user's image to the image store"""
         err = None
         if pi._binary_image is None or uid is None or cid is None:
             return {'error': error.iiServerErrors.INVALID_ARGS, 'arg': None}
@@ -289,7 +294,6 @@ class Photo(Base):
         self.category_id = cid
         session.add(self)
         return {'error': None, 'arg': self.filename}
-
 
     def compute_scalefactor(self, height: int, width: int) -> float:
         """
@@ -318,6 +322,7 @@ class Photo(Base):
     # get the raw exif data, not decoding
     @timeit()
     def get_exif_dict(self, pil_img: Image) -> dict:
+        """retrieve the photos EXIF data as a dictionary"""
         info = pil_img._getexif()
         if info is None:
             logger.warning(msg='no EXIF data in file, making dummy data file for {0}/{1}'.format(self.filepath, self.filename))
@@ -532,21 +537,22 @@ class Photo(Base):
 
     @staticmethod
     def last_submitted_photo(session, uid: int) -> dict:
-        q = session.query(Photo).filter(Photo.user_id == uid).order_by(Photo.created_date.desc())
-        p = q.first() # top entry
-        if p is not None:
-            c = category.Category.read_category_by_id(p.category_id, session)
-            b64img = p.read_photo_to_b64()
-            return {'error':None, 'arg':{'image':b64img, 'category':c}}
+        """get the last photo submitted, return it and it's category"""
+        query = session.query(Photo).filter(Photo.user_id == uid).order_by(Photo.created_date.desc())
+        last_photo = query.first() # top entry
+        if last_photo is not None:
+            photo_category = category.Category.read_category_by_id(last_photo.category_id, session)
+            b64img = last_photo.read_photo_to_b64()
+            return {'error':None, 'arg':{'image':b64img, 'category':photo_category}}
 
         return {'error':"Nothing found", 'arg':None}
 
     @staticmethod
     def read_photo_by_filename(session, uid: int, fn: str) -> bytes:
         # okay the "filename" is the field stashed in the database
-        q = session.query(Photo).filter_by(filename = fn)
-        p = q.one()
-        return p.read_photo_to_b64()
+        query = session.query(Photo).filter_by(filename = fn)
+        photo = query.one()
+        return photo.read_photo_to_b64()
 
     @staticmethod
     def read_photo(session, uid: int, cid: int):

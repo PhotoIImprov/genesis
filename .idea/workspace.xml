@@ -4,25 +4,12 @@
     <option name="SCOPE_TYPE" value="3" />
   </component>
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/models/usermgr.py" line="127" mnemonic="1" />
+    <bookmark url="file://$PROJECT_DIR$/models/usermgr.py" line="130" mnemonic="1" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="- clean up Pylint errors (using global)">
-      <change afterPath="$PROJECT_DIR$/controllers/BallotMgr.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/controllers/RewardMgr.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/controllers/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/controllers/eventmgr.py" afterDir="false" />
+    <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="- fix up error in test for oAuth content missing id field">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/categorymgr.py" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/categorymgr.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/iiServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/iiServer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/event.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/event.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_REST_login.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_REST_login.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_ballot.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_ballot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_category.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_category.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_engagement.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_engagement.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_event.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_event.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_submissions.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_submissions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_voting.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_voting.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/photo.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/photo.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -121,6 +108,7 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_event_TestEvent_test_active_voting_list_for_voting_state.coverage" NAME="Unittests for test_event.TestEvent.test_active_voting_list_for_voting_state Coverage Results" MODIFIED="1504630608895" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_photo_TestPhoto_test_save_fake_user_image.coverage" NAME="Unittests for test_photo.TestPhoto.test_save_fake_user_image Coverage Results" MODIFIED="1494616076613" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_category_TestCategory_test_read_all_categories.coverage" NAME="Unittests for test_category.TestCategory.test_read_all_categories Coverage Results" MODIFIED="1500743291504" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_oAuth2_Test_oAuth2_test_facebook_inject_content_missing_id.coverage" NAME="Unittests for test_oAuth2.Test_oAuth2.test_facebook_inject_content_missing_id Coverage Results" MODIFIED="1536945524816" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_photo_TestPhoto_test_create_full_file_path.coverage" NAME="Unittests for test_photo.TestPhoto.test_create_full_file_path Coverage Results" MODIFIED="1494099692632" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_admin_TestCSRFevent_test_bad_template_name.coverage" NAME="Unittests for test_admin.TestCSRFevent.test_bad_template_name Coverage Results" MODIFIED="1507741352373" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittest_TestLogin_test_bad_password_auth.coverage" NAME="Unittest TestLogin.test_bad_password_auth Coverage Results" MODIFIED="1490641803003" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -263,7 +251,7 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestLogin_test_anon_authentication.coverage" NAME="Unittests for test_REST_login.TestLogin.test_anon_authentication Coverage Results" MODIFIED="1504201356551" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestUserRewards_test_user_firstreward.coverage" NAME="Unittests for test_REST_login.TestUserRewards.test_user_firstreward Coverage Results" MODIFIED="1506708686093" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_user_TestUserMgr_test_authenticate_not_exist.coverage" NAME="Unittests for test_user.TestUserMgr.test_authenticate_not_exist Coverage Results" MODIFIED="1496345134148" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/genesis$all_unit_tests.coverage" NAME="all unit tests Coverage Results" MODIFIED="1536939113164" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/genesis$all_unit_tests.coverage" NAME="all unit tests Coverage Results" MODIFIED="1536952796272" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_photo_TestPhoto_test_safe_write_file.coverage" NAME="Unittests for test_photo.TestPhoto.test_safe_write_file Coverage Results" MODIFIED="1501253296006" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_admin_TestCSRFevent_test_forgot_password.coverage" NAME="Unittests for test_admin.TestCSRFevent.test_forgot_password Coverage Results" MODIFIED="1502375967366" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_event_TestEvent_test_event_init.coverage" NAME="Unittests for test_event.TestEvent.test_event_init Coverage Results" MODIFIED="1504550164064" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -321,9 +309,9 @@
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_event_TestEvent_test_event_manager_bad_date_too_early.coverage" NAME="Unittests for test_event.TestEvent.test_event_manager_bad_date_too_early Coverage Results" MODIFIED="1504205276415" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_REST_login_TestLogin_test_ballot_missing_args.coverage" NAME="Unittests for test_REST_login.TestLogin.test_ballot_missing_args Coverage Results" MODIFIED="1494184560530" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_category_TestCategory_test_create_category_next_start_date.coverage" NAME="Unittests for test_category.TestCategory.test_create_category_next_start_date Coverage Results" MODIFIED="1505740899635" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_oAuth2_Test_oAuth2_test_facebook_inject_content_missing_email.coverage" NAME="Unittests for test_oAuth2.Test_oAuth2.test_facebook_inject_content_missing_email Coverage Results" MODIFIED="1500319910540" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_event_TestEvent_test_event_manager.coverage" NAME="Unittests for test_event.TestEvent.test_event_manager Coverage Results" MODIFIED="1504208983625" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_admin_TestCSRFevent_test_send_forgot_password_email.coverage" NAME="Unittests for test_admin.TestCSRFevent.test_send_forgot_password_email Coverage Results" MODIFIED="1533239968013" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_oAuth2_Test_oAuth2_test_facebook_inject_content_missing_email.coverage" NAME="Unittests for test_oAuth2.Test_oAuth2.test_facebook_inject_content_missing_email Coverage Results" MODIFIED="1536944885312" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_tests_test_REST_login_TestLogin_test_root_page.coverage" NAME="Unittests for tests.test_REST_login.TestLogin.test_root_page Coverage Results" MODIFIED="1493224746285" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_voting_TestVoting_test_voting_max.coverage" NAME="Unittests for test_voting.TestVoting.test_voting_max Coverage Results" MODIFIED="1506624196946" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/genesis$Unittests_for_test_engagement_TestEngagement_test_consecutive_voting_days_multiple_votes_per_day.coverage" NAME="Unittests for test_engagement.TestEngagement.test_consecutive_voting_days_multiple_votes_per_day Coverage Results" MODIFIED="1506452582342" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -353,21 +341,21 @@
         <counts>
           <entry key="conf" value="545" />
           <entry key="dummy" value="7" />
-          <entry key="py" value="9245" />
-          <entry key="txt" value="920" />
+          <entry key="py" value="10738" />
+          <entry key="txt" value="1029" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="1472" />
-          <entry key="Python" value="9245" />
+          <entry key="PLAIN_TEXT" value="1581" />
+          <entry key="Python" value="10738" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="HTML" value="2" />
           <entry key="PLAIN_TEXT" value="11" />
-          <entry key="Python" value="87" />
+          <entry key="Python" value="92" />
           <entry key="SQL" value="2" />
         </counts>
       </usages-collector>
@@ -376,7 +364,7 @@
         <counts>
           <entry key="conf" value="2" />
           <entry key="html" value="2" />
-          <entry key="py" value="87" />
+          <entry key="py" value="92" />
           <entry key="sh" value="4" />
           <entry key="sql" value="2" />
           <entry key="txt" value="5" />
@@ -386,121 +374,13 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/iiServer.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1">
-              <caret line="1173" column="15" selection-start-line="1173" selection-start-column="15" selection-end-line="1173" selection-end-column="15" />
-              <folding>
-                <element signature="e#0#9#0" expanded="true" />
-                <marker date="1536938305709" expanded="true" signature="12089:12128" ph="select * fro... events" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_REST_login.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="311">
-              <caret line="1443" selection-start-line="1443" selection-end-line="1443" />
-              <folding>
-                <element signature="e#0#9#0" expanded="true" />
-                <marker date="1536938305671" expanded="true" signature="32866:32926" ph="update photo... " />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_submissions.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="707">
-              <caret line="363" column="26" selection-start-line="363" selection-start-column="26" selection-end-line="363" selection-end-column="26" />
-              <folding>
-                <element signature="e#0#29#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/tests/test_event.py">
+        <entry file="file://$PROJECT_DIR$/models/photo.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="289">
-              <caret line="374" lean-forward="true" selection-start-line="374" selection-end-line="374" />
+            <state relative-caret-position="-1911">
+              <caret line="555" lean-forward="true" selection-start-line="555" selection-end-line="555" />
               <folding>
-                <element signature="e#0#29#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_voting.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="357">
-              <caret line="624" selection-start-line="624" selection-end-line="624" />
-              <folding>
-                <element signature="e#0#29#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/controllers/eventmgr.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="311">
-              <caret line="71" column="34" selection-start-line="71" selection-start-column="34" selection-end-line="71" selection-end-column="34" />
-              <folding>
-                <element signature="e#43#55#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_ballot.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="660">
-              <caret line="30" selection-start-line="30" selection-end-line="30" />
-              <folding>
-                <element signature="e#0#17#0" expanded="true" />
-                <marker date="1536938119918" expanded="true" signature="1510:1839" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_category.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="264">
-              <caret line="12" selection-start-line="12" selection-end-line="12" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_engagement.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="5940">
-              <caret line="270" column="60" selection-start-line="270" selection-start-column="60" selection-end-line="270" selection-end-column="60" />
-              <folding>
-                <element signature="e#0#29#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/controllers/BallotMgr.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="263">
-              <caret line="76" column="45" selection-start-line="76" selection-start-column="37" selection-end-line="76" selection-end-column="45" />
-              <folding>
-                <element signature="e#53#65#0" expanded="true" />
+                <element signature="e#44#69#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -533,7 +413,6 @@
       <find>TractionLog</find>
       <find>au</find>
       <find>_cl</find>
-      <find>assert</find>
       <find>CategoryM</find>
       <find>EventM</find>
       <find>EventMana</find>
@@ -550,6 +429,7 @@
       <find>categorymgr.EventManager</find>
       <find>categorymgr.TallyMan</find>
       <find>Reward</find>
+      <find>assert</find>
     </findStrings>
     <replaceStrings>
       <replace>Photo</replace>
@@ -576,8 +456,8 @@
       <replace>categorymgr.TallyMan</replace>
       <replace>&quot;&quot;&quot;</replace>
       <replace>RewardMgr.RewardManager</replace>
-      <replace>RewardMgr.TallyMan</replace>
       <replace>eventmgr.EventManager</replace>
+      <replace>RewardMgr.TallyMan</replace>
     </replaceStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$/models</dir>
@@ -631,17 +511,14 @@
         <option value="$PROJECT_DIR$/models/engagement.py" />
         <option value="D:/Program Files/nginx-1.15.2/conf/nginx.conf" />
         <option value="$PROJECT_DIR$/tests/test_dbsetup.py" />
-        <option value="$PROJECT_DIR$/models/usermgr.py" />
         <option value="$PROJECT_DIR$/tests/__init__.py" />
         <option value="$PROJECT_DIR$/requirements.txt" />
         <option value="$PROJECT_DIR$/tests/test_admin.py" />
-        <option value="$PROJECT_DIR$/tests/test_oAuth2.py" />
         <option value="$PROJECT_DIR$/tests/utilities.py" />
         <option value="$PROJECT_DIR$/tests/test_photo.py" />
         <option value="$PROJECT_DIR$/tests/test_REST_voting.py" />
         <option value="$PROJECT_DIR$/tests/initialize_data.py" />
         <option value="$PROJECT_DIR$/dbsetup.py" />
-        <option value="$PROJECT_DIR$/models/photo.py" />
         <option value="$PROJECT_DIR$/models/userprofile.py" />
         <option value="$PROJECT_DIR$/models/admin.py" />
         <option value="$PROJECT_DIR$/models/sql_logging.py" />
@@ -659,8 +536,11 @@
         <option value="$PROJECT_DIR$/tests/test_voting.py" />
         <option value="$PROJECT_DIR$/tests/test_submissions.py" />
         <option value="$PROJECT_DIR$/tests/test_category.py" />
-        <option value="$PROJECT_DIR$/controllers/eventmgr.py" />
         <option value="$PROJECT_DIR$/tests/test_event.py" />
+        <option value="$PROJECT_DIR$/controllers/eventmgr.py" />
+        <option value="$PROJECT_DIR$/tests/test_oAuth2.py" />
+        <option value="$PROJECT_DIR$/models/usermgr.py" />
+        <option value="$PROJECT_DIR$/models/photo.py" />
       </list>
     </option>
   </component>
@@ -904,7 +784,7 @@
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Unittests for test_event.TestEvent.test_eventlist_next" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+    <configuration name="Unittests for test_oAuth2.Test_oAuth2.test_facebook_inject_content_missing_email" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <module name="iiServer" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -915,11 +795,11 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_event.TestEvent.test_eventlist_next&quot;" />
+      <option name="_new_target" value="&quot;test_oAuth2.Test_oAuth2.test_facebook_inject_content_missing_email&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Unittests for test_photo.TestPhoto.test_watermark_application" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+    <configuration name="Unittests for test_oAuth2.Test_oAuth2.test_facebook_inject_content_missing_id" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <module name="iiServer" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -930,7 +810,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_photo.TestPhoto.test_watermark_application&quot;" />
+      <option name="_new_target" value="&quot;test_oAuth2.Test_oAuth2.test_facebook_inject_content_missing_id&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
@@ -1017,19 +897,19 @@
       <item itemvalue="Python.iiServer" />
       <item itemvalue="Python.Cloud" />
       <item itemvalue="Python tests.all unit tests" />
-      <item itemvalue="Python tests.Unittests for test_photo.TestPhoto.test_watermark_application" />
-      <item itemvalue="Python tests.Unittests for test_event.TestEvent.test_eventlist_next" />
       <item itemvalue="Python tests.Unittests for test_REST_login.TestLeaderBoard.test_leaderboard" />
       <item itemvalue="Python tests.Unittests for test_submissions.TestSubmissions.test_user_likes" />
       <item itemvalue="Python tests.Unittests for test_category.TestCategory.test_event_categories" />
+      <item itemvalue="Python tests.Unittests for test_oAuth2.Test_oAuth2.test_facebook_inject_content_missing_email" />
+      <item itemvalue="Python tests.Unittests for test_oAuth2.Test_oAuth2.test_facebook_inject_content_missing_id" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python tests.Unittests for test_oAuth2.Test_oAuth2.test_facebook_inject_content_missing_id" />
+        <item itemvalue="Python tests.Unittests for test_oAuth2.Test_oAuth2.test_facebook_inject_content_missing_email" />
         <item itemvalue="Python tests.Unittests for test_category.TestCategory.test_event_categories" />
         <item itemvalue="Python tests.Unittests for test_submissions.TestSubmissions.test_user_likes" />
         <item itemvalue="Python tests.Unittests for test_REST_login.TestLeaderBoard.test_leaderboard" />
-        <item itemvalue="Python tests.Unittests for test_event.TestEvent.test_eventlist_next" />
-        <item itemvalue="Python tests.Unittests for test_photo.TestPhoto.test_watermark_application" />
       </list>
     </recent_temporary>
   </component>
@@ -1275,38 +1155,52 @@
       <option name="project" value="LOCAL" />
       <updated>1536864769276</updated>
     </task>
-    <option name="localTasksCounter" value="34" />
+    <task id="LOCAL-00034" summary="- some pylint cleanup&#10;- restructure controllers">
+      <created>1536939309172</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1536939309172</updated>
+    </task>
+    <task id="LOCAL-00035" summary="- fix up error in test for oAuth content missing id field">
+      <created>1536945552913</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1536945552913</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Unittests_for_test_REST_login_TestLeaderBoard_test_leaderboard - 2018.09.14 at 11h 10m 12s.xml">
-      <configuration name="Unittests for test_REST_login.TestLeaderBoard.test_leaderboard" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_test_REST_login_TestLeaderBoard_test_leaderboard - 2018.09.14 at 11h 10m 19s.xml">
-      <configuration name="Unittests for test_REST_login.TestLeaderBoard.test_leaderboard" configurationId="tests" />
-    </history-entry>
-    <history-entry file="all_unit_tests - 2018.09.14 at 11h 12m 48s.xml">
+    <history-entry file="all_unit_tests - 2018.09.14 at 11h 34m 08s.xml">
       <configuration name="all unit tests" configurationId="tests" />
     </history-entry>
-    <history-entry file="all_unit_tests - 2018.09.14 at 11h 16m 50s.xml">
+    <history-entry file="all_unit_tests - 2018.09.14 at 11h 56m 02s.xml">
       <configuration name="all unit tests" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_for_test_submissions_TestSubmissions_test_user_likes - 2018.09.14 at 11h 18m 28s.xml">
-      <configuration name="Unittests for test_submissions.TestSubmissions.test_user_likes" configurationId="tests" />
+    <history-entry file="Unittests_for_test_oAuth2_Test_oAuth2_test_facebook_inject_content_missing_email - 2018.09.14 at 13h 08m 07s.xml">
+      <configuration name="Unittests for test_oAuth2.Test_oAuth2.test_facebook_inject_content_missing_email" configurationId="tests" />
     </history-entry>
-    <history-entry file="all_unit_tests - 2018.09.14 at 11h 20m 15s.xml">
+    <history-entry file="all_unit_tests - 2018.09.14 at 13h 10m 15s.xml">
       <configuration name="all unit tests" configurationId="tests" />
     </history-entry>
-    <history-entry file="all_unit_tests - 2018.09.14 at 11h 25m 11s.xml">
-      <configuration name="all unit tests" configurationId="tests" />
+    <history-entry file="Unittests_for_test_oAuth2_Test_oAuth2_test_facebook_inject_content_missing_id - 2018.09.14 at 13h 11m 57s.xml">
+      <configuration name="Unittests for test_oAuth2.Test_oAuth2.test_facebook_inject_content_missing_id" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_for_test_category_TestCategory_test_event_categories - 2018.09.14 at 11h 27m 12s.xml">
-      <configuration name="Unittests for test_category.TestCategory.test_event_categories" configurationId="tests" />
+    <history-entry file="Unittests_for_test_oAuth2_Test_oAuth2_test_facebook_inject_content_missing_id - 2018.09.14 at 13h 13m 39s.xml">
+      <configuration name="Unittests for test_oAuth2.Test_oAuth2.test_facebook_inject_content_missing_id" configurationId="tests" />
     </history-entry>
-    <history-entry file="all_unit_tests - 2018.09.14 at 11h 29m 15s.xml">
-      <configuration name="all unit tests" configurationId="tests" />
+    <history-entry file="Unittests_for_test_oAuth2_Test_oAuth2_test_facebook_inject_content_missing_id - 2018.09.14 at 13h 13m 46s.xml">
+      <configuration name="Unittests for test_oAuth2.Test_oAuth2.test_facebook_inject_content_missing_id" configurationId="tests" />
     </history-entry>
-    <history-entry file="all_unit_tests - 2018.09.14 at 11h 31m 50s.xml">
+    <history-entry file="Unittests_for_test_oAuth2_Test_oAuth2_test_facebook_inject_content_missing_id - 2018.09.14 at 13h 15m 01s.xml">
+      <configuration name="Unittests for test_oAuth2.Test_oAuth2.test_facebook_inject_content_missing_id" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_oAuth2_Test_oAuth2_test_facebook_inject_content_missing_id - 2018.09.14 at 13h 18m 46s.xml">
+      <configuration name="Unittests for test_oAuth2.Test_oAuth2.test_facebook_inject_content_missing_id" configurationId="tests" />
+    </history-entry>
+    <history-entry file="all_unit_tests - 2018.09.14 at 13h 21m 50s.xml">
       <configuration name="all unit tests" configurationId="tests" />
     </history-entry>
   </component>
@@ -1383,8 +1277,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="adding Ballot and Category class.&#10;Add some sample photos for unit tests&#10;Unit Test operation the OpenCV image library&#10;" />
-    <MESSAGE value="clean up schema initialization&#10;" />
     <MESSAGE value="add OpenCV to requirements&#10;" />
     <MESSAGE value="script to build OpenCV with" />
     <MESSAGE value="adding tests for the leaderboard" />
@@ -1408,7 +1300,9 @@
     <MESSAGE value="- more pylint cleanup - real errors found!" />
     <MESSAGE value="- clean up errors for Linux-only attribute error" />
     <MESSAGE value="- clean up Pylint errors (using global)" />
-    <option name="LAST_COMMIT_MESSAGE" value="- clean up Pylint errors (using global)" />
+    <MESSAGE value="- some pylint cleanup&#10;- restructure controllers" />
+    <MESSAGE value="- fix up error in test for oAuth content missing id field" />
+    <option name="LAST_COMMIT_MESSAGE" value="- fix up error in test for oAuth content missing id field" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1420,12 +1314,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/photo.py</url>
-          <line>230</line>
-          <option name="timeStamp" value="1540" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/models/photo.py</url>
-          <line>276</line>
+          <line>281</line>
           <option name="timeStamp" value="1684" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1528,6 +1417,11 @@
           <line>1247</line>
           <option name="timeStamp" value="1984" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tests/test_oAuth2.py</url>
+          <line>170</line>
+          <option name="timeStamp" value="1987" />
+        </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
@@ -1576,11 +1470,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/deploy/startup.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-461" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/deploy/update_iiServer.sh">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -1632,32 +1521,10 @@
     <entry file="file://$PROJECT_DIR$/daemon/test_sync_daemon.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/models/usermgr.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="619">
-          <caret line="422" column="19" selection-start-line="422" selection-start-column="19" selection-end-line="422" selection-end-column="19" />
-          <folding>
-            <element signature="e#95#118#0" expanded="true" />
-            <marker date="1536770735632" expanded="true" signature="846:850" ph="..." />
-            <marker date="1536770735632" expanded="true" signature="1294:3693" ph="..." />
-            <marker date="1536770735632" expanded="true" signature="3402:3406" ph="..." />
-            <marker date="1536770735632" expanded="true" signature="4115:5379" ph="..." />
-            <marker date="1536770735632" expanded="true" signature="5284:5288" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/requirements.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="396">
           <caret line="18" column="12" lean-forward="true" selection-start-line="18" selection-start-column="12" selection-end-line="18" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_oAuth2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1364">
-          <caret line="76" column="18" lean-forward="true" selection-start-line="76" selection-start-column="18" selection-end-line="76" selection-end-column="18" />
         </state>
       </provider>
     </entry>
@@ -1814,16 +1681,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/models/photo.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="417">
-          <caret line="290" selection-start-line="290" selection-end-line="290" />
-          <folding>
-            <element signature="e#0#17#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/models/event.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="389">
@@ -1920,17 +1777,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/iiServer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1">
-          <caret line="1173" column="15" selection-start-line="1173" selection-start-column="15" selection-end-line="1173" selection-end-column="15" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-            <marker date="1536938305709" expanded="true" signature="12089:12128" ph="select * fro... events" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tests/test_REST_login.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="311">
@@ -1969,22 +1815,72 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/controllers/eventmgr.py">
+    <entry file="file://$PROJECT_DIR$/tests/test_event.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="311">
-          <caret line="71" column="34" selection-start-line="71" selection-start-column="34" selection-end-line="71" selection-end-column="34" />
+        <state relative-caret-position="157">
+          <caret line="368" column="10" lean-forward="true" selection-start-line="368" selection-start-column="10" selection-end-line="368" selection-end-column="10" />
           <folding>
-            <element signature="e#43#55#0" expanded="true" />
+            <element signature="e#0#29#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_event.py">
+    <entry file="file://$PROJECT_DIR$/iiServer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="374" lean-forward="true" selection-start-line="374" selection-end-line="374" />
+        <state relative-caret-position="637">
+          <caret line="1169" column="27" lean-forward="true" selection-start-line="1169" selection-start-column="27" selection-end-line="1169" selection-end-column="27" />
           <folding>
-            <element signature="e#0#29#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
+            <marker date="1536938305709" expanded="true" signature="12089:12128" ph="select * fro... events" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/controllers/eventmgr.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="311">
+          <caret line="71" selection-start-line="71" selection-end-line="71" />
+          <folding>
+            <element signature="e#43#71#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://D:/Python/Python36-32/Lib/json/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="556">
+          <caret line="353" selection-start-line="353" selection-end-line="353" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_oAuth2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="619">
+          <caret line="170" column="26" selection-start-line="170" selection-start-column="14" selection-end-line="170" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/usermgr.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="307">
+          <caret line="327" column="21" lean-forward="true" selection-start-line="327" selection-start-column="21" selection-end-line="327" selection-end-column="21" />
+          <folding>
+            <element signature="e#95#109#0" expanded="true" />
+            <marker date="1536945524781" expanded="true" signature="827:831" ph="..." />
+            <marker date="1536945524781" expanded="true" signature="1290:3945" ph="..." />
+            <marker date="1536945524781" expanded="true" signature="3503:3507" ph="..." />
+            <marker date="1536945524781" expanded="true" signature="4367:5863" ph="..." />
+            <marker date="1536945524781" expanded="true" signature="5728:5732" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/photo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1911">
+          <caret line="555" lean-forward="true" selection-start-line="555" selection-end-line="555" />
+          <folding>
+            <element signature="e#44#69#0" expanded="true" />
           </folding>
         </state>
       </provider>
