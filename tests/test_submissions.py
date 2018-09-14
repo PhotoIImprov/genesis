@@ -4,9 +4,8 @@ from models import category, photo, usermgr, resources
 from tests import DatabaseTest
 import json
 import uuid
-from sqlalchemy import func
 import datetime
-from controllers import categorymgr
+from controllers import categorymgr, RewardMgr
 from models import engagement
 
 class TestSubmissions(DatabaseTest):
@@ -296,7 +295,7 @@ class TestSubmissions(DatabaseTest):
 
         # now cycle through our photos and create feedback (likes) for them
         for p in pl:
-            fm = categorymgr.FeedbackManager(uid=au.id, pid=p.id, like=( (p.id & 0x1) == 1))
+            fm = RewardMgr.FeedbackManager(uid=au.id, pid=p.id, like=( (p.id & 0x1) == 1))
             fm.create_feedback(self.session)
         self.session.commit()
 
@@ -362,7 +361,7 @@ class TestSubmissions(DatabaseTest):
 
         # now cycle through our photos and create feedback (likes) for them
         for p in pl:
-            fm = categorymgr.FeedbackManager(uid=au.id, pid=p.id, like=True)
+            fm = RewardMgr.FeedbackManager(uid=au.id, pid=p.id, like=True)
             fm.create_feedback(self.session)
         self.session.commit()
 

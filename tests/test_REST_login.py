@@ -17,7 +17,7 @@ from models import admin, usermgr
 from tests import DatabaseTest
 from models import photo
 from sqlalchemy import func, text
-from controllers import categorymgr
+from controllers import categorymgr, RewardMgr
 from daemon import sync_leaderboard
 
 
@@ -1383,7 +1383,7 @@ class TestLeaderBoard(iiBaseUnitTest):
         TestCategory().set_category_state(c.id, category.CategoryState.VOTING)
 
         # we need to create the leaderboard
-        tm = categorymgr.TallyMan()
+        tm = RewardMgr.TallyMan()
         session = dbsetup.Session()
         tm.leaderboard_exists(session, c) # this forms connections to Redis
         lb = tm.get_leaderboard_by_category(session, c, check_exist=False)
@@ -1441,7 +1441,7 @@ class TestLeaderBoard(iiBaseUnitTest):
         TestCategory().set_category_state(c.id, category.CategoryState.VOTING)
 
         # we need to create the leaderboard
-        tm = categorymgr.TallyMan()
+        tm = RewardMgr.TallyMan()
         session = dbsetup.Session()
 
         sd = sync_leaderboard.sync_daemon()
@@ -1949,7 +1949,7 @@ class TestUserLikes(iiBaseUnitTest):
         # Now let's "like" all the odd photos
         for p in pl:
             if p.id & 0x1 == 1:
-                fm = categorymgr.FeedbackManager(uid=me._uid, pid=p.id, like=True)
+                fm = RewardMgr.FeedbackManager(uid=me._uid, pid=p.id, like=True)
                 fm.create_feedback(session)
 
         session.commit()

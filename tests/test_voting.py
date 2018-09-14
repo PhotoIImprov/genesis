@@ -14,13 +14,13 @@ from logsetup import logger
 from flask import Flask, jsonify
 import json
 import dbsetup
-from controllers import categorymgr
+from controllers import categorymgr, BallotMgr, RewardMgr
 from tests.utilities import get_photo_fullpath
 
 class TestVoting(DatabaseTest):
 
     def test_calculate_score_round2(self):
-        bm = categorymgr.BallotManager()
+        bm = BallotMgr.BallotManager()
 
         score = bm.calculate_score(1, 1, 0) # first pick of first secton
         assert(score == 7)
@@ -37,14 +37,14 @@ class TestVoting(DatabaseTest):
 
     def test_read_thumbnail_fakepid(self):
         self.setup()
-        tm = categorymgr.TallyMan()
+        tm = RewardMgr.TallyMan()
 
         th, p = tm.read_thumbnail(self.session, 0)
         assert(th == None and p == None)
 
     def test_create_leaderboard_nocid(self):
         self.setup()
-        tm = categorymgr.TallyMan()
+        tm = RewardMgr.TallyMan()
         try:
             r = tm.fetch_leaderboard(self.session, usermgr.AnonUser(uid=1), None)
         except Exception as e:
@@ -55,7 +55,7 @@ class TestVoting(DatabaseTest):
 
     def test_leaderboard_member(self):
         self.setup()
-        tm = categorymgr.TallyMan()
+        tm = RewardMgr.TallyMan()
         c = category.Category()
         c.id = 87654321
 
@@ -78,7 +78,7 @@ class TestVoting(DatabaseTest):
 
     def test_leaderboard_invalid_category(self):
         self.setup()
-        tm = categorymgr.TallyMan()
+        tm = RewardMgr.TallyMan()
         c = category.Category()
         c.id = 0
         dl = tm.fetch_leaderboard(self.session, usermgr.AnonUser(uid=0), c)
@@ -89,14 +89,14 @@ class TestVoting(DatabaseTest):
 
     def test_leaderboard_invalid_category_nocheck(self):
         self.setup()
-        tm = categorymgr.TallyMan()
+        tm = RewardMgr.TallyMan()
         lb = tm.get_leaderboard_by_category(self.session, None, check_exist=False)
         assert(lb is None)
         self.teardown()
 
     def test_create_displayname_anonymous(self):
         self.setup()
-        tm = categorymgr.TallyMan()
+        tm = RewardMgr.TallyMan()
 
         # create a user
         guid = str(uuid.uuid1())
@@ -155,7 +155,7 @@ class TestVoting(DatabaseTest):
         try:
             c = self.create_category('round 2 testing')
             u, au = self.create_user()
-            bm = categorymgr.BallotManager()
+            bm = BallotMgr.BallotManager()
             b = bm.create_ballot(self.session, u.id, c, allow_upload=False)
             assert(False)
         except Exception as e:
@@ -166,7 +166,7 @@ class TestVoting(DatabaseTest):
     #     # need to test when everything has been voted on max # of times
     #     # that we still get sent images
     #     self.setup()
-    #     tm = categorymgr.TallyMan()
+    #     tm = RewardMgr.TallyMan()
     #
     #     # 1) create a category
     #     # 2) upload 4 images
@@ -194,7 +194,7 @@ class TestVoting(DatabaseTest):
     #     # now create a new user
     #     nu, au = self.create_user()
     #
-    #     bm = categorymgr.BallotManager()
+    #     bm = BallotMgr.BallotManager()
     #     for i in range(0,_NUM_PHOTOS_UPLOADED+1): # need to ask for enough ballots to test all cases
     #         b = bm.create_ballot(self.session, nu.id, c)
     #         self.session.flush() # write ballot/ballotentries to DB
@@ -240,7 +240,7 @@ class TestVoting(DatabaseTest):
     #     self.teardown()
 
     def test_get_leaderboard_by_category_no_session(self):
-        tm = categorymgr.TallyMan()
+        tm = RewardMgr.TallyMan()
 
         hndlr = dbg_handler.DebugHandler()
         logger.addHandler(hndlr)
@@ -252,7 +252,7 @@ class TestVoting(DatabaseTest):
         assert(log['msg'] == "error getting leader board by category")
 
     def test_update_leaderboard_no_arguments(self):
-        tm = categorymgr.TallyMan()
+        tm = RewardMgr.TallyMan()
 
         hndlr = dbg_handler.DebugHandler()
         logger.addHandler(hndlr)
@@ -323,7 +323,7 @@ class TestVoting(DatabaseTest):
     def test_voting_with_tags(self):
         # need to test we can submit a ballotentry (vote) with tags
         self.setup()
-        tm = categorymgr.TallyMan()
+        tm = RewardMgr.TallyMan()
 
         # 1) create a category
         # 2) upload 4 images
@@ -351,7 +351,7 @@ class TestVoting(DatabaseTest):
         # now create a new user
         nu, au = self.create_user()
 
-        bm = categorymgr.BallotManager()
+        bm = BallotMgr.BallotManager()
         for i in range(0,_NUM_PHOTOS_UPLOADED+1): # need to ask for enough ballots to test all cases
             b = bm.create_ballot(self.session, nu.id, c)
             self.session.flush() # write ballot/ballotentries to DB
@@ -370,7 +370,7 @@ class TestVoting(DatabaseTest):
     def test_voting_offensive(self):
         # need to test we can submit a ballotentry (vote) with offensive flag
         self.setup()
-        tm = categorymgr.TallyMan()
+        tm = RewardMgr.TallyMan()
 
         # 1) create a category
         # 2) upload 4 images
@@ -398,7 +398,7 @@ class TestVoting(DatabaseTest):
         # now create a new user
         nu, au = self.create_user()
 
-        bm = categorymgr.BallotManager()
+        bm = BallotMgr.BallotManager()
         for i in range(0, _NUM_PHOTOS_UPLOADED + 1):  # need to ask for enough ballots to test all cases
             b = bm.create_ballot(self.session, nu.id, c)
             self.session.flush()  # write ballot/ballotentries to DB
@@ -508,7 +508,7 @@ class TestVoting(DatabaseTest):
 
         self.setup()
 
-        bm = categorymgr.BallotManager()
+        bm = BallotMgr.BallotManager()
 
         c = self.create_category('upload ballot test')
         assert(c is not None)
@@ -550,9 +550,9 @@ class TestVoting(DatabaseTest):
     #         u = self.create_user()
     #         assert(u is not None)
     #
-    #     bm = categorymgr.BallotManager()
+    #     bm = BallotMgr.BallotManager()
     #     num_badges = bm.badges_for_votes(self.session, u.id)
-    #     threshold, badge_award = categorymgr.BallotManager._BADGES_FOR_VOTING[0]
+    #     threshold, badge_award = BallotMgr.BallotManager._BADGES_FOR_VOTING[0]
     #     assert(threshold == 1)
     #     assert(num_badges == badge_award)
     #     self.teardown()
@@ -570,7 +570,7 @@ class TestVoting(DatabaseTest):
         self.session.add(b)
         self.session.commit()
 
-        bm = categorymgr.BallotManager()
+        bm = BallotMgr.BallotManager()
         threshold, num_badges = bm.badges_for_votes(self.session, u.id)
         assert(num_badges == 1)
 
@@ -590,9 +590,9 @@ class TestVoting(DatabaseTest):
             self.session.add(b)
         self.session.commit()
 
-        bm = categorymgr.BallotManager()
+        bm = BallotMgr.BallotManager()
         reward_threshold, num_badges = bm.badges_for_votes(self.session, u.id)
-        threshold, badge_award = categorymgr.BallotManager._BADGES_FOR_VOTING[1]
+        threshold, badge_award = BallotMgr.BallotManager._BADGES_FOR_VOTING[1]
         assert(threshold == 25)
         assert(num_badges == badge_award)
 
@@ -612,7 +612,7 @@ class TestVoting(DatabaseTest):
             self.session.add(b)
         self.session.commit()
 
-        bm = categorymgr.BallotManager()
+        bm = BallotMgr.BallotManager()
         threshold, num_badges = bm.badges_for_votes(self.session, u.id)
         assert(num_badges == 0)
 
@@ -632,9 +632,9 @@ class TestVoting(DatabaseTest):
             self.session.add(b)
         self.session.commit()
 
-        bm = categorymgr.BallotManager()
+        bm = BallotMgr.BallotManager()
         reward_threshold, num_badges = bm.badges_for_votes(self.session, u.id)
-        threshold, badge_award = categorymgr.BallotManager._BADGES_FOR_VOTING[2]
+        threshold, badge_award = BallotMgr.BallotManager._BADGES_FOR_VOTING[2]
         assert(threshold == 100)
         assert(threshold == reward_threshold)
         assert(num_badges == badge_award)

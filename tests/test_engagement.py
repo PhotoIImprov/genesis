@@ -1,15 +1,11 @@
 from unittest import TestCase
 import initschema
 import datetime
-import os, errno
 from models import photo, usermgr, engagement, voting, category
 from tests import DatabaseTest
-from sqlalchemy import func
 import dbsetup
-import iiServer
-from flask import Flask
 from sqlalchemy import func
-from controllers import categorymgr
+from controllers import categorymgr, RewardMgr
 import uuid
 
 class TestEngagement(DatabaseTest):
@@ -35,11 +31,11 @@ class TestEngagement(DatabaseTest):
         assert(ft is not None)
 
     def test_rewardmanager_instantiation(self):
-        rm = categorymgr.RewardManager()
+        rm = RewardMgr.RewardManager()
         assert(rm is not None)
 
     def test_feedbackmanager_instantiation(self):
-        fm = categorymgr.FeedbackManager()
+        fm = RewardMgr.FeedbackManager()
         assert(fm is not None)
 
     def get_tst_photo(self, session) -> photo.Photo:
@@ -55,7 +51,7 @@ class TestEngagement(DatabaseTest):
         p = self.get_tst_photo(self.session)
         assert(p is not None)
 
-        fm = categorymgr.FeedbackManager(uid=p.user_id, pid=p.id, like=True, offensive=True, tags=['tag1', 'tag2', 'tag3'])
+        fm = RewardMgr.FeedbackManager(uid=p.user_id, pid=p.id, like=True, offensive=True, tags=['tag1', 'tag2', 'tag3'])
         assert(fm is not None)
 
         fm.create_feedback(self.session)
@@ -80,7 +76,7 @@ class TestEngagement(DatabaseTest):
         self.setup()
         session = dbsetup.Session()
         au = self.create_anon_user(session)
-        rm = categorymgr.RewardManager(user_id=au.id, rewardtype=engagement.RewardType.TEST)
+        rm = RewardMgr.RewardManager(user_id=au.id, rewardtype=engagement.RewardType.TEST)
         ur = rm.award(session, 5)
         assert(ur.current_balance == 5)
         session.commit()
@@ -91,7 +87,7 @@ class TestEngagement(DatabaseTest):
         self.setup()
         session = dbsetup.Session()
         au = self.create_anon_user(session)
-        rm = categorymgr.RewardManager(user_id=au.id, rewardtype=engagement.RewardType.TEST)
+        rm = RewardMgr.RewardManager(user_id=au.id, rewardtype=engagement.RewardType.TEST)
         ur = rm.award(session, engagement._REWARDS['amount'][engagement.RewardType.TEST])
         assert(ur.current_balance == engagement._REWARDS['amount'][engagement.RewardType.TEST])
         session.commit()
@@ -108,7 +104,7 @@ class TestEngagement(DatabaseTest):
         self.setup()
         session = dbsetup.Session()
         au = self.create_anon_user(session)
-        rm = categorymgr.RewardManager(user_id=au.id, rewardtype=engagement.RewardType.TEST)
+        rm = RewardMgr.RewardManager(user_id=au.id, rewardtype=engagement.RewardType.TEST)
         ur = rm.award(session, engagement._REWARDS['amount'][engagement.RewardType.TEST])
         assert(ur.current_balance == engagement._REWARDS['amount'][engagement.RewardType.TEST])
         session.commit()
@@ -134,7 +130,7 @@ class TestEngagement(DatabaseTest):
     def test_consecutive_not_voting_days(self):
         session = dbsetup.Session()
         au = self.create_anon_user(session)
-        isConsecutive = categorymgr.RewardManager.consecutive_voting_days(session, au, 5)
+        isConsecutive = RewardMgr.RewardManager.consecutive_voting_days(session, au, 5)
         assert(not isConsecutive)
 
     def test_consecutive_voting_days(self):
@@ -163,7 +159,7 @@ class TestEngagement(DatabaseTest):
         session.commit()
 
         # now see if we have consecutive days
-        isConsecutive = categorymgr.RewardManager.consecutive_voting_days(session, au, day_span=day_span)
+        isConsecutive = RewardMgr.RewardManager.consecutive_voting_days(session, au, day_span=day_span)
         assert(isConsecutive)
 
     def test_consecutive_voting_days_multiple_votes_per_day(self):
@@ -192,10 +188,10 @@ class TestEngagement(DatabaseTest):
         session.commit()
 
         # now see if we have consecutive days
-        isConsecutive = categorymgr.RewardManager.consecutive_voting_days(session, au, day_span=day_span)
+        isConsecutive = RewardMgr.RewardManager.consecutive_voting_days(session, au, day_span=day_span)
         assert(isConsecutive)
 
-        isConsecutive = categorymgr.RewardManager.consecutive_voting_days(session, au, day_span=day_span+1)
+        isConsecutive = RewardMgr.RewardManager.consecutive_voting_days(session, au, day_span=day_span+1)
         assert(not isConsecutive)
 
     def test_consecutive_day_oneshot(self):
@@ -225,7 +221,7 @@ class TestEngagement(DatabaseTest):
         session.commit()
 
         # now see if we have consecutive days
-        categorymgr.RewardManager(user_id=au.id, rewardtype=engagement.RewardType.DAYSPLAYED_30).check_consecutive_day_rewards(session, au, engagement.RewardType.DAYSPLAYED_30)
+        RewardMgr.RewardManager(user_id=au.id, rewardtype=engagement.RewardType.DAYSPLAYED_30).check_consecutive_day_rewards(session, au, engagement.RewardType.DAYSPLAYED_30)
         session.commit()
         q = session.query(engagement.UserReward). \
             filter(engagement.UserReward.rewardtype == str(engagement.RewardType.DAYSPLAYED_30) ). \
@@ -233,7 +229,7 @@ class TestEngagement(DatabaseTest):
         ur = q.one_or_none()
         assert(ur is not None)
 
-        d_rewards = categorymgr.RewardManager.rewards(session, engagement.RewardType.LIGHTBULB, au)
+        d_rewards = RewardMgr.RewardManager.rewards(session, engagement.RewardType.LIGHTBULB, au)
         assert(d_rewards is not None)
         assert(d_rewards['vote30'])
         assert(not d_rewards['vote100'])
@@ -250,7 +246,7 @@ class TestEngagement(DatabaseTest):
         au = self.create_anon_user(session)
         assert(au is not None)
 
-        ph = categorymgr.RewardManager.max_score_photo(session, au)
+        ph = RewardMgr.RewardManager.max_score_photo(session, au)
         assert(ph is None)
         self.teardown()
 
@@ -287,11 +283,11 @@ class TestEngagement(DatabaseTest):
         session.commit()
 
         # now ask for the high scored photo
-        p = categorymgr.RewardManager.max_score_photo(session, au)
+        p = RewardMgr.RewardManager.max_score_photo(session, au)
         assert(p is not None)
         assert(p.score == i)
 
-        d_rewards = categorymgr.RewardManager.rewards(session, engagement.RewardType.LIGHTBULB, au)
+        d_rewards = RewardMgr.RewardManager.rewards(session, engagement.RewardType.LIGHTBULB, au)
         assert(d_rewards is not None)
         assert(d_rewards['HighestRatedPhotoURL'] is not None)
         assert(not d_rewards['vote30'])
@@ -341,14 +337,14 @@ class TestEngagement(DatabaseTest):
 
         session.commit()
 
-        categorymgr.RewardManager().update_rewards_for_photo(session, au)
+        RewardMgr.RewardManager().update_rewards_for_photo(session, au)
 
         # now ask for the high scored photo
-        p = categorymgr.RewardManager.max_score_photo(session, au)
+        p = RewardMgr.RewardManager.max_score_photo(session, au)
         assert(p is not None)
         assert(p.score == i)
 
-        d_rewards = categorymgr.RewardManager.rewards(session, engagement.RewardType.LIGHTBULB, au)
+        d_rewards = RewardMgr.RewardManager.rewards(session, engagement.RewardType.LIGHTBULB, au)
         assert(d_rewards is not None)
         assert(d_rewards['HighestRatedPhotoURL'] is not None)
         assert(not d_rewards['vote30'])
@@ -401,14 +397,14 @@ class TestEngagement(DatabaseTest):
 
         session.commit()
 
-        categorymgr.RewardManager().update_rewards_for_photo(session, au)
+        RewardMgr.RewardManager().update_rewards_for_photo(session, au)
 
         # now ask for the high scored photo
-        p = categorymgr.RewardManager.max_score_photo(session, au)
+        p = RewardMgr.RewardManager.max_score_photo(session, au)
         assert(p is not None)
         assert(p.score == i)
 
-        d_rewards = categorymgr.RewardManager.rewards(session, engagement.RewardType.LIGHTBULB, au)
+        d_rewards = RewardMgr.RewardManager.rewards(session, engagement.RewardType.LIGHTBULB, au)
         assert(d_rewards is not None)
         assert(d_rewards['HighestRatedPhotoURL'] is not None)
         assert(not d_rewards['vote30'])
@@ -461,14 +457,14 @@ class TestEngagement(DatabaseTest):
 
         session.commit()
 
-        categorymgr.RewardManager().update_rewards_for_photo(session, au)
+        RewardMgr.RewardManager().update_rewards_for_photo(session, au)
 
         # now ask for the high scored photo
-        p = categorymgr.RewardManager.max_score_photo(session, au)
+        p = RewardMgr.RewardManager.max_score_photo(session, au)
         assert(p is not None)
         assert(p.score == i)
 
-        d_rewards = categorymgr.RewardManager.rewards(session, engagement.RewardType.LIGHTBULB, au)
+        d_rewards = RewardMgr.RewardManager.rewards(session, engagement.RewardType.LIGHTBULB, au)
         assert(d_rewards is not None)
         assert(d_rewards['HighestRatedPhotoURL'] is not None)
         assert(not d_rewards['vote30'])

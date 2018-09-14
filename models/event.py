@@ -43,6 +43,7 @@ class Event(Base):
             raise
 
     def read_categories(self, session):
+        """an event has a list of categories, read them in"""
         try:
             q = session.query(category.Category). \
                 join(EventCategory, EventCategory.category_id == category.Category.id). \

@@ -6,9 +6,8 @@ from models import usermgr
 from models import category, voting, photo
 from tests import DatabaseTest
 import os
-import json
 from leaderboard.leaderboard import Leaderboard
-from controllers import categorymgr
+from controllers import BallotMgr
 
 class TestBallot(DatabaseTest):
 
@@ -91,7 +90,7 @@ class TestBallot(DatabaseTest):
         self.session.flush()
 
         # Now let's created a ballot
-        b = categorymgr.BallotManager().create_ballot(self.session, known_user.id, c)
+        b = BallotMgr.BallotManager().create_ballot(self.session, known_user.id, c)
         assert(b is not None)
         json_string = b.to_json()
         json_size = len(json_string)

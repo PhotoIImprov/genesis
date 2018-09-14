@@ -1,22 +1,19 @@
 import initschema
 import datetime
+import logging
+from sqlalchemy import func
+import uuid
 
 from models import resources
 from models import usermgr
 
-from models import category, voting, photo
-from controllers import categorymgr
+from models import category
+from controllers import categorymgr, eventmgr
 
 from tests import DatabaseTest
-import os
-import json
-import errno
 import logsetup
-import logging
-from handlers import dbg_handler
 from logsetup import logger
-from sqlalchemy import func
-import uuid
+from handlers import dbg_handler
 from models import event
 
 class TestCategory(DatabaseTest):
@@ -293,7 +290,7 @@ class TestCategory(DatabaseTest):
 
         try:
             start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-            em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date,
+            em = eventmgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date,
                                     categories=['fluffy', 'round', 'team'],
                                     name='Test', max_players=10, user=au, active=False, accesskey='weird-foods')
             e = em.create_event(self.session)
@@ -322,7 +319,7 @@ class TestCategory(DatabaseTest):
             assert(len(cl) > len(cl_short))
 
         except Exception as e:
-            assert(False)
+            assert False
         finally:
             self.session.close()
             self.teardown()

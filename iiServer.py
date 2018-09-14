@@ -33,7 +33,8 @@ from models import event
 from models import userprofile
 
 from logsetup import logger, client_logger, timeit
-from controllers import categorymgr
+from controllers import categorymgr, eventmgr, BallotMgr, RewardMgr
+
 
 app = Flask(__name__)
 app.debug = True
@@ -341,7 +342,7 @@ def hello():
 
     logger.info(msg='[config] List active categories')
 
-    tm = categorymgr.TallyMan()
+    tm = RewardMgr.TallyMan()
     au = usermgr.AnonUser.get_anon_user_by_id(session, 1)
     if au is None:
         htmlbody += "\n<br>No Anonymous User to work with (id=1)<br>"
@@ -507,7 +508,7 @@ def set_category_state():
         if cid is None:
             rsp = make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
         else:
-            tm = categorymgr.TallyMan()
+            tm = RewardMgr.TallyMan()
             d = tm.change_category_state(session, cid, cstate)
             session.commit()
             if d['error'] is not None:
@@ -835,7 +836,7 @@ def get_leaderboard():
         if cid is None or cid == 'None':
             rsp = make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}),status.HTTP_400_BAD_REQUEST)
         else:
-            tm = categorymgr.TallyMan()
+            tm = RewardMgr.TallyMan()
             c = category.Category.read_category_by_id(cid, session)
             lb_list = tm.fetch_leaderboard(session, au, c)
             if lb_list is not None:
@@ -1169,14 +1170,14 @@ def cast_vote():
         return make_response(jsonify({'msg': error.error_string('NO_JSON')}), status.HTTP_400_BAD_REQUEST)
 
     try:
-        u = current_identity
-        uid = u.id
+        user_context = current_identity
+        user_id = user_context.id
         votes = request.json['votes']  # list of dict() with the actual votes
     except KeyError:
-        uid = None
+        user_id = None
         votes = None
 
-    if uid is None or votes is None:
+    if user_id is None or votes is None:
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
 
     if len(votes) > 4:
@@ -1185,15 +1186,15 @@ def cast_vote():
     session = dbsetup.Session()
 
     try:
-        au = current_identity._get_current_object()
-        categorymgr.BallotManager().tabulate_votes(session, au, votes)
+        anonymous_user = current_identity._get_current_object()
+        BallotMgr.BallotManager().tabulate_votes(session, anonymous_user, votes)
     except BaseException as e:
         str_e = str(e)
         logger.exception(msg=str_e)
         session.close()
         return make_response(jsonify({'msg': error.error_string('TABULATE_ERROR')}), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    return return_ballot(session, uid=uid, cid=None, pid=None)
+    return return_ballot(session, uid=user_id, cid=None, pid=None)
 
 
 def return_ballot(session, uid: int, cid: int, pid=None):
@@ -1207,7 +1208,7 @@ def return_ballot(session, uid: int, cid: int, pid=None):
     """
     rsp = None
     try:
-        bm = categorymgr.BallotManager()
+        bm = BallotMgr.BallotManager()
         if cid is None:
             cl = bm.active_voting_categories(session, uid)
             if cl is None or len(cl) == 0:
@@ -1587,7 +1588,6 @@ def photo_upload():
 def store_photo(pi: photo.PhotoImage, uid: int, cid: int):
     rsp = None
     session = dbsetup.Session()
-    num_photos_in_category = 0
     try:
         p = photo.Photo()
         d = p.save_user_image(session, pi, uid, cid)
@@ -2427,7 +2427,7 @@ def update_photometa(pid: int):
     session = dbsetup.Session()
     rsp = None
     try:
-        fbm = categorymgr.FeedbackManager(uid=u.id, pid=pid, like=like, offensive=offensive, tags=tags)
+        fbm = RewardMgr.FeedbackManager(uid=u.id, pid=pid, like=like, offensive=offensive, tags=tags)
         fbm.create_feedback(session)
         session.commit()
         rsp = make_response(jsonify({'msg': 'feedback updated'}), status.HTTP_200_OK)
@@ -2533,10 +2533,10 @@ def create_event():
 
     session = dbsetup.Session()
     try:
-        em = categorymgr.EventManager(user=current_identity, name=eventname, start_date=startdate, num_players=numplayers, upload_duration=upload_duration, vote_duration=voting_duration, categories=categories)
+        em = eventmgr.EventManager(user=current_identity, name=eventname, start_date=startdate, num_players=numplayers, upload_duration=upload_duration, vote_duration=voting_duration, categories=categories)
         e = em.create_event(session)
         session.commit()
-        d_el = categorymgr.EventManager.event_details(session, current_identity._get_current_object(), e.id)
+        d_el = eventmgr.EventManager.event_details(session, current_identity._get_current_object(), e.id)
         logger.info(msg="[/newevent] user {0} has created event {1}".format(u.id, em._e.accesskey))
         return make_response(jsonify(d_el), status.HTTP_201_CREATED)
     except Exception as e:
@@ -2591,9 +2591,9 @@ def join_event():
     session = dbsetup.Session()
     try:
         accesskey = request.args.get('accesskey')
-        e = categorymgr.EventManager.join_event(session, accesskey, current_identity._get_current_object())
+        e = eventmgr.EventManager.join_event(session, accesskey, current_identity._get_current_object())
         logger.info(msg="[/joinevent]user #{0} successfully joined event #{1}".format(current_identity.id, e.id))
-        d_el = categorymgr.EventManager.event_details(session, current_identity._get_current_object(), e.id)
+        d_el = eventmgr.EventManager.event_details(session, current_identity._get_current_object(), e.id)
         session.commit()
         return make_response(jsonify(d_el), status.HTTP_200_OK)
     except KeyError as ke:
@@ -2675,7 +2675,7 @@ def event_status():
 
     session = dbsetup.Session()
     try:
-        d_el = categorymgr.EventManager.events_for_user(session, current_identity._get_current_object())
+        d_el = eventmgr.EventManager.events_for_user(session, current_identity._get_current_object())
         return make_response(jsonify(d_el), status.HTTP_200_OK)
     except KeyError:
         session.close()
@@ -2785,7 +2785,7 @@ def event_details(event_id):
 
     session = dbsetup.Session()
     try:
-        d_el = categorymgr.EventManager.event_details(session, current_identity._get_current_object(), event_id)
+        d_el = eventmgr.EventManager.event_details(session, current_identity._get_current_object(), event_id)
         return make_response(jsonify(d_el), status.HTTP_200_OK)
     except KeyError:
         session.close()
@@ -2987,7 +2987,7 @@ def get_reward():
     session = dbsetup.Session()
     try:
         au = current_identity._get_current_object()
-        d_rewards = categorymgr.RewardManager.rewards(session, engagement.RewardType.LIGHTBULB, au)
+        d_rewards = RewardMgr.RewardManager.rewards(session, engagement.RewardType.LIGHTBULB, au)
         if d_rewards is None:
             return make_response('', status.HTTP_204_NO_CONTENT)
 
@@ -3089,7 +3089,7 @@ def event_photos(dir: str, cid: int):
     if dir != 'next' and dir != 'prev':
         return make_response(jsonify({'msg': error.error_string('MISSING_ARGS')}), status.HTTP_400_BAD_REQUEST)
     try:
-        d_events = categorymgr.EventManager.event_list(session, au, dir, cid)
+        d_events = eventmgr.EventManager.event_list(session, au, dir, cid)
         if d_events is None:
             return make_response('', status.HTTP_204_NO_CONTENT)
         return make_response(jsonify(d_events), status.HTTP_200_OK)

@@ -1,17 +1,11 @@
 from unittest import TestCase
 import initschema
 import datetime
-import os, errno
 from models import category, usermgr, event, voting, photo
 from tests import DatabaseTest
-from sqlalchemy import func
 import dbsetup
-import iiServer
-from flask import Flask
-from tests.test_REST_login import TestUser
 import uuid
-from controllers import categorymgr
-import json
+from controllers import categorymgr, eventmgr, BallotMgr
 from tests.utilities import get_photo_fullpath
 
 
@@ -86,7 +80,7 @@ class TestEvent(DatabaseTest):
         self.setup()
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         u = self.create_user(self.session)
-        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round', 'team'],
+        em = eventmgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round', 'team'],
                                name='Test', max_players=10, user=u, active=False, accesskey='weird-foods')
         self.teardown()
 
@@ -94,7 +88,7 @@ class TestEvent(DatabaseTest):
         self.setup()
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         u = self.create_user(self.session)
-        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round', 'team'],
+        em = eventmgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round', 'team'],
                                name='Test', max_players=10, user=u, active=False, accesskey='weird-foods')
         em.create_event(self.session)
 
@@ -106,7 +100,7 @@ class TestEvent(DatabaseTest):
         start_date = (datetime.datetime.now() - datetime.timedelta(minutes=10)).strftime('%Y-%m-%d %H:%M')
         try:
             u = self.create_user(self.session)
-            em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date,
+            em = eventmgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date,
                                     categories=['fluffy', 'round', 'team'],
                                     name='Test', max_players=10, user=u, active=False, accesskey='weird-foods')
             assert(False)
@@ -120,7 +114,7 @@ class TestEvent(DatabaseTest):
         start_date = (datetime.datetime.now() - datetime.timedelta(minutes=10)).strftime('%Y-%m-%d %H:%M')
         try:
             u = self.create_user(self.session)
-            em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date,
+            em = eventmgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date,
                                     categories=None,
                                     name='Test', max_players=10, user=u, active=False, accesskey='weird-foods')
             assert(False)
@@ -133,7 +127,7 @@ class TestEvent(DatabaseTest):
         self.setup()
 
         try:
-            passphrase = categorymgr.PassPhraseManager().select_passphrase(self.session)
+            passphrase = eventmgr.PassPhraseManager().select_passphrase(self.session)
             assert(passphrase is not None)
             assert(len(passphrase) == 9)
         except Exception as e:
@@ -145,7 +139,7 @@ class TestEvent(DatabaseTest):
         self.setup()
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         u = self.create_user(self.session)
-        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round', 'team'],
+        em = eventmgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round', 'team'],
                                name='Test', max_players=10, user=u, active=False, accesskey='weird-foods')
         em.create_event(self.session)
 
@@ -153,7 +147,7 @@ class TestEvent(DatabaseTest):
         assert(accesskey is not None)
 
         # let's try to join this event, we are already in it so no harm, no foul
-        e = categorymgr.EventManager.join_event(self.session, accesskey, u)
+        e = eventmgr.EventManager.join_event(self.session, accesskey, u)
         assert(e is not None)
         assert(e._cl is not None)
         assert(len(e._cl) == 3)
@@ -164,7 +158,7 @@ class TestEvent(DatabaseTest):
         self.setup()
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         u = self.create_user(self.session)
-        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round', 'team'],
+        em = eventmgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round', 'team'],
                                name='Test', max_players=10, user=u, active=False, accesskey='weird-foods')
         em.create_event(self.session)
 
@@ -173,7 +167,7 @@ class TestEvent(DatabaseTest):
 
         # let's try to join this event, we are already in it so no harm, no foul
         u = self.create_user(self.session)
-        e = categorymgr.EventManager.join_event(self.session, accesskey, u)
+        e = eventmgr.EventManager.join_event(self.session, accesskey, u)
         assert(e is not None)
         assert(e._cl is not None)
         assert(len(e._cl) == 3)
@@ -189,7 +183,7 @@ class TestEvent(DatabaseTest):
         self.setup()
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         u = self.create_user(self.session)
-        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round', 'team'],
+        em = eventmgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round', 'team'],
                                name='Test', max_players=10, user=u, active=False)
         em.create_event(self.session)
 
@@ -198,14 +192,14 @@ class TestEvent(DatabaseTest):
 
         # let's try to join this event, we are already in it so no harm, no foul
         u = self.create_user(self.session)
-        e = categorymgr.EventManager.join_event(self.session, accesskey, u)
+        e = eventmgr.EventManager.join_event(self.session, accesskey, u)
         assert(e is not None)
         assert(e._cl is not None)
         assert(len(e._cl) == 3)
         self.session.commit()
 
         # join a second time!!
-        e = categorymgr.EventManager.join_event(self.session, accesskey, u)
+        e = eventmgr.EventManager.join_event(self.session, accesskey, u)
         assert(e is not None)
         assert(e._cl is not None)
         assert(len(e._cl) == 3)
@@ -222,7 +216,7 @@ class TestEvent(DatabaseTest):
         # first create an event
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         au = self.create_anon_user(self.session)
-        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
+        em = eventmgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
                                name='EventList Test#1', max_players=10, user=au, active=False)
         e1 = em.create_event(self.session)
 
@@ -230,7 +224,7 @@ class TestEvent(DatabaseTest):
 
         # let's create a second event
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        em = categorymgr.EventManager(vote_duration=36, upload_duration=96, start_date=start_date, categories=['square', 'beer', 'dogs'],
+        em = eventmgr.EventManager(vote_duration=36, upload_duration=96, start_date=start_date, categories=['square', 'beer', 'dogs'],
                                name='EventList Test#2', max_players=8, user=au, active=False)
         e2 = em.create_event(self.session)
         assert(len(em._cl) == 3)
@@ -258,7 +252,7 @@ class TestEvent(DatabaseTest):
         # first create an event
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         au = self.create_anon_user(self.session)
-        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
+        em = eventmgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
                                name='EventList Test#1', max_players=10, user=au, active=False)
         event_created = em.create_event(self.session)
 
@@ -284,7 +278,7 @@ class TestEvent(DatabaseTest):
         # first create an event
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         au = self.create_anon_user(self.session, make_staff=True)
-        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
+        em = eventmgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
                                name='EventList Test#1', max_players=10, user=au, active=False)
         event_created = em.create_event(self.session)
 
@@ -311,7 +305,7 @@ class TestEvent(DatabaseTest):
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         u = self.create_user(self.session)
         au = usermgr.AnonUser.get_anon_user_by_id(self.session, u.id)
-        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
+        em = eventmgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
                                name='EventList Test#1', max_players=10, user=au, active=False)
         event_created = em.create_event(self.session)
 
@@ -351,11 +345,11 @@ class TestEvent(DatabaseTest):
                 self.write_photo_to_category(self.session, c, au)
                 self.write_photo_to_category(self.session, c, second_au)
 
-        active_open_cl = categorymgr.BallotManager().active_voting_categories(self.session, au.id)
+        active_open_cl = BallotMgr.BallotManager().active_voting_categories(self.session, au.id)
 
         # now create an event with Categories
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
+        em = eventmgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
                                name='EventList Test#1', max_players=10, user=au, active=False)
         e1 = em.create_event(self.session)
         assert(len(em._cl) == 2)
@@ -379,7 +373,7 @@ class TestEvent(DatabaseTest):
 
         self.session.commit()
 
-        active_cl = categorymgr.BallotManager().active_voting_categories(self.session, au.id)
+        active_cl = BallotMgr.BallotManager().active_voting_categories(self.session, au.id)
         assert(len(active_cl) == (len(em._cl) + len(cl)))
         self.teardown()
 
@@ -469,14 +463,14 @@ class TestEvent(DatabaseTest):
         # first create an event
         start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         au = self.create_anon_user(self.session)
-        em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
+        em = eventmgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
                                name='EventList Test#1', max_players=10, user=au, active=False)
         e = em.create_event(self.session)
 
         assert(len(em._cl) == 2)
 
         # now get the details for the first element
-        e_dict = categorymgr.EventManager.event_details(self.session, au, e.id)
+        e_dict = eventmgr.EventManager.event_details(self.session, au, e.id)
         assert(e_dict is not None)
         cl = e_dict['categories']
         assert(len(cl) == 2)
@@ -497,29 +491,30 @@ class TestEvent(DatabaseTest):
         eu = event.EventUser(user=u, event=e, active=True)
         assert(eu.user_id == 123 and eu.event_id == 456 and eu.active)
 
-
-    def create_event_categories(self, au: usermgr.AnonUser, num_events: int):
-        # now create an event with Categories
-        for i in range(0,num_events):
+    def create_event_categories(self, anonymous_user: usermgr.AnonUser, num_events: int):
+        """ now create an event with Categories"""
+        for i in range(0, num_events):
             start_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-            em = categorymgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
-                                   name='EventList Test#{0}'.format(i), max_players=10, user=au, active=False)
-            e1 = em.create_event(self.session)
-            assert(len(em._cl) == 2)
+            event_mgr = eventmgr.EventManager(vote_duration=24, upload_duration=72, start_date=start_date, categories=['fluffy', 'round'],
+                                          name='EventList Test#{0}'.format(i), max_players=10, user=anonymous_user, active=False)
+            event_instance = event_mgr.create_event(self.session)
+            assert event_instance.num_players == 10
+
+            assert len(event_mgr._cl) == 2
 
             # change the category state to reflect what state we are testing
-            for c in em._cl:
-                c.state = category.CategoryState.UPLOAD.value
+            for category_instance in event_mgr._cl:
+                category_instance.state = category.CategoryState.UPLOAD.value
             self.session.commit()
 
             # now upload photos to these categories
-            for c in em._cl:
-                for i in range(0, dbsetup.Configuration.UPLOAD_CATEGORY_PICS):
-                    self.write_photo_to_category(self.session, c, au)
+            for category_instance in event_mgr._cl:
+                for j in range(0, dbsetup.Configuration.UPLOAD_CATEGORY_PICS):
+                    self.write_photo_to_category(self.session, category_instance, anonymous_user)
 
             # change the category state to reflect what state we are testing
-            for c in em._cl:
-                c.state = category.CategoryState.VOTING.value
+            for category_instance in event_mgr._cl:
+                category_instance.state = category.CategoryState.VOTING.value
 
             self.session.commit()
 
@@ -530,11 +525,11 @@ class TestEvent(DatabaseTest):
         au = self.create_anon_user(self.session, make_staff=False)
         self.create_event_categories(au, num_events=3)
 
-        d_events = categorymgr.EventManager.event_list(self.session, au=au, dir='next', cid=0)
-        assert(d_events is not None)
-        assert(len(d_events['events']) == 3)
+        d_events = eventmgr.EventManager.event_list(self.session, anonymous_user=au, dir='next', cid=0)
+        assert d_events is not None
+        assert len(d_events['events']) == 3
 
-        d_events = categorymgr.EventManager.event_list(self.session, au=au, dir='prev', cid=d_events['events'][2]['categories'][1]['id'])
+        d_events = eventmgr.EventManager.event_list(self.session, anonymous_user=au, dir='prev', cid=d_events['events'][2]['categories'][1]['id'])
         assert(d_events is not None)
         assert(len(d_events['events']) == 3)
 
@@ -547,7 +542,7 @@ class TestEvent(DatabaseTest):
         au = self.create_anon_user(self.session, make_staff=False)
         self.create_event_categories(au, num_events=3)
 
-        d_events = categorymgr.EventManager.event_list(self.session, au=au, dir='prev', cid=0)
+        d_events = eventmgr.EventManager.event_list(self.session, anonymous_user=au, dir='prev', cid=0)
         assert(d_events is None)
 
         self.teardown()
