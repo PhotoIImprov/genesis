@@ -1,22 +1,11 @@
 """the controller for the event model. """
-import errno
-from datetime import timedelta, datetime
-import json
-from random import shuffle
-from sqlalchemy import text
-from sqlalchemy import exists
-from sqlalchemy import func
-import redis
-from leaderboard.leaderboard import Leaderboard
-from logsetup import logger, timeit
-from cache.ExpiryCache import _expiry_cache
-from dbsetup import Configuration
-from models import error
-from models import resources
-from models import usermgr, category, event, engagement, photo, voting
+from logsetup import logger
+from models import usermgr, category, event, photo
 from controllers import categorymgr
 
+
 class EventManager():
+    """Manages the Events"""
     _nl = [] # list of resources (strings)
     _cm_list = [] # list of categories manager objects that will create our categories
     _cl = [] # list of categories we created
@@ -41,7 +30,7 @@ class EventManager():
 
     @staticmethod
     def event_list(session, anonymous_user: usermgr.AnonUser, dir: str, cid: int) -> dict:
-
+        """get a list of events for this user, pageable"""
         try:
             if dir == 'next':
                 query = session.query(event.Event). \

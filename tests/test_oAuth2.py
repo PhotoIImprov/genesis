@@ -148,7 +148,7 @@ class Test_oAuth2(DatabaseTest):
         self.teardown()
 
     def test_facebook_inject_content_missing_email(self):
-
+        """tests that if no email is given oAuth will fail"""
         self.setup()
         token ='invalid token'
         content = bytes('{"id": 12345678}', 'utf-8')
@@ -169,7 +169,7 @@ class Test_oAuth2(DatabaseTest):
         o = usermgr.UserAuth()
 
         u = o.authenticate_user(self.session, token, 'Facebook', debug_json=content)
-        assert(u is None)
+        assert u is None
 
         self.teardown()
 

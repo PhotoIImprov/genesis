@@ -1,5 +1,4 @@
 """User Manager. Contains classes to manage the user accounts, including login and creation"""
-from typing import Type
 import hashlib
 import json
 import uuid
@@ -22,12 +21,12 @@ class UserType(Enum):
     IISTAFF = 2        # an imageimprove staff member that has special powers
 
     @staticmethod
-    def to_str(type: int) -> str:
-        if type == UserType.PLAYER.value:
+    def to_str(user_type: int) -> str:
+        if user_type == UserType.PLAYER.value:
             return "PLAYER"
-        if type == UserType.IIKNOWN.value:
+        if user_type == UserType.IIKNOWN.value:
             return "iiKNOWN"
-        if type == UserType.IISTAFF.value:
+        if user_type == UserType.IISTAFF.value:
             return "iiSTAFF"
         return "INVALID"
 
@@ -48,6 +47,7 @@ class AnonUser(Base):
 
     @staticmethod
     def find_anon_user(session: orm.Session, m_guid: str):
+        """find the anonymous user by their guid identifier"""
         if session is None or m_guid is None:
             return None
 
@@ -72,7 +72,7 @@ class AnonUser(Base):
 
     @staticmethod
     def create_anon_user(session: orm.Session, m_guid: str):
-
+        """create an anonymous user"""
         if session is None or m_guid is None:
             return False
 
@@ -92,13 +92,15 @@ class AnonUser(Base):
         return anonymous_user
 
     @staticmethod
-    def get_baseurl(session: orm.Session, uid: int) -> str:
-        au = AnonUser.get_anon_user_by_id(session, uid)
+    def get_baseurl(session: orm.Session, user_id: int) -> str:
+        """get the URL that all subsequent
+        REST calls should use for this user"""
+        anonymous_user = AnonUser.get_anon_user_by_id(session, user_id)
 
-        if au is not None and au.base_id is not None:
-            b = session.query(admin.BaseURL).get(au.base_id)
-            if b is not None:
-                return b.url
+        if anonymous_user is not None and anonymous_user.base_id is not None:
+            base = session.query(admin.BaseURL).get(anonymous_user.base_id)
+            if base is not None:
+                return base.url
 
         return 'https://api.imageimprov.com/'
 
@@ -107,9 +109,9 @@ class AnonUser(Base):
 
     @staticmethod
     def is_guid(m_guid: str, m_hash: str) -> bool:
-        # okay we have a suspected guid/hash combination
-        # let's figure out if this is a guid by checking the
-        # hash
+        """okay we have a suspected guid/hash combination
+        let's figure out if this is a guid by checking the
+        hash"""
         hashed_guid = hashlib.sha224(m_guid.encode('utf-8')).hexdigest()
         if hashed_guid == m_hash:
             return True
@@ -118,7 +120,8 @@ class AnonUser(Base):
 
 
 class User(Base):
-
+    """A fully registered user. Note it's linked to the anonymous
+    user"""
     __tablename__ = 'userlogin'
 
     id = Column(Integer, ForeignKey("anonuser.id", name="fk_userlogin_id"), primary_key = True)  # ties us back to our anon_user record
@@ -130,12 +133,14 @@ class User(Base):
 
     @staticmethod
     def find_user_by_id(session: orm.Session, m_id: int):
+        """find the register user by their user id"""
         query = session.query(User).filter_by(id = m_id)
         user = query.first()
         return user
 
     @staticmethod
     def find_user_by_email(session: orm.Session, m_emailaddress: str):
+        """find the register userd by their email address"""
         # Does the user already exist?
         user = None
         try:
@@ -147,23 +152,8 @@ class User(Base):
         return user
 
     def change_password(self, session: orm.Session, password: str) -> None:
+        """update the users password"""
         self.hashedPWD = pbkdf2_sha256.hash(password, rounds=1000, salt_size=16)
-
-    # def forgot_password(self, session) -> int:
-    #     '''
-    #     User has forgotten their password, generate a new one
-    #     update their record and email it to them.
-    #     :param session:
-    #     :return:
-    #     '''
-    #     try:
-    #         new_password = self.random_password(8)
-    #         self.change_password(session, new_password)
-    #         http_status = self.send_password_email(new_password)
-    #     except Exception as e:
-    #         http_status = 500
-    #     finally:
-    #         return http_status
 
     @staticmethod
     def create_user(session: orm.Session, guid: str, username: str, password: str):
@@ -200,7 +190,7 @@ class User(Base):
 #
 # This is where all authentication calls come, we need to validate the user
 def authenticate(username: str, password: str):
-    """authenticate the user via username/pasword
+    """authenticate the user via username/password
     we check for the method of authentication
 
     oAuth2 - if user is in the oAuth table then that is how
@@ -223,12 +213,12 @@ def authenticate(username: str, password: str):
         foundAnonUser = AnonUser.find_anon_user(session, guid)
         session.close()
         return foundAnonUser
-    else:
-        found_user = User.find_user_by_email(session, username)
-        session.close()
-        if found_user is not None:
-            if pbkdf2_sha256.verify(password, found_user.hashedPWD):
-                return found_user
+
+    found_user = User.find_user_by_email(session, username)
+    session.close()
+    if found_user is not None:
+        if pbkdf2_sha256.verify(password, found_user.hashedPWD):
+            return found_user
 
     logger.debug(msg="[/auth] login failed for u:{0}, p:{1}".format(username, password))
     return None
@@ -248,8 +238,8 @@ def identity(payload: dict):
 def auth_response_handler(access_token, identity):
     if isinstance(identity, User):
         return jsonify({'access_token': access_token.decode('utf-8'), 'email': identity.emailaddress})
-    else:
-        return jsonify({'access_token': access_token.decode('utf-8')})
+
+    return jsonify({'access_token': access_token.decode('utf-8')})
 
 
 #================================= o A u t h 2  =================================================
@@ -297,42 +287,39 @@ class UserAuth(Base):
         self.version = kwargs.get('version')
         self.sid = kwargs.get('serviceprovider_id')
 
-    def authenticate_user(self, session: orm.Session, oauth2_accesstoken, serviceprovider, debug_json=None):
+    def authenticate_user(self, session: orm.Session, oauth2_accesstoken, service_provider, debug_json=None):
         """
 
         :param session:
         :param oauth2_accesstoken: string containing the oAuth2 token from the client
-        :param serviceprovider: string of the service provider (i.e. "Facebook", "Google", "Twitter", etc.)
+        :param service_provider: string of the service provider (i.e. "Facebook", "Google", "Twitter", etc.)
         :return:
         """
         if oauth2_accesstoken is None:
             logger.error(msg='access token is None!!')
             return None
-        if serviceprovider is None:
+        if service_provider is None:
             logger.error(msg='Invalid service provider = None')
             return None
 
-        serviceprovider = serviceprovider.upper()
-        if not serviceprovider in self._valid_serviceproviders:
-            logger.error(msg='Invalid service provider = {0}'.format(serviceprovider))
+        service_provider = service_provider.upper()
+        if not service_provider in self._valid_serviceproviders:
+            logger.error(msg='Invalid service provider = {0}'.format(service_provider))
             return None
 
         credentials = client.AccessTokenCredentials(oauth2_accesstoken, 'my-user-agent/1.0')
         http = httplib2.Http()
         http = credentials.authorize(http)
-        serviceprovider_email = None
-        serviceprovider_uid = None
+        service_provider_email = None
 
-        if serviceprovider == 'FAKESERVICEPROVIDER':
+        if service_provider == 'FAKESERVICEPROVIDER':
             if debug_json is not None:
                 d = json.loads(debug_json.decode("utf-8"))
-                serviceprovider_uid = d['id']
-                serviceprovider_email = d['email']
+                service_provider_email = d['email']
             else:
-                serviceprovider_email = 'fakeuser@fakeserviceprovider.com'
-                serviceprovider_uid = 123456
+                service_provider_email = 'fakeuser@fakeserviceprovider.com'
 
-        if serviceprovider == 'FACEBOOK':
+        if service_provider == 'FACEBOOK':
             try:
                 if debug_json is None:
                     response, content = http.request('https://graph.facebook.com/v2.9/me?fields=id,name,email', 'GET')
@@ -342,8 +329,9 @@ class UserAuth(Base):
                     content = debug_json
 
                 d = json.loads(content.decode("utf-8"))
-                serviceprovider_uid = d['id']
-                serviceprovider_email = d['email']
+                service_provider_email = d['email']
+                service_provider_id = d['id']
+                assert service_provider_id is not None
             except KeyError as ke:
                 logger.info(msg="Facebook response missing key {0}".format(ke.args[0]))
                 return None
@@ -351,7 +339,7 @@ class UserAuth(Base):
                 logger.info(msg="Facebook token failed {0}".format(oauth2_accesstoken))
                 return None
 
-        if serviceprovider == 'GOOGLE':
+        if service_provider == 'GOOGLE':
             try:
                 if debug_json is None:
                     response, content = http.request('https://www.googleapis.com/plus/v1/people/me', 'GET')
@@ -361,11 +349,10 @@ class UserAuth(Base):
                     content = debug_json
 
                 d = json.loads(content.decode("utf-8"))
-                serviceprovider_uid = d['id']
                 g_email_list = d['emails']
                 for m in g_email_list:
                     if m['type'] == 'account':
-                        serviceprovider_email = m['value']
+                        service_provider_email = m['value']
                         break
 
             except Exception as e:
@@ -377,25 +364,25 @@ class UserAuth(Base):
                 logger.info(msg="Google token failed {0}".format(oauth2_accesstoken))
                 return None
 
-        if serviceprovider_email is None:
+        if service_provider_email is None:
             return None
 
         # See if this user is already registered
-        au = User.find_user_by_email(session, serviceprovider_email)
-        if au is not None:
-            return au
+        anonymous_user = User.find_user_by_email(session, service_provider_email)
+        if anonymous_user is not None:
+            return anonymous_user
 
         # This is the first time we have seen this user, so create an account for them
         try:
             guid = str(uuid.uuid1())
             guid = guid.upper().translate({ord(c): None for c in '-'})
-            u = User.create_user(session, guid, serviceprovider_email, oauth2_accesstoken)
+            registered_user = User.create_user(session, guid, service_provider_email, oauth2_accesstoken)
             session.commit()
-            if u is not None:
-                logger.info(msg='Created account for serviceprovider {0}, email {1}'.format(serviceprovider, serviceprovider_email))
+            if registered_user is not None:
+                logger.info(msg='Created account for serviceprovider {0}, email {1}'.format(service_provider, service_provider_email))
             else:
-                logger.error(msg='Error creating account for serviceprovider {0}, email {1}'.format(serviceprovider, serviceprovider_email))
-            return u
+                logger.error(msg='Error creating account for serviceprovider {0}, email {1}'.format(service_provider, service_provider_email))
+            return registered_user
         except Exception as e:
             logger.exception(msg="error oAuth2 user creation")
             session.rollback()
