@@ -1,0 +1,95 @@
+# Python CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-python/ for more details
+#
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
+      - image: circleci/python:3.6.1
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "requirements.txt" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run:
+          name: upgrade pip
+          command: |
+            . venv/bin/activate
+            pip install --upgrade pip
+
+      - run:
+          name: CodeCov support
+          command: |
+            . venv/bin/activate
+            pip install codecov
+
+      - run:
+          name: install dependencies
+          command: |
+            . venv/bin/activate
+            pip install -r requirements.txt
+            pip install nose
+            pip install --quiet pylint
+            pip install --quiet nosexcover
+
+      - save_cache:
+          paths:
+            - ./venv
+          key: v1-dependencies-{{ checksum "requirements.txt" }}
+
+      # run tests!
+      # run nose for coverage
+      # run pylint for code quality
+      - run:
+          name: run tests
+          command: |
+            . venv/bin/activate
+            mkdir test-reports
+            nosetests --with-xcoverage --with-xunit --cover-package=models --cover-package=controllers --cover-package=lambda_function.py --cover-erase --cover-branches --xcoverage-file=test-reports/coverage.xml --xunit-file=test-reports/nosetests.xml
+            # mv .coverage test-reports/.coverage
+
+            # PyLint returns
+            # 0 if everything went fine
+            # 1 if some fatal message issued
+            # 2 if some error message issued
+            # 4 if some warning message issued
+            # 8 if some refactor message issued
+            # 16 if some convention message issued
+            # 32 on usage error
+            #     status 1 to 16 will be bit-ORed so you can know which different
+            #
+            #  categories has been issued by analysing pylint output status code
+            #  we can't control the error status out of PyLint, log everything 1st time
+            #  the 2nd run only looks for errors and doesn't log, but any errors will stop build
+            pylint --exit-zero -f parseable controllers models lambda_function.py > test-reports/pylint.out
+            pylint --errors-only -f parseable controllers models lambda_function.py
+            codecov --token=$CODECOV_TOKEN
+
+      - store_artifacts:
+          path: test-reports/
+
+      - store_test_results:
+          path: test-reports/
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - build
+

@@ -1,7 +1,9 @@
 #!/usr/bin/env python
-
+"""This is a service that runs on a timer and makes sure our leaderboard/cache
+is properly synchronized"""
 import sys, os, time, atexit
 from signal import SIGTERM 
+
 
 class myDaemon:
 	"""

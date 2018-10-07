@@ -25,6 +25,7 @@ _PAGE_SIZE_PHOTOS = 1000
 _THROTTLE_UPDATES_SECONDS = 0.010 # 10 milliseconds between '_PAGE_SIZE_PHOTOS' record updates
 _LEADERBOARD_SIZE = 10 # there should be at least 10 entries in the leaderboard
 
+
 class sync_daemon(python_daemon.myDaemon):
 
     _pidf = None
@@ -39,11 +40,11 @@ class sync_daemon(python_daemon.myDaemon):
         self._logf = kwargs.get('logf')
 
     def run(self, *args, **kwargs):
-        '''
+        """
         called once to kick things off, we'll sleep here and wake up
         periodically to see if there's any work to do
         :return: *never* 
-        '''
+        """
         self._redis_host = kwargs.get('ip')
         self._redis_port = kwargs.get('port')
 
@@ -71,11 +72,11 @@ class sync_daemon(python_daemon.myDaemon):
             time.sleep(schedule_time)
 
     def perform_task(self, session):
-        '''
+        """
         here's where we do all the work.
         :param session: 
         :return: 
-        '''
+        """
         cl = self.read_all_categories(session)
         tm = categorymgr.TallyMan()
         if self._redis_conn is not None:
@@ -87,13 +88,13 @@ class sync_daemon(python_daemon.myDaemon):
             self.all_photos_by_category(session, tm, c)
 
     def read_all_categories(self, session):
-        '''
+        """
         get a complete list of categories no older than 7 days
         exclude "UNKNOWN" (not open yet) and categories that
         are uploading ("UPLOAD")
         :param session: 
         :return: list of categories 
-        '''
+        """
         earliest_category = datetime.now() + timedelta(days=-7)
         q = session.query(category.Category).filter(category.Category.start_date > earliest_category).\
             filter(category.Category.state != category.CategoryState.UNKNOWN.value).\
@@ -101,25 +102,24 @@ class sync_daemon(python_daemon.myDaemon):
         return q.all()
 
     def create_key(self, lb):
-        '''
+        """
         create_key()
         rank a dummy value to create the category entry properly.
         we'll need to filter this out in the server
         :param lb: leaderboard object
         :return: 
-        '''
+        """
         lb.rank_member('0', 0, '0')
 
-
-    def leaderboard_exists(self,session, tm, c):
-        '''
+    def leaderboard_exists(self, session, tm, c):
+        """
         check if the leaderboard already exists. We use a direct
         redis connection and look for the label
         :param session: 
         :param tm: 
         :param c: 
         :return: 
-        '''
+        """
         if self._redis_conn is None:
             sl = voting.ServerList()
             d = sl.get_redis_server(session)
@@ -140,14 +140,14 @@ class sync_daemon(python_daemon.myDaemon):
         return lb_exists
 
     def all_photos_by_category(self, session, tm, c):
-        '''
+        """
         if a category doesn't have a leaderboard, we'll read in
         the photos ordered by scoring and put them in the leaderboard
         :param session: database access
         :param tm: our TallyMan(), our handle to leaderboard functions
         :param c: category we are focused on
         :return:
-        '''
+        """
         if self.leaderboard_exists(session, tm, c):
             return
 
@@ -165,14 +165,14 @@ class sync_daemon(python_daemon.myDaemon):
         time.sleep(_THROTTLE_UPDATES_SECONDS) # brief pause so machine can catch it's breath
 
     # def scored_photos_by_category(self, session, tm, c):
-    #     '''
+    #     """
     #     if a category doesn't have a leaderboard, we'll read in
     #     the photos that have scores and rank them in the leaderboard
     #     :param session: database access
     #     :param tm: our TallyMan(), our handle to leaderboard functions
     #     :param c: category we are focused on
     #     :return:
-    #     '''
+    #     """
     #     # there could be millions of records, so we need to page
     #     if self.leaderboard_exists(session, tm, c):
     #         return
@@ -230,11 +230,11 @@ def start_daemon():
 
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:
-            deamon.start()
+            daemon.start()
         elif 'stop' == sys.argv[1]:
-            deamon.stop()
+            daemon.stop()
         elif 'restart' == sys.argv[1]:
-            dameon.restart()
+            daemon.restart()
         else:
             print("unknown command")
             sys.exit(2)

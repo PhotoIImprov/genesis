@@ -7,9 +7,10 @@
     <bookmark url="file://$PROJECT_DIR$/models/usermgr.py" line="130" mnemonic="1" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="- fix up error in test for oAuth content missing id field">
+    <list default="true" id="8039dcfd-f46f-4035-a2f9-63d1b63fe5de" name="Default" comment="- some pylint cleanup and documentation">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/photo.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/photo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/daemon/python_daemon.py" beforeDir="false" afterPath="$PROJECT_DIR$/daemon/python_daemon.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/daemon/sync_leaderboard.py" beforeDir="false" afterPath="$PROJECT_DIR$/daemon/sync_leaderboard.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -326,36 +327,36 @@
     <session id="-54272911">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="5" />
-          <entry key="project.open.time.1" value="2" />
+          <entry key="project.closed" value="7" />
+          <entry key="project.open.time.1" value="3" />
           <entry key="project.open.time.13" value="1" />
           <entry key="project.open.time.27" value="1" />
-          <entry key="project.open.time.6" value="1" />
+          <entry key="project.open.time.6" value="2" />
           <entry key="project.open.time.7" value="2" />
           <entry key="project.open.time.8" value="1" />
           <entry key="project.open.time.9" value="1" />
-          <entry key="project.opened" value="9" />
+          <entry key="project.opened" value="11" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="conf" value="545" />
           <entry key="dummy" value="7" />
-          <entry key="py" value="10738" />
-          <entry key="txt" value="1029" />
+          <entry key="py" value="10865" />
+          <entry key="txt" value="1069" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="1581" />
-          <entry key="Python" value="10738" />
+          <entry key="PLAIN_TEXT" value="1621" />
+          <entry key="Python" value="10865" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="HTML" value="2" />
-          <entry key="PLAIN_TEXT" value="11" />
-          <entry key="Python" value="92" />
+          <entry key="PLAIN_TEXT" value="12" />
+          <entry key="Python" value="99" />
           <entry key="SQL" value="2" />
         </counts>
       </usages-collector>
@@ -364,23 +365,48 @@
         <counts>
           <entry key="conf" value="2" />
           <entry key="html" value="2" />
-          <entry key="py" value="92" />
+          <entry key="py" value="99" />
           <entry key="sh" value="4" />
           <entry key="sql" value="2" />
-          <entry key="txt" value="5" />
+          <entry key="txt" value="6" />
         </counts>
       </usages-collector>
+      <usages-collector id="statistics.vcs.git.usages" />
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models/photo.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1911">
-              <caret line="555" lean-forward="true" selection-start-line="555" selection-end-line="555" />
+            <state>
+              <caret line="555" selection-start-line="555" selection-end-line="555" />
               <folding>
                 <element signature="e#44#69#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/daemon/python_daemon.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-994">
+              <caret line="7" selection-start-line="7" selection-end-line="7" />
+              <folding>
+                <element signature="e#23#51#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/daemon/sync_leaderboard.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="370">
+              <caret line="212" column="24" lean-forward="true" selection-start-line="212" selection-start-column="24" selection-end-line="212" selection-end-column="24" />
+              <folding>
+                <element signature="e#23#33#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -400,8 +426,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>../</find>
-      <find>from util</find>
       <find>from test_</find>
       <find>TestUser</find>
       <find>elif</find>
@@ -430,6 +454,8 @@
       <find>categorymgr.TallyMan</find>
       <find>Reward</find>
       <find>assert</find>
+      <find>redis</find>
+      <find>'''</find>
     </findStrings>
     <replaceStrings>
       <replace>Photo</replace>
@@ -454,10 +480,10 @@
       <replace>event.Event</replace>
       <replace>categorymgr.BallotManager</replace>
       <replace>categorymgr.TallyMan</replace>
-      <replace>&quot;&quot;&quot;</replace>
       <replace>RewardMgr.RewardManager</replace>
       <replace>eventmgr.EventManager</replace>
       <replace>RewardMgr.TallyMan</replace>
+      <replace>&quot;&quot;&quot;</replace>
     </replaceStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$/models</dir>
@@ -490,7 +516,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/crossdomain.py" />
         <option value="$PROJECT_DIR$/www/en-US/policy/community-guidelines.html" />
         <option value="$PROJECT_DIR$/www/en-US/policy/privacy-policy.html" />
         <option value="$PROJECT_DIR$/www/en-US/user/passwordchanged.html" />
@@ -503,7 +528,6 @@
         <option value="$PROJECT_DIR$/templates/email/password_changed.html" />
         <option value="$PROJECT_DIR$/tests/test_user.py" />
         <option value="$PROJECT_DIR$/www/en-US/user/resetpassword.html" />
-        <option value="$PROJECT_DIR$/daemon/sync_leaderboard.py" />
         <option value="$PROJECT_DIR$/models/voting.py" />
         <option value="$PROJECT_DIR$/models/error.py" />
         <option value="$PROJECT_DIR$/tests/uploader.py" />
@@ -541,6 +565,8 @@
         <option value="$PROJECT_DIR$/tests/test_oAuth2.py" />
         <option value="$PROJECT_DIR$/models/usermgr.py" />
         <option value="$PROJECT_DIR$/models/photo.py" />
+        <option value="$PROJECT_DIR$/daemon/python_daemon.py" />
+        <option value="$PROJECT_DIR$/daemon/sync_leaderboard.py" />
       </list>
     </option>
   </component>
@@ -562,13 +588,17 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
             <path>
               <item name="genesis" type="b2602c69:ProjectViewProjectNode" />
               <item name="genesis" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="genesis" type="b2602c69:ProjectViewProjectNode" />
+              <item name="genesis" type="462c0819:PsiDirectoryNode" />
+              <item name="cache" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="genesis" type="b2602c69:ProjectViewProjectNode" />
@@ -589,6 +619,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -601,7 +632,7 @@
     <property name="WebServerToolWindowPanel.toolwindow.show.permissions" value="false" />
     <property name="WebServerToolWindowPanel.toolwindow.show.size" value="false" />
     <property name="js.eslint.eslintPackage" value="" />
-    <property name="last_opened_file_path" value="D:/Program Files/nginx-1.15.2/conf/nginx.conf" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../beerlister/.circleci/config.yml" />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="run.code.analysis.last.selected.profile" value="aDefault" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
@@ -1169,13 +1200,17 @@
       <option name="project" value="LOCAL" />
       <updated>1536945552913</updated>
     </task>
-    <option name="localTasksCounter" value="36" />
+    <task id="LOCAL-00036" summary="- some pylint cleanup and documentation">
+      <created>1536952834109</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1536952834109</updated>
+    </task>
+    <option name="localTasksCounter" value="37" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="all_unit_tests - 2018.09.14 at 11h 34m 08s.xml">
-      <configuration name="all unit tests" configurationId="tests" />
-    </history-entry>
     <history-entry file="all_unit_tests - 2018.09.14 at 11h 56m 02s.xml">
       <configuration name="all unit tests" configurationId="tests" />
     </history-entry>
@@ -1203,17 +1238,20 @@
     <history-entry file="all_unit_tests - 2018.09.14 at 13h 21m 50s.xml">
       <configuration name="all unit tests" configurationId="tests" />
     </history-entry>
+    <history-entry file="all_unit_tests - 2018.09.14 at 15h 21m 58s.xml">
+      <configuration name="all unit tests" configurationId="tests" />
+    </history-entry>
   </component>
   <component name="ToolWindowManager">
     <frame x="1401" y="137" width="2329" height="1527" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.26443368" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2688409" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32711622" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49184662" visible="true" weight="0.2934003" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49184662" weight="0.2934003" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49270833" weight="0.39741752" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -1277,7 +1315,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="add OpenCV to requirements&#10;" />
     <MESSAGE value="script to build OpenCV with" />
     <MESSAGE value="adding tests for the leaderboard" />
     <MESSAGE value="remove unused modules (opencv related) &#10;add Pillow" />
@@ -1302,7 +1339,8 @@
     <MESSAGE value="- clean up Pylint errors (using global)" />
     <MESSAGE value="- some pylint cleanup&#10;- restructure controllers" />
     <MESSAGE value="- fix up error in test for oAuth content missing id field" />
-    <option name="LAST_COMMIT_MESSAGE" value="- fix up error in test for oAuth content missing id field" />
+    <MESSAGE value="- some pylint cleanup and documentation" />
+    <option name="LAST_COMMIT_MESSAGE" value="- some pylint cleanup and documentation" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1470,40 +1508,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/deploy/update_iiServer.sh">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/deploy/deploy_iiserver.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="220">
-          <caret line="10" column="30" selection-start-line="10" selection-start-column="30" selection-end-line="10" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/opencv_tester.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="242">
-          <caret line="11" column="8" lean-forward="true" selection-start-line="11" selection-start-column="8" selection-end-line="11" selection-end-column="8" />
-          <folding>
-            <element signature="e#0#15#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/uploader.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="9" column="7" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://D:/Program Files/nginx-1.15.2/conf/nginx.conf">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="913">
-          <caret line="91" column="38" selection-start-line="91" selection-start-column="38" selection-end-line="91" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/deploy/nginx.conf">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="913">
@@ -1518,16 +1522,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/daemon/test_sync_daemon.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/requirements.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="18" column="12" lean-forward="true" selection-start-line="18" selection-start-column="12" selection-end-line="18" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/daemon/test_sync_daemon.py" />
     <entry file="file://$PROJECT_DIR$/tests/test_admin.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="460">
@@ -1539,9 +1534,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="484">
           <caret line="22" column="48" lean-forward="true" selection-start-line="22" selection-start-column="48" selection-end-line="22" selection-end-column="48" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1549,9 +1541,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="22">
           <caret line="1" selection-start-line="1" selection-end-line="1" />
-          <folding>
-            <element signature="e#399#414#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1562,13 +1551,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://D:/Python/Python36-32/Lib/site-packages/sqlalchemy/pool.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1485">
-          <caret line="767" column="20" lean-forward="true" selection-start-line="767" selection-start-column="20" selection-end-line="767" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://D:/Python/Python36-32/Lib/site-packages/sqlalchemy/pool.py" />
     <entry file="file://$PROJECT_DIR$/SQL scripts/Round 2 Voting.sql">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="388">
@@ -1620,9 +1603,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="660">
           <caret line="30" column="24" selection-start-line="30" selection-start-column="24" selection-end-line="30" selection-end-column="24" />
-          <folding>
-            <element signature="e#31#71#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1630,9 +1610,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="132">
           <caret line="6" column="14" lean-forward="true" selection-start-line="6" selection-start-column="14" selection-end-line="6" selection-end-column="14" />
-          <folding>
-            <element signature="e#0#35#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1740,9 +1717,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="254">
           <caret line="343" column="10" selection-start-line="343" selection-start-column="6" selection-end-line="343" selection-end-column="10" />
-          <folding>
-            <element signature="e#43#55#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1756,24 +1730,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_ballot.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="660">
-          <caret line="30" selection-start-line="30" selection-end-line="30" />
-          <folding>
-            <element signature="e#0#17#0" expanded="true" />
-            <marker date="1536938119918" expanded="true" signature="1510:1839" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tests/test_engagement.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="5940">
           <caret line="270" column="60" selection-start-line="270" selection-start-column="60" selection-end-line="270" selection-end-column="60" />
-          <folding>
-            <element signature="e#0#29#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1792,9 +1752,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="357">
           <caret line="624" selection-start-line="624" selection-end-line="624" />
-          <folding>
-            <element signature="e#0#29#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1802,9 +1759,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="707">
           <caret line="363" column="26" selection-start-line="363" selection-start-column="26" selection-end-line="363" selection-end-column="26" />
-          <folding>
-            <element signature="e#0#29#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1840,9 +1794,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="311">
           <caret line="71" selection-start-line="71" selection-end-line="71" />
-          <folding>
-            <element signature="e#43#71#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1875,12 +1826,65 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/models/voting.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1395">
+          <caret line="192" column="19" lean-forward="true" selection-start-line="192" selection-start-column="19" selection-end-line="192" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cache/iiMemoize.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/models/photo.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1911">
-          <caret line="555" lean-forward="true" selection-start-line="555" selection-end-line="555" />
+        <state>
+          <caret line="555" selection-start-line="555" selection-end-line="555" />
           <folding>
             <element signature="e#44#69#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/daemon/python_daemon.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-994">
+          <caret line="7" selection-start-line="7" selection-end-line="7" />
+          <folding>
+            <element signature="e#23#51#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_ballot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="596">
+          <caret line="57" column="55" selection-start-line="57" selection-start-column="55" selection-end-line="57" selection-end-column="55" />
+          <folding>
+            <element signature="e#0#17#0" expanded="true" />
+            <marker date="1536938119918" expanded="true" signature="1510:1839" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/requirements.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="242">
+          <caret line="11" column="6" lean-forward="true" selection-start-line="11" selection-start-column="6" selection-end-line="11" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cache/ExpiryCache.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-594" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/daemon/sync_leaderboard.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="370">
+          <caret line="212" column="24" lean-forward="true" selection-start-line="212" selection-start-column="24" selection-end-line="212" selection-end-column="24" />
+          <folding>
+            <element signature="e#23#33#0" expanded="true" />
           </folding>
         </state>
       </provider>
